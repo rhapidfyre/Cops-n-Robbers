@@ -14,6 +14,7 @@
 local cam
 
 -- Handles joining the server
+-- DEBUG - I added this line just for testing
 Citizen.CreateThread(function()
   
 	  exports.spawnmanager:spawnPlayer({
