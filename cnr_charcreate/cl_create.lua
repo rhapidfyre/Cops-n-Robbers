@@ -14,7 +14,6 @@
 local cam
 
 -- Handles joining the server
--- DEBUG - I added this line just for testing
 Citizen.CreateThread(function()
   
 	  exports.spawnmanager:spawnPlayer({
@@ -36,5 +35,7 @@ Citizen.CreateThread(function()
     c.rotx, c.roty, c.h,
     50.0
   )
+  
+  TriggerServerEvent('cnr:create_player')
   
 end)

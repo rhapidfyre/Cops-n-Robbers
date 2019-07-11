@@ -18,8 +18,8 @@ femaleHash = GetHashKey("mp_f_freemode_01")
 
 cams = {
   start = {
-    ped  = vector3(-1756.53, -1117.24, 0.0),
-    view = vector3(-1756.53, -1117.24, 18.0),
+    ped  = vector3(-1756.53, -1117.24, 0.0),  -- Where ped spawns
+    view = vector3(-1756.53, -1117.24, 18.0), -- Where view goes
     h    = 280.0,
     rotx = 6.0,
     roty = 0.0,
