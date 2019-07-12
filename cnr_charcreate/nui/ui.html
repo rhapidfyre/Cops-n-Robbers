@@ -218,7 +218,7 @@
           <th><button onclick="ChooseOutfit(1,3)">Sister Cousin</button></th>
         </tr>
         <tr>
-          <th><button onclick="ChooseOutfit(0,4)">Late Night</button></th>
+          <th><button onclick="ChooseOutfit(0,4)">Club Stalker</button></th>
           <th><button onclick="ChooseOutfit(1,4)">Morning Regret</button></th>
         </tr>
         <tr>
@@ -226,7 +226,7 @@
           <th><button onclick="ChooseOutfit(1,5)">Soccer Mom</button></th>
         </tr>
         <tr>
-          <th><button onclick="ChooseOutfit(0,6)">Gym Partner</button></th>
+          <th><button onclick="ChooseOutfit(0,6)">Gym Buddy</button></th>
           <th><button onclick="ChooseOutfit(1,6)">Beach Body</button></th>
         </tr>
       </table>
@@ -243,8 +243,36 @@
     <div id="dsg_pages">
       <button class="nbtn" onclick="PageChange(0)">Last Page</button>
       <button class="nbtn" onclick="PageChange(1)">Next Page</button>
-      <button class="nbtn" onclick="PageChange(0)">Reset Choices</button>
-      <button class="nbtn" onclick="PageChange(1)">Submit</button>
+      <button class="nbtn" onclick="RevertAll()">Reset Choices</button>
+      <button class="nbtn" onclick="SubmitPlayer()">Submit</button>
+    </div>
+  </div>
+  
+  <!-- Reset / Submit Confirmation -->
+  <div id="cnfm" style="display:none;">
+    <div class="confirm">
+      <!-- Reset Settings -->
+      <div class="c_action" id="c_reset" style="display:none;">
+        <br>
+        <h3>RESET SETTINGS</h3>
+        <p>This will reset your player model to default.</p>
+        <h4>ARE YOU SURE?</h4>
+        <button onclick="DoReset(1)" id="ca_reset">CONFIRM RESET</button><br><br>
+        <button onclick="DoReset(0)" id="ca_cancel">CANCEL (ESC)</button>
+        <br><br>
+      </div>
+      <!-- Approve Settings -->
+      <div class="c_action" id="c_approve" style="display:none;">
+        <br>
+        <h3>CONFIRM PLAYER</h3>
+        <p>Changes to the body are <font color="#F00">permanent</font>. <br>
+        Only your clothing, hair, and makeup can change.
+        </p>
+        <h4>ARE YOU SURE?</h4>
+        <button onclick="DoConfirm(1)" id="ca_ready">READY</button><br><br>
+        <button onclick="DoConfirm(0)" id="ca_cancel">CANCEL (ESC)</button>
+        <br><br>
+      </div>
     </div>
   </div>
   

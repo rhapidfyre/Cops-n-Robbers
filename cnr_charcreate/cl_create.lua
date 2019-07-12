@@ -155,7 +155,21 @@ end)
 
 -- DEBUG - 
 RegisterCommand('cset', function(s,a,r)
-  SetPedComponentVariation(PlayerPedId(), tonumber(a[1]), tonumber(a[2]), 0, 0)
+  SetPedComponentVariation(PlayerPedId(),
+    tonumber(a[1]), tonumber(a[2]), tonumber(a[3]), 0
+  )
+end)
+RegisterCommand('nextitem', function(s,a,r)
+  local slotNumber = tonumber(a[1])
+  local i = GetPedDrawableVariation(PlayerPedId(), slotNumber)
+  SetPedComponentVariation(PlayerPedId(), slotNumber, i+1, 0, 0)
+  print("DEBUG - Slot ["..slotNumber.."] Current item #"..i+1)
+end)
+RegisterCommand('previtem', function(s,a,r)
+  local slotNumber = tonumber(a[1])
+  local i = GetPedDrawableVariation(PlayerPedId(), slotNumber)
+  SetPedComponentVariation(PlayerPedId(), slotNumber, i-1, 0, 0)
+  print("DEBUG - Slot ["..slotNumber.."] Current item #"..i-1)
 end)
 RegisterCommand('anim', function(s, a, r)
   if a[1] and a[2] then
@@ -484,5 +498,40 @@ RegisterNUICallback("doOverlays", function(data, cb)
     SetPedEyeColor(PlayerPedId(), i)
     DesignerCamera(0.0, 1.6, 0.32, 0.0, 0.0, 0.0, 50.0)
   
+  end
+end)
+
+
+RegisterNUICallback("facialFeatures", function(data, cb)
+  if data.action == "setFeature" then
+    SetPedFaceFeature(PlayerPedId(), (data.fNum), (data.sVal)/100)
+  end
+end)
+
+
+RegisterNUICallback("clothingOptions", function(data, cb)
+  if data.action == "setOutfit" then
+    local pModel = GetEntityModel(PlayerPedId())
+    print("DEBUG - Is Male choosing a Male Outfit? ["..
+      tostring(data.sex == 0 and pModel == maleHash)..
+    "]")
+    print("DEBUG - Is Female choosing a Female Outfit? ["..
+      tostring(data.sex == 1 and pModel == femaleHash)..
+    "]")
+    if (data.sex == 0 and pModel == maleHash)   or 
+       (data.sex == 1 and pModel == femaleHash) then
+      for k,v in pairs (defaultOutfits[pModel][data.cNum]) do
+        print("DEBUG - Comp Var: "..tostring(v.slot)..", "..
+          tostring(v.draw)..", "..
+          tostring(v.text)..")"
+        )
+        SetPedComponentVariation(PlayerPedId(), v.slot, v.draw, v.text, 2)
+      end
+      if pModel == femaleHash then
+        SetPedComponentVariation(PlayerPedId(), 8, 14, 0, 2)
+      else
+        SetPedComponentVariation(PlayerPedId(), 8, 15, 0, 2)
+      end
+    end
   end
 end)

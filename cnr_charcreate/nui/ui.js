@@ -1,5 +1,6 @@
 
 var pgNumber  = 1;
+var fNumber   = 0;
 var parentOne = 0;
 var parentTwo = 21;
 
@@ -95,22 +96,14 @@ function PageChange(dir) {
 }
 
 
-function faceFeat(val) {
-  $("#dsg_feats").hide();
-  $("#feat_slide").show();
-	$.post('http://cnr_charcreate/faceFeatures', JSON.stringify({
-    action:"select",
-    section:val
-  }));
-}
-
-
 function faceConfirm() {
   $("#feat_slide").hide();
   $("#dsg_feats").show();
+  /*
 	$.post('http://cnr_charcreate/faceFeatures', JSON.stringify({
     action:"confirm"
   }));
+  */
 }
 
 
@@ -169,7 +162,7 @@ function SelectGender(val) {
 
 
 function ChangeSlider(){
-	var likeness = document.getElementById("bodyslide").value
+	var likeness = document.getElementById("bodyslide").value;
 	$.post('http://cnr_charcreate/heritage', JSON.stringify({
     action:"changeParent",
     pOne:parentOne,
@@ -204,15 +197,72 @@ function HairStyle(dir) {
 function HairColor(cVal, dir) {
   if (cVal == 1) {
     $.post('http://cnr_charcreate/doOverlays', JSON.stringify({
-      action:"hairColor",
+      action:"hairHighlight",
       direction:dir
     }));
   }
   else {
     $.post('http://cnr_charcreate/doOverlays', JSON.stringify({
-      action:"hairHighlight",
+      action:"hairColor",
       direction:dir
     }));
+  }
+}
+
+function faceFeat(val) {
+  fNumber = val;
+  $("#dsg_feats").hide();
+  $("#feat_slide").show();
+}
+
+function ChangeFeature() {
+  var sliderVal = document.getElementById("featslide").value;
+  $.post('http://cnr_charcreate/facialFeatures', JSON.stringify({
+    action:"setFeature",
+    fNum:fNumber,
+    sVal:sliderVal
+  }));
+}
+
+function ChooseOutfit(gender, outfit) {
+  $.post('http://cnr_charcreate/clothingOptions', JSON.stringify({
+    action:"setOutfit",
+    sex:gender,
+    cNum:outfit
+  }));
+}
+
+function SubmitPlayer() {
+  $("#cnfm").show();
+  $("#c_reset").hide();
+  $("#c_approve").show();
+}
+
+function RevertAll() {
+  $("#cnfm").show();
+  $("#c_approve").hide();
+  $("#c_reset").show();
+}
+
+function DoReset(val) {
+  if (val == 1) {
+    $.post('http://cnr_charcreate/finishPlayer', JSON.stringify("reset"));
+  }
+  else {
+    $("#cnfm").hide();
+    $("#c_approve").hide();
+    $("#c_reset").hide();
+  }
+}
+
+function DoConfirm(val) {
+  if (val == 1) {
+    $.post('http://cnr_charcreate/finishPlayer', JSON.stringify("apply"));
+  }
+  else {
+    $("#cnfm").hide();
+    $("#c_approve").hide();
+    $("#c_reset").hide();
   }
 }
 
