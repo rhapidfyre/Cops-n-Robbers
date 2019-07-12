@@ -12,6 +12,30 @@
 
 -- A table consisting of player's database unique id numbers
 local plyInfo = {}
+local whitelist = {
+  ["steam:110000100c58e26"] = true,
+}
+-- DEBUG - Whitelist
+local function OnPlayerConnecting(name, setKickReason, deferrals)
+  local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
+  deferrals.defer()
+  deferrals.update(string.format("Checking Whitelist for user %s", name))
+  for _,v in pairs(identifiers) do
+    if string.find(v, "steam") then 
+      steamIdentifier = v
+      break
+    end
+  end
+  if whitelist[steamIdentifier] then 
+    deferrals.done()
+  else
+    deferrals.done(
+      "Server is being Developed and you are not whitelisted. "..
+      "Please check back soon!"
+    )
+  end
+end
+AddEventHandler("playerConnecting", OnPlayerConnecting)
 
 
 function GetPlayerSteamId(ply)
