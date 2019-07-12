@@ -7,6 +7,246 @@
     </head>
 
 <body>
+  <div id="motd_bkgd" style="display: none;">
+    <img id="logo" src="logo.gif">
+    <strong>
+    www.our-future-site.net
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    https://discord.gg/FRWpsbq</strong><br/>
+    <img id="img1" src="robber.gif">
+    <img id="img2" src="cop.gif">
+    <div id="motd_fore">
+      <div id="motd_info">
+        <h3>What is Cops and Robbers (CNR)?</h3>
+        <p>CNR is a gamemode that turns the childhood game we all love
+        into a virtual depiction where you flee from the cops! There's <strong>no requirement</strong> to
+        be either - You can just join the game, play in our events, drive vehicles, or complete missions
+        and avoid the cops altogether if you wish.
+        </p>
+        <h3>So this is a Deathmatch Server?</h3>
+        <p>No.
+        It is <strong>not allowed</strong> for anyone to just randomly kill another player. It's
+        encouraged to try to escape police without resorting to murder, however,
+        deathmatch between a Cop and a Wanted is generally tolerated.
+        </p>
+        <h3>I'm a first time player, how do I start?</h3>
+        <p>Simply click 'PLAY', and you'll be taken to the one-time character designer. From then on, you'll
+        simply reconnect where ever you last logged off the next time you click 'PLAY'. Your info is
+        saved based on your Steam ID, so you can play from anywhere you can access your Steam Account.
+        </p>
+        <h3>How do I become a Cop?</h3>
+        <p>Simply visit any police department in the active area of the map to go on duty at any time.
+        More duty privileges will come as you gain levels in Law Enforcement.
+        </p>
+        <h3>How do I lose my wanted level?</h3>
+        <p>Short of giving yourself up to police, you lose wanted points every minute that
+        you're not actively being chased by police.
+        Once your Wanted Points are 0, you are Unwanted. If you're actively being chased, you will not
+        lose Wanted Points. Lose the cops to start losing Wanted Points.
+        </p>
+      </div>
+      <div id="changes">
+        <ul>CHANGELOG
+          <li><strong>Pickle Juice</strong><br>&nbsp;&nbsp;This is a test of stuff</li>
+        </ul>
+      </div>
+    </div>
+    <button id="letsplay" class="ntrdy">LOADING</button>
+  </div>
+  
+  <!-- New Player Designer -->
+  <div id="designer" style="display: none;">
+    <h3>CHARACTER DESIGNER</h3>
+    
+    <!-- Parent / Blend Decisions -->
+    <div id="dsg_parents" style="display: none;">
+      <table>
+        <tr>
+          <th colspan="2">Father</th>
+          <td></td>
+          <th colspan="2">Mother</th>
+        </tr>
+        <tr>
+          <td colspan="2" width="96px"><img id="dadpic" src="pics/0.png" width="96px" height="96px"></td>
+          <td></td>
+          <td colspan="2" width="96px"><img id="mompic" src="pics/21.png" width="96px" height="96px"></td>
+        </tr>
+        <tr>
+          <td><button onclick="Parent(1,0)" class="nbtn">&lt;&lt;</button></td>
+          <td><button onclick="Parent(1,1)" class="nbtn">&gt;&gt;</button></td>
+          <td></td>
+          <td><button onclick="Parent(2,0)" class="nbtn">&lt;&lt;</button></td>
+          <td><button onclick="Parent(2,1)" class="nbtn">&gt;&gt;</button></td>
+        </tr>
+        <tr><td></td></tr><tr><td></td></tr>
+        <tr><td></td></tr><tr><td></td></tr>
+        <tr>
+          <th colspan="5">Similarity</th>
+        </tr>
+        <tr>
+          <th colspan="5">
+            <input type="range" id="bodyslide" min="0" max="100" value="50" onchange="ChangeSlider()" oninput="ChangeSlider()">
+          </th>
+        </tr>
+        <tr><td></td></tr><tr><td></td></tr>
+        <tr><td></td></tr><tr><td></td></tr>
+        <tr>
+          <td></td>
+          <td colspan="3"><button id="fbtn" name="fbtn" onclick="SelectGender(1)">FEMALE</button></td>
+          <td></td>
+        </tr>
+        <tr><td></td></tr><tr><td></td></tr>
+        <tr>
+          <td></td>
+          <td colspan="3"><button id="mbtn" name="mbtn" onclick="SelectGender(2)">MALE</button></td> 
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- Overlays -->
+    <div id="dsg_overlays" style="display:none;">
+      <table>
+        <tr>
+        <tr>
+          <td><button onclick="SetOverlay(7,0)">&lt;&lt;</button></td>
+          <th>Skin</th>
+          <td><button onclick="SetOverlay(7,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="SetOverlay(3,0)">&lt;&lt;</button></td>
+          <th>Age Marks</th>
+          <td><button onclick="SetOverlay(3,1)">&gt;&gt;</button></td>
+        </tr>
+          <td><button onclick="SetOverlay(0,0)">&lt;&lt;</button></td>
+          <th>Blemishes</th>
+          <td><button onclick="SetOverlay(0,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="SetOverlay(9,0)">&lt;&lt;</button></td>
+          <th>Freckles</th>
+          <td><button onclick="SetOverlay(9,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr><td></td></tr>
+        <tr>
+          <td><button onclick="SetOverlay(10,0)">&lt;&lt;</button></td>
+          <th>Body Hair</th>
+          <td><button onclick="SetOverlay(10,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="SetOverlay(11,0)">&lt;&lt;</button></td>
+          <th>Body Marks</th>
+          <td><button onclick="SetOverlay(11,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr><td></td></tr>
+        <tr>
+          <td><button onclick="EyeColor(0)">&lt;&lt;</button></td>
+          <th>Eye Color</th>
+          <td><button onclick="EyeColor(1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="SetOverlay(2,0)">&lt;&lt;</button></td>
+          <th>Eyebrows</th>
+          <td><button onclick="SetOverlay(2,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr><td></td></tr>
+        <tr>
+          <td><button onclick="HairStyle(0)">&lt;&lt;</button></td>
+          <th>Hair Style</th>
+          <td><button onclick="HairStyle(1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="HairColor(0,0)">&lt;&lt;</button></td>
+          <th>Hair Color</th>
+          <td><button onclick="HairColor(0,1)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="HairColor(1,0)">&lt;&lt;</button></td>
+          <th>Highlight</th>
+          <td><button onclick="HairColor(1,1)">&gt;&gt;</button></td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- Features Designer -->
+    <div id="dsg_feats" style="display:none;">
+      <table>
+        <tr>
+          <td><button onclick="faceFeat(0)">Nose Width</button></td>
+          <td><button onclick="faceFeat(1)">Nose Height</button></td>
+          <td><button onclick="faceFeat(2)">Nose Length</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="faceFeat(3)">Nosebone Peak</button></td>
+          <td><button onclick="faceFeat(6)">Brow Height</button></td>
+          <td><button onclick="faceFeat(7)">Brow Forward</button></td>
+        </tr>
+        <tr>
+          <td><button onclick="faceFeat(8)">Cheek Height</button></td>
+          <td><button onclick="faceFeat(9)">Cheek Width</button></td>
+          <td><button onclick="faceFeat(11)">Eye Opening</button></button></td>
+        </tr>
+        <tr>
+          <td><button onclick="faceFeat(12)">Lip Thickness</button></td>
+          <td><button onclick="faceFeat(13)">Jaw<br>Width</button></td> 
+          <td><button onclick="faceFeat(14)">Jaw Height</button></td> 
+        </tr>
+      </table>
+    </div>
+    
+    <!-- Clothing Select -->
+    <div id="dsg_clothes" style="display:none;">
+      <h3>Default Outfit</h3>
+      <p>You can change your clothing options later at any clothing shop.</p>
+      <br>
+      <table>
+        <tr>
+          <th>Male</th>
+          <th>Female</th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,1)">Default David</button></th>
+          <th><button onclick="ChooseOutfit(1,1)">Default Denise</button></th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,2)">Cali Sun</button></th>
+          <th><button onclick="ChooseOutfit(1,2)">Cali Girl</button></th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,3)">Lumberjack</button></th>
+          <th><button onclick="ChooseOutfit(1,3)">Sister Cousin</button></th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,4)">Late Night</button></th>
+          <th><button onclick="ChooseOutfit(1,4)">Morning Regret</button></th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,5)">Golfer Dad</button></th>
+          <th><button onclick="ChooseOutfit(1,5)">Soccer Mom</button></th>
+        </tr>
+        <tr>
+          <th><button onclick="ChooseOutfit(0,6)">Gym Partner</button></th>
+          <th><button onclick="ChooseOutfit(1,6)">Beach Body</button></th>
+        </tr>
+      </table>
+    </div>
+  
+    <!-- Features Slider -->
+    <div id="feat_slide" style="display:none;">
+      <h3>Generic Title</h3><br/>
+      <input type="range" id="featslide" min="-100" max="100" value="0" onchange="ChangeFeature()" oninput="ChangeFeature()">
+      <button onclick="faceConfirm()">Confirm Selection</button>
+    </div>
+    
+    <!-- Important Buttons -->
+    <div id="dsg_pages">
+      <button class="nbtn" onclick="PageChange(0)">Last Page</button>
+      <button class="nbtn" onclick="PageChange(1)">Next Page</button>
+      <button class="nbtn" onclick="PageChange(0)">Reset Choices</button>
+      <button class="nbtn" onclick="PageChange(1)">Submit</button>
+    </div>
+  </div>
   
 </body>
 </html>
