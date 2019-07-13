@@ -248,22 +248,18 @@ function DoReset(val) {
   if (val == 1) {
     $.post('http://cnr_charcreate/finishPlayer', JSON.stringify("reset"));
   }
-  else {
-    $("#cnfm").hide();
-    $("#c_approve").hide();
-    $("#c_reset").hide();
-  }
+  $("#cnfm").hide();
+  $("#c_approve").hide();
+  $("#c_reset").hide();
 }
 
 function DoConfirm(val) {
   if (val == 1) {
     $.post('http://cnr_charcreate/finishPlayer', JSON.stringify("apply"));
   }
-  else {
-    $("#cnfm").hide();
-    $("#c_approve").hide();
-    $("#c_reset").hide();
-  }
+  $("#cnfm").hide();
+  $("#c_approve").hide();
+  $("#c_reset").hide();
 }
 
 

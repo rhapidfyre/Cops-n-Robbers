@@ -11,7 +11,8 @@
 --]]
 
 -- A table consisting of player's database unique id numbers
-local plyInfo = {}
+local unique = {}
+local steams = {}
 local whitelist = {
   ["steam:110000100c58e26"] = true,
 }
@@ -39,12 +40,14 @@ AddEventHandler("playerConnecting", OnPlayerConnecting)
 
 
 function GetPlayerSteamId(ply)
+  if steams[ply] then return steams[ply] end
   local sid = nil
   for _,id in pairs(GetPlayerIdentifiers(ply)) do 
     if string.sub(id, 1, string.len("steam:")) == "steam:" then
       sid = id
     end
   end
+  steams[ply] = sid
   return sid
 end
 
@@ -54,24 +57,16 @@ end
 RegisterServerEvent('cnr:create_player')
 AddEventHandler('cnr:create_player', function()
 
-  print("DEBUG - Creating Player Information.")
-
   local ply = source
   local stm = GetPlayerSteamId(ply)
   
   if stm then
-    print("DEBUG - Steam Session is Valid.")
-    exports['ghmattimysql']:execute(
+    exports['ghmattimysql']:scalar(
       "SELECT * FROM players WHERE idSteam = @steam LIMIT 1",
       {['steam'] = stm},
-      function(results)
-        if results[1] then 
-          for k,v in pairs (results) do 
-            plyInfo[ply] = v["idUnique"]
-          end
-          print("DEBUG - Saved idUnique for user "..GetPlayerName(ply))
-        else 
-          print("DEBUG - No idUnique found for user "..GetPlayerName(ply))
+      function(uid)
+        if uid then 
+          unique[ply] = uid
         end
         Citizen.Wait(200)
         TriggerClientEvent('cnr:create_ready', ply)
@@ -92,25 +87,39 @@ end)
 RegisterServerEvent('cnr:create_session')
 AddEventHandler('cnr:create_session', function()
   
-  local ply = source
-  local dt  = os.date("%H:%M", os.time())
+  local ply   = source
+  local pName = GetPlayerName(ply).. "("..ply..")"
+  local dt    = os.date("%H:%M", os.time())
   
   -- If no idUnique, then they have never played here before
-  if not plyInfo[ply] then 
-    print("[CNR "..dt.."] No Unique ID found. "..
-      GetPlayerName(ply).." ("..ply..") is going to Character Creator."
-    )
-  
-    -- DEBUG - This should be moved to after they've finished the designer
-    TriggerClientEvent('chat:addMessage', (-1), {
-      color     = {245,220,60},
-      multiline = false,
-      args      = {
-        "Please welcome our newest player",
-        GetPlayerName(ply)
-      }
-    })
+  if not unique[ply] then 
     
+    -- SQL: Insert new user account for new player
+    exports['ghmattimysql']:execute(
+      "INSERT INTO players (idSteam, ip, username, created, lastjoin) "..
+      "VALUES (@steamid, @ip, @user, NOW(), NOW())",
+      {
+        ['steamid'] = GetPlayerSteamId(ply), 
+        ['ip']      = GetPlayerEndpoint(ply),
+        ['user']    = GetPlayerName(ply)
+      },
+      function()
+        -- SQL: Get idUnique of new player
+        exports['ghmattimysql']:scalar(
+          "SELECT idUnique FROM players WHERE idSteam = @steamid",
+          {['steamid'] = GetPlayerSteamId(ply)},
+          function(uid)
+            unique[ply] = uid
+            local nt = os.date("%H:%M", os.time())
+            print(
+              "[CNR "..nt.."] Unique ID "..uid.." for  "..pName.." created."
+            )
+          end
+        )
+      end
+    )
+    
+    print("[CNR "..dt.."] Sending "..pName.." to Character Designer.")
     TriggerClientEvent('cnr:create_character', ply)
   
   -- Otherwise, they've played before
@@ -119,7 +128,7 @@ AddEventHandler('cnr:create_session', function()
     -- Retrieve all their character information
     exports['ghmattimysql']:execute(
       "SELECT * FROM characters WHERE idUnique = @uid",
-      {['uid'] = plyInfo[ply]},
+      {['uid'] = unique[ply]},
       function(plyr) 
         
         -- If character exists, load it.
@@ -142,4 +151,39 @@ AddEventHandler('cnr:create_session', function()
   end
   
 end)
+
+
+--- EVENT 'cnr:create_save_character'
+-- Received by a client when they're spawned and ready to load in
+RegisterServerEvent('cnr:create_save_character')
+AddEventHandler('cnr:create_save_character',
+  function(parents, eyes, hair, perm, temp, feats, model, outfit)
+  
+    local ply = source
+    local uid = unique[ply]
+    
+    -- SQL: Insert new player character
+    exports['ghmattimysql']:execute(
+      "INSERT INTO characters "..
+      "(idUnique, model, blenddata, hairstyle, bodystyle, overlay, clothes, preset1, preset2, preset3) "..
+      "VALUES (@uid, @mdl, @blend, @hair, @body, @tmp, @wear, @wear, @wear, @wear)",
+      {
+        ['uid']   = uid,     ['mdl']  = model,
+        ['blend'] = parents, ['hair'] = hair,   ['body'] = perm,
+        ['tmp']   = temp,    ['wear'] = outfit
+      },
+      function()
+        TriggerClientEvent('chat:addMessage', (-1), {
+          color     = {245,220,60},
+          multiline = false,
+          args      = {
+            "Please welcome our newest player",
+            GetPlayerName(ply)
+          }
+        })
+        TriggerClientEvent('cnr:create_finished', ply)
+      end
+    )
+  end
+)
 

@@ -12,10 +12,16 @@
 --]]
 
 
-local sign = GetHashKey("prop_police_id_board")
-local ovrl = GetHashKey("prop_police_id_text")
-local cb   = nil
-local ov   = nil
+local sign      = GetHashKey("prop_police_id_board")
+local ovrl      = GetHashKey("prop_police_id_text")
+local cb        = nil
+local ov        = nil
+
+local game_area = 1
+local handle    = nil
+
+local myParents = {[1] = 1, [2] = 21}
+local mySimilar = 50
 
 
  -- DEBUG - 
@@ -41,7 +47,6 @@ function PlayerJoined()
     exports.spawnmanager:setAutoSpawn(false)
     Citizen.Wait(2000)
     
-    print("DEBUG - Creating Vinewood Camera.")
     local c = cams.start
     if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
     SetCamActive(cam, true)
@@ -60,17 +65,14 @@ function PlayerJoined()
     }, function()
     
       SetPedDefaultComponentVariation(PlayerPedId())
-      print("DEBUG - Spawned Player!")
       
       Citizen.Wait(1000)
-      print("DEBUG - Opening menu.")
       
       SendNUIMessage({showwelcome = true})
       SetNuiFocus(true, true)
       
       Citizen.Wait(1200)
       TriggerServerEvent('cnr:create_player')
-      print("DEBUG - Finished.")
       
     end)
   end
@@ -87,21 +89,17 @@ end)
 RegisterNetEvent('cnr:create_character')
 AddEventHandler('cnr:create_character', function()
   
-  print("DEBUG - Fading screen.")
-  DoScreenFadeOut(400)
-  Wait(410)
+  Wait(200)
   
-  print("DEBUG - Setting default component variation.")
   SetPedDefaultComponentVariation(PlayerPedId())
-  ModifyParents(1, 21, 0.5)
+  ModifyParents(1, 21, 50)
  
   local c   = cams.creator
   SetEntityCoords(PlayerPedId(), c.ped)
   SetEntityHeading(PlayerPedId(), c.h)
   
-  print("DEBUG - Teleported player.")
   Wait(200)
-
+  
   if not DoesCamExist(cam) then
     cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
   end
@@ -118,18 +116,14 @@ AddEventHandler('cnr:create_character', function()
   RequestAnimDict(creation.dict)
   while not HasAnimDictLoaded(creation.dict) do Wait(10) end
   
-  print("DEBUG - Created camera view.")
   TaskPlayAnim(PlayerPedId(), creation.dict, creation.anim,
     8.0, 0, (-1), 2, 0, 0, 0, 0
   )
   
-  Wait(1200)
+  Wait(200)
   DoScreenFadeIn(600)
   
-  print("DEBUG - Screen returned.")
-  
   Citizen.CreateThread(CreateBoardDisplay)
-  print("DEBUG - Created mugshot board.")
   
   Wait(6400)
   
@@ -137,70 +131,65 @@ AddEventHandler('cnr:create_character', function()
     8.0, 0, (-1), 1, 0, 0, 0, 0
   )
   
-  print("DEBUG - Started animation dictionary: "..tostring(creation.dict)..".")
-  Citizen.CreateThread(function()
-    Citizen.Wait(12000)
-    if DoesEntityExist(cb) then DeleteObject(cb) end
-    if DoesEntityExist(ov) then DeleteObject(ov) end
-    print("DEBUG - Removing mugshot board.")
-  end)
-  
-  print("DEBUG - Opening Designer.")
   SendNUIMessage({opendesigner = true})
   SetNuiFocus(true, true)
     
 end)
 
 
+RegisterNetEvent('cnr:create_finished')
+AddEventHandler('cnr:create_finished', function()
 
--- DEBUG - 
-RegisterCommand('cset', function(s,a,r)
-  SetPedComponentVariation(PlayerPedId(),
-    tonumber(a[1]), tonumber(a[2]), tonumber(a[3]), 0
-  )
-end)
-RegisterCommand('nextitem', function(s,a,r)
-  local slotNumber = tonumber(a[1])
-  local i = GetPedDrawableVariation(PlayerPedId(), slotNumber)
-  SetPedComponentVariation(PlayerPedId(), slotNumber, i+1, 0, 0)
-  print("DEBUG - Slot ["..slotNumber.."] Current item #"..i+1)
-end)
-RegisterCommand('previtem', function(s,a,r)
-  local slotNumber = tonumber(a[1])
-  local i = GetPedDrawableVariation(PlayerPedId(), slotNumber)
-  SetPedComponentVariation(PlayerPedId(), slotNumber, i-1, 0, 0)
-  print("DEBUG - Slot ["..slotNumber.."] Current item #"..i-1)
-end)
-RegisterCommand('anim', function(s, a, r)
-  if a[1] and a[2] then
+  SendNUIMessage({hideallmenus = true})
+  SetNuiFocus(false)
   
-    local dict  = tostring(a[1])
-    local anim  = tostring(a[2])
-    local flags 
-    if not a[3] then flags = 0
-    else flags = tonumber(a[3]) end
-    
-    RequestAnimDict(dict)
-    while not HasAnimDictLoaded(dict) do Wait(10) end
-    TriggerEvent('chatMessage',
-      "^2Playing: ^7"..dict.." ^2(^7"..anim.."^2)"
-    )
-    TaskPlayAnim(PlayerPedId(), dict, anim,
-      8.0, 0, (-1), flags, 0, 0, 0, 0
-    )
-    
-  else
-    TriggerEvent('chatMessage',
-      "^1Animation Debugger failed. Insufficient arguments."
-    )
-  end
-end)
-RegisterCommand('stopanim', function()
+  RequestAnimDict(creation.dict)
+  while not HasAnimDictLoaded(creation.dict) do Wait(10) end
+  
+  TaskPlayAnim(PlayerPedId(), creation.dict, creation.done,
+    8.0, 0, 3200, 1, 0, 0, 0, 0
+  )
+  
+  Wait(2000)
+  DoScreenFadeOut(1000)
+  Wait(1200)
+  
+  SetCamActive(cam, false)
+  RenderScriptCams(false, true, 500, true, true)
+  cam = nil
+  
+  DeleteObject(ov)
+  DeleteObject(cb)
+  
+  local n = math.random(#spPoints[game_area])
+  local pos = spPoints[game_area][n]
+  SetEntityCoords(PlayerPedId(), pos)
+  
   ClearPedTasksImmediately(PlayerPedId())
+  ClearPedSecondaryTask(PlayerPedId())
+  
+  Wait(400)
+  
+  if IsScreenFadedOut() then
+    DoScreenFadeIn(1000)
+  end
+  
+  ReleaseNamedRendertarget(handle)
+  Citizen.InvokeNative(0xE9F6FFE837354DD4, 'tvscreen')
+  handle = nil
+  TriggerEvent('cnr:new_player_ready')
+  
 end)
+
+
+-- DEBUG -
 RegisterCommand('mimick', function()
   PlayerJoined()
 end)
+
+
+
+
 
 local function CreateNamedRenderTargetForModel(name, model)
 	local handle = 0
@@ -268,7 +257,6 @@ function CreateBoardDisplay()
     0, 0, 0, 0, 2, 1
   )
   
-  
 	AttachEntityToEntity(cb, ped,
     GetPedBoneIndex(ped, 28422),
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -278,8 +266,6 @@ function CreateBoardDisplay()
   SetModelAsNoLongerNeeded(sign)
   SetModelAsNoLongerNeeded(ovrl)
   
-
-
   Citizen.CreateThread(function()
     board_scaleform = LoadScaleform("mugshot_board_01")
     handle = CreateNamedRenderTargetForModel("ID_Text", ovrl)
@@ -310,7 +296,6 @@ end
 
 
 function SwitchGender()
-  print("DEBUG - Attempting to switch genders.")
   local currModel = GetEntityModel(PlayerPedId())
   local newHash   = femaleHash
   if (femaleHash == currModel) then 
@@ -321,12 +306,13 @@ function SwitchGender()
   SetPlayerModel(PlayerId(), newHash)
   Wait(100)
   SetPedDefaultComponentVariation(PlayerPedId())
-  print("DEBUG - Gender changed.")
   SendNUIMessage({getParents = true}) -- Update blend data
 end
 
 
 function ModifyParents(one, two, val)
+  myParents = {[1] = one, [2] = two}
+  mySimilar = val
   SetPedHeadBlendData(PlayerPedId(),
     one, two, 0,
     one, two, 0,
@@ -369,9 +355,104 @@ AddEventHandler('cnr:create_ready', function()
 end)
 
 
+--- EVENT: create_reload
+-- Called when reloading a saved character
+RegisterNetEvent('cnr:create_reload')
+AddEventHandler('cnr:create_reload', function(cInfo)
+  
+  SendNUIMessage({hideallmenus = true})
+  SetNuiFocus(false)
+  
+  local pos = json.decode(cInfo["position"])
+  local pt  = json.decode(cInfo["blenddata"])
+  
+  Wait(200)
+  
+  SetCamActive(cam, false)
+  RenderScriptCams(false, true, 500, true, true)
+  cam = nil
+    
+  Wait(1000)
+  
+  exports.spawnmanager:spawnPlayer({
+    x     = pos["x"],
+    y     = pos["y"],
+    z     = pos["z"] + 0.08,
+    model = cInfo["model"]
+  }, function()
+  
+    local ped = PlayerPedId()
+    
+    -- Set ped to default config, then set blend data
+    SetPedDefaultComponentVariation(ped)
+    Wait(100)
+    SetPedHeadBlendData(ped,
+      pt[1], pt[2], 0, pt[1], pt[2], 0,
+      pt[3], pt[4], 0.0, false
+    )
+    
+    -- Load permanent body overlays 
+    local bodyInfo = json.decode(cInfo["bodystyle"])
+    ped = PlayerPedId()
+    for k,v in pairs(bodyInfo) do 
+      SetPedHeadOverlay(ped, v["slot"], v["index"], 1.0)
+    end
+    Wait(100)
+    
+    -- Load non-permanent overlays
+    local bodyDetails = json.decode(cInfo["overlay"])
+    ped = PlayerPedId()
+    for k,v in pairs(bodyDetails) do 
+      SetPedHeadOverlay(ped, v["slot"], v["index"], 1.0)
+      if v["slot"] == 2 or v["slot"] == 10 or v["slot"] == 1 then 
+        SetPedHeadOverlayColor(ped, v["slot"], 1, 1, 1)
+      elseif v["slot"] == 5 or v["slot"] == 8 then
+        SetPedHeadOverlayColor(ped, v["slot"], 2, 1, 1)
+      else
+        SetPedHeadOverlayColor(ped, v["slot"], 0, 1, 1)
+      end
+    end
+    Wait(100)
+    
+    -- Load last used outfit
+    local myOutfit = json.decode(cInfo["clothes"])
+    ped = PlayerPedId()
+    for k,v in pairs(myOutfit) do 
+      SetPedComponentVariation(ped, v["slot"], v["draw"], v["text"], 2)
+    end
+    Wait(100)
+    
+    -- Load hair information
+    local hair = json.decode(cInfo["hairstyle"])
+    ped = PlayerPedId()
+    SetPedComponentVariation(ped, 2, hair["draw"], hair["text"], 2)
+    SetPedHairColor(ped, hair["color"], hair["light"])
+    Wait(100)
+    
+    TriggerServerEvent('cnr:client_loaded')
+    TriggerEvent('cnr:client_loaded')
+    
+    if IsScreenFadedOut() then
+      DoScreenFadeIn(1000)
+    end
+    
+  end)
+  Citizen.CreateThread(function()
+    Citizen.Wait(5000)
+    if IsScreenFadedOut() then
+      DoScreenFadeIn(1000)
+    end
+  end)
+end)
+
+
 RegisterNUICallback("playGame", function(data, cb)
   SendNUIMessage({hidewelcome = true})
+  DoScreenFadeOut(300)
   Citizen.Wait(500)
+  SetCamActive(cam, false)
+  RenderScriptCams(false, true, 500, true, true)
+  cam = nil
   TriggerServerEvent('cnr:create_session')
 end)
 
@@ -379,6 +460,7 @@ end)
 RegisterNUICallback("heritage", function(data, cb)
   if data.action == "gender" then 
     SwitchGender()
+    DesignerCamera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 50.0)
   
   elseif data.action == "changeParent" then
     ModifyParents(data.pOne, data.pTwo, data.similarity)
@@ -505,6 +587,7 @@ end)
 RegisterNUICallback("facialFeatures", function(data, cb)
   if data.action == "setFeature" then
     SetPedFaceFeature(PlayerPedId(), (data.fNum), (data.sVal)/100)
+    DesignerCamera(0.0, 0.8, 0.24, 0.0, 0.0, 0.0, 50.0)
   end
 end)
 
@@ -512,19 +595,9 @@ end)
 RegisterNUICallback("clothingOptions", function(data, cb)
   if data.action == "setOutfit" then
     local pModel = GetEntityModel(PlayerPedId())
-    print("DEBUG - Is Male choosing a Male Outfit? ["..
-      tostring(data.sex == 0 and pModel == maleHash)..
-    "]")
-    print("DEBUG - Is Female choosing a Female Outfit? ["..
-      tostring(data.sex == 1 and pModel == femaleHash)..
-    "]")
     if (data.sex == 0 and pModel == maleHash)   or 
        (data.sex == 1 and pModel == femaleHash) then
       for k,v in pairs (defaultOutfits[pModel][data.cNum]) do
-        print("DEBUG - Comp Var: "..tostring(v.slot)..", "..
-          tostring(v.draw)..", "..
-          tostring(v.text)..")"
-        )
         SetPedComponentVariation(PlayerPedId(), v.slot, v.draw, v.text, 2)
       end
       if pModel == femaleHash then
@@ -533,5 +606,95 @@ RegisterNUICallback("clothingOptions", function(data, cb)
         SetPedComponentVariation(PlayerPedId(), 8, 15, 0, 2)
       end
     end
+    DesignerCamera(0.0, 0.0, -0.15, 0.0, 0.0, 0.0, 50.0)
   end
 end)
+
+
+RegisterNUICallback("finishPlayer", function(data, cb)
+  if data == "apply" then 
+    local ped = PlayerPedId()
+    DesignerCamera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 50.0)
+    
+    local eyeColor = GetPedEyeColor(ped)
+    local myModel  = "mp_m_freemode_01"
+    if GetEntityModel(ped) == femaleHash then 
+      myModel = "mp_f_freemode_01"
+    end
+    
+    local overlays = {
+      {["slot"] = 0,  ["index"] = GetPedHeadOverlayValue(ped, 0)},
+      {["slot"] = 3,  ["index"] = GetPedHeadOverlayValue(ped, 3)},
+      {["slot"] = 7,  ["index"] = GetPedHeadOverlayValue(ped, 7)},
+      {["slot"] = 9,  ["index"] = GetPedHeadOverlayValue(ped, 8)},
+      {["slot"] = 11, ["index"] = GetPedHeadOverlayValue(ped, 11)},
+    }
+    
+    local tempOverlays = {
+      {["slot"] = 2,  ["index"] = GetPedHeadOverlayValue(ped, 2)},
+      {["slot"] = 10, ["index"] = GetPedHeadOverlayValue(ped, 10)},
+    }
+    
+    local startOutfit = {
+      {slot = 3,
+        draw = GetPedDrawableVariation(ped,3),
+        text = GetPedTextureVariation(ped,3)},
+      {slot = 4,
+        draw = GetPedDrawableVariation(ped,4),
+        text = GetPedTextureVariation(ped,4)},
+      {slot = 6,
+        draw = GetPedDrawableVariation(ped,6),
+        text = GetPedTextureVariation(ped,6)},
+      {slot = 8,
+        draw = GetPedDrawableVariation(ped,8),
+        text = GetPedTextureVariation(ped,8)},
+      {slot = 11,
+        draw = GetPedDrawableVariation(ped,11),
+        text = GetPedTextureVariation(ped,11)},
+    }
+    
+    local feats = {}
+    for i = 0, 14 do feats[i] = GetPedFaceFeature(ped, i)
+    end
+    
+    local jsonParents = json.encode({
+      [1] = myParents[1],  [2] = myParents[2],
+      [3] = (100 - mySimilar)/100, [4] = mySimilar/100
+    })
+    
+    local jsonHair = json.encode({
+      ["draw"]  = GetPedDrawableVariation(ped, 2),
+      ["text"]  = GetPedTextureVariation(ped, 2),
+      ["color"] = GetPedHairColor(ped),
+      ["light"] = GetPedHairHighlightColor(ped)
+    })
+    
+    TriggerServerEvent('cnr:create_save_character',
+      jsonParents, eyeColor, jsonHair,
+      json.encode(overlays), json.encode(tempOverlays),
+      json.encode(feats), myModel, json.encode(startOutfit)
+    )
+  
+  elseif data == "reset" then 
+    
+    SetPedDefaultComponentVariation(PlayerPedId())
+    SetPedHairColor(PlayerPedId(), 0, 0)
+    SetPedEyeColor(PlayerPedId(), 0)
+    
+    for i = 0, 12 do
+      SetPedHeadOverlay(PlayerPedId(), i, 0, 1.0)
+      SetPedHeadOverlayColor(PlayerPedId(), i, 1, 1, 1)
+    end
+    for i = 0, 14 do SetPedFaceFeature(PlayerPedId(), i, 0.5)
+    end
+    
+    myParents = {[1] = 1, [2] = 21}
+    mySimilar = 50
+    ModifyParents(1, 21, 50)
+    DesignerCamera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 50.0)
+  
+  end
+end)
+
+
+

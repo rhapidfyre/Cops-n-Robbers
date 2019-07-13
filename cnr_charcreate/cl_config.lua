@@ -102,9 +102,23 @@ defaultOutfits = {
 
 
 maxOverlays = {
-  [0]   = 23, [1]	  = 28, [2]	  = 33,
-  [3]   = 14, [4]	  = 74, [5]	  = 6,
-  [6]   = 11, [7]   = 10, [8]	  = 9,
-  [9]   = 17, [10]  = 16, [11]	= 11,
-  [12]	= 1
+  [0]  = 23, [1]  = 28, [2]	 = 33,
+  [3]  = 14, [4]  = 74, [5]	 = 6,
+  [6]  = 11, [7]  = 10, [8]	 = 9,
+  [9]  = 17, [10] = 16, [11] = 11,
+  [12] = 1
 }
+
+spPoints = {
+  [1] = { -- Los Santos Spawn Areas
+    vector3(435.76, -644.29, 28.74), -- Bus Depot
+    vector3(169.24, -993.29, 30.10), -- South Legion Square
+    vector3(126.007, -1732.17, 30.11), -- South Central Subway Station
+    vector3(-1341.36, -1300.10, 4.84), -- South Vespucci Beach
+  },
+  [2] = { -- Senora Desert Spawn Areas
+  },
+  [3] = { -- Paleto Bay Spawn Areas
+  }
+}
+
