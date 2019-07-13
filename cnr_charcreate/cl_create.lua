@@ -24,7 +24,7 @@ local handle    = nil
 local myParents = {[1] = 1, [2] = 21}
 local mySimilar = 50
 
-local reportLocation = true
+local reportLocation = false
 
  -- DEBUG - 
 Citizen.CreateThread(function()
@@ -67,11 +67,6 @@ function PlayerJoined()
       Citizen.Wait(200)
       DoScreenFadeIn(600)
       Citizen.Wait(1000)
-      
-      SendNUIMessage({showwelcome = true})
-      SetNuiFocus(true, true)
-      
-      Citizen.Wait(1200)
       TriggerServerEvent('cnr:create_player')
       
     end)
@@ -81,37 +76,6 @@ end
 
 AddEventHandler('onClientMapStart', function()
   PlayerJoined()
-end)
-
-
--- Sends update to MySQL every 12 seconds
--- Does not send the update if position has not changed
-Citizen.CreateThread(function()
-  while true do 
-    if reportLocation then 
-      if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then 
-        print("[CNR] Cannot report position; Player is dead.")
-      else
-        local myPos = GetEntityCoords(PlayerPedId())
-        local doUpdate = false 
-        if not lastPos then 
-          doUpdate = true 
-        elseif #(lastPos - myPos) > 5.0 then 
-          doUpdate = true
-        end
-        if doUpdate then
-          local savePos = {
-            x = math.floor(myPos.x*1000)/1000,
-            y = math.floor(myPos.y*1000)/1000,
-            z = math.floor(myPos.z*1000)/1000
-          }
-          TriggerServerEvent('cnr:save_pos', json.encode(savePos))
-        end
-        lastPos = GetEntityCoords(PlayerPedId())
-      end
-    end
-    Citizen.Wait(12000)
-  end
 end)
 
 
@@ -481,7 +445,36 @@ end)
 
 -- Start saving the player's location
 AddEventHandler('cnr:client_loaded', function()
-  reportLocation = true
+  if not reportLocation then 
+    reportLocation = true
+    -- Sends update to MySQL every 12 seconds
+    -- Does not send the update if position has not changed
+    Citizen.CreateThread(function()
+      while reportLocation do 
+        if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then 
+          print("[CNR] Cannot report position; Player is dead.")
+        else
+          local myPos = GetEntityCoords(PlayerPedId())
+          local doUpdate = false 
+          if not lastPos then 
+            doUpdate = true 
+          elseif #(lastPos - myPos) > 5.0 then 
+            doUpdate = true
+          end
+          if doUpdate then
+            local savePos = {
+              x = math.floor(myPos.x*1000)/1000,
+              y = math.floor(myPos.y*1000)/1000,
+              z = math.floor(myPos.z*1000)/1000
+            }
+            TriggerServerEvent('cnr:save_pos', json.encode(savePos))
+          end
+          lastPos = GetEntityCoords(PlayerPedId())
+        end
+        Citizen.Wait(12000)
+      end
+    end)
+  end
 end)
 
 
@@ -733,6 +726,33 @@ RegisterNUICallback("finishPlayer", function(data, cb)
     DesignerCamera(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 50.0)
   
   end
+end)
+
+
+
+
+--- EVENT: changelog
+-- Creates a new player for newbies or if character was wiped/lost
+RegisterNetEvent('cnr:changelog')
+AddEventHandler('cnr:changelog', function(logLines)
+  local msgInfo = {}
+  --table.insert(msgInfo, '<ul>')
+  for k,v in pairs(logLines) do
+    if v ~= "" then
+      local cl    = string.find(v, ":")
+      local dt    = string.sub(v, 0, 10)
+      local subj  = string.sub(v, 11, cl)
+      local deets = string.sub(v, cl+2, string.len(v))
+      table.insert(msgInfo,
+        '<li><strong>'..subj..
+        '</strong><br>&nbsp;&nbsp;'..dt..
+        '<br>&nbsp;&nbsp;'..deets..'</li>'
+      )
+    end
+  end
+  --table.insert(msgInfo, '</ul>')
+  SendNUIMessage({showwelcome = true, motd = table.concat(msgInfo)})
+  SetNuiFocus(true, true)
 end)
 
 

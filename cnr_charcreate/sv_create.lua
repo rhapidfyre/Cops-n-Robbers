@@ -128,6 +128,19 @@ AddEventHandler('cnr:create_player', function()
   local ply = source
   local stm = GetPlayerSteamId(ply)
   
+  local changeLog = io.open("changelog.txt", "r")
+  local logLines  = {}
+  if not changeLog then 
+  else
+    for line in io.lines("changelog.txt") do 
+      if line ~= "" and line then
+        logLines[#logLines + 1] = line
+      end
+    end
+  end
+  TriggerClientEvent('cnr:changelog', ply, logLines)
+  changeLog:close()
+  
   if stm then
   
     -- SQL: Retrieve character information

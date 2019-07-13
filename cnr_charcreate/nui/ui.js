@@ -21,6 +21,7 @@ $(function() {
   
       if (item.showwelcome) {welcome.fadeIn(1000);}
       if (item.hidewelcome) {welcome.fadeOut(200);}
+      if (item.motd) {$("#changes").find('ul').append(item.motd);}
       if (item.hideready) {
         $("#letsplay").removeClass('ntrdy');
         $("#letsplay").click(PlayGame);
