@@ -139,22 +139,16 @@ function EndCopDuty(st)
     "CHAR_CALL911", "Police Duty", "~r~End of Watch",
     "You are no longer on Law Enforcement duty."
   )
-  CheckForDuty()
+  OffDutyLoops()
   ignoreDuty = false
   transition = false
 end
 
-function CheckForDuty()
+
+function OffDutyLoops()
   Citizen.CreateThread(function()
     while not isCop do
-      local myPos = GetEntityCoords(PlayerPedId())
-      if not ignoreDuty then
-        for k,v in pairs(depts) do
-          if #(myPos - v.duty) < 2.1 then BeginCopDuty(k)
-          end
-        end
-      end
-      Citizen.Wait(100)
+      Citizen.Wait(0)
     end
   end)
 end
@@ -162,19 +156,28 @@ end
 function PoliceDutyLoops()
   Citizen.CreateThread(function()
     while isCop do 
-      local myPos = GetEntityCoords(PlayerPedId())
-      if not ignoreDuty then
-        for k,v in pairs(depts) do
-          if #(myPos - v.duty) < 2.1 then EndCopDuty(k)
-          end
-        end
-      end
-      Citizen.Wait(100)
+      Citizen.Wait(0)
     end
   end)
 end
 
 Citizen.CreateThread(function()
   Citizen.Wait(2000)
-  CheckForDuty()
+  OffDutyLoops()
 end)
+
+Citizen.CreateThread(function()
+  while true do 
+    local myPos = GetEntityCoords(PlayerPedId())
+    if not ignoreDuty then
+      for k,v in pairs(depts) do
+        if #(myPos - v.duty) < 2.1 then
+          if isCop then EndCopDuty(k)
+          else BeginCopDuty(k)
+          end
+        end
+      end
+    end
+    Citizen.Wait(100)
+  end
+end
