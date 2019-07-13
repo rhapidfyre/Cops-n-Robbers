@@ -42,7 +42,7 @@ local runOnce = false
 function PlayerJoined()
   if not runOnce then 
     runOnce = true
-    exports.spawnmanager:setAutoSpawn(false)
+    --exports.spawnmanager:setAutoSpawn(false)
     Citizen.Wait(2000)
     
     local c = cams.start

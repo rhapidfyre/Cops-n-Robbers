@@ -16,6 +16,13 @@ local cam         = nil
 local transition  = false
 local prevClothes = {}
 
+--- EXPORT: DutyStatus()
+-- Returns whether the player is on cop duty
+-- @return True if on cop duty, false if not
+function DutyStatus()
+  return isCop
+end
+
 -- DEBUG -
 RegisterCommand('cset', function(s,a,r)
   SetPedComponentVariation(PlayerPedId(),
@@ -36,6 +43,22 @@ RegisterCommand('previtem', function(s,a,r)
 end)
 
 
+--- PoliceLoadout()
+-- Toggles the usage of police equipment
+-- DEBUG - Change later to compensate for player-owned weapons
+function PoliceLoadout(toggle)
+  local ped = PlayerPedId()
+  RemoveAllPedWeapons(ped)
+  if toggle then -- Give police weapons
+    GiveWeaponToPed(ped, GetHashKey("WEAPON_STUNGUN"), 1, true, false)
+    GiveWeaponToPed(ped, GetHashKey("WEAPON_NIGHTSTICK"), 1, true, false)
+    GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL"), 200, true, false)
+    GiveWeaponToPed(ped, GetHashKey("WEAPON_CARBINERIFLE"), 200, true, false)
+  else -- Give owned weapons
+    
+  end
+end
+
 --- PoliceCamera()
 -- Operates the camera when toggling duty
 function PoliceCamera(c)
@@ -55,6 +78,9 @@ function PoliceCamera(c)
       Citizen.Wait(0)
     end
   end)
+  if c.leave then 
+    SetEntityCoords(PlayerPedId(), c.leave)
+  end
   Citizen.Wait(3000)
   DoScreenFadeOut(400)
   Citizen.Wait(600)
@@ -101,24 +127,52 @@ function BeginCopDuty(st)
     for k,v in pairs (copUniform) do
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      args = {"^1You cannot go on police duty while wanted!"}
-    })
-    Citizen.Wait(5000)
-  end
-  TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
-  Citizen.Wait(4800)
-  if wp < 1 then
+    TriggerServerEvent('cnr:police_status', true)
+    TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
+    PoliceLoadout(true)
+    Citizen.Wait(4800)
     exports['cnrobbers']:ChatNotification(
       "CHAR_CALL911", "Police Duty", "~g~Start of Watch",
       "You are now on Law Enforcement duty."
     )
     PoliceDutyLoops()
+  else
+    TriggerEvent('chat:addMessage', {
+      args = {"^1You cannot go on police duty while wanted!"}
+    })
+    Citizen.Wait(12000)
   end
   ignoreDuty = false
   transition = false
 end
+
+
+--- Reduty()
+-- Called if the player just needs a uniform and loadout
+function Reduty()
+  transition = true
+  isCop      = true
+  prevClothes = {
+    [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
+            text = GetPedTextureVariation(PlayerPedId(), 3)},
+    [4]  = {draw = GetPedDrawableVariation(PlayerPedId(), 4),
+            text = GetPedTextureVariation(PlayerPedId(), 4)},
+    [6]  = {draw = GetPedDrawableVariation(PlayerPedId(), 6),
+            text = GetPedTextureVariation(PlayerPedId(), 6)},
+    [8]  = {draw = GetPedDrawableVariation(PlayerPedId(), 8),
+            text = GetPedTextureVariation(PlayerPedId(), 8)},
+    [11] = {draw = GetPedDrawableVariation(PlayerPedId(), 11),
+            text = GetPedTextureVariation(PlayerPedId(), 11)},
+  }
+  for k,v in pairs (copUniform) do
+    SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
+  end
+  PoliceLoadout(true)
+  Citizen.Wait(3000)
+  transition = false
+end
+RegisterNetEvent('cnr:police_reduty')
+AddEventHandler('cnr:police_reduty', Reduty)
 
 
 --- EndCopDuty()
@@ -133,6 +187,7 @@ function EndCopDuty(st)
   for k,v in pairs (prevClothes) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end
+  TriggerServerEvent('cnr:police_status', false)
   TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
   Citizen.Wait(4800)
   exports['cnrobbers']:ChatNotification(
@@ -140,8 +195,34 @@ function EndCopDuty(st)
     "You are no longer on Law Enforcement duty."
   )
   OffDutyLoops()
+  PoliceLoadout(false)
   ignoreDuty = false
   transition = false
+end
+
+
+function UnlockPoliceCarDoor()
+  local veh = GetVehiclePedIsTryingToEnter(PlayerPedId())
+  if veh > 0 then 
+    local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
+    if policeCar[mdl] then
+      if GetVehicleDoorLockStatus(veh) > 0 then 
+        if isCop then 
+          SetVehicleDoorsLocked(veh, 0)
+          SetVehicleNeedsToBeHotwired(veh, false)
+          print("DEBUG - Cop entering locked cop car; Unlocking.")
+          Citizen.CreateThread(function()
+            Citizen.Wait(6000)
+            if GetVehiclePedIsIn(PlayerPedId()) ~= veh then 
+              SetVehicleDoorsLocked(veh, 2)
+              SetVehicleNeedsToBeHotwired(veh, true)
+              print("DEBUG - Player did not enter vehicle, relocked.")
+            end
+          end)
+        end
+      end
+    end
+  end
 end
 
 
@@ -156,6 +237,9 @@ end
 function PoliceDutyLoops()
   Citizen.CreateThread(function()
     while isCop do 
+      if IsControlJustPressed(0, 75) then 
+        UnlockPoliceCarDoor()
+      end
       Citizen.Wait(0)
     end
   end)
@@ -180,4 +264,4 @@ Citizen.CreateThread(function()
     end
     Citizen.Wait(100)
   end
-end
+end)

@@ -24,4 +24,5 @@ server_exports {
 }
 
 exports {
+  'DutyStatus'
 }

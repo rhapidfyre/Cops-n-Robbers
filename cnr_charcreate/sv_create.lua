@@ -16,7 +16,9 @@ local steams    = {}
 
 -- DEBUG - Whitelist
 local whitelist = {
-  ["steam:110000100c58e26"] = true,
+  ["steam:110000100c58e26"] = true, -- RhapidFyre (main)
+  ["steam:1100001353615fc"] = true, -- RhapidFyre (laptop)
+  ["steam:110000100ea2fbe"] = true, -- Justin Chapman
 }
 
 
@@ -102,9 +104,18 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
       "Server is being Developed and you are not whitelisted. "..
       "Please check back soon!"
     )
+    print("Player was disconnected; "..name.." ["..steamIdentifier.."] is not whitelisted.")
   end
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
+
+
+--- EXPORT: GetUniqueId()
+-- Returns the player's Unique ID
+-- @return The player's UID or nil
+function GetUniqueId(ply)
+  return unique[ply]
+end
 
 
 function GetPlayerSteamId(ply)
@@ -172,7 +183,7 @@ AddEventHandler('cnr:create_session', function()
   
   local ply   = source
   local pName = GetPlayerName(ply).. "("..ply..")"
-  local dt    = os.date("%H:%M", os.time())
+  local dt    = os.date("%H:%M:%S", os.time())
   
   -- If no idUnique, then they have never played here before
   if not unique[ply] then 
@@ -193,7 +204,7 @@ AddEventHandler('cnr:create_session', function()
           {['steamid'] = GetPlayerSteamId(ply)},
           function(uid)
             unique[ply] = uid
-            local nt = os.date("%H:%M", os.time())
+            local nt = os.date("%H:%M:%S", os.time())
             print(
               "[CNR "..nt.."] Unique ID "..uid.." for  "..pName.." created."
             )

@@ -17,7 +17,15 @@ local activeZone   = 1
 local wantedPoints = 0
 local restarted    = {} -- DEBUG -
 
-function WantedPoints()
+function WantedPoints(val, doMsg)
+  if val then 
+    if doMsg then 
+      TriggerEvent('chat:addMessage', {args = {
+        "CRIME", doMsg
+      }})
+    end
+    wantedPoints = wantedPoints + val
+  end
   return wantedPoints
 end
 
