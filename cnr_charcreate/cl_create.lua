@@ -16,6 +16,7 @@ local sign      = GetHashKey("prop_police_id_board")
 local ovrl      = GetHashKey("prop_police_id_text")
 local cb        = nil
 local ov        = nil
+local lastPos   = nil
 
 local game_area = 1
 local handle    = nil
@@ -23,16 +24,13 @@ local handle    = nil
 local myParents = {[1] = 1, [2] = 21}
 local mySimilar = 50
 
+local reportLocation = true
 
  -- DEBUG - 
 Citizen.CreateThread(function()
   Wait(1000)
   SetNuiFocus(false)
 end)
-    
-    
-    
-    
     
     
     
@@ -66,6 +64,8 @@ function PlayerJoined()
     
       SetPedDefaultComponentVariation(PlayerPedId())
       
+      Citizen.Wait(200)
+      DoScreenFadeIn(600)
       Citizen.Wait(1000)
       
       SendNUIMessage({showwelcome = true})
@@ -81,6 +81,37 @@ end
 
 AddEventHandler('onClientMapStart', function()
   PlayerJoined()
+end)
+
+
+-- Sends update to MySQL every 12 seconds
+-- Does not send the update if position has not changed
+Citizen.CreateThread(function()
+  while true do 
+    if reportLocation then 
+      if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then 
+        print("[CNR] Cannot report position; Player is dead.")
+      else
+        local myPos = GetEntityCoords(PlayerPedId())
+        local doUpdate = false 
+        if not lastPos then 
+          doUpdate = true 
+        elseif #(lastPos - myPos) > 5.0 then 
+          doUpdate = true
+        end
+        if doUpdate then
+          local savePos = {
+            x = math.floor(myPos.x*1000)/1000,
+            y = math.floor(myPos.y*1000)/1000,
+            z = math.floor(myPos.z*1000)/1000
+          }
+          TriggerServerEvent('cnr:save_pos', json.encode(savePos))
+        end
+        lastPos = GetEntityCoords(PlayerPedId())
+      end
+    end
+    Citizen.Wait(12000)
+  end
 end)
 
 
@@ -185,7 +216,7 @@ end)
 
 
 -- DEBUG -
-RegisterCommand('mimick', function()
+Citizen.CreateThread(function()
   PlayerJoined()
 end)
 
@@ -367,7 +398,6 @@ AddEventHandler('cnr:create_reload', function(cInfo)
   
   local pos = json.decode(cInfo["position"])
   local pt  = json.decode(cInfo["blenddata"])
-  
   Wait(200)
   
   SetCamActive(cam, false)
@@ -434,6 +464,7 @@ AddEventHandler('cnr:create_reload', function(cInfo)
     TriggerServerEvent('cnr:client_loaded')
     TriggerEvent('cnr:client_loaded')
     
+    Wait(200)
     if IsScreenFadedOut() then
       DoScreenFadeIn(1000)
     end
@@ -445,6 +476,12 @@ AddEventHandler('cnr:create_reload', function(cInfo)
       DoScreenFadeIn(1000)
     end
   end)
+end)
+
+
+-- Start saving the player's location
+AddEventHandler('cnr:client_loaded', function()
+  reportLocation = true
 end)
 
 

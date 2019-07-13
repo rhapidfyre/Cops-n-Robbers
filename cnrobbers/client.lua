@@ -15,6 +15,7 @@
 
 local activeZone   = 1
 local wantedPoints = 0
+local restarted    = {} -- DEBUG -
 
 function WantedPoints()
   return wantedPoints
@@ -23,6 +24,25 @@ end
 function GetActiveZone()
   return activeZone
 end
+
+-- DEBUG -
+AddEventHandler('onResourceStop', function(rn)
+  restarted[rn] = true
+end)
+-- DEBUG -
+AddEventHandler('onResourceStart', function(rn)
+  if restarted[rn] then
+    TriggerEvent('chat:addMessage', {args={
+      "An admin has restarted the "..rn.." resource!"
+    }})
+    if rn == "cnr_police" then 
+      TriggerEvent('chat:addMessage', {args={
+        "Any active cops must reduty to continue!"
+      }})
+    end
+    restarted[rn] = nil
+  end
+end)
 
 function ChatNotification(icon, title, subtitle, message)
 	SetNotificationTextEntry("STRING")

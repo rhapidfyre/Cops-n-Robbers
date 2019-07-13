@@ -11,11 +11,79 @@
 --]]
 
 -- A table consisting of player's database unique id numbers
-local unique = {}
-local steams = {}
+local unique    = {}
+local steams    = {}
+
+-- DEBUG - Whitelist
 local whitelist = {
   ["steam:110000100c58e26"] = true,
 }
+
+
+--[[ --------------------------------------------------------------------------
+ 
+  ~ BEGIN POSITION AQUISITION SCRIPTS
+ 
+  1) Players, when loaded, will submit their position every 12 seconds
+  2) The server, every 30 seconds, loops through the positions table
+  3) For each entry found, it will update their last known position in SQL
+  4) When the update succeeds, it will remove the position entry
+  5) When a player drops, it will send and immediate update.
+]]-----------------------------------------------------------------------------
+
+local positions = {}
+
+RegisterServerEvent('cnr:save_pos')
+AddEventHandler('cnr:save_pos', function(pos)
+  local ply = source
+  local uid = unique[ply]
+  if uid then
+    positions[uid] = pos
+  end
+end)
+
+function SavePlayerPos(uid)
+  if uid then
+    if positions[uid] then 
+      exports['ghmattimysql']:execute(
+        "UPDATE characters SET position = @p WHERE idUnique = @uid",
+        {['p'] = positions[uid], ['uid'] = uid},
+        function()
+          positions[uid] = nil
+        end
+      )
+    end
+  end
+end
+
+function SaveAllPositions()
+  for k,v in pairs (positions) do
+    SavePlayerPos(k)
+    Citizen.Wait(100)
+  end
+end
+
+AddEventHandler('playerDropped', function(rsn)
+  local ply = source
+  local uid = unique[ply]
+  if uid then 
+    if positions[uid] then 
+      SavePlayerPos(uid)
+    end
+  end
+end)
+
+Citizen.CreateThread(function()
+  while true do
+    SaveAllPositions()
+    Citizen.Wait(30000)
+  end
+end)
+--[[---------------------------------------------------------------------------
+  ~ END OF POSITION ACQUISITION SCRIPTS
+--]]---------------------------------------------------------------------------
+
+
 -- DEBUG - Whitelist
 local function OnPlayerConnecting(name, setKickReason, deferrals)
   local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
@@ -61,6 +129,8 @@ AddEventHandler('cnr:create_player', function()
   local stm = GetPlayerSteamId(ply)
   
   if stm then
+  
+    -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
       "SELECT * FROM players WHERE idSteam = @steam LIMIT 1",
       {['steam'] = stm},
