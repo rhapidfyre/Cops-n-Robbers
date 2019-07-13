@@ -13,6 +13,17 @@
   of playing the gamemode as intended by the developer.
 --]]
 
+local activeZone   = 1
+local wantedPoints = 0
+
+function WantedPoints()
+  return wantedPoints
+end
+
+function GetActiveZone()
+  return activeZone
+end
+
 function ChatNotification(icon, title, subtitle, message)
 	SetNotificationTextEntry("STRING")
 	AddTextComponentString(message)
@@ -21,9 +32,15 @@ function ChatNotification(icon, title, subtitle, message)
 	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
   return true
 end
+
 RegisterNetEvent('cnr:chat_notify')
 AddEventHandler('cnr:chat_notify', function(icon, title, subt, msg)
   ChatNotification(icon, title, subt, msg)
+end)
+
+RegisterNetEvent('cnr:active_zone')
+AddEventHandler('cnr:active_zone', function(aZone)
+  activeZone = aZone
 end)
 
 RegisterCommand('zones', function()

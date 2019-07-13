@@ -178,6 +178,8 @@ AddEventHandler('cnr:create_finished', function()
   Citizen.InvokeNative(0xE9F6FFE837354DD4, 'tvscreen')
   handle = nil
   TriggerEvent('cnr:new_player_ready')
+  TriggerEvent('cnr:client_loaded')
+  TriggerServerEvent('cnr:client_loaded')
   
 end)
 

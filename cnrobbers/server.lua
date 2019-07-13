@@ -23,10 +23,15 @@ function CurrentZone()
   return (zone.active)
 end
 
-
 function ZoneNotification(i, t, s, m)
   TriggerClientEvent('cnr:chat_notify', (-1), i, t, s, m)
 end
+
+RegisterServerEvent('cnr:client_loaded')
+AddEventHandler('cnr:client_loaded', function()
+  TriggerClientEvent('cnr:active_zone', source, zone.active)
+end)
+
 
 --- ZoneChange()
 -- Handles changing over the zone
