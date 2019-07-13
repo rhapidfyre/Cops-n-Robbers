@@ -11,6 +11,7 @@ server_scripts {
 }
 
 server_exports {
+  'CurrentZone'
 }
 
 exports {
