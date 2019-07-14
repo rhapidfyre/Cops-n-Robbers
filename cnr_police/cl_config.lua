@@ -76,91 +76,87 @@ depts = {
       rotx  =   0.0, roty  =   0.0, rotz  = 162.0,
       erotx =   0.0, eroty =   0.0, erotz =  36.0
     }
-  },--[[
+  },
   [5] = { -- Beaver Bush Station
-    zone    = 1, title   = "Ranger Station", agency = 5,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    zone    = 2, title   = "Ranger Station", agency = 5,
+    duty    = vector3(379.219, 792.047, 190.408),
+    walkTo  = vector3(385.185, 791.670, 190.409),
+    camview = vector3(370.397, 784.786, 191.625),
+    exitcam = vector3(398.483, 788.866, 187.984),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
-      rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
-      erotx =   0.0, eroty =   0.0, erotz =   0.0
+      h     =   0.0, fov   =  60.0,
+      eh    = 180.0, efov  =  60.0,
+      rotx  =   0.0, roty  =   0.0, rotz  = 326.0,
+      erotx =   0.0, eroty =   0.0, erotz =  56.0
     }
   },
   [6] = { -- Sandy Shores Station
     zone    = 1, title   = "Sheriff's Office", agency = 3,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    duty    = vector3(1854.17, 3684.85, 34.26),
+    walkTo  = vector3(1856.01, 3682.29, 34.26),
+    camview = vector3(1857.08, 3671.20, 36.85),
+    exitcam = vector3(1857.08, 3671.20, 36.85),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
+      h     =   0.0, fov   =   60.0,
+      eh    = 180.0, efov  =   60.0,
       rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
       erotx =   0.0, eroty =   0.0, erotz =   0.0
     }
   },
   [7] = { -- Fort Zancudo Station
-    zone    = 1, title   = "MP Station", agency = 6,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    zone    = 4, title   = "MP Station", agency = 6,
+    duty    = vector3(-2441.04, 2951.72, 34.848),
+    walkTo  = vector3(-2440.32, 2956.20, 32.960),
+    camview = vector3(-2445.09, 2983.29, 37.310),
+    exitcam = vector3(-2447.89, 2962.14, 32.810),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
-      rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
-      erotx =   0.0, eroty =   0.0, erotz =   0.0
+      h     =   0.0, fov   =  60.0,
+      eh    =   0.0, efov  =  60.0,
+      rotx  =   0.0, roty  =   0.0, rotz  = 210.0,
+      erotx =   0.0, eroty =   0.0, erotz = 240.0
     }
   },
   [8] = { -- Paleto Bay Station
-    zone    = 1, title   = "Sheriff's Office", agency = 3,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    zone    = 3, title   = "Sheriff's Office", agency = 3,
+    duty    = vector3(-444.676, 6014.86, 31.716),
+    walkTo  = vector3(-441.16, 6018.55, 31.542),
+    camview = vector3(-440.71, 6036.50, 34.741),
+    exitcam = vector3(-436.51, 6023.62, 32.690),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
-      rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
-      erotx =   0.0, eroty =   0.0, erotz =   0.0
+      h     =   0.0, fov   =  60.0,
+      eh    =   0.0, efov  =  60.0,
+      rotx  =   0.0, roty  =   0.0, rotz  = 164.0,
+      erotx =   0.0, eroty =   0.0, erotz = 135.5
     }
   },
   [9] = { -- Federal Bureau of Investigations
     zone    = 1, title   = "FBI Headquarters", agency = 7,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    duty    = vector3(136.287, -761.694, 45.752),
+    leave   = vector3(111.575, -744.141, 45.751),
+    walkTo  = vector3(103.283, -744.824, 45.754),
+    camview = vector3(102.772, -708.203, 248.525),
+    exitcam = vector3(94.7996, -737.857, 46.457),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
-      rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
-      erotx =   0.0, eroty =   0.0, erotz =   0.0
+      h     =   0.0, fov   =  80.0,
+      eh    =   0.0, efov  =  80.0,
+      rotx  =   0.0, roty  =   0.0, rotz  = 230.0,
+      erotx =   0.0, eroty =   0.0, erotz = 220.0
     }
   },
   [10] = { -- Highway Patrol Station
     zone    = 1, title   = "Highway Patrol", agency = 4,
-    duty    = vector3(),
-    leave   = vector3(),
-    walkTo  = vector3(),
-    camview = vector3(),
-    exitcam = vector3(),
+    duty    = vector3(826.367, -1290.09, 28.241),
+    leave   = vector3(849.955, -1281.40, 28.004),
+    walkTo  = vector3(849.946, -1276.92, 26.498),
+    camview = vector3(801.910, -1302.53, 29.250),
+    exitcam = vector3(855.501, -1270.78, 27.880),
     caminfo = {
-      h     =   0.0, fov   =   0.0,
-      eh    =   0.0, efov  =   0.0,
-      rotx  =   0.0, roty  =   0.0, rotz  =   0.0,
-      erotx =   0.0, eroty =   0.0, erotz =   0.0
+      h     =   0.0, fov   =   60.0,
+      eh    =   0.0, efov  =   60.0,
+      rotx  =   0.0, roty  =   0.0, rotz  = 278.0,
+      erotx =   0.0, eroty =   0.0, erotz = 156.0
     }
-  } ]]
+  }
 }
 
 -- Add Police Blips

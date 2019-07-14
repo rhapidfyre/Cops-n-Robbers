@@ -1,0 +1,53 @@
+
+html, body {
+  margin:0;
+  padding:0;
+}
+#wrap {
+  margin: 0 auto;
+  width: 90%;
+  padding: 0;
+}
+table#plyTable {
+  position: relative;
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  border: 1px solid #000000;
+  background-color: rgba(200, 200, 200, 0.35);
+  width: 60%;
+  text-align: center;
+  border-collapse: collapse;
+  margin: 10% auto 0 auto;
+  max-height: 60%;
+  color: white;
+  text-shadow: 1px 1px 0 black;
+}
+
+table#plyTable td, table.plyTable th {
+  padding: 3px 2px;
+}
+table#plyTable tbody td {
+  font-size: 12px;
+}
+table#plyTable tr:nth-child(even) {
+  background-color: rgba(140, 140, 140, 0.35);
+}
+table#plyTable tr:first-child {
+  background-color: rgba(40, 40, 40, 0.35);
+  border: 2px ridge silver;
+  color: #fb0;
+  text-shadow: 1px 1px 0 black;
+}
+table#plyTable thead {
+  background-color: rgba(238, 109, 67, 0.35);
+}
+table#plyTable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #000000;
+  text-align: center;
+}
+table#plyTable thead th:first-child {
+  border-left: none;
+}
+.wanted {background: rgba(255,120,0,0.6) !important;}
+.police {background: rgba(0,120,255,0.6) !important;}

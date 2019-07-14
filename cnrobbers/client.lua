@@ -17,6 +17,44 @@ local activeZone   = 1
 local wantedPoints = 0
 local restarted    = {} -- DEBUG -
 
+local plyCount = 255
+
+
+--- EXPORT GetPlayers()
+-- Retrieves a table of all connected players
+-- @return Table of connected players
+function GetPlayers()
+    local players = {}
+    for i = 0, plyCount do
+      if NetworkIsPlayerActive(i) then
+			  table.insert(players, i)
+		  end
+    end
+    return players
+end
+
+
+--- EXPORT GetClosestPlayer()
+-- Finds the closest player
+-- @return Player local ID. Must be turned into a ped object or server ID from there.
+function GetClosestPlayer()
+	local ped  = GetPlayerPed(-1)
+	local plys = GetPlayers()
+	local cPly = nil
+	local cDst = -1
+	for k,v in pairs (plys) do
+		local tgt = GetPlayerPed(v)
+		if tgt ~= ped then
+			local dist = GetDistanceBetweenCoords(GetEntityCoords(ped), GetEntityCoords(tgt))
+			if cDst == -1 or cDst > dist then
+				cPly = v
+				cDst = dist
+			end
+		end
+	end
+	return cPly
+end
+
 function WantedPoints(val, doMsg)
   if val then 
     if doMsg then 

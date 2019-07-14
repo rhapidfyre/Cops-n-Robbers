@@ -17,5 +17,7 @@ server_exports {
 exports {
   'GetActiveZone',
   'WantedPoints',
-  'ChatNotification'
+  'ChatNotification',
+  'GetPlayers',
+  'GetClosestPlayer'
 }
