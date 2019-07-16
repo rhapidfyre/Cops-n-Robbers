@@ -1,53 +1,84 @@
+  body, html {
+    margin:0;
+    padding:0;
+    overflow-x: hidden;
+  }
+  #wrap {
+    position: absolute;
+    right: -18px;
+    top: 48px;
+    min-width: 512px;
+    height: 80%;
+    width: 60%;
+    text-align: right;
+    overflow-y: scroll;
+    padding: 0 16px 0 0;
+    box-sizing: content-box; /* So the width will be 100% + 17px */
+  }
+  .ply_info {
+    width: 212px;
+    background: rgba(200,200,200,0.4);
+    border-radius: 4px;
+    border: 2px ridge silver;
+    box-sizing: border-box;
+    display: inline-block;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  .ply_info h3, .ply_info h5 {
+    color: white;
+    text-shadow: 1px 1px 0 black;
+    margin: 0; padding: 0 1px;
+  }
+  .ply_info h3 {
+    font-style: italic;
+    text-align: left;
+    float: left;
+  }
+  .ply_info h5 {
+    text-align: right;
+    float: right;
+    font-size: 1.08em;
+  }
+  .ply_info table {
+    width: 100%;
+    font-size: 0.8em;
+    font-family: Arial;
+    background: rgba(80,80,80,0.25);
+  }
+  .ply_info table thead th {
+    text-align: center;
+    color: gold;
+    text-shadow: 1px 1px 2px black;
+  }
+  .ply_info table tbody th {
+    width: 100%;
+    text-align: left;
+    color: #ddd;
+  }
+  .ply_info table tbody td {
+    width: 100%;
+    text-align: right;
+    color: #ddd;
+  }
 
-html, body {
-  margin:0;
-  padding:0;
-}
-#wrap {
-  margin: 0 auto;
-  width: 90%;
-  padding: 0;
-}
-table#plyTable {
-  position: relative;
-  font-family: "Comic Sans MS", cursive, sans-serif;
-  border: 1px solid #000000;
-  background-color: rgba(200, 200, 200, 0.35);
-  width: 60%;
-  text-align: center;
-  border-collapse: collapse;
-  margin: 10% auto 0 auto;
-  max-height: 60%;
-  color: white;
-  text-shadow: 1px 1px 0 black;
-}
-
-table#plyTable td, table.plyTable th {
-  padding: 3px 2px;
-}
-table#plyTable tbody td {
-  font-size: 12px;
-}
-table#plyTable tr:nth-child(even) {
-  background-color: rgba(140, 140, 140, 0.35);
-}
-table#plyTable tr:first-child {
-  background-color: rgba(40, 40, 40, 0.35);
-  border: 2px ridge silver;
-  color: #fb0;
-  text-shadow: 1px 1px 0 black;
-}
-table#plyTable thead {
-  background-color: rgba(238, 109, 67, 0.35);
-}
-table#plyTable thead th {
-  font-size: 15px;
-  font-weight: bold;
-  color: #000000;
-  text-align: center;
-}
-table#plyTable thead th:first-child {
-  border-left: none;
-}
-.wanted {background: rgba(255,120,0,0.6) !important;}
-.police {background: rgba(0,120,255,0.6) !important;}
+  .wanted1  {background: rgba(255,175,120,0.6) !important;}
+  .wanted2  {background: rgba(255,160,105,0.6) !important;}
+  .wanted3  {background: rgba(255,152,95,0.6)  !important;}
+  .wanted4  {background: rgba(255,136,70,0.6)  !important;}
+  .wanted5  {background: rgba(255,130,60,0.6)  !important;}
+  .wanted6  {background: rgba(255,122,45,0.6)  !important;}
+  .wanted7  {background: rgba(255,112,32,0.6)  !important;}
+  .wanted8  {background: rgba(255,105,25,0.6)  !important;}
+  .wanted9  {background: rgba(255,90,15,0.6)   !important;}
+  .wanted10 {background: rgba(255,78,0,0.6)    !important;}
+  
+  .police1  {background: rgba(190,200,255,0.6) !important;}
+  .police2  {background: rgba(185,185,255,0.6) !important;}
+  .police3  {background: rgba(160,160,255,0.6) !important;}
+  .police4  {background: rgba(140,140,255,0.6) !important;}
+  .police5  {background: rgba(120,120,255,0.6) !important;}
+  .police6  {background: rgba(100,100,255,0.6) !important;}
+  .police7  {background: rgba(80,80,255,0.6)   !important;}
+  .police8  {background: rgba(60,60,255,0.6)   !important;}
+  .police9  {background: rgba(40,40,255,0.6)   !important;}
+  .police10 {background: rgba(0,0,255,0.6)     !important;}

@@ -19,5 +19,6 @@ exports {
   'WantedPoints',
   'ChatNotification',
   'GetPlayers',
-  'GetClosestPlayer'
+  'GetClosestPlayer',
+  'GetWanteds'
 }

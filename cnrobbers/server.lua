@@ -18,6 +18,7 @@ local zone = {
   active = 1,        -- The currently active zone
   pick   = 18000000, -- The next time to pick a zone
 }
+local wanted = {}
 
 function CurrentZone()
   return (zone.active)
@@ -27,10 +28,57 @@ function ZoneNotification(i, t, s, m)
   TriggerClientEvent('cnr:chat_notify', (-1), i, t, s, m)
 end
 
+--- CheckIfWanted()
+-- Checks if the player is wanted via SQL and then adds them to the table
+-- if they are wanted, otherwise, does nothing
+function CheckIfWanted(ply)
+  local ply = source
+  
+  local uid = exports['cnr_charcreate']:GetUniqueId(ply)
+  exports['ghmattimysql']:execute(
+    "SELECT wanted FROM players WHERE idUnique = @uid",
+    {['uid'] = uid},
+    function(wp)
+      -- If player being checked is wanted, send update for that player
+      if wp > 0 then
+        wanted[ply] = wp
+        TriggerClientEvent('cnr:cl_wanted_client', (-1), ply, wp)
+      end
+    end
+  )
+end
+
+-- When a client has loaded in the game, send them their active zone
+-- Also check if they're wanted, and then update the wanted table
 RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
-  TriggerClientEvent('cnr:active_zone', source, zone.active)
+  local ply = source
+  TriggerClientEvent('cnr:active_zone', ply, zone.active)
+  TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted)
+  Citizen.Wait(100)
+  CheckIfWanted(ply)
 end)
+
+-- Received by a client whose wanted points has changed
+-- Finished by sending all connected players the client's updated WP
+RegisterServerEvent('cnr:wanted_points')
+AddEventHandler('cnr:wanted_points', function(points)
+  local ply = source
+  wanted[ply] = points
+  TriggerClientEvent('cnr:cl_wanted_client', (-1), ply, wanted[ply])
+end)
+
+-- Performs table optimization/cleanup when a player drops
+-- Sends the new table to all players when finished if affected
+AddEventHandler('playerDropped', function(rsn)
+  local ply = source
+  if wanted[ply] then
+    wanted[ply] = nil
+    TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted[ply])
+  end
+end)
+
+
 
 
 --- ZoneChange()

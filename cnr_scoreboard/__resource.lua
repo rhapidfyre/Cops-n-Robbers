@@ -10,7 +10,7 @@ files {
   "nui/ui.css"
 }
 
-client_scripts { 
+client_scripts {
   "cl_score.lua"
 }
 
@@ -19,7 +19,9 @@ server_scripts {
 }
 
 server_exports {
+
 }
 
 exports {
+
 }
