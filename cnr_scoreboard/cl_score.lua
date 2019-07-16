@@ -15,6 +15,7 @@ local ignorePlayerNameDistance = false
 local wantedPlayers = {}
 local copPlayers    = {}
 local plyBlips      = {}
+
 local copColors = {
   [1]  = {190,200,255}, [2]  = {185,185,255},
   [3]  = {160,160,255}, [4]  = {140,140,255},
@@ -22,6 +23,7 @@ local copColors = {
   [7]  = {80,80,255},   [8]  = {60,60,255},
   [9]  = {40,40,255},   [10] = {0,0,255},
 }
+
 local wantedColors = {
   [1]  = {255,225,125},  [2]  = {255,200,100},
   [3]  = {255,190,86},  [4]  = {255,146,70},
@@ -30,13 +32,14 @@ local wantedColors = {
   [9]  = {255,90,15},   [10] = {255,78,0},
   [11] = {255, 40, 0}
 }
---[[
+
 local blipWanted = {
-  [1] = 16, [2] = 5, [3] = , [4] = , [5] = 
+  [1] = 16, [2] = 5, [3] = 0, [4] = 0, [5] = 0
 }
+
 local blipCops   = {
-  [1] = 16, [2] = 5, [3] = , [4] = , [5] = 
-}]]
+  [1] = 16, [2] = 5, [3] = 0, [4] = 0, [5] = 0
+}
 
 function sanitize(txt)
     local replacements = {
@@ -84,7 +87,7 @@ Citizen.CreateThread(function()
               if modLevel == 101 then -- Most Wanted
                 table.insert(players, '<div class="ply_info">'..
                   '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table class="wanted10">'..
-                  '<tr><thead><th colspan="2">San Andreas Most Wanted</th></thead></tr>'..
+                  '<tr><thead><th colspan="2">Wanted by FIB</th></thead></tr>'..
                   '<tr><th>Cop Level</th><td>1</td></tr>'..
                   '<tr><th>Civ Level</th><td>1</td></tr>'..
                   '</table></div>'
@@ -98,20 +101,20 @@ Citizen.CreateThread(function()
                   '</table></div>'
                 )
               end
-            else -- Is innocent
+            else -- Is Not Wanted
               table.insert(players, '<div class="ply_info">'..
                 '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table>'..
-                '<tr><thead><th colspan="2">Innocent</th></thead></tr>'..
+                '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
                 '<tr><th>Cop Level</th><td>1</td></tr>'..
                 '<tr><th>Civ Level</th><td>1</td></tr>'..
                 '</table></div>'
               )
             end
-          -- Is innocent
+          -- Is Not Wanted
           else
             table.insert(players, '<div class="ply_info">'..
               '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table>'..
-              '<tr><thead><th colspan="2">Innocent</th></thead></tr>'..
+              '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
               '<tr><th>Cop Level</th><td>1</td></tr>'..
               '<tr><th>Civ Level</th><td>1</td></tr>'..
               '</table></div>'
@@ -142,7 +145,7 @@ Citizen.CreateThread(function()
     local plyTable = exports['cnrobbers']:GetPlayers()
     for k,v in pairs (plyTable) do
       local ped = GetPlayerPed(v)
-      if ped ~= PlayerPedId() then
+      --if ped ~= PlayerPedId() then
         blip = GetBlipFromEntity(ped)
         -- Blip does not exist, create it, and we'll fix it next frame (DEBUG - )
         if not DoesBlipExist(blip) then 
@@ -153,11 +156,43 @@ Citizen.CreateThread(function()
           SetBlipShrink(blip, true)
         -- Blip exists, check wanted level, cop status, etc (DEBUG - )
         else
-        
+          if wantedPlayers[v] then 
+            local wl = math.floor(wantedPlayers[v]/10)
+            if wl < 1 then wl = 1
+            elseif wl > 10 then wl = 11 end
+            -- is wanted
+            if wantedPlayers[v] > 0 and GetBlipColor(blip) ~= blipWanted[wl] then 
+              --SetBlipAlpha(blip, 0)
+              SetBlipColor(blip, blipWanted[wl])
+              local myPos = GetEntityCoords(PlayerPedId())
+              local plPos = GetEntityCoords(GetPlayerPed(v))
+              if (myPos.z - plPos.z) > 10.0 then 
+                SetBlipSprite(blip, 0)
+              elseif (myPos.z - plPos.z) < (-10.0) then 
+                SetBlipSprite(blip, 2)
+              else
+                SetBlipSprite(blip, 58)
+              end
+            else
+              -- is a cop
+              if wantedPlayers[v] < 0 then 
+                SetBlipColor(blip, blipCops[10])
+                SetBlipSprite(blip, 41)
+              -- is not wanted
+              else
+                SetBlipColor(blip, 37)
+                SetBlipSprite(blip, 163)
+                --SetBlipAlpha(blip, 0)
+              end
+            end
+          else 
+            wantedPlayers[v] = 0
+          end
         end
-      end
+      --end
+      Citizen.Wait(10)
     end
-    Citizen.Wait(1)
+    Citizen.Wait(10)
   end
 end)
 
@@ -278,5 +313,9 @@ Citizen.CreateThread(function()
     --wantedPlayers = exports['cnr_police']:GetPolice()
     Citizen.Wait(100)
   end
+end)
+
+RegisterCommand('testprint', function(s,a,r)
+  print("^1Test - ^7Test - ^3Test")
 end)
 

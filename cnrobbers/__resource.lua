@@ -11,7 +11,8 @@ server_scripts {
 }
 
 server_exports {
-  'CurrentZone'
+  'CurrentZone',
+  'GetUniqueId'
 }
 
 exports {

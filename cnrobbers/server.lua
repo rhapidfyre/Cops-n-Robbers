@@ -18,6 +18,7 @@ local zone = {
   active = 1,        -- The currently active zone
   pick   = 18000000, -- The next time to pick a zone
 }
+local unique    = {}
 local wanted = {}
 
 function CurrentZone()
@@ -28,14 +29,25 @@ function ZoneNotification(i, t, s, m)
   TriggerClientEvent('cnr:chat_notify', (-1), i, t, s, m)
 end
 
+--- EXPORT: GetUniqueId()
+-- Returns the player's Unique ID
+-- @return The player's UID or nil
+function GetUniqueId(ply)
+  return unique[ply]
+end
+
+AddEventHandler('cnr:unique_id', function(ply, uid)
+  unique[ply] = uid
+end)
+
 --- CheckIfWanted()
 -- Checks if the player is wanted via SQL and then adds them to the table
 -- if they are wanted, otherwise, does nothing
 function CheckIfWanted(ply)
   local ply = source
+  local uid = exports['cnrobbers']:GetUniqueId(ply)
   
-  local uid = exports['cnr_charcreate']:GetUniqueId(ply)
-  exports['ghmattimysql']:execute(
+  exports['ghmattimysql']:scalar(
     "SELECT wanted FROM players WHERE idUnique = @uid",
     {['uid'] = uid},
     function(wp)

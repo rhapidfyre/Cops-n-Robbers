@@ -161,6 +161,7 @@ AddEventHandler('cnr:create_player', function()
       function(uid)
         if uid then 
           unique[ply] = uid
+          TriggerEvent('cnr:unique_id', ply, uid)
         end
         Citizen.Wait(200)
         TriggerClientEvent('cnr:create_ready', ply)
@@ -204,6 +205,7 @@ AddEventHandler('cnr:create_session', function()
           {['steamid'] = GetPlayerSteamId(ply)},
           function(uid)
             unique[ply] = uid
+            TriggerEvent('cnr:unique_id', ply, uid)
             local nt = os.date("%H:%M:%S", os.time())
             print(
               "[CNR "..nt.."] Unique ID "..uid.." for  "..pName.." created."

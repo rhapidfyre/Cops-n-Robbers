@@ -65,8 +65,6 @@ function PlayerJoined()
       SetPedDefaultComponentVariation(PlayerPedId())
       
       Citizen.Wait(200)
-      DoScreenFadeIn(600)
-      Citizen.Wait(1000)
       TriggerServerEvent('cnr:create_player')
       
     end)
