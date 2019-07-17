@@ -84,9 +84,6 @@ AddEventHandler('onClientGameTypeStart', function()
     z = cams.start.ped.z + 1.0,
     model = "mp_m_freemode_01"
   }, function()
-   
-    print("DEBUG - Spawning temporary player.")
-    SetPedDefaultComponentVariation(PlayerPedId())
     
   end)
   
@@ -759,6 +756,7 @@ AddEventHandler('cnr:changelog', function(logLines)
         '<br>&nbsp;&nbsp;'..deets..'</li>'
       )
     end
+    Wait(1)
   end
   --table.insert(msgInfo, '</ul>')
   SendNUIMessage({showwelcome = true, motd = table.concat(msgInfo)})

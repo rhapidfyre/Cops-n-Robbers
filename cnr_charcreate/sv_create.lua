@@ -19,6 +19,7 @@ local whitelist = {
   ["steam:110000100c58e26"] = true, -- RhapidFyre (main)
   ["steam:1100001353615fc"] = true, -- RhapidFyre (laptop)
   ["steam:110000100ea2fbe"] = true, -- Justin Chapman
+  ["steam:110000101e66d0e"] = true, -- Mark (Briglair)
 }
 
 
