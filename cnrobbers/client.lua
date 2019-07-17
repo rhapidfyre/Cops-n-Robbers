@@ -14,7 +14,6 @@
 --]]
 
 local activeZone      = 1
-local wantedPoints    = 0
 local mostWantedValue = 101
 local wantedPlayers   = {}
 local restarted       = {} -- DEBUG -
@@ -27,8 +26,7 @@ RegisterCommand('wcheck', function(s,a,r)
   local myself = GetPlayerServerId(PlayerId())
   if a[1] then 
     wantedPlayers[myself] = tonumber(a[1])
-    wantedPoints          = tonumber(a[1])
-    TriggerServerEvent('cnr:wanted_points', wantedPoints)
+    TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
   else
     local mywp = wantedPlayers[myself]
     TriggerEvent('chat:addMessage', { args = {
@@ -137,21 +135,58 @@ end
 -- @param doMsg The message to show to the player, beginning with 'WANTED: '
 -- @return Returns the current wanted level
 function WantedPoints(val, doMsg)
+  local myself = GetPlayerServerId(PlayerId())
+  if not wantedPlayers[myself] then wantedPlayers[myself] = 0 end
   if val then 
     if doMsg then 
-      TriggerEvent('chat:addMessage', {args = {
-        "CRIME", doMsg
-      }})
+      TriggerEvent('chat:addMessage', {args = {"^1CRIME", "^3"..doMsg.."^7"}})
     end
-    wantedPoints = wantedPoints + val
-    TriggerServerEvent('cnr:wanted_points', wantedPoints)
+    
+    -- Modifies wanted points change based on current wanted level
+    -- This ensures MINOR crimes aren't calculated as harsh at higher WP levels
+    local n = val
+    -- Weighs each wanted point individually
+    while n > 0 do -- e^-(0.02x/2)
+      local modifier = math.exp( -1 *((0.02 * wantedPlayers[myself])/2)) 
+      local formula  = math.floor((modifier * 1)*100000)
+      wantedPlayers[myself] = (wantedPlayers[myself] + formula/100000)
+      print("DEBUG - wantedPlayers[myself] = ("..wantedPlayers[myself]..")")
+      n = n - 1
+      Wait(0)
+    end
+    
+    -- Sets the new Wanted Point level based on calculated point weight
+    
+    TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
+    print(
+      "DEBUG - You now have ^3"..wantedPlayers[myself].." ^7Wanted Points!\n"..
+      "^1WANTED LEVEL: "..(math.floor(wantedPlayers[myself]/10) + 1)..".^7"
+    )
   end
-  return wantedPoints
+  return (wantedPlayers[myself])
 end
+
+
+--- EXPORT WantedLevel()
+-- Returns the wanted level of the player for easy calculation
+-- @return The wanted level based on current wanted points
+function WantedLevel()
+  local ply = GetPlayerServerId(PlayerId())
+  if not wantedPlayers[ply] then
+    wantedPlayers[ply] = 0
+    return 0
+  end
+  if wantedPlayers[ply] < 1 then return 0
+  elseif wantedPlayers[ply] > 10 then return 11
+  else return (math.floor((wantedPlayers[ply])/10) + 1)
+  end
+end
+
 
 function GetActiveZone()
   return activeZone
 end
+
 
 -- DEBUG -
 AddEventHandler('onResourceStop', function(rn)

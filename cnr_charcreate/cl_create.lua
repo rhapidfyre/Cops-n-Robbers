@@ -185,8 +185,9 @@ AddEventHandler('cnr:create_finished', function()
   Citizen.InvokeNative(0xE9F6FFE837354DD4, 'tvscreen')
   handle = nil
   TriggerEvent('cnr:new_player_ready')
-  TriggerEvent('cnr:client_loaded')
+  TriggerEvent('cnr:loaded')
   TriggerServerEvent('cnr:client_loaded')
+  ReportPosition()
   
 end)
 
@@ -433,7 +434,8 @@ AddEventHandler('cnr:create_reload', function(cInfo)
     Wait(100)
     
     TriggerServerEvent('cnr:client_loaded')
-    TriggerEvent('cnr:client_loaded')
+    TriggerEvent('cnr:loaded')
+    ReportPosition()
     
     Wait(200)
     if IsScreenFadedOut() then
@@ -451,7 +453,7 @@ end)
 
 
 -- Start saving the player's location
-AddEventHandler('cnr:client_loaded', function()
+function ReportPosition()
   if not reportLocation then 
     reportLocation = true
     -- Sends update to MySQL every 12 seconds
@@ -482,7 +484,7 @@ AddEventHandler('cnr:client_loaded', function()
       end
     end)
   end
-end)
+end
 
 
 RegisterNUICallback("playGame", function(data, cb)

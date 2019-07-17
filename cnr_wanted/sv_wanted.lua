@@ -7,8 +7,8 @@
   This file keeps track of various affects from being wanted, such as 
   the wanted player HUD, clear/most wanted messages, etc.
   
-  This file does NOT contain the current wanted level, robbery missions,
-  or other functions of criminal activity.
+  While this file does not contain most calls to criminal charges,
+  some basic things like carjacking, killing peds, etc are found here.
   
   Permission is granted only for executing this script for the purposes
   of playing the gamemode as intended by the developer.

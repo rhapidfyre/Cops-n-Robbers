@@ -14,7 +14,15 @@ local isCop       = false  -- True if player is on cop duty
 local ignoreDuty  = false  -- Disables cop duty point
 local cam         = nil
 local transition  = false
+local enteringCopCar = false
 local prevClothes = {}
+
+-- Wanted Point weights for certain actions
+local wp = {
+  attempt = 10, -- Atempt to Steal Public Safety
+  carjack = 50, -- Carjack public safety
+  gta     = 40  -- Steal Public Safety Vehicle
+}
 
 --- EXPORT: DutyStatus()
 -- Returns whether the player is on cop duty
@@ -127,6 +135,7 @@ function BeginCopDuty(st)
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
     end
     TriggerServerEvent('cnr:police_status', true)
+    TriggerEvent('cnr:police_duty', true)
     TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
     PoliceLoadout(true)
     Citizen.Wait(4800)
@@ -166,6 +175,8 @@ function Reduty()
   for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end
+  TriggerServerEvent('cnr:police_status', true)
+  TriggerEvent('cnr:police_duty', true)
   PoliceLoadout(true)
   Citizen.Wait(3000)
   transition = false
@@ -187,6 +198,7 @@ function EndCopDuty(st)
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end
   TriggerServerEvent('cnr:police_status', false)
+  TriggerEvent('cnr:police_duty', false)
   TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
   Citizen.Wait(4800)
   exports['cnrobbers']:ChatNotification(
@@ -235,6 +247,20 @@ function OffDutyLoops()
             -- Noncop can't start a stopped police vehicle
             if not GetIsVehicleEngineRunning(veh) then 
               SetVehicleEngineOn(veh, false, true, false)
+              if exports['cnrobbers']:WantedPoints() < 1 then 
+                exports['cnrobbers']:WantedPoints(wp.attempt,
+                  "Attempted GTA of a Public Safety Vehicle"
+                )
+                Citizen.Wait(5000)
+              end
+            -- If vehicle is running, and player isn't wanted, issue warrant
+            else
+              if exports['cnrobbers']:WantedPoints() < 1 then 
+                exports['cnrobbers']:WantedPoints(wp.gta,
+                  "Grand Theft Auto of a Public Safety Vehicle"
+                )
+                Citizen.Wait(5000)
+              end
             end
           end
         end
@@ -242,8 +268,24 @@ function OffDutyLoops()
       local eVeh = GetVehiclePedIsTryingToEnter(PlayerPedId())
       if eVeh > 0 then 
         if IsControlJustPressed(0, 75) then 
-          if policeCar[GetDisplayNameFromVehicleModel(GetEntityModel(eVeh))] then
-          
+          local ped = GetPedInVehicleSeat(eVeh, (-1))
+          if ped > 0 then
+            local vmdl = GetDisplayNameFromVehicleModel(GetEntityModel(eVeh))
+            if policeCar[vmdl] then
+              enteringCopCar = true
+              Citizen.CreateThread(function()
+                Citizen.Wait(8000)
+                local v = GetVehiclePedIsIn(PlayerPedId())
+                if v > 0 then 
+                  if GetPedInVehicleSeat(v, (-1)) == PlayerPedId() then 
+                    exports['cnrobbers']:WantedPoints(wp.carjack,
+                      "Carjacking a Public Safety Official"
+                    )
+                  end
+                end
+                enteringCopCar = false
+              end)
+            end
           end
         end
       end
