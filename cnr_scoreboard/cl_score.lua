@@ -81,10 +81,8 @@ Citizen.CreateThread(function()
               )
             -- Is wanted
             elseif wantedPlayers[svid] > 0 then
-              local modLevel = math.floor(wantedPlayers[svid]/10)
-              if modLevel < 1 then modLevel = 1
-              elseif wantedPlayers[svid] > 100 then modLevel = 101 end
-              if modLevel == 101 then -- Most Wanted
+              local modLevel = math.floor(wantedPlayers[svid]/10) + 1
+              if wantedPlayers[svid] > 100 then -- Most Wanted
                 table.insert(players, '<div class="ply_info">'..
                   '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table class="wanted10">'..
                   '<tr><thead><th colspan="2">Wanted by FIB</th></thead></tr>'..
@@ -145,7 +143,7 @@ Citizen.CreateThread(function()
     local plyTable = GetActivePlayers()
     for k,v in pairs (plyTable) do
       local ped = GetPlayerPed(v)
-      --if ped ~= PlayerPedId() then
+      if ped ~= PlayerPedId() then
         blip = GetBlipFromEntity(ped)
         -- Blip does not exist, create it, and we'll fix it next frame (DEBUG - )
         if not DoesBlipExist(blip) then 
@@ -154,10 +152,10 @@ Citizen.CreateThread(function()
           SetBlipScale(blip, 0.8)
           SetBlipDisplay(blip, 8)
           SetBlipShrink(blip, true)
-        -- Blip exists, check wanted level, cop status, etc (DEBUG - )
+        --[[ Blip exists, check wanted level, cop status, etc (DEBUG - )
         else
           if wantedPlayers[v] then 
-            local wl = math.floor(wantedPlayers[v]/10)
+            local wl = math.floor(wantedPlayers[v]/10) + 1
             if wl < 1 then wl = 1
             elseif wl > 10 then wl = 11 end
             -- is wanted
@@ -188,8 +186,9 @@ Citizen.CreateThread(function()
           else 
             wantedPlayers[v] = 0
           end
+        ]]
         end
-      --end
+      end
       Citizen.Wait(10)
     end
     Citizen.Wait(10)
@@ -224,7 +223,7 @@ end
 function NameColoring(sv)
 
   if wantedPlayers[sv] then 
-    local wl = (math.floor(wantedPlayers[sv]/10))
+    local wl = (math.floor(wantedPlayers[sv]/10) + 1)
     if wantedPlayers[sv] > 0 and wantedPlayers[sv] < 101 then 
       if wantedPlayers[sv] <= 9 then 
         return wantedColors[1]
@@ -308,12 +307,14 @@ end)
 
 local loaded = false
 AddEventHandler('cnr:client_loaded', function()
-  if not loaded then loaded = true end
-  while loaded do 
-    wantedPlayers = exports['cnrobbers']:GetWanteds()
-    Citizen.Wait(100)
-    --wantedPlayers = exports['cnr_police']:GetPolice()
-    Citizen.Wait(100)
+  if not loaded then
+    loaded = true
+    while loaded do 
+      wantedPlayers = exports['cnrobbers']:GetWanteds()
+      Citizen.Wait(100)
+      --wantedPlayers = exports['cnr_police']:GetPolice()
+      Citizen.Wait(100)
+    end
   end
 end)
 

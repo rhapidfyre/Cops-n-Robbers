@@ -42,7 +42,6 @@ RegisterCommand('previtem', function(s,a,r)
   print("DEBUG - Slot ["..slotNumber.."] Current item #"..i-1)
 end)
 
-
 --- PoliceLoadout()
 -- Toggles the usage of police equipment
 -- DEBUG - Change later to compensate for player-owned weapons
@@ -124,7 +123,7 @@ function BeginCopDuty(st)
       [11] = {draw = GetPedDrawableVariation(PlayerPedId(), 11),
               text = GetPedTextureVariation(PlayerPedId(), 11)},
     }
-    for k,v in pairs (copUniform) do
+    for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
     end
     TriggerServerEvent('cnr:police_status', true)
@@ -164,7 +163,7 @@ function Reduty()
     [11] = {draw = GetPedDrawableVariation(PlayerPedId(), 11),
             text = GetPedTextureVariation(PlayerPedId(), 11)},
   }
-  for k,v in pairs (copUniform) do
+  for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end
   PoliceLoadout(true)
@@ -229,7 +228,26 @@ end
 function OffDutyLoops()
   Citizen.CreateThread(function()
     while not isCop do
-      Citizen.Wait(0)
+      local veh = GetVehiclePedIsIn(PlayerPedId())
+      if veh > 0 then 
+        if policeCar[GetDisplayNameFromVehicleModel(GetEntityModel(veh))] then
+          if GetPedInVehicleSeat(veh, (-1)) == PlayerPedId() then 
+            -- Noncop can't start a stopped police vehicle
+            if not GetIsVehicleEngineRunning(veh) then 
+              SetVehicleEngineOn(veh, false, true, false)
+            end
+          end
+        end
+      end
+      local eVeh = GetVehiclePedIsTryingToEnter(PlayerPedId())
+      if eVeh > 0 then 
+        if IsControlJustPressed(0, 75) then 
+          if policeCar[GetDisplayNameFromVehicleModel(GetEntityModel(eVeh))] then
+          
+          end
+        end
+      end
+      Citizen.Wait(10)
     end
   end)
 end

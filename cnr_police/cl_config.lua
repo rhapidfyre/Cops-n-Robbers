@@ -10,12 +10,24 @@
   of playing the gamemode as intended by the developer.
 --]]
 
+maleHash   = GetHashKey("mp_m_freemode_01")
+femaleHash = GetHashKey("mp_f_freemode_01")
+
 copUniform = {
-  [3]  = {draw =   0, text = 0},
-  [4]  = {draw =  35, text = 0},
-  [6]  = {draw =  54, text = 0},
-  [8]  = {draw = 122, text = 0},
-  [11] = {draw =  55, text = 0}
+  [maleHash] = {
+    [3]  = {draw =   0, text = 0},
+    [4]  = {draw =  35, text = 0},
+    [6]  = {draw =  54, text = 0},
+    [8]  = {draw = 122, text = 0},
+    [11] = {draw =  55, text = 0}
+  },
+  [femaleHash] = {
+    [3]  = {draw =  14, text = 0},
+    [4]  = {draw =  34, text = 0},
+    [6]  = {draw =  27, text = 0},
+    [8]  = {draw = 152, text = 0},
+    [11] = {draw =  48, text = 0}
+  }
 }
 
 -- Agencies:

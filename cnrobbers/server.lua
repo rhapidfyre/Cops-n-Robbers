@@ -33,10 +33,12 @@ end
 -- Returns the player's Unique ID
 -- @return The player's UID or nil
 function GetUniqueId(ply)
+  print("DEBUG - GetUniqueId("..tostring(ply)..") = "..tostring(unique[ply]))
   return unique[ply]
 end
 
 AddEventHandler('cnr:unique_id', function(ply, uid)
+  print("DEBUG - unique["..tostring(ply).."] = "..tostring(uid))
   unique[ply] = uid
 end)
 
@@ -44,24 +46,27 @@ end)
 -- Checks if the player is wanted via SQL and then adds them to the table
 -- if they are wanted, otherwise, does nothing
 function CheckIfWanted(ply)
-  local ply = source
   local uid = GetUniqueId(ply)
   
-  exports['ghmattimysql']:scalar(
-    "SELECT wanted FROM players WHERE idUnique = @uid",
-    {['uid'] = uid},
-    function(wp)
-      -- If player being checked is wanted, send update for that player
-      if not wp then 
-        print("^1[CNR ERROR] ^7No wanted level rx'd from SQL (server.lua).")
-        return
+  if uid then
+    exports['ghmattimysql']:scalar(
+      "SELECT wanted FROM players WHERE idUnique = @uid",
+      {['uid'] = uid},
+      function(wp)
+        -- If player being checked is wanted, send update for that player
+        if not wp then 
+          print("^1[CNR ERROR] ^7SQL gave no response for wanted level query.")
+          return
+        end
+        if wp > 0 then
+          wanted[ply] = wp
+          TriggerClientEvent('cnr:cl_wanted_client', (-1), ply, wp)
+        end
       end
-      if wp > 0 then
-        wanted[ply] = wp
-        TriggerClientEvent('cnr:cl_wanted_client', (-1), ply, wp)
-      end
-    end
-  )
+    )
+  else
+    print("^1[CNR ERROR] ^7Unique ID was invalid ("..tostring(uid)..").")
+  end
 end
 
 -- When a client has loaded in the game, send them their active zone
@@ -93,7 +98,7 @@ AddEventHandler('playerDropped', function(rsn)
     TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted[ply])
   end
   print(
-    "[CNR "..(os.date("%H:%M:%I", os.time())).."] ^2"..
+    "[CNR "..(os.date("%H:%M:%I", os.time())).."] ^1"..
     GetPlayerName(ply).." ("..ply..") disconnected.^7"
   )
 end)

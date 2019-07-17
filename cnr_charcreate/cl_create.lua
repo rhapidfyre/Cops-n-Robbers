@@ -25,18 +25,46 @@ local myParents = {[1] = 1, [2] = 21}
 local mySimilar = 50
 
 local reportLocation = false
-
- -- DEBUG - 
-Citizen.CreateThread(function()
-  Wait(1000)
-  SetNuiFocus(false)
-end)
     
 local cam = nil
 
+-- function as existing in original R* scripts
+local function freezePlayer(id, freeze)
+    local player = id
+    SetPlayerControl(player, not freeze, false)
+
+    local ped = GetPlayerPed(player)
+
+    if not freeze then
+        if not IsEntityVisible(ped) then
+            SetEntityVisible(ped, true)
+        end
+
+        if not IsPedInAnyVehicle(ped) then
+            SetEntityCollision(ped, true)
+        end
+
+        FreezeEntityPosition(ped, false)
+        SetPlayerInvincible(player, false)
+    else
+        if IsEntityVisible(ped) then
+            SetEntityVisible(ped, false)
+        end
+
+        SetEntityCollision(ped, false)
+        FreezeEntityPosition(ped, true)
+        SetPlayerInvincible(player, true)
+
+        if not IsPedFatallyInjured(ped) then
+            ClearPedTasksImmediately(ped)
+        end
+    end
+end
+
+
 AddEventHandler('onClientGameTypeStart', function()   
   print("DEBUG - Preparing to load player into the server.")
-  exports.spawnmanager:setAutoSpawn(false)
+  --exports.spawnmanager:setAutoSpawn(false)
   Citizen.Wait(1000)
   
   local c = cams.start
@@ -61,6 +89,7 @@ AddEventHandler('onClientGameTypeStart', function()
     SetPedDefaultComponentVariation(PlayerPedId())
     
   end)
+  
   TriggerServerEvent('cnr:create_player')
 end)
 
