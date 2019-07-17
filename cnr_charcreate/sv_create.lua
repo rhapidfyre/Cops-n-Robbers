@@ -23,9 +23,7 @@ local whitelist = {
 
 
 --[[ --------------------------------------------------------------------------
- 
   ~ BEGIN POSITION AQUISITION SCRIPTS
- 
   1) Players, when loaded, will submit their position every 12 seconds
   2) The server, every 30 seconds, loops through the positions table
   3) For each entry found, it will update their last known position in SQL
@@ -34,6 +32,10 @@ local whitelist = {
 ]]-----------------------------------------------------------------------------
 
 local positions = {}
+
+function LogTime()
+  return (os.date("%H:%M:%S", os.time()))
+end
 
 RegisterServerEvent('cnr:save_pos')
 AddEventHandler('cnr:save_pos', function(pos)
@@ -130,45 +132,55 @@ function GetPlayerSteamId(ply)
   return sid
 end
 
+function ReadChangelog(ply)
+  local changeLog = io.open("changelog.txt", "r")
+  local logLines  = {}
+  if changeLog then 
+    for line in io.lines("changelog.txt") do 
+      if line ~= "" and line then
+        logLines[#logLines + 1] = line
+      end
+    end
+  end 
+  TriggerClientEvent('cnr:changelog', ply, logLines)
+  changeLog:close()
+end
+
 
 --- EVENT 'cnr:create_player'
 -- Received by a client when they're spawned and ready to load in
 RegisterServerEvent('cnr:create_player')
 AddEventHandler('cnr:create_player', function()
 
-  local ply = source
-  local stm = GetPlayerSteamId(ply)
+  local ply     = source
+  local stm     = GetPlayerSteamId(ply)
+  local ustring = GetPlayerName(ply).." ("..ply..")"
+  print("[CNR "..LogTime().."] ^2"..ustring.." connected^7.")
   
-  local changeLog = io.open("changelog.txt", "r")
-  local logLines  = {}
-  if not changeLog then 
-  else
-    for line in io.lines("changelog.txt") do 
-      if line ~= "" and line then
-        logLines[#logLines + 1] = line
-      end
-    end
-  end
-  TriggerClientEvent('cnr:changelog', ply, logLines)
-  changeLog:close()
+  ReadChangelog(ply)
   
   if stm then
   
     -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
-      "SELECT * FROM players WHERE idSteam = @steam LIMIT 1",
+      "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
       {['steam'] = stm},
       function(uid)
         if uid then 
           unique[ply] = uid
+          print("[CNR "..LogTime().."] Unique ID ["..uid.."] found for "..ustring)
           TriggerEvent('cnr:unique_id', ply, uid)
         end
-        Citizen.Wait(200)
+        Citizen.Wait(200) 
+        print("[CNR "..LogTime().."] "..ustring.." is ready.")
         TriggerClientEvent('cnr:create_ready', ply)
       end
     )
     
   else
+    local t = LogTime()
+    print("[CNR "..t.."] ^7No Steam ID Found for ^7"..ustring)
+    print("[CNR "..t.."] ^1"..ustring.." disconnected. (No Steam Logon)^7")
     DropPlayer(ply,
       "Please log into steam, or make a FREE steam account at "..
       "www.steampowered.com so we can save your progress."

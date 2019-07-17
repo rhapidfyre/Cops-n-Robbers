@@ -9,8 +9,3 @@
   Permission is granted only for executing this script for the purposes
   of playing the gamemode as intended by the developer.
 --]]
-
-
-RegisterCommand('testprint', function(s,a,r)
-  print("^1Test - ^7Test - ^3test")
-end)

@@ -62,7 +62,7 @@ Citizen.CreateThread(function()
 			if not showList then
 				local players = {}
         print("DEBUG - calling export.")
-				local plys = exports['cnrobbers']:GetPlayers()
+				local plys = GetActivePlayers() --exports['cnrobbers']:GetPlayers()
 				for _,i in ipairs(plys) do
           print("DEBUG - Building variables.")
 					local uname    = GetPlayerName(i)
@@ -142,7 +142,7 @@ end)
 
 Citizen.CreateThread(function()
   while true do 
-    local plyTable = exports['cnrobbers']:GetPlayers()
+    local plyTable = GetActivePlayers()
     for k,v in pairs (plyTable) do
       local ped = GetPlayerPed(v)
       --if ped ~= PlayerPedId() then
@@ -306,8 +306,10 @@ Citizen.CreateThread(function()
   end
 end)
 
-Citizen.CreateThread(function()
-  while true do 
+local loaded = false
+AddEventHandler('cnr:client_loaded', function()
+  if not loaded then loaded = true end
+  while loaded do 
     wantedPlayers = exports['cnrobbers']:GetWanteds()
     Citizen.Wait(100)
     --wantedPlayers = exports['cnr_police']:GetPolice()
@@ -315,7 +317,8 @@ Citizen.CreateThread(function()
   end
 end)
 
-RegisterCommand('testprint', function(s,a,r)
-  print("^1Test - ^7Test - ^3Test")
+-- DEBUG - OBSOLETE?
+AddEventHandler('cnr:client_unload', function()
+  loaded = false
 end)
 

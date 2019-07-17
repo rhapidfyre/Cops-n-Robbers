@@ -38,9 +38,6 @@ RegisterCommand('wcheck', function(s,a,r)
 end)
 
 
-
-
-
 --- EVENT: 'cl_wanted_list'
 -- Updates the client's entire table with the current server wanted list
 -- @param wanteds The list (table) of wanted players (K: Server ID, V: Points)
@@ -97,6 +94,7 @@ end
 
 --- EXPORT GetPlayers()
 -- Retrieves a table of all connected players
+-- OBSOLETE - Use GetActivePlayers() (Native)
 -- @return Table of connected players
 function GetPlayers()
     local players = {}
@@ -106,6 +104,7 @@ function GetPlayers()
 		  end
     end
     return players
+    
 end
 
 

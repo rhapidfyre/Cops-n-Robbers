@@ -32,48 +32,36 @@ Citizen.CreateThread(function()
   SetNuiFocus(false)
 end)
     
-    
-    
-    
-    
 local cam = nil
-local runOnce = false
 
-function PlayerJoined()
-  if not runOnce then 
-    runOnce = true
-    --exports.spawnmanager:setAutoSpawn(false)
-    Citizen.Wait(2000)
+AddEventHandler('onClientGameTypeStart', function()   
+  print("DEBUG - Preparing to load player into the server.")
+  exports.spawnmanager:setAutoSpawn(false)
+  Citizen.Wait(1000)
+  
+  local c = cams.start
+  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+  SetCamActive(cam, true)
+  RenderScriptCams(true, true, 500, true, true)
+  SetCamParams(cam,
+    c.view.x, c.view.y, c.view.z,
+    c.rotx, c.roty, c.h,
+    50.0
+  ) 
+  print("DEBUG - Spawn Camera created.")
+  
+  exports.spawnmanager:spawnPlayer({
+    x = cams.start.ped.x,
+    y = cams.start.ped.y,
+    z = cams.start.ped.z + 1.0,
+    model = "mp_m_freemode_01"
+  }, function()
+   
+    print("DEBUG - Spawning temporary player.")
+    SetPedDefaultComponentVariation(PlayerPedId())
     
-    local c = cams.start
-    if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-    SetCamActive(cam, true)
-    RenderScriptCams(true, true, 500, true, true)
-    SetCamParams(cam,
-      c.view.x, c.view.y, c.view.z,
-      c.rotx, c.roty, c.h,
-      50.0
-    )
-    
-    exports.spawnmanager:spawnPlayer({
-      x = cams.start.ped.x,
-      y = cams.start.ped.y,
-      z = cams.start.ped.z + 1.0,
-      model = "mp_m_freemode_01"
-    }, function()
-    
-      SetPedDefaultComponentVariation(PlayerPedId())
-      
-      Citizen.Wait(200)
-      TriggerServerEvent('cnr:create_player')
-      
-    end)
-  end
-end
-
-
-AddEventHandler('onClientMapStart', function()
-  PlayerJoined()
+  end)
+  TriggerServerEvent('cnr:create_player')
 end)
 
 
@@ -174,12 +162,6 @@ AddEventHandler('cnr:create_finished', function()
   TriggerEvent('cnr:client_loaded')
   TriggerServerEvent('cnr:client_loaded')
   
-end)
-
-
--- DEBUG -
-Citizen.CreateThread(function()
-  PlayerJoined()
 end)
 
 
@@ -345,7 +327,8 @@ end
 -- Called when the character (or lack thereof) is ready
 -- and the player can join.
 RegisterNetEvent('cnr:create_ready')
-AddEventHandler('cnr:create_ready', function()
+AddEventHandler('cnr:create_ready', function() 
+  print("DEBUG - Changing button from LOADING to PLAY")
   SendNUIMessage({hideready = true})
 end)
 

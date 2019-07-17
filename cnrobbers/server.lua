@@ -18,7 +18,7 @@ local zone = {
   active = 1,        -- The currently active zone
   pick   = 18000000, -- The next time to pick a zone
 }
-local unique    = {}
+local unique = {}
 local wanted = {}
 
 function CurrentZone()
@@ -45,13 +45,17 @@ end)
 -- if they are wanted, otherwise, does nothing
 function CheckIfWanted(ply)
   local ply = source
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = GetUniqueId(ply)
   
   exports['ghmattimysql']:scalar(
     "SELECT wanted FROM players WHERE idUnique = @uid",
     {['uid'] = uid},
     function(wp)
       -- If player being checked is wanted, send update for that player
+      if not wp then 
+        print("^1[CNR ERROR] ^7No wanted level rx'd from SQL (server.lua).")
+        return
+      end
       if wp > 0 then
         wanted[ply] = wp
         TriggerClientEvent('cnr:cl_wanted_client', (-1), ply, wp)
@@ -88,6 +92,10 @@ AddEventHandler('playerDropped', function(rsn)
     wanted[ply] = nil
     TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted[ply])
   end
+  print(
+    "[CNR "..(os.date("%H:%M:%I", os.time())).."] ^2"..
+    GetPlayerName(ply).." ("..ply..") disconnected.^7"
+  )
 end)
 
 
@@ -103,46 +111,34 @@ function ZoneChange()
     Citizen.Wait(1)
   end
   local dt = os.date("%H:%M", os.time())
+  local n  = 300
   print("[CNR "..dt.."] Zone "..(newZone).." will unlock in 5 minutes.")
-  TriggerClientEvent('chat:addMessage', (-1), 
-    {args = {"^1The active zone is changing in ^35 Minutes^1!"}}
-  )
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~r~5 Minutes", 
-    "The active zone is changing."
-  )
-  Citizen.Wait(60000)
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~y~4 Minutes", 
-    "The active zone is changing."
-  )
-  Citizen.Wait(60000)
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~y~3 Minutes", 
-    "The active zone is changing."
-  )
-  Citizen.Wait(60000)
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~y~2 Minutes", 
-    "Zone #"..newZone.." unlocks soon."
-  )
-  Citizen.Wait(60000)
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~y~1 Minute", 
-    "Zone #"..newZone.." is opening."
-  )
-  Citizen.Wait(30000)
-  ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~y~30 Seconds", 
-    "Zone #"..newZone.." is unlocking."
-  )
+  while n > 30 do 
+    if n % 60 == 0 then
+      local mins = (n/60).." minutes"
+      if n/60 == 1 then mins = "1 minute"
+      end
+      TriggerClientEvent('chat:addMessage', (-1), 
+        {args = {"^1The active zone is changing in ^3"..mins.."^1!"}}
+      )
+      ZoneNotification("CHAR_SOCIAL_CLUB",
+        "Zone Change", "~r~"..mins, 
+        "The active zone is changing!"
+      )
+    end
+    n = n - 1
+    Wait(1000)
+  end
+  
   Citizen.Wait(20000)
+  
   for i = 0, 9 do 
     TriggerClientEvent('chat:addMessage', (-1), 
       {args = {"^1Zone ^3#"..newZone.." ^1activates in ^3"..(10-i).." Second(s)^1!!"}}
     )
     Citizen.Wait(1000)
   end
+  
   dt = os.date("%H:%M", os.time())
   print("[CNR "..dt.."] Zone "..(zone.active).." is now active.")
   zone.active = newZone
