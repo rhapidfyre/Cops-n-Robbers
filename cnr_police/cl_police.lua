@@ -221,13 +221,11 @@ function UnlockPoliceCarDoor()
         if isCop then 
           SetVehicleDoorsLocked(veh, 0)
           SetVehicleNeedsToBeHotwired(veh, false)
-          print("DEBUG - Cop entering locked cop car; Unlocking.")
           Citizen.CreateThread(function()
             Citizen.Wait(6000)
             if GetVehiclePedIsIn(PlayerPedId()) ~= veh then 
               SetVehicleDoorsLocked(veh, 2)
               SetVehicleNeedsToBeHotwired(veh, true)
-              print("DEBUG - Player did not enter vehicle, relocked.")
             end
           end)
         end
@@ -237,78 +235,16 @@ function UnlockPoliceCarDoor()
 end
 
 
-function OffDutyLoops()
-  Citizen.CreateThread(function()
-    while not isCop do
-      local veh = GetVehiclePedIsIn(PlayerPedId())
-      if veh > 0 then 
-        if policeCar[GetDisplayNameFromVehicleModel(GetEntityModel(veh))] then
-          if GetPedInVehicleSeat(veh, (-1)) == PlayerPedId() then 
-            -- Noncop can't start a stopped police vehicle
-            if not GetIsVehicleEngineRunning(veh) then 
-              SetVehicleEngineOn(veh, false, true, false)
-              if exports['cnrobbers']:WantedPoints() < 1 then 
-                exports['cnrobbers']:WantedPoints(wp.attempt,
-                  "Attempted GTA of a Public Safety Vehicle"
-                )
-                Citizen.Wait(5000)
-              end
-            -- If vehicle is running, and player isn't wanted, issue warrant
-            else
-              if exports['cnrobbers']:WantedPoints() < 1 then 
-                exports['cnrobbers']:WantedPoints(wp.gta,
-                  "Grand Theft Auto of a Public Safety Vehicle"
-                )
-                Citizen.Wait(5000)
-              end
-            end
-          end
-        end
-      end
-      local eVeh = GetVehiclePedIsTryingToEnter(PlayerPedId())
-      if eVeh > 0 then 
-        if IsControlJustPressed(0, 75) then 
-          local ped = GetPedInVehicleSeat(eVeh, (-1))
-          if ped > 0 then
-            local vmdl = GetDisplayNameFromVehicleModel(GetEntityModel(eVeh))
-            if policeCar[vmdl] then
-              enteringCopCar = true
-              Citizen.CreateThread(function()
-                Citizen.Wait(8000)
-                local v = GetVehiclePedIsIn(PlayerPedId())
-                if v > 0 then 
-                  if GetPedInVehicleSeat(v, (-1)) == PlayerPedId() then 
-                    exports['cnrobbers']:WantedPoints(wp.carjack,
-                      "Carjacking a Public Safety Official"
-                    )
-                  end
-                end
-                enteringCopCar = false
-              end)
-            end
-          end
-        end
-      end
-      Citizen.Wait(10)
-    end
-  end)
-end
-
 function PoliceDutyLoops()
   Citizen.CreateThread(function()
     while isCop do 
-      if IsControlJustPressed(0, 75) then 
+      if IsControlJustPressed(0, 75) then -- F
         UnlockPoliceCarDoor()
       end
       Citizen.Wait(0)
     end
   end)
 end
-
-Citizen.CreateThread(function()
-  Citizen.Wait(2000)
-  OffDutyLoops()
-end)
 
 Citizen.CreateThread(function()
   while true do 

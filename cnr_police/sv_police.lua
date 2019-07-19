@@ -12,6 +12,7 @@
 
 local cops    = {}
 local dropCop = {}
+local carUse  = {}
 
 function CountCops()
   local n = 0
@@ -23,6 +24,7 @@ function CountCops()
   end
   return n
 end
+
 
 RegisterServerEvent('cnr:police_status')
 AddEventHandler('cnr:police_status', function(onDuty)

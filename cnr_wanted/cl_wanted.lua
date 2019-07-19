@@ -17,13 +17,130 @@
 
 local isShooting = false
 local isCop      = false
+local stoleCars  = {} -- Keep track of cars stolen so they don't get charged x2
+local entering   = {
+  id = 0,     -- Local vehicle ID
+  locked = false,
+  public = false,
+  driver = 0
+}
 
+local isPoliceCar = {
+  ["POLICE"]   = true,  ["POLICEB"]  = true,  ["POLICE2"]  = true,
+  ["POLICE3"]  = true,  ["POLICE4"]  = true,  ["POLICE5"]  = true,
+  ["SHERIFF"]  = true,  ["SHERIFF2"] = true,  ["PRANGER"]  = true,
+  ["FBI"]      = true,  ["FBI2"]     = true,  ["PRANCHER"] = true,
+}
 
 -- Wanted Points per action
 local wp    = {
   carjack   = 25, -- Carjacking a Ped
   discharge = 5,  -- Shooting in public
 }
+
+RegisterNetEvent('cnr:wanted_check_vehicle')
+AddEventHandler('cnr:wanted_check_vehicle', function(veh, mdl)
+  if veh then 
+    if veh > 0 then 
+      entering.id = veh
+      print("DEBUG - entering.id = "..(entering.id))
+    end
+  end
+  if entering.id > 0 then 
+    entering.locked = GetVehicleDoorLockStatus(entering.id)
+    entering.driver = GetPedInVehicleSeat(entering.id, (-1))
+    entering.public = isPoliceCar[mdl]
+    print("DEBUG - Variables SET.")
+  end
+end)
+
+RegisterNetEvent('cnr:wanted_enter_vehicle')
+AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
+  if entering.id > 0 and not stoleCars[veh] then 
+    print("DEBUG - Vehicle entry completed.")
+    if not exports['cnr_police']:DutyStatus() then 
+      print("DEBUG - Not a cop, checking crimes.")
+      Citizen.CreateThread(function()
+        Citizen.Wait(3000)
+        local crime = {points = 0, msg = ""}
+        -- Getting into public safety vehicle
+        if entering.public then 
+          print("DEBUG - Entered publicly owned vehicle")
+          -- Vehicle has a driver
+          if entering.driver > 0 then
+            print("DEBUG - There was a driver.")
+            -- If entering driver seat or driver is not a player, carjack crime
+            if entering.seat == (-1) or not IsPedAPlayer(entering.driver) then
+              print("DEBUG - Preparing criminal charges for CARJACKING (PS)")
+              crime = {
+                points = 50,
+                msg = "Carjacking a Public Official (215 PC)"
+              }
+            end
+            
+          else
+            print("DEBUG - Unoccupied PS vehicle, checking lock.")
+            -- Stealing locked police vehicle
+            if entering.locked and seat == (-1) then 
+              print("DEBUG -  Vehicle was locted. Preparing VANDALISM")
+              crime.point =  8
+              crime.msg   = "Vandalism of a Public Vehicle (594 VC)"
+              -- Check if engine is running, because if it is, they can take it
+              if GetIsVehicleEngineRunning(entering.id) then 
+                print("DEBUG - Engine running, double charging for GTA")
+                crime.p2   = 12
+                crime.msg2 = "GTA of a Public Vehicle (10851 VC)"
+              end
+              
+            -- Stealing unlocked police vehicle
+            elseif not entering.locked and seat == (-1) then
+              if GetIsVehicleEngineRunning(entering.id) then 
+                print("DEBUG - Not locked.")
+                crime.points = 12
+                crime.msg  = "GTA of a Public Vehicle (10851 VC)"
+              end
+            end
+          end
+        
+        -- Entering an occupied vehicle (carjacking, not public safety)
+        elseif entering.driver > 0 then 
+          print("DEBUG - Carjacking a civilian.")
+          crime = {
+            points = 34,
+            msg = "Carjacking (215 PC)"
+          }
+          
+        -- Entering a locked vehicle (not public safety)
+        elseif entering.locked then
+          print("DEBUG - GTA/VANDALISM - Civilian.")
+          crime.point =  8
+          crime.msg   = "Vandalism (594 VC)"
+          crime.p2   = 12
+          crime.msg2 = "Motor Vehicle Theft/GTA (10851 VC)"
+          
+        end
+        if crime.points > 0 then 
+          print("DEBUG - Issuing charges.")
+          exports['cnrobbers']:WantedPoints(crime.points, crime.msg)
+          -- Secondary crime
+          if crime.p2 then 
+            print("DEBUG - Issuing secondary charges.")
+            exports['cnrobbers']:WantedPoints(crime.p2, crime.msg2)
+          end
+        end
+        entering = {id = 0, locked = false, public = false, driver = 0}
+      end)
+    end
+    print("DEBUG - Adding vehicle #"..tostring(veh).." to list of already affected vehicles.")
+    stoleCars[veh] = true
+  elseif entering.id > 0 and stoleCars[veh] then 
+    print("DEBUG - Vehicle already affected.")
+    entering = {id = 0, locked = false, public = false, driver = 0}
+  else
+    print("DEBUG - Not found.")
+    entering = {id = 0, locked = false, public = false, driver = 0}
+  end
+end)
 
 
 RegisterNetEvent('cnr:cl_wanted_client')
@@ -40,51 +157,6 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
   end
 end)
 
-
--- Carjacking
-Citizen.CreateThread(function()
-  while true do
-    local eVeh = GetVehiclePedIsTryingToEnter(PlayerPedId())
-    if eVeh > 0 then 
-      if IsControlJustPressed(0, 75) then 
-        local ped = GetPedInVehicleSeat(eVeh, (-1))
-        if ped > 0 then
-          local vmdl = GetDisplayNameFromVehicleModel(GetEntityModel(eVeh))
-          if policeCar[vmdl] then
-            enteringCopCar = true
-            Citizen.CreateThread(function()
-              Citizen.Wait(6000)
-              local v = GetVehiclePedIsIn(PlayerPedId())
-              if v > 0 then 
-                if GetPedInVehicleSeat(v, (-1)) == PlayerPedId() then 
-                  exports['cnrobbers']:WantedPoints(40,
-                    "Carjacking a Public Safety Official"
-                  )
-                end
-              end
-              enteringCopCar = false
-            end)
-          -- If people carjack regular vehicles (move later DEBUG - )
-          else
-            Citizen.CreateThread(function()
-              Citizen.Wait(6000)
-              local v = GetVehiclePedIsIn(PlayerPedId())
-              if v > 0 and eVeh == v then 
-                if GetPedInVehicleSeat(v, (-1)) == PlayerPedId() then 
-                  exports['cnrobbers']:WantedPoints(wp.carjack,
-                    "Carjacking"
-                  )
-                end
-              end
-            end)
-          end
-        else print("DEBUG - No ped in driver's seat.")
-        end
-      end
-    end
-    Citizen.Wait(10)
-  end
-end)
 
 AddEventHandler('cnr:loaded', function()
   NotCopLoops()
