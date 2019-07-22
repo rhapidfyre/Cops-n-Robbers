@@ -21,6 +21,76 @@ local restarted       = {} -- DEBUG -
 local plyCount = 255
 
 
+
+---------- ENTITY ENUMERATOR --------------
+local entityEnumerator = {
+  __gc = function(enum)
+    if enum.destructor and enum.handle then
+      enum.destructor(enum.handle)
+    end
+    enum.destructor = nil
+    enum.handle = nil
+  end
+}
+
+local function EnumerateEntities(initFunc, moveFunc, disposeFunc)
+  return coroutine.wrap(function()
+    local iter, id = initFunc()
+    if not id or id == 0 then
+      disposeFunc(iter)
+      return
+    end
+    
+    local enum = {handle = iter, destructor = disposeFunc}
+    setmetatable(enum, entityEnumerator)
+    
+    local next = true
+    repeat
+      coroutine.yield(id)
+      next, id = moveFunc(iter)
+    until not next
+    
+    enum.destructor, enum.handle = nil, nil
+    disposeFunc(iter)
+  end)
+end
+
+--- EXPORT EnumerateObjects()
+-- Used to loop through all objects rendered by the client
+-- @return The table of entities
+-- @usage for objs in EnumerateObjects() do
+function EnumerateObjects()
+  return EnumerateEntities(FindFirstObject, FindNextObject, EndFindObject)
+end
+
+--- EXPORT EnumeratePeds()
+-- Used to loop through all objects rendered by the client
+-- @return The table of entities
+-- @usage for peds in EnumeratePeds() do
+function EnumeratePeds()
+  return EnumerateEntities(FindFirstPed, FindNextPed, EndFindPed)
+end
+
+--- EXPORT EnumerateVehicles()
+-- Used to loop through all objects rendered by the client
+-- @return The table of entities
+-- @usage for vehs in EnumerateVehicles() do
+function EnumerateVehicles()
+  return EnumerateEntities(FindFirstVehicle, FindNextVehicle, EndFindVehicle)
+end
+
+--- EXPORT EnumeratePickups()
+-- Used to loop through all pickups rendered by the client
+-- @return The table of entities
+-- @usage for pickups in EnumeratePickups() do
+function EnumeratePickups()
+  return EnumerateEntities(FindFirstPickup, FindNextPickup, EndFindPickup)
+end
+-------------------------------------------------	
+
+
+
+
 -- DEBUG - Change own wanted level
 RegisterCommand('wcheck', function(s,a,r)
   local myself = GetPlayerServerId(PlayerId())
@@ -150,7 +220,6 @@ function WantedPoints(val, doMsg)
       local modifier = math.exp( -1 *((0.02 * wantedPlayers[myself])/2)) 
       local formula  = math.floor((modifier * 1)*100000)
       wantedPlayers[myself] = (wantedPlayers[myself] + formula/100000)
-      print("DEBUG - wantedPlayers[myself] = ("..wantedPlayers[myself]..")")
       n = n - 1
       Wait(0)
     end

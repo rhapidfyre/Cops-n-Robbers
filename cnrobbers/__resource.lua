@@ -18,6 +18,10 @@ server_exports {
 }
 
 exports {
+	'EnumerateObjects',
+	'EnumerateVehicles',
+	'EnumeratePeds',
+	'EnumeratePickups',
   'GetActiveZone',
   'WantedPoints',
   'WantedLevel',

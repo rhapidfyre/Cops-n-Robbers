@@ -33,9 +33,11 @@ local isPoliceCar = {
 }
 
 -- Wanted Points per action
-local wp    = {
-  carjack   = 25, -- Carjacking a Ped
-  discharge = 5,  -- Shooting in public
+local wp       = {
+  carjack      = 25,  -- Carjacking a Ped
+  discharge    = 5,   -- Shooting in public
+  murder       = 90,  -- Killing another player
+  manslaughter = 15,  -- Killing an NPC ped
 }
 
 RegisterNetEvent('cnr:wanted_check_vehicle')
@@ -59,72 +61,60 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
   if entering.id > 0 and not stoleCars[veh] then 
     print("DEBUG - Vehicle entry completed.")
     if not exports['cnr_police']:DutyStatus() then 
-      print("DEBUG - Not a cop, checking crimes.")
       Citizen.CreateThread(function()
         Citizen.Wait(3000)
         local crime = {points = 0, msg = ""}
         -- Getting into public safety vehicle
         if entering.public then 
-          print("DEBUG - Entered publicly owned vehicle")
           -- Vehicle has a driver
           if entering.driver > 0 then
-            print("DEBUG - There was a driver.")
             -- If entering driver seat or driver is not a player, carjack crime
             if entering.seat == (-1) or not IsPedAPlayer(entering.driver) then
-              print("DEBUG - Preparing criminal charges for CARJACKING (PS)")
               crime = {
                 points = 50,
-                msg = "Carjacking a Public Official (215 PC)"
+                msg    = "Carjacking a Public Official"
               }
             end
             
           else
-            print("DEBUG - Unoccupied PS vehicle, checking lock.")
             -- Stealing locked police vehicle
             if entering.locked and seat == (-1) then 
-              print("DEBUG -  Vehicle was locted. Preparing VANDALISM")
               crime.point =  8
-              crime.msg   = "Vandalism of a Public Vehicle (594 VC)"
+              crime.msg   = "Vandalism; Police Vehicle Enhancement"
               -- Check if engine is running, because if it is, they can take it
               if GetIsVehicleEngineRunning(entering.id) then 
-                print("DEBUG - Engine running, double charging for GTA")
                 crime.p2   = 12
-                crime.msg2 = "GTA of a Public Vehicle (10851 VC)"
+                crime.msg2 = "Grand Theft Auto; Police Vehicle Enhancement"
               end
               
             -- Stealing unlocked police vehicle
             elseif not entering.locked and seat == (-1) then
               if GetIsVehicleEngineRunning(entering.id) then 
-                print("DEBUG - Not locked.")
                 crime.points = 12
-                crime.msg  = "GTA of a Public Vehicle (10851 VC)"
+                crime.msg  = "Grand Theft Auto; Police Vehicle Enhancement"
               end
             end
           end
         
         -- Entering an occupied vehicle (carjacking, not public safety)
         elseif entering.driver > 0 then 
-          print("DEBUG - Carjacking a civilian.")
           crime = {
             points = 34,
-            msg = "Carjacking (215 PC)"
+            msg = "Carjacking"
           }
           
         -- Entering a locked vehicle (not public safety)
         elseif entering.locked then
-          print("DEBUG - GTA/VANDALISM - Civilian.")
           crime.point =  8
-          crime.msg   = "Vandalism (594 VC)"
+          crime.msg   = "Vandalism"
           crime.p2   = 12
-          crime.msg2 = "Motor Vehicle Theft/GTA (10851 VC)"
+          crime.msg2 = "Grand Theft Auto"
           
         end
         if crime.points > 0 then 
-          print("DEBUG - Issuing charges.")
           exports['cnrobbers']:WantedPoints(crime.points, crime.msg)
           -- Secondary crime
           if crime.p2 then 
-            print("DEBUG - Issuing secondary charges.")
             exports['cnrobbers']:WantedPoints(crime.p2, crime.msg2)
           end
         end
@@ -168,11 +158,15 @@ AddEventHandler('cnr:police_duty', function(onDuty)
 end)
 
 
+-- Keep a list of kills that player has been charged for already
+local marked = {}
 function NotCopLoops()
   if not isCop then
     Citizen.CreateThread(function()
       while not isCop do 
         if IsPedShooting(PlayerPedId()) then 
+          -- Charge people for shooting a gun in public
+          -- DEBUG - Optimize later to only star them if someone flees from it
           if not isShooting then 
             isShooting = true
             Citizen.CreateThread(function()
@@ -184,8 +178,37 @@ function NotCopLoops()
             )
           end
         end
-        Citizen.Wait(1)
+        Citizen.Wait(0)
       end
     end)
   end
 end
+
+
+Citizen.CreateThread(function()
+  while true do 
+    if not isCop then 
+      for ent in exports['cnrobbers']:EnumeratePeds() do 
+        if IsPedDeadOrDying(ent) then 
+          local killer = GetPedSourceOfDeath(ent)
+          if killers == PlayerPedId() then 
+            if not IsPedAPlayer(ent) then
+              if not DecorExistOn(ent, "KilledBy") then 
+                DecorRegister("KilledBy", 2)
+                DecorSetBool(ent, "KillCharge", true)
+                Citizen.CreateThread(function()
+                  Wait(3000)
+                  exports['cnrobbers']:WantedPoints(wp.manslaughter,
+                    "Manslaughter (Killed an NPC)"
+                  )
+                end)
+              end
+            end
+          end
+        end
+        Wait(1)
+      end
+      Citizen.Wait(1000)
+    end
+  end
+end)

@@ -205,9 +205,4 @@ policeCar = {
   ["FBI"]      = true,
   ["FBI2"]     = true,
   ["PRANCHER"] = true,
-  ["POLICE"]   = true,
-  ["POLICE"]   = true,
-  ["POLICE"]   = true,
-  ["POLICE"]   = true,
-  ["POLICE"]   = true,
 }
