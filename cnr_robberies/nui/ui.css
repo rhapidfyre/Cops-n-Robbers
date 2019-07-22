@@ -1,0 +1,9 @@
+  body, html {
+    margin:0;
+    padding:0;
+  }
+  #wantedstars {
+    position: absolute;
+    top: 48px;
+    right: 12px;
+  }
