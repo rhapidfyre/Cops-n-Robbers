@@ -10,7 +10,6 @@ $(function()
         $('#wrap').empty();
         if (item.stars) {
           wnts.show();
-          console.log('stars/' + item.stars + '.gif');
           $("#wstar").attr("src", 'stars/' + item.stars + '.gif');
         }
         if (item.nostars) {wnts.hide();}

@@ -107,8 +107,8 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
         elseif entering.locked then
           crime.point =  8
           crime.msg   = "Vandalism"
-          crime.p2   = 12
-          crime.msg2 = "Grand Theft Auto"
+          crime.p2    = 12
+          crime.msg2  = "Grand Theft Auto"
           
         end
         if crime.points > 0 then 
@@ -132,7 +132,6 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
   end
 end)
 
-
 RegisterNetEvent('cnr:cl_wanted_client')
 AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
   if GetPlayerFromServerId(ply) == PlayerId() then
@@ -142,8 +141,45 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
     elseif wp > 100 then
       SendNUIMessage({ mostwanted = true })
     else
-      SendNUIMessage({ stars = wlevel })
+      if prevWanted == wp then
+        SendNUIMessage({ stars = wlevel })
+      else
+        SendNUIMessage({ stars = wlevel })
+      end
     end
+    prevWanted = wp
+  end
+end)
+
+-- Adjust NUI stars as necessary
+local prevWanted = 0
+local tickCount  = 0
+Citizen.CreateThread(function()
+  while true do 
+    local wanted = exports['cnrobbers']:WantedLevel()
+    
+    -- Wanted Level has changed
+    if wanted ~= prevWanted then 
+      prevWanted = wanted -- change to reflect it
+      tickCount  = 0      -- Reset if WL changes during previous tick count
+      
+    -- It equaled, run tickCount
+    else
+      -- Make it flash
+      if tickCount < 10 then 
+        tickCount = tickCount + 1
+        if wanted == 0 then
+          SendNUIMessage({nostars = true})
+        else
+          if tickCount % 2 == 0 then 
+            SendNUIMessage({stars = wanted})
+          else
+            SendNUIMessage({stars = wanted.."b"})
+          end
+        end
+      end
+    end
+    Wait(500)
   end
 end)
 
@@ -174,7 +210,7 @@ function NotCopLoops()
               isShooting = false
             end)
             exports['cnrobbers']:WantedPoints(wp.discharge,
-              "Discharging a Firearm in Public"
+              "Discharging a Firearm in Public", true
             )
           end
         end
@@ -191,15 +227,15 @@ Citizen.CreateThread(function()
       for ent in exports['cnrobbers']:EnumeratePeds() do 
         if IsPedDeadOrDying(ent) then 
           local killer = GetPedSourceOfDeath(ent)
-          if killers == PlayerPedId() then 
+          if killer == PlayerPedId() then 
             if not IsPedAPlayer(ent) then
-              if not DecorExistOn(ent, "KilledBy") then 
-                DecorRegister("KilledBy", 2)
+              if not DecorExistOn(ent, "KillCharge") then 
+                DecorRegister("KillCharge", 2)
                 DecorSetBool(ent, "KillCharge", true)
                 Citizen.CreateThread(function()
                   Wait(3000)
                   exports['cnrobbers']:WantedPoints(wp.manslaughter,
-                    "Manslaughter (Killed an NPC)"
+                    "Manslaughter (NPC)", true
                   )
                 end)
               end

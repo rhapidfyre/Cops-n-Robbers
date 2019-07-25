@@ -14,8 +14,11 @@
 
 RegisterNetEvent('cnr:robbery_lock_status')
 RegisterNetEvent('cnr:robbery_locks')
+RegisterNetEvent('cnr:robbery_drops')
+RegisterNetEvent('cnr:zone_change') -- If zone changes, change dropoffs
 
 local isRobbing = false
+local takeDrops = {}
 
 RegisterCommand('rob', function()
   
@@ -135,7 +138,7 @@ function StartRobbery(n)
     exports['cnrobbers']:WantedPoints(50, "Armed Robbery (211 PC)")
     if take > 0 then 
       print("DEBUG - Robbery Take: $"..take)
-      SetPedComponentVariation(PlayerPedId(), 5, 45, 0, 0)
+      SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0)
     end
     isRobbing = false
     TriggerServerEvent('cnr:robbery_take', take)
@@ -176,6 +179,15 @@ function CreateRobberyClerks()
           end
         end
       end
+      if takeDrops[1] then
+        for k,v in pairs (takeDrops) do 
+          if #(myPos - (v.pos)) < 2.25 then 
+            TriggerServerEvent('cnr:robbery_dropped')
+            SetPedComponentVariation(PlayerPedId(), 5, 0, 0, 0)
+            DestroyDropSpots()
+          end
+        end
+      end
       Citizen.Wait(0)
     end
   end)
@@ -198,5 +210,51 @@ AddEventHandler('cnr:robbery_locks', function(locks)
   end
 end)
 
+function DestroyDropSpots()
+  for k,v in pairs (takeDrops) do 
+    if DoesBlipExist(v.blip) then 
+      RemoveBlip(v.blip)
+    end
+  end
+  takeDrops = {}
+end
+
+--- EVENT cnr:robbery_drops
+-- Tells the client that they have robbery take that can be dropped off
+-- Creates blips
+function OfferDropSpots(giveBag)
+
+  -- Ensure they don't have drop offers already
+  DestroyDropSpots()
+
+  -- If bool passed, spawn bag
+  if giveBag then SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0) end
+  
+  local z        = exports['cnrobbers']:GetActiveZone()
+  local eligible = dropSpots[z]
+  
+  while #takeDrops < 4 do
+    local n = math.random(#eligible)
+    takeDrops[#takeDrops + 1] = {pos = table.remove(eligible, n)}
+    Wait(0)
+  end
+  
+  for k,v in pairs(takeDrops) do 
+    v.blip = AddBlipForCoord(v.pos.x, v.pos.y, v.pos.z)
+    SetBlipSprite(v.pos, 431)
+    SetBlipColour(v.pos, 11)
+    SetBlipDisplay(v.pos, 2)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Money Laundering")
+    EndTextCommandSetBlipName(v.blip)
+  end
+    
+end
+AddEventHandler('cnr:robbery_drops', OfferDropSpots)
+
+AddEventHandler('cnr:zone_change', function()
+  DestroyDropSpots()
+  OfferDropSpots()
+end)
 
 

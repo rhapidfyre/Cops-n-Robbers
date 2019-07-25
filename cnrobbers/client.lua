@@ -20,7 +20,15 @@ local restarted       = {} -- DEBUG -
 
 local plyCount = 255
 
+local felonLevel = 40
 
+--[[
+Citizen.CreateThread(function()
+  SetRichPresence("Cops and Robbers")
+  SetDiscordRichPresenceAsset('Big_Picture')
+  SetDiscordRichPresenceAssetText('Cops and Robbers')
+end)
+]]
 
 ---------- ENTITY ENUMERATOR --------------
 local entityEnumerator = {
@@ -203,8 +211,9 @@ end
 -- and then finished by returning the wanted points value
 -- @param val The amount of points to change by (+/-)
 -- @param doMsg The message to show to the player, beginning with 'WANTED: '
+-- @param ticketOnly The points will only be evaluated if they're below felon
 -- @return Returns the current wanted level
-function WantedPoints(val, doMsg)
+function WantedPoints(val, doMsg, ticketOnly)
   local myself = GetPlayerServerId(PlayerId())
   if not wantedPlayers[myself] then wantedPlayers[myself] = 0 end
   if val then 
@@ -217,9 +226,22 @@ function WantedPoints(val, doMsg)
     local n = val
     -- Weighs each wanted point individually
     while n > 0 do -- e^-(0.02x/2)
-      local modifier = math.exp( -1 *((0.02 * wantedPlayers[myself])/2)) 
-      local formula  = math.floor((modifier * 1)*100000)
-      wantedPlayers[myself] = (wantedPlayers[myself] + formula/100000)
+      -- Only keep adding if the crime can make them a felon
+      local addPoints = true 
+      if ticketOnly then 
+        -- If the next point would make them a felon, do nothing
+        if wantedPlayers[myself] + 1 >= felonLevel then 
+          print("DEBUG - Next point makes client a felon. Ignoring.")
+          addPoints = false
+        end
+      end
+      if addPoints then
+        local modifier = math.exp( -1 *((0.02 * wantedPlayers[myself])/2)) 
+        local formula  = math.floor((modifier * 1)*100000)
+        wantedPlayers[myself] = (wantedPlayers[myself] + formula/100000)
+      else
+        n = 0
+      end
       n = n - 1
       Wait(0)
     end
@@ -246,7 +268,7 @@ function WantedLevel()
     return 0
   end
   if wantedPlayers[ply] < 1 then return 0
-  elseif wantedPlayers[ply] > 10 then return 11
+  elseif wantedPlayers[ply] > 100 then return 11
   else return (math.floor((wantedPlayers[ply])/10) + 1)
   end
 end

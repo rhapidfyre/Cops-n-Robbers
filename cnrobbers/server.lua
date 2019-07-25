@@ -154,6 +154,8 @@ function ZoneChange()
     "Zone Change", "~g~New Zone Active", 
     "Zone #"..newZone.." is active."
   )
+  TriggerClientEvent('cnr:zone_change', (-1), newZone)
+  TriggerEvent('cnr:zone_change', newZone)
 end
 
 Citizen.CreateThread(function()
