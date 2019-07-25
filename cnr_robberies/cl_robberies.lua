@@ -19,10 +19,8 @@ RegisterNetEvent('cnr:zone_change') -- If zone changes, change dropoffs
 
 local isRobbing = false
 local takeDrops = {}
+local hasBag    = false
 
-RegisterCommand('rob', function()
-  
-end)
 
 RegisterCommand('.debug2', function(s,a,r)
   TaskStartScenarioInPlace(PlayerPedId(), tostring(a[1]), 0, true)
@@ -138,6 +136,7 @@ function StartRobbery(n)
     exports['cnrobbers']:WantedPoints(50, "Armed Robbery (211 PC)")
     if take > 0 then 
       print("DEBUG - Robbery Take: $"..take)
+      hasBag = true
       SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0)
     end
     isRobbing = false
@@ -224,33 +223,45 @@ end
 -- Creates blips
 function OfferDropSpots(giveBag)
 
-  -- Ensure they don't have drop offers already
-  DestroyDropSpots()
-
-  -- If bool passed, spawn bag
-  if giveBag then SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0) end
+  -- Only update blips if the player has a robbery bag 
+  if hasBag then
   
-  local z        = exports['cnrobbers']:GetActiveZone()
-  local eligible = dropSpots[z]
+    -- Ensure they don't have drop offers already
+    DestroyDropSpots()
   
-  while #takeDrops < 4 do
-    local n = math.random(#eligible)
-    takeDrops[#takeDrops + 1] = {pos = table.remove(eligible, n)}
-    Wait(0)
-  end
-  
-  for k,v in pairs(takeDrops) do 
-    v.blip = AddBlipForCoord(v.pos.x, v.pos.y, v.pos.z)
-    SetBlipSprite(v.pos, 431)
-    SetBlipColour(v.pos, 11)
-    SetBlipDisplay(v.pos, 2)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Money Laundering")
-    EndTextCommandSetBlipName(v.blip)
-  end
+    -- If bool passed, spawn bag
+    if giveBag then SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0) end
     
+    local z        = exports['cnrobbers']:GetActiveZone()
+    print("DEBUG - Current Active Zone: "..z)
+    local eligible = dropSpots[z]
+    
+    while #takeDrops < 4 do
+      local n = math.random(#eligible)
+      takeDrops[#takeDrops + 1] = {pos = table.remove(eligible, n)}
+      print("DEBUG - Inserted 1 Drop Point @ X:"..
+        takeDrops[#takeDrops].pos.x..", Y:"..
+        takeDrops[#takeDrops].pos.y..", Z:"..
+        takeDrops[#takeDrops].pos.z
+      )
+      Wait(0)
+    end
+    
+    for k,v in pairs(takeDrops) do 
+      v.blip = AddBlipForCoord(v.pos.x, v.pos.y, v.pos.z)
+      SetBlipSprite(v.blip, 431)
+      SetBlipColour(v.blip, 11)
+      SetBlipDisplay(v.blip, 2)
+      BeginTextCommandSetBlipName("STRING")
+      AddTextComponentString("Money Laundering")
+      EndTextCommandSetBlipName(v.blip)
+      print("DEBUG - Blip created for takeDrops #"..k..".")
+    end
+  end
 end
-AddEventHandler('cnr:robbery_drops', OfferDropSpots)
+AddEventHandler('cnr:robbery_drops', function()
+  OfferDropSpots(true)
+end)
 
 AddEventHandler('cnr:zone_change', function()
   DestroyDropSpots()

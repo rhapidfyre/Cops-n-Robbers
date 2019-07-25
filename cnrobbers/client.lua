@@ -131,8 +131,11 @@ end)
 -- @param wps The wanted points value
 RegisterNetEvent('cnr:cl_wanted_client')
 AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
+  if not wp then wp = 0 end
+  if not ply then return 0 end
   if ply == GetPlayerServerId(PlayerId()) then 
     print("DEBUG - Player being affected is YOU!")
+    if not wantedPlayers[ply] then wantedPlayers[ply] = wp end
     if wantedPlayers[ply] == 0 and wp > 0 then
       print("DEBUG - You went from innocent to wanted.")
       TriggerEvent('cnr:is_wanted', wp)

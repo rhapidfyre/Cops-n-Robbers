@@ -241,7 +241,7 @@ function PoliceDutyLoops()
       if IsControlJustPressed(0, 75) then -- F
         UnlockPoliceCarDoor()
       end
-      Citizen.Wait(0)
+      Citizen.Wait(1)
     end
   end)
 end
@@ -250,14 +250,15 @@ Citizen.CreateThread(function()
   while true do 
     local myPos = GetEntityCoords(PlayerPedId())
     if not ignoreDuty then
-      for k,v in pairs(depts) do
-        if #(myPos - v.duty) < 2.1 then
-          if isCop then EndCopDuty(k)
-          else BeginCopDuty(k)
+      for i = 1, #depts do
+        if #(myPos - (depts[i].duty)) < 2.1 then
+          if isCop then EndCopDuty(i)
+          else BeginCopDuty(i)
           end
         end
+        Citizen.Wait(1)
       end
     end
-    Citizen.Wait(100)
+    Citizen.Wait(10)
   end
 end)
