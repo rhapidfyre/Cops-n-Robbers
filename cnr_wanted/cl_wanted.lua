@@ -154,7 +154,7 @@ end)
 -- Adjust NUI stars as necessary
 local prevWanted = 0
 local tickCount  = 0
-Citizen.CreateThread(function()
+AddEventHandler('cnr:loaded', function()
   while true do 
     local wanted = exports['cnrobbers']:WantedLevel()
     

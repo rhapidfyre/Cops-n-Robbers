@@ -187,7 +187,7 @@ function CreateRobberyClerks()
           end
         end
       end
-      Citizen.Wait(0)
+      Citizen.Wait(10)
     end
   end)
 end

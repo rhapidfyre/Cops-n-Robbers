@@ -159,44 +159,9 @@ Citizen.CreateThread(function()
           SetBlipScale(blip, 0.8)
           SetBlipDisplay(blip, 8)
           SetBlipShrink(blip, true)
-        --[[ Blip exists, check wanted level, cop status, etc (DEBUG - )
-        else
-          if wantedPlayers[v] then 
-            local wl = math.floor(wantedPlayers[v]/10) + 1
-            if wl < 1 then wl = 1
-            elseif wl > 10 then wl = 11 end
-            -- is wanted
-            if wantedPlayers[v] > 0 and GetBlipColor(blip) ~= blipWanted[wl] then 
-              --SetBlipAlpha(blip, 0)
-              SetBlipColor(blip, blipWanted[wl])
-              local myPos = GetEntityCoords(PlayerPedId())
-              local plPos = GetEntityCoords(GetPlayerPed(v))
-              if (myPos.z - plPos.z) > 10.0 then 
-                SetBlipSprite(blip, 0)
-              elseif (myPos.z - plPos.z) < (-10.0) then 
-                SetBlipSprite(blip, 2)
-              else
-                SetBlipSprite(blip, 58)
-              end
-            else
-              -- is a cop
-              if wantedPlayers[v] < 0 then 
-                SetBlipColor(blip, blipCops[10])
-                SetBlipSprite(blip, 41)
-              -- is not wanted
-              else
-                SetBlipColor(blip, 37)
-                SetBlipSprite(blip, 163)
-                --SetBlipAlpha(blip, 0)
-              end
-            end
-          else 
-            wantedPlayers[v] = 0
-          end
-        ]]
         end
       end
-      Citizen.Wait(10)
+      Citizen.Wait(1)
     end
     Citizen.Wait(10)
   end
