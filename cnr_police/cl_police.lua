@@ -10,12 +10,69 @@
   of playing the gamemode as intended by the developer.
 --]]
 
-local isCop       = false  -- True if player is on cop duty
-local ignoreDuty  = false  -- Disables cop duty point
-local cam         = nil
-local transition  = false
+
+local isCop          = false  -- True if player is on cop duty
+local ignoreDuty     = false  -- Disables cop duty point
+local cam            = nil
+local transition     = false
 local enteringCopCar = false
-local prevClothes = {}
+local prevClothes    = {}
+
+
+function DispatchMessage(title, msg)
+  TriggerEvent('chat:addMessage', {
+    color = {0,180,255}, multiline = true, args = {
+      "DISPATCH", "^3"..title.."\n^5"..msg
+    }
+  })
+end
+
+function DispatchNotification(title, msg)
+	SetNotificationTextEntry("STRING")
+	AddTextComponentString(msg)
+	SetNotificationMessage("CHAR_CALL911", "CHAR_CALL911", 0, 1, "Regional 9-1-1", "~y~"..title)
+	DrawNotification(false, true)
+	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
+  return true
+end
+
+function DispatchBlip(x,y,z,title)
+  if not title then title = "911" end
+  local callBlip = AddBlipForCoord(x,y,z)
+  SetBlipSprite(callBlip, 526)
+  SetBlipColour(callBlip, 1)
+  SetBlipScale(callBlip, 0.78)
+  SetBlipDisplay(callBlip, 2)
+  SetBlipFlashes(callBlip, true)
+  SetBlipFlashTimer(callBlip, 3000)
+  BeginTextCommandSetBlipName("STRING")
+  AddTextComponentString(title)
+  EndTextCommandSetBlipName(callBlip)
+  Citizen.CreateThread(function()
+    Citizen.Wait(60000)
+    if DoesBlipExist(callBlip) then RemoveBlip(callBlip) end
+  end)
+end
+
+RegisterCommand('disp', function()
+  SendDispatch("Silent Alarm", "LTD Gasoline", "Grove Street", -46.9504, -1758.19, 29.421)
+end)
+
+--- EXPORT: DispatchMessage()
+-- Sends a message to on duty cop as dispatch
+function SendDispatch(title, place, area, x, y, z)
+  if isCop then 
+    if x and y and z then
+      if not title then title = "9-1-1" end
+      if not place then place = "Cell Phone 911" end
+      if not area then area   = "Unknown Area" end
+      DispatchMessage(title, place.." ("..area..")")
+      DispatchNotification(title, place.."~n~"..area)
+      DispatchBlip(x, y, z, title)
+    end
+  end
+end
+
 
 -- Wanted Point weights for certain actions
 local wp = {
@@ -24,12 +81,14 @@ local wp = {
   gta     = 40  -- Steal Public Safety Vehicle
 }
 
+
 --- EXPORT: DutyStatus()
 -- Returns whether the player is on cop duty
 -- @return True if on cop duty, false if not
 function DutyStatus()
   return isCop
 end
+
 
 -- DEBUG -
 RegisterCommand('cset', function(s,a,r)
@@ -50,6 +109,7 @@ RegisterCommand('previtem', function(s,a,r)
   print("DEBUG - Slot ["..slotNumber.."] Current item #"..i-1)
 end)
 
+
 --- PoliceLoadout()
 -- Toggles the usage of police equipment
 -- DEBUG - Change later to compensate for player-owned weapons
@@ -65,6 +125,7 @@ function PoliceLoadout(toggle)
     
   end
 end
+
 
 --- PoliceCamera()
 -- Operates the camera when toggling duty
@@ -205,7 +266,6 @@ function EndCopDuty(st)
     "CHAR_CALL911", "Police Duty", "~r~End of Watch",
     "You are no longer on Law Enforcement duty."
   )
-  OffDutyLoops()
   PoliceLoadout(false)
   ignoreDuty = false
   transition = false
@@ -246,17 +306,19 @@ function PoliceDutyLoops()
   end)
 end
 
-Citizen.CreateThread(function()
+
+AddEventHandler('cnr:client_loaded', function()
+  Citizen.Wait(5000)
   while true do 
-    local myPos = GetEntityCoords(PlayerPedId())
     if not ignoreDuty then
+      local myPos = GetEntityCoords(PlayerPedId())
       for i = 1, #depts do
         if #(myPos - (depts[i].duty)) < 2.1 then
-          if isCop then EndCopDuty(i)
+          --[[if isCop then EndCopDuty(i)
           else BeginCopDuty(i)
-          end
+          end]]
         end
-        Citizen.Wait(1)
+        Citizen.Wait(10)
       end
     end
     Citizen.Wait(10)

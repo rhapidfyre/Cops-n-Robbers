@@ -40,6 +40,7 @@ AddEventHandler('cnr:police_status', function(onDuty)
   end
 end)
 
+--[[
 RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
@@ -56,6 +57,8 @@ AddEventHandler('cnr:client_loaded', function()
     end
   end
 end)
+]]
+
 
 -- Adds player to dropped cops table, so their duty status
 -- can be returned if they come back within 10 minutes

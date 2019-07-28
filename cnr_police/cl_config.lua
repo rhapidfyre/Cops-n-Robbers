@@ -48,7 +48,7 @@ depts = {
     }
   },
   [2] = { -- Vespucci Beach
-    zone    = 1, title   = "Police Station", agency = 1,
+    zone    = 1, title   = "LSPD Station", agency = 1,
     duty    = vector3(-1060.22, -826.492, 19.212),
     leave   = vector3(-1107.84, -846.551, 19.317),
     walkTo  = vector3(-1114.27, -841.893, 19.317),
@@ -62,7 +62,7 @@ depts = {
     }
   },
   [3] = { -- Vinewood Station
-    zone    = 1, title   = "Police Station", agency = 1,
+    zone    = 1, title   = "LSPD Station", agency = 1,
     duty    = vector3(639.60, 1.343, 82.787),
     leave   = vector3(620.156, 18.32, 87.91),
     walkTo  = vector3(621.442, 21.902, 88.341),
@@ -116,7 +116,7 @@ depts = {
     }
   },
   [7] = { -- Fort Zancudo Station
-    zone    = 4, title   = "MP Station", agency = 6,
+    zone    = 4, title   = "Military Police", agency = 6,
     duty    = vector3(-2441.04, 2951.72, 34.848),
     walkTo  = vector3(-2440.32, 2956.20, 32.960),
     camview = vector3(-2445.09, 2983.29, 37.310),
@@ -189,6 +189,7 @@ Citizen.CreateThread(function()
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString(v.title)
     EndTextCommandSetBlipName(blip)
+    Citizen.Wait(1)
   end
 end)
 
