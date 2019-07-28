@@ -166,20 +166,20 @@ AddEventHandler('cnr:loaded', function()
     -- It equaled, run tickCount
     else
       -- Make it flash
-      if tickCount < 10 then 
-        tickCount = tickCount + 1
-        if wanted == 0 then
-          SendNUIMessage({nostars = true})
+      if tickCount < 10 then          tickCount = tickCount + 1
+        if wanted == 0 then           SendNUIMessage({nostars = true})
         else
-          if tickCount % 2 == 0 then 
-            SendNUIMessage({stars = wanted})
+          if tickCount % 2 == 0 then  SendNUIMessage({stars = wanted})
           else
-            SendNUIMessage({stars = wanted.."b"})
+            if     wanted > 10 then   SendNUIMessage({stars = "c"})
+            elseif wanted >  5 then   SendNUIMessage({stars = "b"})
+            else                      SendNUIMessage({stars = "a"})
+            end
           end
         end
       end
     end
-    Wait(500)
+    Wait(600)
   end
 end)
 
