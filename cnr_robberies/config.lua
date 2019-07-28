@@ -20,7 +20,7 @@ clerkModels = {"a_f_y_indian_01","a_f_o_indian_01"}
 
 rob = {
   [1] = {
-    title = "LTD Gasoline", area = "Little Seoul", h = 90.0,
+    title = "LTD Gasoline", area = "Little Seoul", h = 90.0, zone = 1,
     spawn = vector3(-705.999, -914.445, 19.215),
     stand = vector3(-707.797, -914.6, 19.215),
     bDoor = vector3(-708.032, -903.785, 19.215),
@@ -28,10 +28,139 @@ rob = {
     safe  = vector3(-709.772, -904.173, 19.215)
   },
   [2] = {
-    title = "Rob's Liquor", area = "Vespucci Beach", h = 50.0,
+    title = "Rob's Liquor", area = "Vespucci Beach", h = 50.0, zone = 1,
     spawn = vector3(-1221.34, -908.216, 12.326),
     stand = vector3(-1223.42, -907.185, 12.326),
     safe  = vector3(-1220.86, -915.987, 11.326)
+  },
+  [3] = {
+    title = "Rob's Liquor", area = "Morningwood", h = 130.0, zone = 1,
+    spawn = vector3(-1485.61, -378.147, 40.1634),
+    stand = vector3(-1487.71, -378.751, 40.1634),
+    safe  = vector3(-1478.99, -375.429, 39.1634)
+  },
+  [4] = {
+    title = "24/7 Supermarket", area = "Strawberry", h = 180.0, zone = 1,
+    spawn = vector3(24.3269, -1346.84, 29.497),
+    stand = vector3(26.087, -1346.73, 29.497),
+    safe  = vector3(28.3062, -1339.23, 29.497)
+  },
+  [5] = {
+    title = "LTD Gasoline", area = "Grove Street", h = 75.0, zone = 1,
+    spawn = vector3(-46.9504, -1758.19, 29.421),
+    stand = vector3(-48.2451, -1757.34, 29.421),
+    bDoor = vector3(-41.7812, -1748.97, 29.421),
+    alley = vector3(-40.8349, -1747.9, 29.3235),
+    safe  = vector3(-43.4315, -1748.45, 29.421)
+  },
+  [6] = {
+    title = "Rob's Liquor", area = "Murrietta Heights", h = 270.0, zone = 1,
+    spawn = vector3(1133.78, -981.921, 46.4158),
+    stand = vector3(1135.73, -982.734, 46.4158),
+    safe  = vector3(1126.86, -980.077, 45.4158)
+  },
+  [7] = {
+    title = "LTD Gasoline", area = "Mirror Park", h = 90.0, zone = 1,
+    spawn = vector3(1164.81, -323.051, 69.2051),
+    stand = vector3(1163.12, -323.425, 69.2051),
+    bDoor = vector3(1160.96, -313.148, 69.2051),
+    alley = vector3(1160.64, -311.402, 69.2775),
+    safe  = vector3(1159.56, -314.129, 69.2051)
+  },
+  [8] = {
+    title = "24/7 Supermarket", area = "Vinewood", h = 256.0, zone = 1,
+    spawn = vector3(372.385, 326.991, 103.566),
+    stand = vector3(374.379, 326.203, 103.566),
+    bDoor = vector3(380.936, 331.13, 103.566),
+    alley = vector3(379.976, 357.01, 102.573),
+    safe  = vector3(378.241, 333.341, 103.566)
+  },
+  [9] = {
+    title = "24/7 Supermarket", area = "Palomino Freeway", h = 358.0, zone = 2,
+    spawn = vector3(2556.82, 380.685, 108.623),
+    stand = vector3(2556.586, 382.632, 108.623),
+    bDoor = vector3(2550.97, 387.978, 108.623),
+    alley = vector3(2553.08, 399.552, 108.59),
+    safe  = vector3(2549.2, 384.888, 108.623)
+  },
+  [10] = {
+    title = "24/7 Supermarket", area = "Senora Freeway", h = 340.0, zone = 2,
+    spawn = vector3(2677.67, 3279.57, 55.2411),
+    stand = vector3(2678.52, 3281.32, 55.2411),
+    bDoor = vector3(2675.71, 3288.73, 55.2411),
+    alley = vector3(2670.49, 3286.51, 55.2405),
+    safe  = vector3(2672.74, 3286.56, 55.2411)
+  },
+  [11] = {
+    title = "Rob's Liquor", area = "Route 68", h = 188.0, zone = 2,
+    spawn = vector3(1166.32, 2710.85, 38.1577),
+    stand = vector3(1165.83, 2708.94, 38.1577),
+    safe  = vector3(1169.3, 2717.87, 37.1577)
+  },
+  [12] = {
+    title = "24/7 Supermarket", area = "Harmony", h = 90.0, zone = 2,
+    spawn = vector3(549.5, 2670.75, 42.1565),
+    stand = vector3(547.439, 2670.51, 42.1565),
+    bDoor = vector3(543.583, 2663.67, 42.1565),
+    alley = vector3(540.909, 2663.39, 42.1636),
+    safe  = vector3(546.396, 2662.75, 42.1565)
+  },
+  [13] = {
+    title = "Liquor Ace", area = "Sandy Shores", h = 165.0, zone = 2,
+    spawn = vector3(1393.12, 3606.68, 39.9808),
+    stand = vector3(1393.86, 3604.93, 39.9808),
+  },
+  [14] = {
+    title = "24/7 Supermarket", area = "Sandy Shores", h = 310.0, zone = 2,
+    spawn = vector3(1959.69, 3740.56, 32.3437),
+    stand = vector3(1961.64, 3741.29, 32.3437),
+    bDoor = vector3(1962.85, 3749.15, 32.3437),
+    alley = vector3(1964.46, 3750.81, 32.3437),
+    safe  = vector3(1959.34, 3748.92, 32.3437)
+  },
+  [15] = {
+    title = "LTD Gasoline", area = "Grapeseed", h = 306.0, zone = 3,
+    spawn = vector3(1697.63, 4923.15, 42.0637),
+    stand = vector3(1698.82, 4924.76, 42.0637),
+    bDoor = vector3(1707.15, 4918.88, 42.0637),
+    alley = vector3(1702.19, 4916.11, 42.0781),
+    safe  = vector3(1707.79, 4920.46, 42.0637)
+  },
+  [16] = {
+    title = "24/7 Supermarket", area = "Braddock", h = 225.0, zone = 3,
+    spawn = vector3(1727.92, 6415.65, 35.0372),
+    stand = vector3(1729.56, 6414.59, 35.0372),
+    bDoor = vector3(1737.03, 6418.02, 35.0373),
+    alley = vector3(1741.56, 6419.79, 35.0425),
+    safe  = vector3(1734.74, 6420.85, 35.0373)
+  },
+  [17] = {
+    title = "24/7 Supermarket", area = "N. Chumash", h = 0.0, zone = 4,
+    spawn = vector3(-3242.75, 999.957, 12.8307),
+    stand = vector3(-3242.43, 1001.86, 12.8307),
+    safe  = vector3(-3250.03, 1004.36, 12.8307)
+  },
+  [18] = {
+    title = "Rob's Liquor", area = "Chumash", h = 90.0, zone = 4,
+    spawn = vector3(-2966.32, 390.397, 15.0433),
+    stand = vector3(-2968.15, 390.602, 15.0433),
+    safe  = vector3(-2959.61, 387.152, 14.0433)
+  },
+  [19] = {
+    title = "24/7 Supermarket", area = "Chumash", h = 18.0, zone = 4,
+    spawn = vector3(-3039.26, 584.362, 7.909),
+    stand = vector3(-3039.81, 585.854, 7.909),
+    bDoor = vector3(-3047.37, 589.026, 7.909),
+    alley = vector3(-3047.9, 590.623, 7.754),
+    safe  = vector3(-3047.77, 585.51, 7.909)
+  },
+  [20] = {
+    title = "LTD Gasoline", area = "Richman Glen", h = 132.0, zone = 4,
+    spawn = vector3(-1819.76, 793.864, 138.118),
+    stand = vector3(-1821.12, 792.997, 138.118),
+    bDoor = vector3(-1828.34, 800.186, 138.19),
+    alley = vector3(-1829.69, 801.39, 138.411),
+    safe  = vector3(-1829.11, 798.741, 138.19)
   }
 }
 

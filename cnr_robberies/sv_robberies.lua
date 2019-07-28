@@ -77,9 +77,9 @@ end)
 AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
   rob[storeNumber] = lockStatus
   local dt  = os.date("%H:%M.%I", os.time())
-  local msg = "can now be robbed"
+  local msg = "Store #"..storeNumber.." has been unlocked and can be robbed."
   if lockStatus then 
-    msg = "has been robbed and is now locked."
+    msg = "Store #"..storeNumber.." was just robbed, and has been locked."
     Citizen.CreateThread(function()
       local waitTime = (math.random(15, 60) * 60)
       while waitTime > 0 do 

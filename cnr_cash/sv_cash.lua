@@ -52,7 +52,7 @@ function BankTransaction(ply, n)
               {['v'] = newVal, ['u'] = uid}
             )
             plyBank[uid] = newVal
-            TriggerClientEvent('cnr:bank_account', ply, newValue)
+            TriggerClientEvent('cnr:bank_account', ply, newVal)
             return plyBank[uid]
           else
             msg = "Bank deduction would result in negative balance ("..(bank + n)..")."
@@ -80,7 +80,7 @@ end)
 -- Moves money from the bank into the player's hand, or vice versa
 -- @param ply The player to modify
 -- @param n The amount to transfer (+: hand to bank, -: bank to hand)
-function BankTransfer(ply, n)
+function BankTransfer(ply, n) --[[
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
   if ply then 
@@ -113,10 +113,10 @@ function BankTransfer(ply, n)
               -- SQL: Add money to hand
               exports['ghmattimysql']:scalar(
                 "SELECT cash_transaction(@u, @v)",
-                {['u'] = uid, ['v'] = },
+                {['u'] = uid, ['v'] = newCash},
                 function(newValue)
-                  plyCash[uid] = newValue
-                  TriggerClientEvent('cnr:wallet_value', ply, newValue)
+                  plyCash[uid] = newCash
+                  TriggerClientEvent('cnr:wallet_value', ply, newCash)
                 end
               )
             end
@@ -137,7 +137,7 @@ function BankTransfer(ply, n)
   else msg = "'ply' nil in function BankTransaction() (sv_cash.lua)"
   end
   print("[CNR "..dt.."] ^1."..msg.."^7")
-  return 0
+  return 0]]
 end
 AddEventHandler('cnr:bank_transfer', function(value, client)
   local ply = source
@@ -216,7 +216,7 @@ function SetPlayerCashValues(val, ply)
       function(money)
         if money[1] then 
           TriggerClientEvent('cnr:wallet_value', ply, money[1]["cash"])
-          TriggerClientEvent('cnr:bank_account', ply, money[1]["cash"])
+          TriggerClientEvent('cnr:bank_account', ply, money[1]["bank"])
         else
           TriggerClientEvent('cnr:wallet_value', ply, 0)
           TriggerClientEvent('cnr:bank_account', ply, 0)

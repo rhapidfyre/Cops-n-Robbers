@@ -37,26 +37,24 @@ end
 
 
 --- EVENT: cnr:wallet_value
-RegisterNetEvent('srp:wallet_cash')
-AddEventHandler('srp:wallet_cash', function(cash)
+RegisterNetEvent('cnr:wallet_value')
+AddEventHandler('cnr:wallet_value', function(cash)
 	if cash >= 1000 then
 		myCash = addComma(tostring(cash))
 	else
 		myCash = cash
 	end
-	--TriggerEvent('srp:hud_update', "cash", myCash)
 	StatSetInt('MP0_WALLET_BALANCE', math.floor(cash), true)
 end)
 
 
---- EVENT: srp:bank_account
-RegisterNetEvent('srp:bank_cash')
-AddEventHandler('srp:bank_cash', function(cash)
+--- EVENT: cnr:bank_account
+RegisterNetEvent('cnr:bank_account')
+AddEventHandler('cnr:bank_account', function(cash)
 	if cash >= 1000 then
 		myCash = addComma(tostring(cash))
 	else
 		myCash = cash
 	end
-	--TriggerEvent('srp:hud_update', "bank", myCash)
 	StatSetInt('BANK_BALANCE', math.floor(cash), true)
 end)
