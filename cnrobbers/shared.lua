@@ -81,7 +81,7 @@ zoneByName = {
   ["PBOX"]    = {name = 'Pillbox Hill', z = 1},
   ["PROCOB"]  = {name = 'Procopio Beach', z = 3},
   ["RANCHO"]  = {name = 'Rancho', z = 1},
-  ["RGLEN"]   = {name = 'Richman Glen', z = 1},
+  ["RGLEN"]   = {name = 'Richman Glen', z = 4},
   ["RICHM"]   = {name = 'Richman', z = 1},
   ["ROCKF"]   = {name = 'Rockford Hills', z = 1},
   ["RTRAK"]   = {name = 'Redwood Lights Track', z = 1},

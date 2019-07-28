@@ -138,6 +138,7 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
     if not wantedPlayers[ply] then wantedPlayers[ply] = wp end
     if wantedPlayers[ply] == 0 and wp > 0 then
       print("DEBUG - You went from innocent to wanted.")
+      ReduceWantedLevel()
       TriggerEvent('cnr:is_wanted', wp)
     elseif wantedPlayers[ply] > 0 and wp <= 0 then 
       print("DEBUG - You went from wanted to innocent.")
@@ -224,9 +225,15 @@ function WantedPoints(val, doMsg, ticketOnly)
       TriggerEvent('chat:addMessage', {args = {"^1CRIME", "^3"..doMsg.."^7"}})
     end
     
+    if val < 0 then
+      wantedPlayers[myself] = wantedPlayers[myself] + val
+      TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
+      return 0
+    end
     -- Modifies wanted points change based on current wanted level
     -- This ensures MINOR crimes aren't calculated as harsh at higher WP levels
     local n = val
+    -- Reduces wanted level
     -- Weighs each wanted point individually
     while n > 0 do -- e^-(0.02x/2)
       -- Only keep adding if the crime can make them a felon
@@ -276,6 +283,25 @@ function WantedLevel()
   end
 end
 
+
+local loopRunning = false
+function ReduceWantedLevel()
+  if not loopRunning then
+    loopRunning = true
+    Citizen.CreateThread(function()
+      while wantedPlayers[ply] > 0 do 
+        if wantedPlayers[ply] > 0 then 
+          local newValue = wantedPlayers[ply] - 1.25
+          wantedPlayers[ply] = newValue
+          TriggerServerEvent('cnr:wanted_points', newValue)
+        end
+        Citizen.Wait(60000)
+      end
+      wantedPlayers[ply] = 0
+      loopRunning = false
+    end)
+  end
+end
 
 function GetActiveZone()
   return activeZone
