@@ -16,6 +16,7 @@ RegisterServerEvent('cnr:robbery_send_lock')  -- Lock/Unlock Robbery Event
 RegisterServerEvent('cnr:robbery_take')       -- The cash won from the robbery
 RegisterServerEvent('cnr:robbery_dropped')    -- Converts all robberies to cash
 RegisterServerEvent('cnr:client_loaded')      -- Called when the char enters
+RegisterServerEvent('cnr:robbery_alarm')      -- Rx's and dispatches an alarm
 
 
 --- EVENT cnr:robbery_take
@@ -75,26 +76,38 @@ end)
 
 
 AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
-  rob[storeNumber] = lockStatus
+  rob[storeNumber].lockout = lockStatus
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = "Store #"..storeNumber.." has been unlocked and can be robbed."
   if lockStatus then 
     msg = "Store #"..storeNumber.." was just robbed, and has been locked."
+    
+    -- Dispatch Alarm
     Citizen.CreateThread(function()
-      local waitTime = (math.random(15, 60) * 60)
-      while waitTime > 0 do 
+      Citizen.Wait(math.random(1, 10) * 1000)
+      local mission = rob[storeNumber]
+      TriggerClientEvent('cnr:dispatch',
+        "Hold-up Alarm", mission.title, mission.area,
+        mission.spawn.x, mission.spawn.x, mission.spawn.z
+      )
+    end)
+    
+    -- Unlock robbery after 15 to 40 minutes
+    Citizen.CreateThread(function()
+      local waitTime = (math.random(15, 40) * 60)
+      while waitTime > 0 do
         waitTime = waitTime - 1
         Citizen.Wait(1000)
       end
-      rob[storeNumber] = false
+      rob[storeNumber].lockout = false
       -- Recursively unlock the store for robbery
       TriggerEvent('cnr:robbery_send_lock', storeNumber, false)
     end)
+    
   end
   print("[CNR "..dt.."] "..msg)
   TriggerClientEvent('cnr:robbery_lock_status', (-1), storeNumber, lockStatus)
 end)
-
 
 AddEventHandler('cnr:client_loaded', function()
   local ply = source

@@ -11,6 +11,9 @@
 --]]
 
 
+RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
+
+
 local isCop          = false  -- True if player is on cop duty
 local ignoreDuty     = false  -- Disables cop duty point
 local cam            = nil
@@ -72,6 +75,7 @@ function SendDispatch(title, place, area, x, y, z)
     end
   end
 end
+AddEventHandler('cnr:dispatch', SendDispatch)
 
 
 -- Wanted Point weights for certain actions

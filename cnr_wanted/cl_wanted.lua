@@ -152,9 +152,9 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
 end)
 
 -- Adjust NUI stars as necessary
-local prevWanted = 0
-local tickCount  = 0
-AddEventHandler('cnr:loaded', function()
+function UpdateWantedStars()
+  local prevWanted = 0
+  local tickCount  = 0
   while true do 
     local wanted = exports['cnrobbers']:WantedLevel()
     
@@ -181,12 +181,36 @@ AddEventHandler('cnr:loaded', function()
     end
     Wait(600)
   end
-end)
+end
 
+function CheckForPedKill()
+  while true do 
+    if not isCop then 
+      for ent in exports['cnrobbers']:EnumeratePeds() do 
+        if IsPedDeadOrDying(ent) then 
+          local killer = GetPedSourceOfDeath(ent)
+          if killer == PlayerPedId() then 
+            if not IsPedAPlayer(ent) then
+              if not DecorExistOn(ent, "KillCharge") then 
+                DecorRegister("KillCharge", 2)
+                DecorSetBool(ent, "KillCharge", true)
+                Citizen.CreateThread(function()
+                  Wait(3000)
+                  exports['cnrobbers']:WantedPoints(wp.manslaughter,
+                    "Manslaughter (NPC)", true
+                  )
+                end)
+              end
+            end
+          end
+        end
+        Wait(1)
+      end
+      Citizen.Wait(1000)
+    end
+  end
+end
 
-AddEventHandler('cnr:loaded', function()
-  NotCopLoops()
-end)
 
 AddEventHandler('cnr:police_duty', function(onDuty)
   isCop = onDuty
@@ -221,30 +245,9 @@ function NotCopLoops()
 end
 
 
-Citizen.CreateThread(function()
-  while true do 
-    if not isCop then 
-      for ent in exports['cnrobbers']:EnumeratePeds() do 
-        if IsPedDeadOrDying(ent) then 
-          local killer = GetPedSourceOfDeath(ent)
-          if killer == PlayerPedId() then 
-            if not IsPedAPlayer(ent) then
-              if not DecorExistOn(ent, "KillCharge") then 
-                DecorRegister("KillCharge", 2)
-                DecorSetBool(ent, "KillCharge", true)
-                Citizen.CreateThread(function()
-                  Wait(3000)
-                  exports['cnrobbers']:WantedPoints(wp.manslaughter,
-                    "Manslaughter (NPC)", true
-                  )
-                end)
-              end
-            end
-          end
-        end
-        Wait(1)
-      end
-      Citizen.Wait(1000)
-    end
-  end
+AddEventHandler('cnr:loaded', function()
+  Citizen.Wait(1000)
+  NotCopLoops()
+  Citizen.CreateThread(UpdateWantedStars)
+  Citizen.CreateThread(CheckForPedKill)
 end)

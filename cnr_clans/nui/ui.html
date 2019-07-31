@@ -1,4 +1,3 @@
-
 <html>
 
     <head>
@@ -8,6 +7,99 @@
     </head>
 
   <body>
+  
+  <div id="clan_main" style="display:none;">
+    <div id="clan_btns">
+      <div id="clan_ctrl">
+        <button class="nmlbtn">CREATE</button>
+        <button class="nmlbtn">MODIFY</button>
+        <button class="nmlbtn">DELETE</button>
+      </div>
+      <div id="clan_info">
+        <button class="accept">ACCEPT</button>
+        <button class="reject">REJECT</button>
+      </div>
+    </div>
+    
+    <div id="clan_list">
+      <table>
+        <thead>
+          <tr><td>Tag</td><td>Clan Name</td><td class="lv">Level</td></tr>
+        </thead>
+        <tbody>
+          <!--
+          <tr class="othclan">
+            <td><button class="name">SERVER</button></td>
+            <td><button class="name">Server Administration</button></td>
+            <td>184</td>
+          </tr>
+          -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="clan_deets">
+      
+      <!-- Clan roster when someone clicks on a clan name -->
+      <div id="clan_roster" style="display: none;">
+        <table>
+          <thead>
+            <tr><th colspan="6">Clan Members</th></tr>
+            <tr>
+              <th>Username</th><th colspan="2">Levels</th>
+              <th>Username</th><th colspan="2">Levels</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!--
+            <tr>
+              <th><button class="name">RhapidFyre</button></th><td>13637</td><td>48362</td>
+              <th><button class="name">ChapmanHTX</button></th><td>66</td><td>16238</td>
+            </tr>
+            -->
+          </tbody>
+        </table>
+      </div>
+      
+      
+      <!-- Clan Creation -->
+      <div id="creator" style="display: none;">
+        <table>
+          <tr><td></td></tr><tr><td></td></tr>
+          <tr><td></td></tr><tr><td></td></tr>
+          <tr>
+            <td><font color="#ccc">a-z A-Z 1-9 [ ] - = .<br>8 Character Maximum</font></td>
+            <td><font color="#ccc">Alpha Characters Only<br>26 Character Maximum</font></td>
+          </tr>
+          <tr>
+            <td><input type="text" placeholder="[.-=NCBC=-.]" maxlength="8"></td>
+            <td><input type="text" placeholder="New Clan is Best Clan" maxlength="26"></td>
+          </tr>
+          <tr><td></td></tr><tr><td></td></tr>
+          <tr><td></td></tr><tr><td></td></tr>
+          <tr>
+            <td colspan="2"><button>Submit for Approval</button></td>
+          </tr>
+        </table>
+      </div>
+      
+      
+      <!-- Called when an invite is pending -->
+      <div id="pending" style="display: none;">
+        <h3>You have a pending invite from</h3>
+        <span id="clan_inv_title">DA TURD BURGLURZ</span>
+      </div>
+      
+      
+      <!-- Called when loading information -->
+      <div id="load_wait" style="display: none;">
+        <h3>Loading Information. Please Wait...</h3>
+      </div>
+      
+      
+    </div>
+    <span id="title_text">~ CLAN &nbsp;MANAGER ~</span>
+  </div>
   
 	</body>
 </html>

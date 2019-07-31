@@ -97,15 +97,8 @@ function StartRobbery(n)
   local zNumber = exports['cnrobbers']:GetActiveZone()
   if zNumber == rob[n].zone then 
     print("DEBUG - Robbing the store!")
-    Citizen.CreateThread(function()
-      Citizen.Wait(math.random(1, 8) * 1000)
-      TriggerServerEvent('cnr:robbery_alarm',
-        "Silent Alarm", rob[i].title, rob[i].area,
-        rob[i].spawn.x, rob[i].spawn.y, rob[i].spawn.z
-      )
-    end)
     local attack = false
-    local take = 0
+    local take   = 0
     TriggerServerEvent('cnr:robbery_send_lock', n, true)
     exports['cnrobbers']:WantedPoints(30, "Brandishing a Firearm")
     rob[n].lockout = true
