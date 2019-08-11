@@ -12,6 +12,7 @@ $(function() {
     
     if (item.hideallmenus) {
       clan.hide();
+      $("#member_info").hide();
     }
     
     if (item.clans) {
@@ -32,11 +33,27 @@ $(function() {
       $("#load_wait").show();
     }
     
-    if(item.hideload) {$("#load_wait").hide();}
+    if(item.showmember) {
+      $("#member_info").show();
+      $("#member_deets").find('h3').html(item.nm);
+      $("#member_deets").find('h5').html(
+        'Civ Level: ' + item.clv + '<br>Cop Level: ' + item.leo
+      );
+    }
+    
+    if(item.hidemember) {$("#member_info").hide();}
+    if(item.hideload)   {$("#load_wait").hide();}
     
     // Pressing the ESC key with the menu open closes it 
+    // If they're viewing member info, it'll close that instead
     document.onkeyup = function (data) {
-      if (data.which == 27) { if (clan.is(":visible")) {doExit();} }
+      if (data.which == 27) {
+        if ($("#member_info").is(":visible")) {
+          CloseMember();
+        } else {
+          if (clan.is(":visible")) {doExit();}
+        }
+      }
     };
   });
 });
@@ -51,14 +68,31 @@ function HideAllSubmenus() {
   $("#creator").hide();
   $("#pending").hide();
   $("#load_wait").hide();
+  $("#member_info").hide();
 }
 
 function ViewRoster(val) {
-  console.log('DEBUG - ViewRoster('+val+')');
   $("#load_wait").show();
   $.post('http://cnr_clans/clanMenu', JSON.stringify({
     action:"roster",
     clanNumber:val
   }));
-  console.log('DEBUG - ViewRoster() Done.');
 }
+
+function ViewMember(val) {
+  $.post('http://cnr_clans/clanMenu', JSON.stringify({
+    action:"memberInfo",
+    member:val
+  }));
+}
+
+function MakeLeader() {
+  $.post('http://cnr_clans/clanMenu', JSON.stringify({action:"newLeader"}));
+}
+
+function ClanRemove() {
+  $.post('http://cnr_clans/clanMenu', JSON.stringify({action:"remove"}));
+}
+
+function CloseMember() {$("#member_info").hide();}
+

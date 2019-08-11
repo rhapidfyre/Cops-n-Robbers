@@ -12,6 +12,9 @@
 RegisterNetEvent('cnr:clans_receive') -- Receive clan listing
 RegisterNetEvent('cnr:clans_members') -- Receive clan members of selected clan
 
+local clanLeader = false  -- Whether the client is the leader or not
+local myClan     = 0      -- ID Number of the player's clan
+
 Citizen.CreateThread(function()
   while true do 
   
@@ -44,6 +47,7 @@ Citizen.CreateThread(function()
 end)
 
 RegisterCommand('mouse', function() SetNuiFocus(false) end)
+local mbr = {}
 AddEventHandler('cnr:clans_receive', function(clanInfo)
   print("DEBUG - Received clan list from server.")
   local htmlTable = {}
@@ -60,6 +64,7 @@ AddEventHandler('cnr:clans_receive', function(clanInfo)
         '<td>'..(v.cop + v.civ)..'</td></tr>'
       )
       print("DEBUG - Prepared HTML for clan: "..(v.name)..".")
+      mbr[k] = {v.name, v.civ, v.cop}
     end
     SendNUIMessage({clans = table.concat(htmlTable)})
   end
@@ -78,11 +83,11 @@ AddEventHandler('cnr:clans_members', function(ldr, plys)
       if i % 2 ~= 0 then infoBuild = '<tr>' end
       if v["idUnique"] == ldr then leadText = '<font color="#FB0">(*) ' end
       infoBuild = infoBuild..'<td>'..
-        '<button class="member" onclick="ViewMember('..(v["idUnique"])..')">'..
+        '<button class="member" onclick="ViewMember('..(i)..')">'..
         leadText..(v["username"])..'</font></button>'..
         '</td><td>'..(v["cop"])..'</td><td>'..(v["civ"])..'</td>'
       if i % 2 == 0 then infoBuild = infoBuild..'</tr>' end
-      print(infoBuild)
+      mbr[i] = {[1] = v["username"], [2] = v["civ"], [3] = v["cop"]}
       table.insert(htmlTable, infoBuild)
       i = i + 1
     end
@@ -91,15 +96,35 @@ AddEventHandler('cnr:clans_members', function(ldr, plys)
   end
 end)
 
+local selected_member = 0
 RegisterNUICallback("clanMenu", function(data, cb)
   print("DEBUG - Received NUICallback 'clanMenu'")
+  selected_member = 0
   if data.action == "exit" then 
     SetNuiFocus(false)
     menuEnabled = false
+    mbr = {}
+    
   elseif data.action == "roster" then
     print("DEBUG - Show Roster for idClan ["..(data.clanNumber).."]")
     SendNUIMessage({showload = true})
     Citizen.Wait(300)
     TriggerServerEvent('cnr:clans_roster', tonumber(data.clanNumber))
+    
+  elseif data.action == "memberInfo" then
+    selected_member = data.member
+    local t = mbr[data.member]
+    print("DEBUG - ViewMember("..tostring(data.member)..") -> ["..tostring(t[1]).."]")
+    SendNUIMessage({showmember = true, nm = t[1], clv = t[2], leo = t[3]})
+    
+  elseif data.action == "closeMember" then
+    SendNUIMessage({hidemember = true})
+    
+  elseif data.action == "newLeader" then 
+    
+  
+  elseif data.action == "remove" then 
+    
+  
   end
 end)
