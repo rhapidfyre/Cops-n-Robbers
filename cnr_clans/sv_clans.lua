@@ -11,6 +11,7 @@
 
 RegisterServerEvent('cnr:clans_request')
 RegisterServerEvent('cnr:clans_roster')
+RegisterServerEvent('cnr:client_loaded')
 local clans = {}
 
 AddEventHandler('cnr:clans_roster', function(cn)
@@ -80,4 +81,26 @@ end
 Citizen.CreateThread(function()
   Citizen.Wait(3000)
   ClanRetrieve()
+end)
+
+local tag = {}
+function GetClanTag(ply)
+  return tag[ply]
+end
+AddEventHandler('cnr:client_loaded', function()
+  Citizen.Wait(1000)
+  local ply = source
+  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  exports['ghmattimysql']:scalar(
+    "SELECT c.tag,c.idLeader FROM players p LEFT JOIN clans c "..
+    "ON c.idClan = p.idClan WHERE p.idUnique = @u",
+    function(cInfo)
+      if cInfo[1] then 
+        TriggerClientEvent('cnr:clan_tag', ply, cInfo[1]["tag"])
+        if cInfo[1]["idLeader"] == uid then 
+          TriggerClientEvent('cnr:clan_leader', ply, true)
+        end
+      end
+    end
+  )
 end)

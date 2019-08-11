@@ -93,16 +93,22 @@ end)
 -- Sends the new table to all players when finished if affected
 AddEventHandler('playerDropped', function(rsn)
   local ply = source
-  if wanted[ply] then
-    wanted[ply] = nil
-    TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted[ply])
+  if ply then
+    if wanted[ply] then
+      wanted[ply] = nil
+      TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted[ply])
+    end
+    ConsolePrint(GetPlayerName(ply).." ("..ply..") ^1disconnected.^7")
   end
-  print(
-    "[CNR "..(os.date("%H:%M:%I", os.time())).."] ^1"..
-    GetPlayerName(ply).." ("..ply..") disconnected.^7"
-  )
 end)
 
+function ConsolePrint(msg)
+  if msg then
+    local dt = os.date("%H:%M:%I", os.time())
+    print("^3[CNR "..dt.."] ^7"..(msg))
+  end
+end
+AddEventHandler('cnr:print', ConsolePrint)
 
 
 

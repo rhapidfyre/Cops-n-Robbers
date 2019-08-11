@@ -11,9 +11,12 @@
 
 RegisterNetEvent('cnr:clans_receive') -- Receive clan listing
 RegisterNetEvent('cnr:clans_members') -- Receive clan members of selected clan
+RegisterNetEvent('cnr:clan_tag')      -- tells client their clan tag
+RegisterNetEvent('cnr:clan_leader')   -- tells client they're the clan leader
 
 local clanLeader = false  -- Whether the client is the leader or not
 local myClan     = 0      -- ID Number of the player's clan
+local myTag      = ''
 
 Citizen.CreateThread(function()
   while true do 
