@@ -18,6 +18,7 @@ local clanLeader = false  -- Whether the client is the leader or not
 local myClan     = 0      -- ID Number of the player's clan
 local myTag      = ''
 
+--[[ DEBUG - Disables clan menu
 Citizen.CreateThread(function()
   while true do 
   
@@ -48,6 +49,7 @@ Citizen.CreateThread(function()
     Citizen.Wait(10)
   end
 end)
+]]
 
 RegisterCommand('mouse', function() SetNuiFocus(false) end)
 local mbr = {}
@@ -90,7 +92,10 @@ AddEventHandler('cnr:clans_members', function(ldr, plys)
         leadText..(v["username"])..'</font></button>'..
         '</td><td>'..(v["cop"])..'</td><td>'..(v["civ"])..'</td>'
       if i % 2 == 0 then infoBuild = infoBuild..'</tr>' end
-      mbr[i] = {[1] = v["username"], [2] = v["civ"], [3] = v["cop"]}
+      mbr[i] = {
+        [1] = v["username"], [2] = v["civ"],
+        [3] = v["cop"], [4] = v["idUnique"]
+      }
       table.insert(htmlTable, infoBuild)
       i = i + 1
     end

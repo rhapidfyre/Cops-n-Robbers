@@ -10,6 +10,8 @@
   of playing the gamemode as intended by the developer.
 --]]
 
+RegisterServerEvent('cnr:police_backup')
+
 local cops    = {}
 local dropCop = {}
 local carUse  = {}
@@ -40,7 +42,17 @@ AddEventHandler('cnr:police_status', function(onDuty)
   end
 end)
 
---[[
+
+--- EXPORT: DutyStatus()
+-- Like the client function, tells calling script if player is on police duty.
+-- However, unlike the client function, must be given Server ID of player to check.
+-- @param ply The player by server ID
+-- @return True if on police duty, false or nil if not.
+function DutyStatus(ply)
+  if not ply then return nil end
+  return cops[ply]
+end
+
 RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
@@ -49,15 +61,15 @@ AddEventHandler('cnr:client_loaded', function()
     if v == uid then 
       TriggerClientEvent('cnr:police_reduty', source)
       TriggerClientEvent('chat:addMessage', {
-        color = {255,180,40},
+        color     = {255,180,40},
         multiline = true,
-        args = {"SERVER", "You were on duty when you logged out, "..
-                          "so your duty status has been restored."}
+        args      = {"SERVER", "You were on duty when you logged out. "..
+                               "Your duty status has been restored."}
       })
     end
+    Citizen.Wait(1)
   end
 end)
-]]
 
 
 -- Adds player to dropped cops table, so their duty status
@@ -78,3 +90,11 @@ AddEventHandler('playerDropped', function()
     end)
   end
 end)
+
+
+-- Receives info for a 911 call, and then changes the blips
+function RequestBackup(em, title, msg, areaName, x, y, z)
+  TriggerClientEvent('cnr:dispatch', (-1), title, msg, areaName, x,y,z)
+  TriggerClientEvent('cnr:police_blip_backup', (-1), source)
+end
+AddEventHandler('cnr:police_backup', RequestBackup)

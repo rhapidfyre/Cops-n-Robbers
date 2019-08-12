@@ -14,7 +14,8 @@ server_scripts {
 
 server_exports {
   'CurrentZone',
-  'GetUniqueId'
+  'GetUniqueId',
+  'GetFullZoneName'
 }
 
 exports {
@@ -28,5 +29,6 @@ exports {
   'ChatNotification',
   'GetPlayers',
   'GetClosestPlayer',
-  'GetWanteds',
+  'GetWanteds',,
+  'GetFullZoneName'
 }

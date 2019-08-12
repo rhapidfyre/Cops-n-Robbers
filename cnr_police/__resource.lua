@@ -21,6 +21,7 @@ server_scripts {
 }
 
 server_exports {
+  'DutyStatus',
 }
 
 exports {

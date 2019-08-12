@@ -25,6 +25,17 @@ function CurrentZone()
   return (zone.active)
 end
 
+
+--- EXPORT: GetFullZoneName()
+-- Returns the name found for the zone in shared.lua
+-- If one isn't found, returns "San Andreas"
+-- @param abbrv The abbreviation of the zone name given by runtime
+function GetFullZoneName(abbrv)
+  if not zoneByName[abbrv] then return "San Andreas" end
+  return zoneByName[abbrv]
+end
+
+
 function ZoneNotification(i, t, s, m)
   TriggerClientEvent('cnr:chat_notify', (-1), i, t, s, m)
 end
@@ -69,6 +80,29 @@ function CheckIfWanted(ply)
   end
 end
 
+
+-- GetPlayerScores()
+-- Retrieves the player's civ and cop levels
+-- @param ply The player's Server ID
+function GetPlayerScores(ply)
+  local uid = GetUniqueId(ply)
+  if uid then
+  exports['ghmattimysql']:execute(
+    "SELECT cop,civ FROM players WHERE idUnique = @u",
+    {['u'] = uid},
+    function(levels)
+      if levels[1] then 
+        -- Broadcast scores to all scripts
+        TriggerClientEvent('cnr:client_scores', (-1), ply, levels[1])
+        scores[ply].cop = levels[1]["cop"]
+        scores[ply].civ = levels[1]["civ"]
+      end
+    end
+  )
+  end
+end
+
+
 -- When a client has loaded in the game, send them their active zone
 -- Also check if they're wanted, and then update the wanted table
 RegisterServerEvent('cnr:client_loaded')
@@ -78,6 +112,7 @@ AddEventHandler('cnr:client_loaded', function()
   TriggerClientEvent('cnr:cl_wanted_list', (-1), wanted)
   Citizen.Wait(100)
   CheckIfWanted(ply)
+  GetPlayerScores(ply)
 end)
 
 -- Received by a client whose wanted points has changed

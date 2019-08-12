@@ -18,6 +18,11 @@ local mostWantedValue = 101
 local wantedPlayers   = {}
 local restarted       = {} -- DEBUG -
 
+local reduce = {
+  time = 30, -- Time in seconds to reduce wanted level
+  pts  = 1.25 -- Amount of wanted points to reduce by
+}
+
 local plyCount = 255
 
 local felonLevel = 40
@@ -97,6 +102,15 @@ end
 -------------------------------------------------	
 
 
+--- EXPORT: GetFullZoneName()
+-- Returns the name found for the zone in shared.lua
+-- If one isn't found, returns "San Andreas"
+-- @param abbrv The abbreviation of the zone name given by runtime
+function GetFullZoneName(abbrv)
+  if not zoneByName[abbrv] then return "San Andreas" end
+  return zoneByName[abbrv]
+end
+
 
 
 -- DEBUG - Change own wanted level
@@ -134,11 +148,11 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
   if not wp then wp = 0 end
   if not ply then return 0 end
   if ply == GetPlayerServerId(PlayerId()) then 
+    ReduceWantedLevel()
     print("DEBUG - Player being affected is YOU!")
     if not wantedPlayers[ply] then wantedPlayers[ply] = wp end
     if wantedPlayers[ply] == 0 and wp > 0 then
       print("DEBUG - You went from innocent to wanted.")
-      ReduceWantedLevel()
       TriggerEvent('cnr:is_wanted', wp)
     elseif wantedPlayers[ply] > 0 and wp <= 0 then 
       print("DEBUG - You went from wanted to innocent.")
@@ -290,14 +304,14 @@ function ReduceWantedLevel()
     loopRunning = true
     Citizen.CreateThread(function()
       while wantedPlayers[ply] > 0 do 
+        Citizen.Wait(reduce.time * 1000)
         if wantedPlayers[ply] > 0 then 
-          local newValue = wantedPlayers[ply] - 1.25
+          local newValue = wantedPlayers[ply] - reduce.pts
+          if newValue < 0 then newValue = 0 end
           wantedPlayers[ply] = newValue
           TriggerServerEvent('cnr:wanted_points', newValue)
         end
-        Citizen.Wait(60000)
       end
-      wantedPlayers[ply] = 0
       loopRunning = false
     end)
   end

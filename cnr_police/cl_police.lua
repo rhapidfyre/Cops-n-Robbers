@@ -12,6 +12,7 @@
 
 
 RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
+RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
 
 
 local isCop          = false  -- True if player is on cop duty
@@ -112,6 +113,21 @@ RegisterCommand('previtem', function(s,a,r)
   SetPedComponentVariation(PlayerPedId(), slotNumber, i-1, 0, 0)
   print("DEBUG - Slot ["..slotNumber.."] Current item #"..i-1)
 end)
+
+
+function RequestBackup(emergent)
+  local pos    = GetEntityCoords(PlayerPedId())
+  local myArea = exports['cnrobbers']:GetFullZoneName(GetNameOfZone(pos.x,pos.y,pos.z))
+  if emergent then 
+    TriggerServerEvent('cnr:police_backup', true, "Backup Request",
+      "^1Immediate Need", myArea, pos.x, pos.y, pos.z      
+    )
+  else
+    TriggerServerEvent('cnr:police_backup', false, "Backup Request",
+      "^3Urgent Need", myArea, pos.x, pos.y, pos.z      
+    )
+  end
+end
 
 
 --- PoliceLoadout()
@@ -327,4 +343,10 @@ AddEventHandler('cnr:client_loaded', function()
     end
     Citizen.Wait(10)
   end
+end)
+
+
+local backupBlips = {}
+AddEventHandler('cnr:police_blip_backup', function(ply)
+  
 end)

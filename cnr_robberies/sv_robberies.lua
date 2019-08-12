@@ -86,7 +86,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
     Citizen.CreateThread(function()
       Citizen.Wait(math.random(1, 10) * 1000)
       local mission = rob[storeNumber]
-      TriggerClientEvent('cnr:dispatch',
+      TriggerClientEvent('cnr:dispatch', (-1),
         "Hold-up Alarm", mission.title, mission.area,
         mission.spawn.x, mission.spawn.x, mission.spawn.z
       )
