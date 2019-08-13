@@ -172,10 +172,8 @@ function PoliceCamera(c)
   Citizen.Wait(3000)
   DoScreenFadeOut(400)
   Citizen.Wait(600)
-  SetCamParams(cam,
-    c.exitcam.x, c.exitcam.y, c.exitcam.z,
-    c.caminfo.erotx, c.caminfo.eroty, c.caminfo.erotz,
-    c.caminfo.efov
+  SetCamParams(cam, c.exitcam.x, c.exitcam.y, c.exitcam.z,
+    c.caminfo.erotx, c.caminfo.eroty, c.caminfo.erotz, c.caminfo.efov
   )
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
@@ -314,12 +312,20 @@ function UnlockPoliceCarDoor()
   end
 end
 
-
+-- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
+-- I need to find a better way to implement this later.
+local ctr = 1
+local lastRequest = 0
 function PoliceDutyLoops()
   Citizen.CreateThread(function()
     while isCop do 
       if IsControlJustPressed(0, 75) then -- F
         UnlockPoliceCarDoor()
+      elseif IsControlJustPressed(0, 29) and GetLastInputMethod(2) then -- B
+        if lastRequest < GetGameTimer() then
+          lastRequest = GetGameTimer() + 30000
+          RequestBackup(true)
+        end
       end
       Citizen.Wait(1)
     end
@@ -348,5 +354,14 @@ end)
 
 local backupBlips = {}
 AddEventHandler('cnr:police_blip_backup', function(ply)
-  
+  local plys = exports['cnrobbers']:GetPlayers()
+  for k,v in pairs (plys) do 
+    if GetPlayerFromServerId(ply) == v then 
+      if DoesBlipExist(v) then 
+        
+      else
+      
+      end
+    end
+  end
 end)
