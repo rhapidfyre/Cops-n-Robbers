@@ -17,6 +17,7 @@ local activeZone      = 1
 local mostWantedValue = 101
 local wantedPlayers   = {}
 local restarted       = {} -- DEBUG -
+local copDuty         = {}
 
 local reduce = {
   time = 30, -- Time in seconds to reduce wanted level
@@ -111,6 +112,20 @@ function GetFullZoneName(abbrv)
   return zoneByName[abbrv]
 end
 
+
+RegisterNetEvent('cnr:police_officer_duty')
+AddEventHandler('cnr:police_officer_duty', function(ply, status)
+  copDuty[ply] = status
+end)
+
+
+--- EXPORT: IsCop()
+-- Tells the client whether the given server ID is on cop duty or not
+-- @param ply The player server ID
+-- @return True is a cop on duty 
+function IsCop(ply)
+  return copDuty[ply]
+end
 
 
 -- DEBUG - Change own wanted level
@@ -284,9 +299,11 @@ end
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easy calculation
+-- Returns the local client if no local ID is provided as an argument
+-- @param ply Server ID, if provided
 -- @return The wanted level based on current wanted points
-function WantedLevel()
-  local ply = GetPlayerServerId(PlayerId())
+function WantedLevel(ply)
+  if not ply then ply = GetPlayerServerId(PlayerId()) end
   if not wantedPlayers[ply] then
     wantedPlayers[ply] = 0
     return 0

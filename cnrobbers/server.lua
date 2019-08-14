@@ -32,7 +32,7 @@ end
 -- @param abbrv The abbreviation of the zone name given by runtime
 function GetFullZoneName(abbrv)
   if not zoneByName[abbrv] then return "San Andreas" end
-  return zoneByName[abbrv]
+  return (zoneByName[abbrv])
 end
 
 

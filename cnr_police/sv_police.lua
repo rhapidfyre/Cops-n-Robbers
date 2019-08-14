@@ -30,7 +30,8 @@ end
 
 RegisterServerEvent('cnr:police_status')
 AddEventHandler('cnr:police_status', function(onDuty)
-  cops[source] = onDuty
+  local ply = source
+  cops[ply] = onDuty
   local numCops = CountCops()
   local dt      = os.date("%H:%M:%S", os.time())
   if numCops < 1 then
@@ -40,6 +41,7 @@ AddEventHandler('cnr:police_status', function(onDuty)
   else
     print("[CNR "..dt.."] There are now "..numCops.." cops on duty.")
   end
+  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty)
 end)
 
 
@@ -60,6 +62,7 @@ AddEventHandler('cnr:client_loaded', function()
   for k,v in pairs(dropCop) do 
     if v == uid then 
       TriggerClientEvent('cnr:police_reduty', source)
+      TriggerClientEvent('cnr:police_officer_duty', (-1), ply, true)
       TriggerClientEvent('chat:addMessage', {
         color     = {255,180,40},
         multiline = true,
@@ -89,6 +92,7 @@ AddEventHandler('playerDropped', function()
       end
     end)
   end
+  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, false)
 end)
 
 
