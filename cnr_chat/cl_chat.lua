@@ -28,14 +28,14 @@ local channels = {
 function ReceiveRadioMessage(name, agency, msg)
   if exports['cnr_police']:DutyStatus() then 
     if agency > 0 then 
-      TriggerClientEvent('chat:addMessage', {
-        multiline = true, args = {"^7(/r) ^3"..name.. " , 
+      TriggerEvent('chat:addMessage', {
+        multiline = true, args = {"^7(/r) ^3"..name,
           channels[agency].." Radio", msg
         }
       })
     else
       TriggerClientEvent('chat:addMessage', {
-        multiline = true, args = {"^7(/d) ^3"..name.., 
+        multiline = true, args = {"^7(/d) ^3"..name, 
           "Agency-Wide Communication", msg
         }
       })
@@ -64,24 +64,24 @@ function SendRadioMessage(source, args, raw, isDept)
         TriggerServerEvent('cnr:radio_message', msg, myAgency)
       end
     else
-      TriggerClientEvent('chat:addMessage', {args = {
-        "ERROR", "^1Blank message received. (^3/r(radio) <Message>^1)."
+      TriggerEvent('chat:addMessage', {args = {
+        "^1ERROR", "^1Blank message received. (^3/r(radio) <Message>^1)."
       }})
     end
   else
-    TriggerClientEvent('chat:addMessage', {args = {
-      "ERROR", "^1What Radio? You're not on Law Enforcement duty."
+    TriggerEvent('chat:addMessage', {args = {
+      "^1ERROR", "^1What Radio? You're not on ^3Public Safety ^1duty."
     }})
   end
 end
 TriggerEvent('chat:addSuggestion', '/r(adio)', 'Sends a radio message.', {
-  {name="message", "The message to be sent to all on duty members."
+  {name="message", "The message to be sent to all on duty members."}
 })
 RegisterCommand('r', SendRadioMessage)
 RegisterCommand('radio', SendRadioMessage)
 
 TriggerEvent('chat:addSuggestion', '/d(ept)', 'Sends radio message to all agencies.', {
-  {name="message", "The message to be sent to all on duty agencies."
+  {name="message", "The message to be sent to all on duty agencies."}
 })
 RegisterCommand('d', function(s,a,r) SendRadioMessage(s,a,r,true) end)
 RegisterCommand('dept', function(s,a,r) SendRadioMessage(s,a,r,true) end)

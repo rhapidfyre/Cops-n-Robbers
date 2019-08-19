@@ -203,11 +203,14 @@ function BeginCopDuty(st)
   print("DEBUG - Beginning cop duty @ station #"..st)
   local c  = depts[st]
   local wp = exports['cnrobbers']:WantedPoints()
-  ignoreDuty = true
   if wp < 1 then 
+    print("DEBUG - Starting duty assignments.")
     transition = true
+    print("DEBUG - Doing camera.")
     PoliceCamera(c)
+    print("DEBUG - Setting duty variables")
     isCop = true
+    print("DEBUG - Setting clothes.")
     prevClothes = {
       [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
               text = GetPedTextureVariation(PlayerPedId(), 3)},
@@ -223,15 +226,21 @@ function BeginCopDuty(st)
     for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
     end
+    print("DEBUG - Clothes set.")
     TriggerServerEvent('cnr:police_status', true)
     TriggerEvent('cnr:police_duty', true)
+    print("DEBUG - Event(s) Triggered.")
     TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
+    print("DEBUG - Walking to exit.")
     PoliceLoadout(true)
+    print("DEBUG - Loadout Given.")
     Citizen.Wait(4800)
+    print("DEBUG - ChatNotification().")
     exports['cnrobbers']:ChatNotification(
       "CHAR_CALL911", "Police Duty", "~g~Start of Watch",
       "You are now on Law Enforcement duty."
     )
+    print("DEBUG - myAgency["..tostring(c.agency).."]")
     myAgency = c.agency
     PoliceDutyLoops()
   else
@@ -280,7 +289,6 @@ AddEventHandler('cnr:police_reduty', Reduty)
 -- Checks if player is wanted before going on duty
 function EndCopDuty(st)
   local c = depts[st]
-  ignoreDuty = true
   transition = true
   myAgency   = 0
   PoliceCamera(c)
@@ -324,11 +332,13 @@ function UnlockPoliceCarDoor()
   end
 end
 
+
 -- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
 -- I need to find a better way to implement this later.
 local ctr = 1
 local lastRequest = 0
 function PoliceDutyLoops()
+  print("DEBUG - PoliceDutyLoops()")
   Citizen.CreateThread(function()
     while isCop do 
       if IsControlJustPressed(0, 75) then -- F
@@ -339,33 +349,41 @@ function PoliceDutyLoops()
           RequestBackup(true)
         end
       end
-      Citizen.Wait(1)
+      Citizen.Wait(100)
     end
   end)
 end
 
 
 Citizen.CreateThread(function()
-  Citizen.Wait(5000)
   while true do 
     if not ignoreDuty then
       local myPos = GetEntityCoords(PlayerPedId())
-      --if IsControlJustPressed(0, 38) then -- E
+      if IsControlJustPressed(0, 38) then -- E
         for i = 1, #depts do
           if #(myPos - (depts[i].duty)) < 2.1 then
-            if isCop then EndCopDuty(i)
-            else BeginCopDuty(i)
+            ignoreDuty = true
+            if isCop then
+              Citizen.CreateThread(function()
+                EndCopDuty(i)
+              end)
+            else 
+              Citizen.CreateThread(function()
+                BeginCopDuty(i)
+              end)
             end
           end
           Citizen.Wait(100)
         end
-      --end
+      end
     end
-    Citizen.Wait(1000)
+    Citizen.Wait(1)
   end
 end)
 
 
+
+--[[
 local backupBlips = {}
 AddEventHandler('cnr:police_blip_backup', function(ply)
   local plys = exports['cnrobbers']:GetPlayers()
@@ -379,3 +397,4 @@ AddEventHandler('cnr:police_blip_backup', function(ply)
     end
   end
 end)
+]]

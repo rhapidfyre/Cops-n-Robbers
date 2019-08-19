@@ -26,7 +26,6 @@ function CurrentZone()
   return (zone.active)
 end
 
-
 --- EXPORT: GetFullZoneName()
 -- Returns the name found for the zone in shared.lua
 -- If one isn't found, returns "San Andreas"

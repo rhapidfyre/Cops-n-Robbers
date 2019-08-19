@@ -208,6 +208,7 @@ function CheckForPedKill()
       end
       Citizen.Wait(1000)
     end
+    Wait(1)
   end
 end
 

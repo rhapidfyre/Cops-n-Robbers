@@ -26,7 +26,7 @@ function DrawPlayerBlips()
   while true do 
     local plys = GetActivePlayers()
     for _,ply in ipairs (plys) do 
-      if not DoesBlipExist(plyBlip[ply]) then
+      if not DoesBlipExist(plyBlip[ply]) and ply ~= PlayerId() then
         plyBlip[ply] = AddBlipForEntity(ply)
         SetBlipGenericStyle(ply)
       end

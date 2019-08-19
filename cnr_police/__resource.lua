@@ -22,10 +22,10 @@ server_scripts {
 
 server_exports {
   'DutyStatus',
-  'DutyAgency',
 }
 
 exports {
   'DutyStatus',
+  'DutyAgency',
   'SendDispatch',
 }
