@@ -29,6 +29,6 @@ exports {
   'ChatNotification',
   'GetPlayers',
   'GetClosestPlayer',
-  'GetWanteds',,
+  'GetWanteds',
   'GetFullZoneName'
 }

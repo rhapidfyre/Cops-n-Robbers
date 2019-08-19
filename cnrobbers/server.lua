@@ -19,6 +19,7 @@ local zone = {
   pick   = 18000000, -- The next time to pick a zone
 }
 local unique = {}
+local scores = {}
 local wanted = {}
 
 function CurrentZone()
@@ -32,7 +33,7 @@ end
 -- @param abbrv The abbreviation of the zone name given by runtime
 function GetFullZoneName(abbrv)
   if not zoneByName[abbrv] then return "San Andreas" end
-  return zoneByName[abbrv]
+  return (zoneByName[abbrv])
 end
 
 
@@ -44,9 +45,26 @@ end
 -- Returns the player's Unique ID
 -- @return The player's UID or nil
 function GetUniqueId(ply)
-  print("DEBUG - GetUniqueId("..tostring(ply)..") = "..tostring(unique[ply]))
+  if not unique[ply] then 
+    local sid = nil
+    for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+      if string.sub(id, 1, string.len("steam:")) == "steam:" then
+        sid = id
+      end
+    end
+    if sid then
+      local steam = exports['ghmattimysql']:scalarSync(
+        "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
+        {['steam'] = sid}
+      )
+      unique[ply] = steam
+    else
+      unique[ply] = 0
+    end
+  end
   return unique[ply]
 end
+
 
 AddEventHandler('cnr:unique_id', function(ply, uid)
   print("DEBUG - unique["..tostring(ply).."] = "..tostring(uid))
@@ -87,18 +105,19 @@ end
 function GetPlayerScores(ply)
   local uid = GetUniqueId(ply)
   if uid then
-  exports['ghmattimysql']:execute(
-    "SELECT cop,civ FROM players WHERE idUnique = @u",
-    {['u'] = uid},
-    function(levels)
-      if levels[1] then 
-        -- Broadcast scores to all scripts
-        TriggerClientEvent('cnr:client_scores', (-1), ply, levels[1])
-        scores[ply].cop = levels[1]["cop"]
-        scores[ply].civ = levels[1]["civ"]
+    if not scores[ply] then scores[ply] = {} end
+    exports['ghmattimysql']:execute(
+      "SELECT cop,civ FROM players WHERE idUnique = @u",
+      {['u'] = uid},
+      function(levels)
+        if levels[1] then 
+          -- Broadcast scores to all scripts
+          TriggerClientEvent('cnr:client_scores', (-1), ply, levels[1])
+          scores[ply].cop = levels[1]["cop"]
+          scores[ply].civ = levels[1]["civ"]
+        end
       end
-    end
-  )
+    )
   end
 end
 
