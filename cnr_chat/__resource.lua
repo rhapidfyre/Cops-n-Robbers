@@ -11,21 +11,15 @@ files {
 }
 
 client_scripts {
-  "cl_config.lua", 
-  "cl_police.lua"
+  "cl_chat.lua"
 }
 
 server_scripts {
-  "sv_config.lua",
-  "sv_police.lua"
+  "sv_chat.lua"
 }
 
 server_exports {
-  'DutyStatus',
-  'DutyAgency',
 }
 
 exports {
-  'DutyStatus',
-  'SendDispatch',
 }

@@ -87,11 +87,11 @@ local tag = {}
 function GetClanTag(ply)
   return tag[ply]
 end
-AddEventHandler('cnr:client_loaded', function()
+Citizen.CreateThread(function()
   Citizen.Wait(1000)
   local ply = source
   local uid = exports['cnrobbers']:GetUniqueId(ply)
-  exports['ghmattimysql']:scalar(
+  exports['ghmattimysql']:execute(
     "SELECT c.tag,c.idLeader FROM players p LEFT JOIN clans c "..
     "ON c.idClan = p.idClan WHERE p.idUnique = @u",
     function(cInfo)

@@ -21,6 +21,7 @@ local cam            = nil
 local transition     = false
 local enteringCopCar = false
 local prevClothes    = {}
+local myAgency       = 0
 
 
 function DispatchMessage(title, msg)
@@ -79,6 +80,13 @@ end
 AddEventHandler('cnr:dispatch', SendDispatch)
 
 
+--- EXPORT: DutyAgency()
+-- Returns the agency the player is working for
+-- @return The agency value; 0 means off duty.
+function DutyAgency()
+  return myAgency
+end
+
 -- Wanted Point weights for certain actions
 local wp = {
   attempt = 10, -- Atempt to Steal Public Safety
@@ -89,6 +97,7 @@ local wp = {
 
 --- EXPORT: DutyStatus()
 -- Returns whether the player is on cop duty
+-- DEBUG - Obsolete? (Use DutyAgency() > 0 ??)
 -- @return True if on cop duty, false if not
 function DutyStatus()
   return isCop
@@ -191,6 +200,7 @@ end
 -- Sets a civilian to be a police officer
 -- Checks if player is wanted before going on duty
 function BeginCopDuty(st)
+  print("DEBUG - Beginning cop duty @ station #"..st)
   local c  = depts[st]
   local wp = exports['cnrobbers']:WantedPoints()
   ignoreDuty = true
@@ -222,6 +232,7 @@ function BeginCopDuty(st)
       "CHAR_CALL911", "Police Duty", "~g~Start of Watch",
       "You are now on Law Enforcement duty."
     )
+    myAgency = c.agency
     PoliceDutyLoops()
   else
     TriggerEvent('chat:addMessage', {
@@ -271,6 +282,7 @@ function EndCopDuty(st)
   local c = depts[st]
   ignoreDuty = true
   transition = true
+  myAgency   = 0
   PoliceCamera(c)
   isCop = false
   for k,v in pairs (prevClothes) do
@@ -333,21 +345,23 @@ function PoliceDutyLoops()
 end
 
 
-AddEventHandler('cnr:client_loaded', function()
+Citizen.CreateThread(function()
   Citizen.Wait(5000)
   while true do 
     if not ignoreDuty then
       local myPos = GetEntityCoords(PlayerPedId())
-      for i = 1, #depts do
-        if #(myPos - (depts[i].duty)) < 2.1 then
-          --[[if isCop then EndCopDuty(i)
-          else BeginCopDuty(i)
-          end]]
+      --if IsControlJustPressed(0, 38) then -- E
+        for i = 1, #depts do
+          if #(myPos - (depts[i].duty)) < 2.1 then
+            if isCop then EndCopDuty(i)
+            else BeginCopDuty(i)
+            end
+          end
+          Citizen.Wait(100)
         end
-        Citizen.Wait(10)
-      end
+      --end
     end
-    Citizen.Wait(10)
+    Citizen.Wait(1000)
   end
 end)
 

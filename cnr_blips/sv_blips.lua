@@ -10,3 +10,12 @@
   Permission is granted only for executing this script for the purposes
   of playing the gamemode as intended by the developer.
 --]]
+
+local cops = {}
+
+RegisterServerEvent('cnr:police_status')
+AddEventHandler('cnr:police_status', function(onDuty)
+  cops[source] = onDuty
+  local numCops = CountCops()
+  TriggerClientEvent('')
+end)
