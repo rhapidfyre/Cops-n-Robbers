@@ -43,6 +43,7 @@ end
 
 
 function ZoneNotification(i, t, s, m)
+  TriggerEvent('cnr:zone_notify', i, t, s, m)
   TriggerClientEvent('cnr:chat_notify', (-1), i, t, s, m)
 end
 

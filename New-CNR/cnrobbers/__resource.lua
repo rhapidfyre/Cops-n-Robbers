@@ -4,6 +4,7 @@ resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 dependency 'ghmattimysql'
 
 client_scripts {
+  "ent_enum.lua",         -- Entity Enumeration
   "sh_cnrobbers.lua",
   "cl_cnrobbers.lua"
 }
@@ -14,6 +15,7 @@ server_scripts {
 }
 
 server_exports {
+  'ConsolePrint',
   'CurrentZone',
   'GetUniqueId',
   'GetFullZoneName'
@@ -25,11 +27,8 @@ exports {
 	'EnumeratePeds',
 	'EnumeratePickups',
   'GetActiveZone',
-  'WantedPoints',         -- Tells client their wanted points
-  'WantedLevel',          -- Returns Wanted Level (client or others)
-  'ChatNotification',     -- A neatly formated Chat Notification function
-  'GetWanteds',           -- Returns the wanted list (t[ServerId] = points)
-  'GetPlayers',
+  'ChatNotification',     -- A neatly formatted Chat Notification function
+  'GetPlayers',           -- OBSOLETE; Use 'GetActivePlayers()' (Native)
   'GetClosestPlayer',
 }
 

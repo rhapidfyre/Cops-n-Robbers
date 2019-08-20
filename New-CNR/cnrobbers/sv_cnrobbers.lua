@@ -15,14 +15,13 @@
 
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
 local scores = {}     -- Scores of players (KEYS: 'cop' and 'civ')
-local wanted = {}     -- List of wanted players by Server ID
 
 
 local zone = {
   timer  = 300,       -- Time in minutes between zone changes
   count  = 4,         -- Number of zones to use
   active = 1,         -- The currently active zone
-  pick   = 18000000,  -- The next time to pick a zone
+  pick   = 18000000,  -- The next time to pick a zone (in ms)
 }
 
 
@@ -32,10 +31,22 @@ local reduce = {    -- Reduction of wanted level
 }
 
 
+--- ConsolePrint()
+-- Nicely formatted console print with timestamp
+-- @param msg The message to be displayed
+function ConsolePrint(msg)
+  if msg then
+    local dt = os.date("%H:%M:%I", os.time())
+    print("[CNR "..dt.."] ^7"..(msg))
+  end
+end
+AddEventHandler('cnr:print', ConsolePrint)
+
+
 --- EXPORT: UniqueId()
 -- Assigns / Retrieves player's Unique ID (SQL Database ID Number)
 -- @param ply The player (server ID) to get the UID for
--- @param uid If provided, sets player's UID
+-- @param uid If provided, sets player's UID. If nil, returns UID
 -- @return Returns the Unique ID, or 0 if not found
 function UniqueId(ply, uid)
   if ply then 
@@ -101,13 +112,16 @@ end
 -- @return The player's UID, or 0 if not found (always int)
 function GetUniqueId(ply)
   if not unique[ply] then 
-    local sid = nil
+  
     -- If unique ID doesn't exist, find it
     -- We know they have one because of deferral check upon joining.
+    local sid = nil
     for _,id in pairs(GetPlayerIdentifiers(ply)) do 
       if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
       end
     end
+    
+    -- If Steam ID was found, retrieve player's UID.
     if sid then
       local steam = exports['ghmattimysql']:scalarSync(
         "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
@@ -119,3 +133,107 @@ function GetUniqueId(ply)
   end
   return unique[ply]
 end
+
+
+--- ZoneChange()
+-- Handles changing over the zone. No params, no return.
+function ZoneChange()
+  local newZone = math.random(zone.count)
+  while newZone == zone.active do 
+    newZone = math.random(zone.count); Wait(1)
+  end
+  
+  local n = 300 -- 5 Minutes, in seconds
+  ConsolePrint("^3Zone "..(newZone).." will unlock in 5 minutes.")
+  
+  while n > 30 do 
+    if n % 60 == 0 then
+      local mins = (n/60).." minutes"
+      if     n/60 == 1 then mins = "1 minute"
+      elseif n/60  < 1 then mins = n.." seconds"
+      end
+      TriggerClientEvent('chat:addMessage', (-1), {args = {"ZONE CHANGE",
+        "^3"..mins.."^1 until zone change!"}
+      })
+      ZoneNotification("CHAR_SOCIAL_CLUB",
+        "Zone Change", "~r~"..mins, 
+        "Active zone is changing soon!"
+      )
+    end
+    n = n - 1
+    Wait(1000)
+  end
+  
+  Citizen.Wait(20000)
+  
+  for i = 0, 9 do 
+    TriggerClientEvent('chat:addMessage', (-1), 
+      {args = {"^1Zone ^3#"..newZone.." ^1activates in ^3"..(10-i).." Second(s)^1!!"}}
+    )
+    Citizen.Wait(1000)
+  end
+  
+  zone.active = newZone
+  ConsolePrint("^2Zone "..(newZone).." is now active.")
+  
+  TriggerClientEvent('chat:addMessage', (-1), 
+    {args = {"^2Zone ^7#"..(newZone).." ^2is now the active Zone! (^7/zones^2)"}}
+  )
+  
+  ZoneNotification("CHAR_SOCIAL_CLUB",
+    "Zone Change", "~g~New Zone Active", 
+    "Zone #"..newZone.." is active."
+  )
+  
+  -- Tell clients and server the zone has changed
+  -- This gives the option to use exports['cnrobbers']:CurrentZone(), or to wait for event
+  -- DO NOT MAKE THIS EVENT SAFE FOR NETWORKING
+  TriggerClientEvent('cnr:zone_change', (-1), newZone)
+  TriggerEvent('cnr:zone_change', newZone)
+end
+
+
+-- Performs table optimization/cleanup when a player drops
+-- Finish by telling Console the player dropped
+AddEventHandler('playerDropped', function(rsn)
+  local ply = source
+  if ply then
+    if unique[ply] then
+      unique[ply] = nil
+    end
+    ConsolePrint(
+      "^1"..GetPlayerName(ply).." ("..ply..") disconnected."..
+      "Reason: ("..tostring(rsn)..")^7"
+    )
+  end
+end)
+
+
+-- Runs the zone change timer for choosing which zone is being played
+function ZoneLoop()
+  while true do 
+    if GetGameTimer() > zone.pick then
+    
+      zone.pick = GetGameTimer() + (zone.timer * 60 * 1000)
+      
+      --[[ 
+        Threaded to ensure the (zone.timer) is consistent, and doesn't add
+        5 minutes of tick every time the script decides to change the zone.
+      ]]
+      Citizen.CreateThread(ZoneChange)
+    end
+    Citizen.Wait(1000)
+  end
+end
+Citizen.CreateThread(ZoneLoop)
+
+
+-- When a client has loaded in the game, send them relevant script details
+RegisterServerEvent('cnr:client_loaded')
+AddEventHandler('cnr:client_loaded', function()
+  TriggerClientEvent('cnr:active_zone', source, zone.active)
+end)
+
+
+
+

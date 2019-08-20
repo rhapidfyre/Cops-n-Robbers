@@ -14,16 +14,12 @@
 --]]
 
 
-RegisterNetEvent('cnr:setting_cop_duty')
-RegisterNetEvent('cnr:setting_active_zone')
+RegisterNetEvent('cnr:active_zone')
 RegisterNetEvent('cnr:chat_notify')
 
 
 local activeZone = 1      -- What zone is currently active
-local wanted     = {}     -- List of wanted players (tbl[server_id] = points)
-local copDuty    = {}     -- Players who are on cop duty (tbl[sv_id] = copLevel)
 local plyCount   = 255    -- Used Internally (Obsolete? Use GetActivePlayers())
-local felony     = 40     -- At what Wanted Point count a player is a felon
 
 
 -- DEBUG -
@@ -31,6 +27,7 @@ local restarted = {}
 AddEventHandler('onResourceStop', function(rn)
   restarted[rn] = true
 end)
+
 
 -- DEBUG -
 AddEventHandler('onResourceStart', function(rn)
@@ -61,16 +58,6 @@ Citizen.CreateThread(function()
 end)
 
 
---- SetPlayerCopDuty()
--- Sets the server ID as on cop duty or not
--- @param ply The player's server ID
--- @param level The players status; False/nil for off duty, numeric for on duty
-function SetPlayerCopDuty(ply, level)
-  copDuty[ply] = level
-end
-AddEventHandler('cnr:setting_cop_duty', SetPlayerCopDuty)
-
-
 --- SetActiveZone()
 -- Called by server to tell client what the current zone is
 function SetActiveZone(aZone)
@@ -85,15 +72,6 @@ AddEventHandler('cnr:active_zone', SetActiveZone)
 --]]----
 
 
---- EXPORT: IsCop()
--- Tells the client whether the given server ID is on cop duty or not
--- @param ply The player server ID
--- @return True is a cop on duty 
-function IsCop(ply)
-  return copDuty[ply]
-end
-
-
 --- EXPORT: GetFullZoneName()
 -- Returns the name found for the zone in shared.lua
 -- If one isn't found, returns "San Andreas"
@@ -101,14 +79,6 @@ end
 function GetFullZoneName(abbrv)
   if not zoneByName[abbrv] then return "San Andreas" end
   return zoneByName[abbrv]
-end
-
-
--- EXPORT: GetWanteds()
--- Returns the table of wanted players
--- @return table The list of wanteds (KEY: Server ID, VAL: Wanted Points)
-function GetWanteds()
-  return wanted
 end
 
 
@@ -131,20 +101,21 @@ end
 -- Finds the closest player
 -- @return Player local ID. Must be turned into a ped object or server ID from there.
 function GetClosestPlayer()
-	local ped  = PlayerPedId()
-	local plys = GetActivePlayers() --GetPlayers()
-	local cPly = nil
-	local cDst = -1
-	for k,v in pairs (plys) do
-		local tgt = GetPlayerPed(v)
+
+	local ped   = PlayerPedId()
+  local myPos = GetEntityCoords(ped)
+	local cPly  = nil
+	local cDst  = math.huge
+  local plys  = GetActivePlayers()
+  
+	for i = 1, #plys do
+		local tgt = GetPlayerPed(plys[i])
 		if tgt ~= ped then
-			local dist = GetDistanceBetweenCoords(GetEntityCoords(ped), GetEntityCoords(tgt))
-			if cDst == -1 or cDst > dist then
-				cPly = v
-				cDst = dist
-			end
+			local dist = #(myPos - GetEntityCoords(tgt))
+			if cDst > dist then cPly = plys[i]; cDst = dist end
 		end
 	end
+  
 	return cPly
 end
 
