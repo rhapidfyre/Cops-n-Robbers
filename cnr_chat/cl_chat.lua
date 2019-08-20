@@ -11,37 +11,50 @@
   the developer.
 --]]
 
-RegisterNetEvent('')
+RegisterNetEvent('cnr:radio_receive')
 
-local channels = {
-  [1] = "Los Santos PD", [2] = "LS Sheriff", [3] = "Blaine Sheriff",
-  [4] = "Highway Patrol", [5] = "Park Rangers",
-  [6] = "USAF Police", [7] = "FBI"
-}
+TriggerEvent('chat:addTemplate', 'radioMsg', 
+  '<font color="#0AF">*<b>[</font>'..'{0}<font color="#0AF">] {1}'..
+  '</b></font> {2} <font color="#0AF">**</font>'
+)
+
+TriggerEvent('chat:addTemplate', 'errMsg', 
+  '<b><font color="#F00">** ERROR: </font>{0}</b><br>'..
+  '<font color="#FF6363">** Reason:</font> <font color="#B5B5B5">{1}</font>'
+)
 
 --- ReceiveRadioMessage()
 -- Called when a radio message is received. The player sending it has been 
 -- verified. The function checks if receive is Law and then displays it.
 -- @param name   The player name and Server ID # of sending player
--- @param agency The agency number. If zero, always received (dept-wide message)
+-- @param isDept If true, sends to everyone on Public Safety (dept msg)
 -- @param msg    The radio message being received
-function ReceiveRadioMessage(name, agency, msg)
-  if exports['cnr_police']:DutyStatus() then 
-    if agency > 0 then 
-      TriggerEvent('chat:addMessage', {
-        multiline = true, args = {"^7(/r) ^3"..name,
-          channels[agency].." Radio", msg
-        }
-      })
-    else
-      TriggerClientEvent('chat:addMessage', {
-        multiline = true, args = {"^7(/d) ^3"..name, 
-          "Agency-Wide Communication", msg
-        }
-      })
+function ReceiveRadioMessage(isDept, pName, msg, cop, ems, fire)
+
+  local isEMS = exports['cnr_police']:DutyStatus()
+  --local isEMS = exports['cnr_ems']:DutyStatus()
+  --local isFire = exports['cnr_fire']:DutyStatus()
+  
+  if isCop or isEMS or isFire then 
+               local nameColor = "^4"
+    if     fire then nameColor = "^1"
+    elseif ems  then nameColor = "^6"
+    end
+    if not isDept then
+      -- Receive by same type agency
+      if (isCop and cop) or (isEMS and ems) or (isFire and fire) then
+        TriggerEvent('chat:addMessage', {templateId = "radioMsg", 
+          multiline = true, args = {nameColor.."/r", pName, msg}
+        })
       end
+    else
+      TriggerEvent('chat:addMessage', {templateId = "radioMsg", 
+        multiline = true, args = {"^8ALL", nameColor..pName, msg}
+      })
+    end
   else print("DEBUG - Received a radio message, but you're not on duty.")
   end
+  
 end
 AddEventHandler('cnr:radio_receive', ReceiveRadioMessage)
 
@@ -54,23 +67,35 @@ AddEventHandler('cnr:radio_receive', ReceiveRadioMessage)
 -- @param raw    The entire message typed including the /r(adio) portion
 -- @param isDept (Opt) If true/given, sends message to all agencies.
 function SendRadioMessage(source, args, raw, isDept)
+
   -- Ensure player is a police officer / LEO
-  local myAgency = exports['cnr_police']:DutyAgency()
-  if myAgency > 0 then
+  local onDuty = exports['cnr_police']:DutyStatus()
+  
+  if onDuty then
     -- Ensure an actual message was sent
     if args[1] then 
+      local msg = table.concat(args, " ")
       if msg then 
-        local msg = table.concat(args, " ")
-        TriggerServerEvent('cnr:radio_message', msg, myAgency)
+        TriggerServerEvent('cnr:radio_message', msg, isDept)
       end
     else
-      TriggerEvent('chat:addMessage', {args = {
-        "^1ERROR", "^1Blank message received. (^3/r(radio) <Message>^1)."
-      }})
+      if isDept then
+        TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+          "/dept", "No message given. Try ^3/dept <message>"
+        }})
+      else
+        TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+          "/radio", "No message given. Try ^3/radio <message>"
+        }})
+      end
     end
   else
-    TriggerEvent('chat:addMessage', {args = {
-      "^1ERROR", "^1What Radio? You're not on ^3Public Safety ^1duty."
+    local cmd = "/radio"
+    if isDept then cmd = "/dept"
+    else
+    end
+    TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+      cmd, "You are not on public safety duty."
     }})
   end
 end

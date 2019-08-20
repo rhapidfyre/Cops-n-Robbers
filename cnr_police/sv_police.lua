@@ -12,9 +12,9 @@
 
 RegisterServerEvent('cnr:police_backup')
 
-local cops    = {}
-local dropCop = {}
-local carUse  = {}
+local cops      = {}
+local dropCop   = {}
+local carUse    = {}
 
 function CountCops()
   local n = 0
@@ -29,9 +29,9 @@ end
 
 
 RegisterServerEvent('cnr:police_status')
-AddEventHandler('cnr:police_status', function(onDuty)
-  local ply = source
-  cops[ply] = onDuty
+AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
+  local ply   = source
+  cops[ply]   = onDuty
   local numCops = CountCops()
   local dt      = os.date("%H:%M:%S", os.time())
   if numCops < 1 then

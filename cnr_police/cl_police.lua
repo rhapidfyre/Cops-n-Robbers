@@ -357,24 +357,22 @@ end
 
 Citizen.CreateThread(function()
   while true do 
-    if not ignoreDuty then
+    if not ignoreDuty and not transition then
       local myPos = GetEntityCoords(PlayerPedId())
-      if IsControlJustPressed(0, 38) then -- E
-        for i = 1, #depts do
-          if #(myPos - (depts[i].duty)) < 2.1 then
-            ignoreDuty = true
-            if isCop then
-              Citizen.CreateThread(function()
-                EndCopDuty(i)
-              end)
-            else 
-              Citizen.CreateThread(function()
-                BeginCopDuty(i)
-              end)
-            end
+      for i = 1, #depts do
+        if #(myPos - (depts[i].duty)) < 2.1 then
+          ignoreDuty = true
+          if isCop then
+            Citizen.CreateThread(function()
+              EndCopDuty(i)
+            end)
+          else 
+            Citizen.CreateThread(function()
+              BeginCopDuty(i)
+            end)
           end
-          Citizen.Wait(100)
         end
+        Citizen.Wait(100)
       end
     end
     Citizen.Wait(1)

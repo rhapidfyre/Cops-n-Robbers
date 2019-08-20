@@ -131,21 +131,6 @@ function IsCop(ply)
 end
 
 
--- DEBUG - Change own wanted level
-RegisterCommand('wcheck', function(s,a,r)
-  local myself = GetPlayerServerId(PlayerId())
-  if a[1] then 
-    wantedPlayers[myself] = tonumber(a[1])
-    TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
-  else
-    local mywp = wantedPlayers[myself]
-    TriggerEvent('chat:addMessage', { args = {
-      "WANTED POINTS", (mywp or 0)
-    }})
-  end
-end)
-
-
 --- EVENT: 'cl_wanted_list'
 -- Updates the client's entire table with the current server wanted list
 -- @param wanteds The list (table) of wanted players (K: Server ID, V: Points)
@@ -166,7 +151,6 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
   if not wp then wp = 0 end
   if not ply then return 0 end
   if ply == GetPlayerServerId(PlayerId()) then 
-    ReduceWantedLevel()
     print("DEBUG - Player being affected is YOU!")
     if not wantedPlayers[ply] then wantedPlayers[ply] = wp end
     if wantedPlayers[ply] == 0 and wp > 0 then
@@ -182,16 +166,6 @@ AddEventHandler('cnr:cl_wanted_client', function(ply, wp)
     end
   end
   print("DEBUG - wantedPlayers["..tostring(ply).."] = "..tostring(wp))
-  wantedPlayers[ply] = wp
-end)
-
-
---- EVENT: 'cl_wanted_player'
--- Updates a single entry for a single player.
--- @param ply The server ID
--- @param wps The wanted points value
-RegisterNetEvent('cnr:cl_wanted_player')
-AddEventHandler('cnr:cl_wanted_player', function(ply, wp)
   wantedPlayers[ply] = wp
 end)
 
@@ -241,101 +215,6 @@ function GetClosestPlayer()
 	return cPly
 end
 
-
---- EXPORT WantedPoints()
--- If args passed, changes the client's wanted points then reports to server
--- and then finished by returning the wanted points value
--- @param val The amount of points to change by (+/-)
--- @param doMsg The message to show to the player, beginning with 'WANTED: '
--- @param ticketOnly The points will only be evaluated if they're below felon
--- @return Returns the current wanted level
-function WantedPoints(val, doMsg, ticketOnly)
-  local myself = GetPlayerServerId(PlayerId())
-  if not wantedPlayers[myself] then wantedPlayers[myself] = 0 end
-  if val then 
-    if doMsg then 
-      TriggerEvent('chat:addMessage', {args = {"^1CRIME", "^3"..doMsg.."^7"}})
-    end
-    
-    if val < 0 then
-      wantedPlayers[myself] = wantedPlayers[myself] + val
-      TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
-      return 0
-    end
-    -- Modifies wanted points change based on current wanted level
-    -- This ensures MINOR crimes aren't calculated as harsh at higher WP levels
-    local n = val
-    -- Reduces wanted level
-    -- Weighs each wanted point individually
-    while n > 0 do -- e^-(0.02x/2)
-      -- Only keep adding if the crime can make them a felon
-      local addPoints = true 
-      if ticketOnly then 
-        -- If the next point would make them a felon, do nothing
-        if wantedPlayers[myself] + 1 >= felonLevel then 
-          print("DEBUG - Next point makes client a felon. Ignoring.")
-          addPoints = false
-        end
-      end
-      if addPoints then
-        local modifier = math.exp( -1 *((0.02 * wantedPlayers[myself])/2)) 
-        local formula  = math.floor((modifier * 1)*100000)
-        wantedPlayers[myself] = (wantedPlayers[myself] + formula/100000)
-      else
-        n = 0
-      end
-      n = n - 1
-      Wait(0)
-    end
-    
-    -- Sets the new Wanted Point level based on calculated point weight
-    
-    TriggerServerEvent('cnr:wanted_points', wantedPlayers[myself])
-    print(
-      "DEBUG - You now have ^3"..wantedPlayers[myself].." ^7Wanted Points!\n"..
-      "^1WANTED LEVEL: "..(math.floor(wantedPlayers[myself]/10) + 1)..".^7"
-    )
-  end
-  return (wantedPlayers[myself])
-end
-
-
---- EXPORT WantedLevel()
--- Returns the wanted level of the player for easy calculation
--- Returns the local client if no local ID is provided as an argument
--- @param ply Server ID, if provided
--- @return The wanted level based on current wanted points
-function WantedLevel(ply)
-  if not ply then ply = GetPlayerServerId(PlayerId()) end
-  if not wantedPlayers[ply] then
-    wantedPlayers[ply] = 0
-    return 0
-  end
-  if wantedPlayers[ply] < 1 then return 0
-  elseif wantedPlayers[ply] > 100 then return 11
-  else return (math.floor((wantedPlayers[ply])/10) + 1)
-  end
-end
-
-
-local loopRunning = false
-function ReduceWantedLevel()
-  if not loopRunning then
-    loopRunning = true
-    Citizen.CreateThread(function()
-      while wantedPlayers[ply] > 0 do 
-        Citizen.Wait(reduce.time * 1000)
-        if wantedPlayers[ply] > 0 then 
-          local newValue = wantedPlayers[ply] - reduce.pts
-          if newValue < 0 then newValue = 0 end
-          wantedPlayers[ply] = newValue
-          TriggerServerEvent('cnr:wanted_points', newValue)
-        end
-      end
-      loopRunning = false
-    end)
-  end
-end
 
 function GetActiveZone()
   return activeZone

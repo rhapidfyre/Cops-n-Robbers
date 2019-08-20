@@ -7,9 +7,6 @@
   This file keeps track of various affects from being wanted, such as 
   the wanted player HUD, clear/most wanted messages, etc.
   
-  While this file does not contain most calls to criminal charges,
-  some basic things like carjacking, killing peds, etc are found here.
-  
   Permission is granted only for executing this script for the purposes
   of playing the gamemode as intended by the developer.
 --]]
@@ -32,14 +29,13 @@ local isPoliceCar = {
   ["FBI"]      = true,  ["FBI2"]     = true,  ["PRANCHER"] = true,
 }
 
--- Wanted Points per action
-local wp       = {
-  carjack      = 25,  -- Carjacking a Ped
-  discharge    = 5,   -- Shooting in public
-  murder       = 90,  -- Killing another player
-  manslaughter = 15,  -- Killing an NPC ped
-}
 
+TriggerEvent('chat:addTemplate', 'crimeMsg',
+  '<font color="#F80"><b>CRIME COMMITTED:</b></font> {0}'
+)
+TriggerEvent('chat:addTemplate', 'levelMsg',
+  '<font color="#F80"><b>WANTED LEVEL:</b></font> {0} - ({1})'
+)
 RegisterNetEvent('cnr:wanted_check_vehicle')
 AddEventHandler('cnr:wanted_check_vehicle', function(veh, mdl)
   if veh then 
@@ -71,7 +67,7 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
             -- If entering driver seat or driver is not a player, carjack crime
             if entering.seat == (-1) or not IsPedAPlayer(entering.driver) then
               crime = {
-                points = 50,
+                points = weights['carjack'] * worth.law,
                 msg    = "Carjacking a Public Official"
               }
             end
@@ -79,18 +75,18 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
           else
             -- Stealing locked police vehicle
             if entering.locked and seat == (-1) then 
-              crime.point =  8
+              crime.point =  weights['vandalism'] * worth.law
               crime.msg   = "Vandalism; Police Vehicle Enhancement"
               -- Check if engine is running, because if it is, they can take it
               if GetIsVehicleEngineRunning(entering.id) then 
-                crime.p2   = 12
+                crime.p2   = weights['gta'] * worth.law
                 crime.msg2 = "Grand Theft Auto; Police Vehicle Enhancement"
               end
               
             -- Stealing unlocked police vehicle
             elseif not entering.locked and seat == (-1) then
               if GetIsVehicleEngineRunning(entering.id) then 
-                crime.points = 12
+                crime.points = weights['gta'] * worth.law
                 crime.msg  = "Grand Theft Auto; Police Vehicle Enhancement"
               end
             end
@@ -99,15 +95,15 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh, seat)
         -- Entering an occupied vehicle (carjacking, not public safety)
         elseif entering.driver > 0 then 
           crime = {
-            points = 34,
+            points = weights['carjack'],
             msg = "Carjacking"
           }
           
         -- Entering a locked vehicle (not public safety)
         elseif entering.locked then
-          crime.point =  8
+          crime.point = weights['vandalism']
           crime.msg   = "Vandalism"
-          crime.p2    = 12
+          crime.p2    = weights['gta']
           crime.msg2  = "Grand Theft Auto"
           
         end
@@ -196,7 +192,7 @@ function CheckForPedKill()
                 DecorSetBool(ent, "KillCharge", true)
                 Citizen.CreateThread(function()
                   Wait(3000)
-                  exports['cnrobbers']:WantedPoints(wp.manslaughter,
+                  exports['cnrobbers']:WantedPoints(weights['manslaughter'],
                     "Manslaughter (NPC)", true
                   )
                 end)
@@ -234,7 +230,7 @@ function NotCopLoops()
               Citizen.Wait(30000)
               isShooting = false
             end)
-            exports['cnrobbers']:WantedPoints(wp.discharge,
+            exports['cnrobbers']:WantedPoints(weights['discharge'],
               "Discharging a Firearm in Public", true
             )
           end

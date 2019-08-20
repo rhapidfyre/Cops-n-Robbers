@@ -12,10 +12,6 @@
 --]]
 
 
-local sign      = GetHashKey("prop_police_id_board")
-local ovrl      = GetHashKey("prop_police_id_text")
-local cb        = nil
-local ov        = nil
 local lastPos   = nil
 
 local game_area = 1
@@ -27,39 +23,6 @@ local mySimilar = 50
 local reportLocation = false
     
 local cam = nil
-
--- function as existing in original R* scripts
-local function freezePlayer(id, freeze)
-    local player = id
-    SetPlayerControl(player, not freeze, false)
-
-    local ped = GetPlayerPed(player)
-
-    if not freeze then
-        if not IsEntityVisible(ped) then
-            SetEntityVisible(ped, true)
-        end
-
-        if not IsPedInAnyVehicle(ped) then
-            SetEntityCollision(ped, true)
-        end
-
-        FreezeEntityPosition(ped, false)
-        SetPlayerInvincible(player, false)
-    else
-        if IsEntityVisible(ped) then
-            SetEntityVisible(ped, false)
-        end
-
-        SetEntityCollision(ped, false)
-        FreezeEntityPosition(ped, true)
-        SetPlayerInvincible(player, true)
-
-        if not IsPedFatallyInjured(ped) then
-            ClearPedTasksImmediately(ped)
-        end
-    end
-end
 
 
 AddEventHandler('onClientGameTypeStart', function()   
@@ -130,8 +93,6 @@ AddEventHandler('cnr:create_character', function()
   Wait(200)
   DoScreenFadeIn(600)
   
-  Citizen.CreateThread(CreateBoardDisplay)
-  
   Wait(6400)
   
   TaskPlayAnim(PlayerPedId(), creation.dict, "loop",
@@ -165,9 +126,6 @@ AddEventHandler('cnr:create_finished', function()
   RenderScriptCams(false, true, 500, true, true)
   cam = nil
   
-  DeleteObject(ov)
-  DeleteObject(cb)
-  
   local n = math.random(#spPoints[game_area])
   local pos = spPoints[game_area][n]
   SetEntityCoords(PlayerPedId(), pos)
@@ -190,113 +148,6 @@ AddEventHandler('cnr:create_finished', function()
   ReportPosition()
   
 end)
-
-
-
-
-
-local function CreateNamedRenderTargetForModel(name, model)
-	local handle = 0
-	if not IsNamedRendertargetRegistered(name) then
-		RegisterNamedRendertarget(name, 0)
-	end
-	if not IsNamedRendertargetLinked(model) then
-		LinkNamedRendertarget(model)
-	end
-	if IsNamedRendertargetRegistered(name) then
-		handle = GetNamedRendertargetRenderId(name)
-	end
-
-	return handle
-end
-
-local function LoadScaleform (scaleform)
-	local handle = RequestScaleformMovie(scaleform)
-
-	if handle ~= 0 then
-		while not HasScaleformMovieLoaded(handle) do
-			Citizen.Wait(0)
-		end
-	end
-
-	return handle
-end
-
-local function CallScaleformMethod (scaleform, method, ...)
-	local t
-	local args = { ... }
-
-	BeginScaleformMovieMethod(scaleform, method)
-
-	for k, v in ipairs(args) do
-		t = type(v)
-		if t == 'string' then
-			PushScaleformMovieMethodParameterString(v)
-		elseif t == 'number' then
-			if string.match(tostring(v), "%.") then
-				PushScaleformMovieFunctionParameterFloat(v)
-			else
-				PushScaleformMovieFunctionParameterInt(v)
-			end
-		elseif t == 'boolean' then
-			PushScaleformMovieMethodParameterBool(v)
-		end
-	end
-
-	EndScaleformMovieMethod()
-end
-
-function CreateBoardDisplay()
-
-  local ped  = PlayerPedId()
-  
-  RequestModel(sign)
-  RequestModel(ovrl)
-  while not HasModelLoaded(sign) or not HasModelLoaded(ovrl) do Wait(10) end
-  cb = CreateObject(sign, GetEntityCoords(ped), false, false, false)
-  ov = CreateObject(ovrl, GetEntityCoords(ped), false, false, false)
-  
-	AttachEntityToEntity(ov, cb, (-1), 4103,
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0, 0, 0, 0, 2, 1
-  )
-  
-	AttachEntityToEntity(cb, ped,
-    GetPedBoneIndex(ped, 28422),
-    0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-    0, 0, 0, 0, 2, 1
-  )
-  
-  SetModelAsNoLongerNeeded(sign)
-  SetModelAsNoLongerNeeded(ovrl)
-  
-  Citizen.CreateThread(function()
-    board_scaleform = LoadScaleform("mugshot_board_01")
-    handle = CreateNamedRenderTargetForModel("ID_Text", ovrl)
-  
-    CallScaleformMethod(board_scaleform, 'SET_BOARD',
-      GetPlayerName(PlayerId()),
-      "31337455",
-      "LOS SANTOS POLICE DEPT",
-      "TRANSFERRED",
-      0, 0, 116
-    )
-  
-    while handle do
-      HideHudAndRadarThisFrame()
-      SetTextRenderId(handle)
-      Set_2dLayer(4)
-      Citizen.InvokeNative(0xC6372ECD45D73BCD, 1)
-      DrawScaleformMovie(board_scaleform, 0.405, 0.37, 0.81, 0.74, 255, 255, 255, 255, 0)
-      Citizen.InvokeNative(0xC6372ECD45D73BCD, 0)
-      SetTextRenderId(GetDefaultScriptRendertargetRenderId())
-  
-      Citizen.InvokeNative(0xC6372ECD45D73BCD, 1)
-      Citizen.InvokeNative(0xC6372ECD45D73BCD, 0)
-      Wait(0)
-    end
-  end)
-end
 
 
 function SwitchGender()

@@ -18,9 +18,15 @@ local zone = {
   active = 1,        -- The currently active zone
   pick   = 18000000, -- The next time to pick a zone
 }
+
 local unique = {}
 local scores = {}
 local wanted = {}
+
+local reduce = {    -- Reduction of wanted level
+  points   = 0.25,  -- Points each tick
+  tickTime = 1      -- Time in seconds between reductions
+}
 
 function CurrentZone()
   return (zone.active)
@@ -217,6 +223,7 @@ function ZoneChange()
   TriggerEvent('cnr:zone_change', newZone)
 end
 
+-- Runs the zone change timer for choosing which zone is being played
 Citizen.CreateThread(function()
   Citizen.Wait(1000)
   while true do 

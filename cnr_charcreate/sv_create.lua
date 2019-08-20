@@ -47,6 +47,7 @@ AddEventHandler('cnr:save_pos', function(pos)
   end
 end)
 
+
 function SavePlayerPos(uid)
   if uid then
     if positions[uid] then 

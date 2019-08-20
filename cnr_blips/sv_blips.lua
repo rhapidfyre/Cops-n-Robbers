@@ -16,7 +16,7 @@ local cops = {}
 RegisterServerEvent('cnr:police_status')
 AddEventHandler('cnr:police_status', function(onDuty)
   cops[source] = onDuty
-  local numCops = CountCops()
+  local numCops = exports['cnr_police']:CountCops()
   TriggerClientEvent('')
   local dt      = os.date("%H:%M:%S", os.time())
   if numCops < 1 then
