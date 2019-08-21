@@ -24,7 +24,7 @@ end)
 
 AddEventHandler('onClientGameTypeStart', function()   
   print("DEBUG - Preparing to load player into the server.")
-  --exports.spawnmanager:setAutoSpawn(false)
+  exports.spawnmanager:setAutoSpawn(false)
   
   Citizen.Wait(1000)
   
@@ -33,7 +33,6 @@ AddEventHandler('onClientGameTypeStart', function()
   RenderScriptCams(true, true, 500, true, true)
   SetCamActive(cam, true)
   
-  --[[
   exports.spawnmanager:spawnPlayer({
     x = cams.start.ped.x,
     y = cams.start.ped.y,
@@ -42,7 +41,7 @@ AddEventHandler('onClientGameTypeStart', function()
   }, function()
     
   end)
-  ]]
+  
   print("DEBUG - Requesting for the server to send us the changelog.")
   SendNUIMessage({showwelcome = true})
   SetNuiFocus(true, true)
@@ -160,4 +159,73 @@ RegisterNUICallback("playGame", function(data, cb)
   RenderScriptCams(false, true, 500, true, true)
   cam = nil
   TriggerServerEvent('cnr:create_session')
+end)
+
+
+--- ModifyParents()
+-- Sets the parent 1 and 2 values, and the likeness factor
+-- @param one Parent 1's value
+-- @param two Parent 2's value
+-- @param val Likeness to parent 2.
+function ModifyParents(one, two, val)
+  myParents = {[1] = one, [2] = two}
+  mySimilar = val
+  SetPedHeadBlendData(PlayerPedId(),
+    one, two, 0,
+    one, two, 0,
+    (100 - val)/100,
+    val/100,
+    0.0, false
+  )
+end
+
+
+--- EVENT: create_character
+-- Creates a new player for newbies or if character was wiped/lost
+RegisterNetEvent('cnr:create_character')
+AddEventHandler('cnr:create_character', function()
+  
+  Wait(200)
+  
+  SetPedDefaultComponentVariation(PlayerPedId())
+  ModifyParents(1, 21, 50)
+ 
+  local c   = cams.creator
+  SetEntityCoords(PlayerPedId(), c.ped)
+  SetEntityHeading(PlayerPedId(), c.h)
+  
+  Wait(200)
+  
+  if not DoesCamExist(cam) then
+    cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+  end
+  
+  SetCamActive(cam, true)
+  RenderScriptCams(true, true, 500, true, true)
+  
+  SetCamParams(cam,
+    c.view.x, c.view.y, c.view.z,
+    c.rotx, c.roty, c.rotz,
+    50.0
+  )
+  
+  RequestAnimDict(creation.dict)
+  while not HasAnimDictLoaded(creation.dict) do Wait(10) end
+  
+  TaskPlayAnim(PlayerPedId(), creation.dict, creation.anim,
+    8.0, 0, (-1), 2, 0, 0, 0, 0
+  )
+  
+  Wait(200)
+  DoScreenFadeIn(600)
+  
+  Wait(6400)
+  
+  TaskPlayAnim(PlayerPedId(), creation.dict, "loop",
+    8.0, 0, (-1), 1, 0, 0, 0, 0
+  )
+  
+  SendNUIMessage({opendesigner = true})
+  SetNuiFocus(true, true)
+    
 end)

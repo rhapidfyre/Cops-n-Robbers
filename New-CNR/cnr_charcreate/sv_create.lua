@@ -157,7 +157,7 @@ AddEventHandler('cnr:create_session', function()
     
     
     cprint("Sending "..pName.." to Character Designer.")
-    --TriggerClientEvent('cnr:create_character', ply)
+    TriggerClientEvent('cnr:create_character', ply)
   
   -- Otherwise, they've played before
   else

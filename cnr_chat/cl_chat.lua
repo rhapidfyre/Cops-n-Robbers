@@ -19,8 +19,8 @@ TriggerEvent('chat:addTemplate', 'radioMsg',
 )
 
 TriggerEvent('chat:addTemplate', 'errMsg', 
-  '<b><font color="#F00">** ERROR: </font>{0}</b><br>'..
-  '<font color="#FF6363">** Reason:</font> <font color="#B5B5B5">{1}</font>'
+  '<b><font color="#F00">** ERROR:</font> {0} </b><br>'..
+  '<font color="#FF6363">** Reason:</font><font color="#B5B5B5"> {1} </font>'
 )
 
 --- ReceiveRadioMessage()
