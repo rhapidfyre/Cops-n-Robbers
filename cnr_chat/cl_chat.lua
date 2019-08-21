@@ -14,8 +14,8 @@
 RegisterNetEvent('cnr:radio_receive')
 
 TriggerEvent('chat:addTemplate', 'radioMsg', 
-  '<font color="#0AF">*<b>[</font>'..'{0}<font color="#0AF">] {1}'..
-  '</b></font> {2} <font color="#0AF">**</font>'
+  '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}</b>'..
+  '</font><br><font color="#0AF"><b>**</b></font> {2} <font color="#0AF"><b>*</b></font>'
 )
 
 TriggerEvent('chat:addTemplate', 'errMsg', 
@@ -31,7 +31,7 @@ TriggerEvent('chat:addTemplate', 'errMsg',
 -- @param msg    The radio message being received
 function ReceiveRadioMessage(isDept, pName, msg, cop, ems, fire)
 
-  local isEMS = exports['cnr_police']:DutyStatus()
+  local isCop = exports['cnr_police']:DutyStatus()
   --local isEMS = exports['cnr_ems']:DutyStatus()
   --local isFire = exports['cnr_fire']:DutyStatus()
   
@@ -44,7 +44,7 @@ function ReceiveRadioMessage(isDept, pName, msg, cop, ems, fire)
       -- Receive by same type agency
       if (isCop and cop) or (isEMS and ems) or (isFire and fire) then
         TriggerEvent('chat:addMessage', {templateId = "radioMsg", 
-          multiline = true, args = {nameColor.."/r", pName, msg}
+          multiline = true, args = {nameColor.."LAW", pName, msg}
         })
       end
     else

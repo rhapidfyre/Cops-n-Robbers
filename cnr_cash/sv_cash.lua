@@ -29,7 +29,7 @@ function BankTransaction(ply, n)
   local msg = ""
   if ply then 
     if n then 
-      local uid = exports['cnrobbers']:GetUniqueId(ply)
+      local uid = exports['cnrobbers']:UniqueId(ply)
       if uid then 
         if not plyBank[uid] then plyBank[uid] = 0 end
         -- SQL: Change bank value
@@ -85,7 +85,7 @@ function BankTransfer(ply, n) --[[
   local msg = ""
   if ply then 
     if n then 
-      local uid = exports['cnrobbers']:GetUniqueId(ply)
+      local uid = exports['cnrobbers']:UniqueId(ply)
       if uid then 
         if not plyBank[uid] then plyBank[uid] = 0 end
         if not plyCash[uid] then plyCash[uid] = 0 end
@@ -155,7 +155,7 @@ function CashTransaction(ply, n)
   local msg = ""
   if ply then 
     if n then 
-      local uid = exports['cnrobbers']:GetUniqueId(ply)
+      local uid = exports['cnrobbers']:UniqueId(ply)
       if uid then 
         if not plyCash[uid] then plyCash[uid] = 0 end
         -- SQL: Change cash value
@@ -205,7 +205,7 @@ end)
 function SetPlayerCashValues(val, ply)
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = exports['cnrobbers']:UniqueId(ply)
   if not uid then 
     msg = "No Unique ID found for player "..tostring(ply)
   else

@@ -11,6 +11,17 @@
 --]]
 
 
+-- DEBUG -
+RegisterCommand('wanted', function(s, a, r)
+  if a[1] then
+    TriggerServerEvent('cnr:', 'carjack')
+  else
+    local ply = GetPlayerServerId(PlayerId())
+    TriggerEvent('chatMessage', "^1Wanted Level: ^7"..(wanted[ply]))
+  end
+end)
+
+
 -- Networking
 RegisterNetEvent('cnr:wanted_list') -- Updates 'wanted' table with server table
 RegisterNetEvent('cnr:wanted_client')
@@ -88,7 +99,7 @@ function GetClosestPlayer()
   for i = 1, #GetActivePlayers() do 
     local tgt = GetPlayerPed(v)
     if tgt ~= ped then
-      local dist = #(myPos - GetEntityCoords(tgt)
+      local dist = #(myPos - GetEntityCoords(tgt))
       if cDst > dist then cPly = v; cDst = dist end
     end
   end
@@ -102,9 +113,8 @@ end
 function UpdateWantedStars()
   local prevWanted = 0
   local tickCount  = 0
-  while not () do Wait(100) end
   while true do 
-    local wanted = WantedLevel()
+    local wanted = 0--WantedLevel()
     
     -- Wanted Level has changed
     if wanted ~= prevWanted then 
@@ -133,7 +143,6 @@ function UpdateWantedStars()
 end
 
 
-
 --- NotCopLoops()
 -- Runs loops if the player is not a cop. Terminates if they go onto cop duty
 -- Used to detect crimes that civilians can commit when off duty.
@@ -151,7 +160,8 @@ function NotCopLoops()
   end
 end
 
+
 Citizen.CreateThread(function()
   Citizen.CreateThread(UpdateWantedStars)
-  --Citizen.CreateThread(NotCopLoops)
+  Citizen.CreateThread(NotCopLoops)
 end)

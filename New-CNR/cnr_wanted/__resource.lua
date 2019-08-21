@@ -34,6 +34,7 @@ server_exports {
 }
 
 exports {
+  'GetWanteds',
   'WantedLevel',
   'WantedPoints',
   'CrimeName',

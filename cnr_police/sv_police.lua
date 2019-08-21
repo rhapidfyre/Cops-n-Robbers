@@ -58,7 +58,7 @@ end
 RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = exports['cnrobbers']:UniqueId(ply)
   for k,v in pairs(dropCop) do 
     if v == uid then 
       TriggerClientEvent('cnr:police_reduty', source)
@@ -79,7 +79,7 @@ end)
 -- can be returned if they come back within 10 minutes
 AddEventHandler('playerDropped', function()
   local ply = source
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = exports['cnrobbers']:UniqueId(ply)
   if cops[ply] then 
     cops[ply] = nil
     dropCop[#dropCop + 1] = uid

@@ -90,7 +90,7 @@ end
 Citizen.CreateThread(function()
   Citizen.Wait(1000)
   local ply = source
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = exports['cnrobbers']:UniqueId(ply)
   exports['ghmattimysql']:execute(
     "SELECT c.tag,c.idLeader FROM players p LEFT JOIN clans c "..
     "ON c.idClan = p.idClan WHERE p.idUnique = @u",

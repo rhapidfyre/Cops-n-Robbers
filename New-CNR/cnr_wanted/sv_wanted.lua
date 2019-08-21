@@ -42,7 +42,7 @@ function WantedPoints(ply, crime, msg)
     local cn = crimeName[crime]
     if cn then
       TriggerClientEvent('chat:addMessage', ply,
-        {templateId = 'crimeMsg', args = {crimeName[crime]}
+        {templateId = 'crimeMsg', args = {crimeName[crime]}}
       )
     end
   end
@@ -78,7 +78,12 @@ function WantedPoints(ply, crime, msg)
   TriggerClientEvent('cnr:wanted_level', (-1), ply, wanted[ply])
   
 end
-
+AddEventHandler('cnr:wanted_points', function(crime, msg)
+  local ply = source
+  if crime then 
+    WantedPoints(ply, crime, msg)
+  end
+end)  
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation

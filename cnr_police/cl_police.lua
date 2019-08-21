@@ -202,8 +202,8 @@ end
 function BeginCopDuty(st)
   print("DEBUG - Beginning cop duty @ station #"..st)
   local c  = depts[st]
-  local wp = exports['cnrobbers']:WantedPoints()
-  if wp < 1 then 
+  local wanted = exports['cnr_wanted']:GetWanteds()
+  if not wanted[GetPlayerServerId(PlayerId())] then
     print("DEBUG - Starting duty assignments.")
     transition = true
     print("DEBUG - Doing camera.")

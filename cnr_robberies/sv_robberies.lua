@@ -25,7 +25,7 @@ RegisterServerEvent('cnr:robbery_alarm')      -- Rx's and dispatches an alarm
 AddEventHandler('cnr:robbery_take', function(cashTake)
   if cashTake > 0 then
     local ply = source
-    local uid = exports['cnrobbers']:GetUniqueId(ply)
+    local uid = exports['cnrobbers']:UniqueId(ply)
     if uid then 
       TriggerClientEvent('cnr:robbery_drops', ply)
       -- SQL: Add cash take to robbery DB.
@@ -50,7 +50,7 @@ end)
 
 AddEventHandler('cnr:robbery_dropped', function()
   local ply = source 
-  local uid = exports['cnrobbers']:GetUniqueId(ply)
+  local uid = exports['cnrobbers']:UniqueId(ply)
   if uid then
     exports['ghmattimysql']:scalar(
       "SELECT SUM(cash) FROM robberies WHERE idUnique = @u",

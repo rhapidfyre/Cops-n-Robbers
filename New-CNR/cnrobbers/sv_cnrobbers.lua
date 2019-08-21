@@ -36,8 +36,8 @@ local reduce = {    -- Reduction of wanted level
 -- @param msg The message to be displayed
 function ConsolePrint(msg)
   if msg then
-    local dt = os.date("%H:%M:%I", os.time())
-    print("[CNR "..dt.."] ^7"..(msg))
+    local dt = os.date("%H:%M", os.time())
+    print("[CNR "..dt.."] ^7"..(msg).."^7")
   end
 end
 AddEventHandler('cnr:print', ConsolePrint)
@@ -77,7 +77,7 @@ function UniqueId(ply, uid)
     return 0 -- No 'ply' given, return 0
   end
   return (unique[ply])
-end)
+end
 
 
 --- EXPORT: CurrentZone()
@@ -196,15 +196,13 @@ end
 -- Performs table optimization/cleanup when a player drops
 -- Finish by telling Console the player dropped
 AddEventHandler('playerDropped', function(rsn)
-  local ply = source
+  local ply     = source
+  local plyInfo = GetPlayerName(ply).." ("..ply..")"
   if ply then
     if unique[ply] then
       unique[ply] = nil
     end
-    ConsolePrint(
-      "^1"..GetPlayerName(ply).." ("..ply..") disconnected."..
-      "Reason: ("..tostring(rsn)..")^7"
-    )
+    ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
   end
 end)
 

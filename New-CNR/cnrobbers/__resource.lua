@@ -17,7 +17,7 @@ server_scripts {
 server_exports {
   'ConsolePrint',
   'CurrentZone',
-  'GetUniqueId',
+  'UniqueId',
   'GetFullZoneName'
 }
 
