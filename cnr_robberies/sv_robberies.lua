@@ -90,6 +90,12 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
         "Hold-up Alarm", mission.title, mission.area,
         mission.spawn.x, mission.spawn.x, mission.spawn.z
       )
+      exports['cnr_chat']:DiscordMessage(
+        16753920, "Robbery",
+        rob[n].title.." is being robbed!",
+        "Crime in Progress",
+        true
+      )
     end)
     
     -- Unlock robbery after 15 to 40 minutes

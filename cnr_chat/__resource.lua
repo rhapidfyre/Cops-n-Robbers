@@ -19,6 +19,7 @@ server_scripts {
 }
 
 server_exports {
+  'DiscordMessage'
 }
 
 exports {

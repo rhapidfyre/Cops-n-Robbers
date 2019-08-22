@@ -54,6 +54,11 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
       "Server is being Developed and you are not whitelisted. "..
       "Please check back soon!"
     )
+    exports['cnr_chat']:DiscordMessage(
+      16711680, "Disconnect",
+      name.." failed to validate. Disconnected.",
+      "Whitelist Violation"
+    )
   end
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
@@ -197,6 +202,11 @@ AddEventHandler('cnr:create_session', function()
       if plyr[1] then
         local pName = GetPlayerName(ply).."'s"
         cprint("Reloading "..pName.." last known character information.")
+        exports['cnr_chat']:DiscordMessage(
+          65280, "Connected",
+          name.." has connected to the server.",
+          ""
+        )
         TriggerClientEvent('cnr:create_reload', ply, plyr[1])
         TriggerClientEvent('cnr:wallet_value', ply, plyr[1]["cash"])
         TriggerClientEvent('cnr:bank_account', ply, plyr[1]["bank"])
@@ -204,6 +214,11 @@ AddEventHandler('cnr:create_session', function()
       -- Otherwise, create it.
       else
         cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
+        exports['cnr_chat']:DiscordMessage(
+          7864575, "New Player",
+          "Please welcome our newest player, "..name.."!",
+          ""
+        )
         TriggerClientEvent('cnr:create_character', ply)
       end
     end

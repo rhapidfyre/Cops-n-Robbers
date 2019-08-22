@@ -12,6 +12,8 @@ weights = {
   ['discharge']    =  6,
   ['vandalism']    =  5,
   ['atm']          = 30,
+  ['brandish']     = 20,
+  ['robbery']      = 50,
 }
 
 felonies = {
@@ -19,6 +21,7 @@ felonies = {
   ['murder']       = true,
   ['adw']          = true,
   ['atm']          = true,
+  ['robbery']      = true,
 }
 
 --- EXPORT: CrimePoints()

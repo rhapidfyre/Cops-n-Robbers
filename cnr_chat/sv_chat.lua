@@ -11,6 +11,31 @@
   the developer.
 --]]
 
+local urls = {
+  feed = "https://discordapp.com/api/webhooks/614207378791071744/ZG1quo6TI-WiJwDEKwXDvyMA0mZAgEtlAb9_ruM8l5tqS_IJO6ZAgBi8wSv8SokHTkL0",
+  emg  = "https://discordapp.com/api/webhooks/614209606511493147/RanDk3hsVsi39FrUuldoCxZtF4qAvy6BTPGB3dbJfMZXTTwoelWahTIJzbFIetKUlorN"
+}
+
+function DiscordMessage(color, name, message, footer, copMessage)
+  local embed = {
+    {
+      ["color"] = color,
+      ["title"] = "**"..name.."**",
+      ["description"] = message,
+      ["footer"] = {
+        ["text"] = footer,
+      },
+    }
+  }
+  local discordApp = urls.feed
+  if copMessage then discordApp = urls.emg end
+  PerformHttpRequest(discordApp,
+    function(err, text, headers) end,
+    'POST',
+    json.encode({username = "Game Monitor", embeds = embed}),
+    {['Content-Type'] = 'application/json' }
+  )
+end
 RegisterServerEvent('_chat:messageEntered')
 RegisterServerEvent('cnr:radio_message')
 

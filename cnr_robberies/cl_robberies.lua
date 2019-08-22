@@ -23,26 +23,11 @@ local hasBag    = false
 local bagDraw   = 45
 
 
-RegisterCommand('.debug2', function(s,a,r)
-  TaskStartScenarioInPlace(PlayerPedId(), tostring(a[1]), 0, true)
-end)
-
-
-RegisterCommand('.debug', function(s,a,r)
-  local dict = tostring(a[1])
-  local anim = tostring(a[2])
-  local flag = tonumber(a[3])
-  RequestAnimDict(dict)
-  while not HasAnimDictLoaded(dict) do
-    Wait(10)
-  end
-  TaskPlayAnim(PlayerPedId(), dict, anim, 8.0, 1.0, (-1), flag, 0, 0, 0, 0)
-end)
-
 RegisterCommand('.stopanim', function()
   ClearPedTasksImmediately(PlayerPedId())
   ClearPedSecondaryTask(PlayerPedId())
 end)
+
 
 function SpawnStoreClerk(n)
   if n then
@@ -96,11 +81,10 @@ end
 function StartRobbery(n)
   local zNumber = exports['cnrobbers']:GetActiveZone()
   if zNumber == rob[n].zone then 
-    print("DEBUG - Robbing the store!")
     local attack = false
     local take   = 0
     TriggerServerEvent('cnr:robbery_send_lock', n, true)
-    exports['cnrobbers']:WantedPoints(30, "Brandishing a Firearm")
+    TriggerServerEvent('cnr:wanted_points', 'brandish', 'Brandishing a Firearm')
     rob[n].lockout = true
     Citizen.CreateThread(function()
       while isRobbing do 
@@ -138,7 +122,7 @@ function StartRobbery(n)
         end
         Wait(100)
       end
-      exports['cnrobbers']:WantedPoints(50, "Armed Robbery (211 PC)")
+      TriggerServerEvent('cnr:wanted_points', 'robbery', 'Robbery (Armed)')
       if take > 0 then 
         print("DEBUG - Robbery Take: $"..take)
         hasBag = true
@@ -159,6 +143,7 @@ function StartRobbery(n)
     return true
   end
 end
+
 
 Citizen.CreateThread(function()
   Citizen.Wait(3000)
@@ -239,10 +224,6 @@ function CreateRobberyClerks()
       if takeDrops[1] then
         for k,v in pairs (takeDrops) do 
           if #(v.pos - myPos) < 2.25 then 
-            exports['cnrobbers']:WantedPoints(-30)
-            TriggerEvent('chat:addMessage', { args = {
-              "Wanted Level Reduced", "Completed a Robbery Mission."
-            }})
             TriggerServerEvent('cnr:robbery_dropped')
             SetPedComponentVariation(PlayerPedId(), 5, 0, 0, 0)
             DestroyDropSpots()

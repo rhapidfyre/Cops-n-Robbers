@@ -258,6 +258,9 @@ AddEventHandler('playerDropped', function(rsn)
       unique[ply] = nil
     end
     ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
+    exports['cnr_chat']:DiscordMessage(
+      16711680, "Disconnect", GetPlayerName(ply).." has left the game.", rsn
+    )
   end
 end)
 

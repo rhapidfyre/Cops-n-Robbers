@@ -37,6 +37,8 @@ function WantedPoints(ply, crime, msg)
   local n = weights[crime]
   if not n then return 0 end
   
+  local lastWanted = wanted[ply]
+  
   -- Sends a crime message to the perp
   if msg then
     local cn = crimeName[crime]
@@ -71,6 +73,43 @@ function WantedPoints(ply, crime, msg)
     n = n - 1
     Wait(0)
     
+  end
+  
+  -- Check for broadcast
+  if lastWanted ~= wanted[ply] then 
+    -- Wanted level went up by at least 10 (1 level)
+    if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then 
+      local wants = WantedLevel(ply)
+      if wants > 10 then
+        exports['cnr_chat']:DiscordMessage(
+          16742400, "Federal Investigations Bureau",
+          GetPlayerName(ply).." is now on the Most Wanted list!",
+          "San Andreas Most Wanted"
+        )
+      else
+        exports['cnr_chat']:DiscordMessage(
+          16742400, "Federal Investigations Bureau",
+          GetPlayerName(ply).." is now Wanted Level "..(wants).."!",
+          "Wanted Level Increased"
+        )
+      end
+    -- Player's wanted level reduced
+    elseif lastWanted > wanted[ply] - 10 and lastWanted >= 10 and lastWanted < 101 then
+      exports['cnr_chat']:DiscordMessage(
+        16742400, "Federal Investigations Bureau",
+        GetPlayerName(ply).." is now Wanted Level "..(wants)..".",
+        "Wanted Level Decreased"
+      )
+    
+    -- Player is no longer wanted
+    elseif lastWanted > 0 and wanted[ply] <= 0 then 
+      exports['cnr_chat']:DiscordMessage(
+        16742400, "Federal Investigations Bureau",
+        GetPlayerName(ply).." is no longer wanted by police.",
+        "Wanted Level Removed"
+      )
+    
+    end
   end
   
   -- Tell other scripts about the change
