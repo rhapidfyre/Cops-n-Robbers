@@ -424,3 +424,24 @@
   
   
   
+  #ped-select {
+    min-width: 256px;
+    max-width: 384px;
+    width: 22%;
+    border: 2px ridge silver;
+    border-radius: 0 8px 8px 0;
+    background: rgba(40,40,40,0.6);
+    overflow-y: hidden;
+    color: #def;
+    text-shadow: 1px 1px 0 black;
+    margin: 10% 0 0 0;
+  }
+  
+  #ped-select p {text-indent: 18px;padding: 2px 8px;}
+  #ped-select p strong {font-size: 1.1em;color: white;}
+  #ped-select h3 {text-align: center;}
+
+  #ped-select table {width: 98%;text-align:center;}
+  #ped-select table button {width: 100%;}
+  #ped-select table th {color: gold;}
+  

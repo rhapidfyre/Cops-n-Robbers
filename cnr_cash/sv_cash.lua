@@ -21,6 +21,7 @@ local plyBank = {}
 
 --- BankTransaction()
 -- Moves money in the bank for given player.
+-- If the data comes in as an event, it goes through verification.
 -- @param ply The player to modify
 -- @param n The amount to modify (negative takes away)
 -- @return The value of the player's bank account
@@ -72,12 +73,22 @@ end
 AddEventHandler('cnr:bank_transaction', function(value, client)
   local ply = source
   if client then ply = client end
+  if not client then -- Sent by player, verify it.
+    if value > max_transact then 
+      return 0 -- Illegitimate, reject it.
+    elseif value < min_transact then
+      return 0 -- Illegitimate, reject it.
+    elseif lastTransact < GetGameTimer() + 3000 then
+      return 0 -- Too fast, reject it.
+    end
+  end
   BankTransaction(ply, value)
 end)
 
 
 --- BankTransfer()
 -- Moves money from the bank into the player's hand, or vice versa
+-- If the data comes in as an event, it goes through verification.
 -- @param ply The player to modify
 -- @param n The amount to transfer (+: hand to bank, -: bank to hand)
 function BankTransfer(ply, n) --[[
@@ -142,11 +153,21 @@ end
 AddEventHandler('cnr:bank_transfer', function(value, client)
   local ply = source
   if client then ply = client end
+  if not client then -- Sent by player, verify it.
+    if value > max_transact then 
+      return 0 -- Illegitimate, reject it.
+    elseif value < min_transact then
+      return 0 -- Illegitimate, reject it.
+    elseif lastTransact < GetGameTimer() + 3000 then
+      return 0 -- Too fast, reject it.
+    end
+  end
   BankTransfer(ply, value)
 end)
 
 --- CashTransaction()
 -- Puts/takes money into/out of the player's wallet (hand)
+-- If the data comes in as an event, it goes through verification.
 -- @param ply The player to modify
 -- @param n The amount to change (negative takes away)
 -- @return val The player's wallet value
@@ -198,6 +219,15 @@ end
 AddEventHandler('cnr:cash_transaction', function(value, client)
   local ply = source
   if client then ply = client end
+  if not client then -- Sent by player, verify it.
+    if value > max_transact then 
+      return 0 -- Illegitimate, reject it.
+    elseif value < min_transact then
+      return 0 -- Illegitimate, reject it.
+    elseif lastTransact < GetGameTimer() + 3000 then
+      return 0 -- Too fast, reject it.
+    end
+  end
   CashTransaction(ply, value)
 end)
 

@@ -33,72 +33,6 @@ local whitelist = {
 }
 
 
---[[ --------------------------------------------------------------------------
-  ~ BEGIN POSITION AQUISITION SCRIPTS
-  1) Players, when loaded, will submit their position every 12 seconds
-  2) The server, every 30 seconds, loops through the positions table
-  3) For each entry found, it will update their last known position in SQL
-  4) When the update succeeds, it will remove the position entry
-  5) When a player drops, it will send and immediate update.
-]]-----------------------------------------------------------------------------
-local positions = {}
-
-RegisterServerEvent('cnr:save_pos')
-AddEventHandler('cnr:save_pos', function(pos)
-  local ply = source
-  local uid = unique[ply]
-  if uid then
-    positions[uid] = pos
-  end
-end)
-
-
-function SavePlayerPos(uid,pos)
-  if uid then
-    if not pos then pos = positions[uid] end
-    if pos then 
-      exports['ghmattimysql']:execute(
-        "UPDATE characters SET position = @p WHERE idUnique = @uid",
-        {['p'] = positions[uid], ['uid'] = uid},
-        function()
-          -- Once updated, remove entry
-          positions[uid] = nil
-        end
-      )
-    end
-  end
-end
-
-
-function SaveAllPositions()
-  for uid,pos in pairs (positions) do
-    SavePlayerPos(uid, pos)
-    Citizen.Wait(100)
-  end
-end
-
-
-AddEventHandler('playerDropped', function(rsn)
-  local ply = source
-  local uid = unique[ply]
-  if uid then 
-    if positions[uid] then SavePlayerPos(uid) end
-  end
-end)
-
-
-Citizen.CreateThread(function()
-  while true do
-    Citizen.Wait(30000)
-    SaveAllPositions()
-  end
-end)
-
---[[---------------------------------------------------------------------------
-  ~ END OF POSITION ACQUISITION SCRIPTS
---]]
-
-
 -- DEBUG - Whitelist
 local function OnPlayerConnecting(name, setKickReason, deferrals)
   local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
@@ -264,6 +198,8 @@ AddEventHandler('cnr:create_session', function()
         local pName = GetPlayerName(ply).."'s"
         cprint("Reloading "..pName.." last known character information.")
         TriggerClientEvent('cnr:create_reload', ply, plyr[1])
+        TriggerClientEvent('cnr:wallet_value', ply, plyr[1]["cash"])
+        TriggerClientEvent('cnr:bank_account', ply, plyr[1]["bank"])
       
       -- Otherwise, create it.
       else
@@ -320,23 +256,5 @@ AddEventHandler('cnr:create_save_character',
     )
   end
 )
-
-
-RegisterServerEvent('cnr:debug_save_model')
-AddEventHandler('cnr:debug_save_model', function(pModel)
-  local writeFile = io.open("resources/[cnr]/cnr_charcreate/models.txt", "a+")
-  writeFile:write("  '"..pModel.."',\n")
-  writeFile:close()
-end)
-
-
-RegisterServerEvent('cnr:debug_save_list')
-AddEventHandler('cnr:debug_save_list', function(pList)
-  local writeFile = io.open("resources/[cnr]/cnr_charcreate/models_list.txt", "a+")
-  for k,v in pairs(pList) do 
-    writeFile:write("  '"..v.."',\n")
-  end
-  writeFile:close()
-end)
 
 

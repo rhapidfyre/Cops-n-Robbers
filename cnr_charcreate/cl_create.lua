@@ -52,6 +52,7 @@ end)
 
 RegisterNetEvent('cnr:create_finished')
 AddEventHandler('cnr:create_finished', function()
+  local game_area = exports['cnrobbers']:GetActiveZone()
   SendNUIMessage({hideallmenus = true})
   SetNuiFocus(false)
   SetCamActive(cam, false)
@@ -65,7 +66,7 @@ AddEventHandler('cnr:create_finished', function()
   TriggerServerEvent('cnr:client_loaded')
   Wait(400)
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
-  --ReportPosition()
+  exports['cnrobbers']:ReportPosition(true)
 end)
 
 
@@ -95,6 +96,32 @@ AddEventHandler('cnr:changelog', function(logLines)
 end)
 
 
+--- EVENT: create_reload
+-- Called when player has an existing character to reload
+RegisterNetEvent('cnr:create_reload')
+AddEventHandler('cnr:create_reload', function(myChar)
+  SendNUIMessage({hideallmenus = true})
+  SetNuiFocus(false)
+  local lastPos = json.decode(myChar["position"])
+  SetEntityCoords(PlayerPedId(), lastPos['x'], lastPos['y'], lastPos['z'])
+  local myModel = GetHashKey(myChar["model"])
+  print("DEBUG - Reloading Model ["..tostring(myChar["model"]).."]")
+  RequestModel(myModel)
+  while not HasModelLoaded(myModel) do Wait(1) end
+  SetPlayerModel(PlayerId(), myModel)
+  SetModelAsNoLongerNeeded(myModel)
+  Wait(200)
+  SetNuiFocus(false)
+  SetCamActive(cam, false)
+  RenderScriptCams(false, true, 500, true, true)
+  cam = nil
+  Wait(100)
+  if IsScreenFadedOut() then DoScreenFadeIn(1000) end
+  Wait(1000)
+  exports['cnrobbers']:ReportPosition(true)
+end)
+
+
 --- EVENT: create_session
 -- Called if the player hasn't played here before, and needs a character
 RegisterNetEvent('cnr:create_character')
@@ -109,6 +136,10 @@ AddEventHandler('cnr:create_character', function()
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
   Citizen.Wait(600)
   SendNUIMessage({showpedpick = true})
+  
+  -- Default model spawn
+  ModelChoice("next")
+  
 end)
 
 
@@ -124,17 +155,25 @@ end)
 
 
 -- DEBUG - 
-local pm = 1
-RegisterNUICallback("modelPick", function(data, cb)
+local pm = 0
+function ModelChoice(data, cb)
   local oldPM = pm
   if coolDown then
-    TriggerEvent('chatMessage', "^8Selection cooldown in effect.")
+    TriggerEvent('chatMessage', "^8You're clicking too fast! Please Wait.")
     return 0
   end
   
   coolDown = true
   
-  if data == "last" then 
+  if data == "random" then 
+    oldPM = pm
+    pm = math.random(#pedModels)
+    while not pedModels[pm] do 
+      pm = math.random(#pedModels)
+      Wait(10)
+    end
+  
+  elseif data == "last" then 
     pm = pm - 1
     if pm < 1 then pm = #pedModels end
   
@@ -142,13 +181,6 @@ RegisterNUICallback("modelPick", function(data, cb)
     pm = pm + 1
     if pm > #pedModels then pm = 1 end
   
-  -- Allow character model to be used
-  elseif data == "addTo" then 
-    TriggerServerEvent('cnr:debug_save_model', pedModels[pm])
-    TriggerEvent('chatMessage', "^2Added model ["..pedModels[pm].."] to list of authorized models.")
-    coolDown = false
-    return 0
-    
   else
     TriggerServerEvent('cnr:create_save_character', pedModels[pm])
     coolDown = false
@@ -157,16 +189,16 @@ RegisterNUICallback("modelPick", function(data, cb)
   end
   
   local newHash = GetHashKey(pedModels[pm])
-  -- DEBUG -
-  TriggerEvent('chatMessage', "^7"..pedModels[pm].." #^3"..(pm))
-  print("^7"..pedModels[pm].." #^3"..(pm))
-  local timeOut = GetGameTimer() + 8000
+  
+  local timeOut = GetGameTimer() + 4000
   RequestModel(newHash)
   while not HasModelLoaded(newHash) do
     if GetGameTimer() > timeOut then 
-      TriggerEvent('chatMessage', "^1Timed out waiting for model to load ["..pedModels[pm].."]")
+      TriggerEvent('chatMessage', "^1Failed to load model ["..pedModels[pm]..
+        "].\nModel removed from eligible list. Please try again."
+      )
       table.remove(pedModels, pm)
-      pm = oldPM
+      pm       = oldPM
       coolDown = false
       return 0
     end
@@ -175,7 +207,6 @@ RegisterNUICallback("modelPick", function(data, cb)
   
   SetPlayerModel(PlayerId(), newHash)
   SetModelAsNoLongerNeeded(newHash)
-  
   coolDown = false
-  
-end)
+end
+RegisterNUICallback("modelPick", ModelChoice)

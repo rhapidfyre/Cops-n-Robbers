@@ -7,7 +7,7 @@ var parentTwo = 21;
 $(function() {
 	
   var welcome = $("#motd_bkgd");
-  var pedpick = $("#next_last");
+  var pedpick = $("#ped-select");
   
   var design  = $("#designer");
   var parents = $("#dsg_parents");
@@ -71,7 +71,6 @@ $(function() {
       else if (data.which == 37) {ModelSelect(1);} // LT ARROW: Prev
       else if (data.which == 39) {ModelSelect(2);} // RT ARROW: Next
       else if (data.which == 32) {ModelSelect(0);} // SPACE: Select Model
-      else if (data.which == 13) {ModelSelect(3);} // ENTER: Save to File
   };
 	
 });
@@ -284,7 +283,7 @@ function ModelSelect(val) {
     $.post('http://cnr_charcreate/modelPick', JSON.stringify("next"));
   }
   else if (val == 3) {
-    $.post('http://cnr_charcreate/modelPick', JSON.stringify("addTo"));
+    $.post('http://cnr_charcreate/modelPick', JSON.stringify("random"));
   }
   else {
     $.post('http://cnr_charcreate/modelPick', JSON.stringify("choose"));
