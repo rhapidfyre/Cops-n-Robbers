@@ -11,6 +11,7 @@ files {
 }
 
 client_scripts {
+  "cl_disable.lua", -- Disable cops/military/jets/etc
   "cl_config.lua", 
   "cl_police.lua"
 }

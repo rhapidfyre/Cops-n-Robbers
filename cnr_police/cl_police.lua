@@ -199,6 +199,7 @@ end
 --- BeginCopDuty()
 -- Sets a civilian to be a police officer
 -- Checks if player is wanted before going on duty
+local oldModel = 0 -- DEBUG - Remove this when going back to MP models
 function BeginCopDuty(st)
   print("DEBUG - Beginning cop duty @ station #"..st)
   local c  = depts[st]
@@ -211,6 +212,7 @@ function BeginCopDuty(st)
     print("DEBUG - Setting duty variables")
     isCop = true
     print("DEBUG - Setting clothes.")
+    --[[
     prevClothes = {
       [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
               text = GetPedTextureVariation(PlayerPedId(), 3)},
@@ -225,7 +227,17 @@ function BeginCopDuty(st)
     }
     for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-    end
+    end]]
+    
+    -- DEBUG - Using Ped Model System
+    oldModel = GetEntityModel(PlayerPedId())
+    print(oldModel)
+    local newModel = GetHashKey('s_m_y_cop_01')
+    RequestModel(newModel)
+    while not HasModelLoaded(newModel) do Wait(1) end
+    SetPlayerModel(PlayerId(), newModel)
+    SetModelAsNoLongerNeeded(newModel)
+  
     print("DEBUG - Clothes set.")
     TriggerServerEvent('cnr:police_status', true)
     TriggerEvent('cnr:police_duty', true)
@@ -259,6 +271,7 @@ end
 function Reduty()
   transition = true
   isCop      = true
+  --[[
   prevClothes = {
     [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
             text = GetPedTextureVariation(PlayerPedId(), 3)},
@@ -273,7 +286,17 @@ function Reduty()
   }
   for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-  end
+  end]]
+  
+  -- DEBUG - Using Ped Model System
+  oldModel = GetEntityModel(PlayerPedId())
+  print(oldModel)
+  local newModel = GetHashKey('s_m_y_cop_01')
+  RequestModel(newModel)
+  while not HasModelLoaded(newModel) do Wait(1) end
+  SetPlayerModel(PlayerId(), newModel)
+  SetModelAsNoLongerNeeded(newModel)
+    
   TriggerServerEvent('cnr:police_status', true)
   TriggerEvent('cnr:police_duty', true)
   PoliceLoadout(true)
@@ -292,10 +315,17 @@ function EndCopDuty(st)
   transition = true
   myAgency   = 0
   PoliceCamera(c)
-  isCop = false
+  --[[
   for k,v in pairs (prevClothes) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-  end
+  end]]
+  
+  -- DEBUG - Using Ped Model System
+  RequestModel(oldModel)
+  while not HasModelLoaded(oldModel) do Wait(1) end
+  SetPlayerModel(PlayerId(), oldModel)
+  SetModelAsNoLongerNeeded(oldModel)
+    
   TriggerServerEvent('cnr:police_status', false)
   TriggerEvent('cnr:police_duty', false)
   TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
@@ -305,6 +335,7 @@ function EndCopDuty(st)
     "You are no longer on Law Enforcement duty."
   )
   PoliceLoadout(false)
+  isCop      = false
   ignoreDuty = false
   transition = false
 end
@@ -362,14 +393,8 @@ Citizen.CreateThread(function()
       for i = 1, #depts do
         if #(myPos - (depts[i].duty)) < 2.1 then
           ignoreDuty = true
-          if isCop then
-            Citizen.CreateThread(function()
-              EndCopDuty(i)
-            end)
-          else 
-            Citizen.CreateThread(function()
-              BeginCopDuty(i)
-            end)
+          if isCop then EndCopDuty(i)
+          else BeginCopDuty(i)
           end
         end
         Citizen.Wait(100)
@@ -396,3 +421,80 @@ AddEventHandler('cnr:police_blip_backup', function(ply)
   end
 end)
 ]]
+
+
+
+
+
+Citizen.CreateThread(function()
+	while true do
+		for i = 1, 14 do EnableDispatchService(i, false) end
+		SetPlayerWantedLevel(PlayerId(), 0, false)
+		SetPlayerWantedLevelNow(PlayerId(), false)
+		SetPlayerWantedLevelNoDrop(PlayerId(), 0, false)
+		Wait(0)
+	end
+end)
+
+local restricted = {
+  ["RHINO"] = true,
+}
+Citizen.CreateThread(function()
+  while true do 
+    Wait(0)
+
+    --[[ Stops cops from dropping weapons
+    for ped in exports['southland']:EnumeratePeds() do 
+      if ped then 
+        if ped > 0 then
+          SetPedDropsWeaponsWhenDead(ped, false)
+        end
+      end
+      Citizen.Wait(100)
+    end]]
+
+    -- If player gets in a restricted vehicle, delete it
+    local vehc = GetVehiclePedIsTryingToEnter(PlayerPedId())
+    if vehc > 0 then
+      local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(vehc))
+      if restricted[mdl] then
+        if true then --exports['ham']:MyAdminLevel() < 4 then
+          TaskLeaveVehicle(PlayerPedId(), vehc, 16)
+        end
+      end
+      Citizen.Wait(1000)
+    end
+  end
+end)
+
+Citizen.CreateThread(function()
+  -- Removes air traffic
+  local scenes = {
+    world = {
+      "WORLD_VEHICLE_MILITARY_PLANES_SMALL",
+      "WORLD_VEHICLE_MILITARY_PLANES_BIG"
+    },
+    groups = {
+      2017590552, -- LSX Traffic
+      2141866469, -- Sandy Shores Air Traffic
+      1409640232, -- Grapeseed Air Traffic
+      "ng_planes", -- Airborne Air Traffic
+    },
+    planes = {
+      "SHAMAL", "LUXOR", "LUXOR2", "JET", "LAZER", "TITAN",
+      "BARRACKS", "BARRACKS2", "CRUSADER", "RHINO", "AIRTUG", "RIPLEY"
+    }
+  }
+  while true do
+    for _, sctyp in next, (scenes.world) do
+      SetScenarioTypeEnabled(sctyp, false)
+    end
+    for _, scgrp in next, (scenes.groups) do
+      SetScenarioGroupEnabled(scgrp, false)
+    end
+    for _, model in next, (scenes.planes) do
+      SetVehicleModelIsSuppressed(GetHashKey(model), true)
+    end
+    Citizen.Wait(10000)
+  end
+end)
