@@ -30,5 +30,6 @@ exports {
   'ChatNotification',     -- A neatly formatted Chat Notification function
   'GetPlayers',           -- OBSOLETE; Use 'GetActivePlayers()' (Native)
   'GetClosestPlayer',
+  'ReportPosition',       -- Tells script whether or not to report loc to SQL
 }
 

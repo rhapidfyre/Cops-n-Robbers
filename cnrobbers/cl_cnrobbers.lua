@@ -185,3 +185,44 @@ RegisterCommand('zones', function()
   })
   
 end)
+
+
+
+-- Start saving the player's location
+function ReportPosition(truth)
+  reportLocation = truth
+  
+  -- Sends update to MySQL every 12 seconds
+  -- Does not send the update if position has not changed
+  Citizen.CreateThread(function()
+  
+    if reportLocation then print("DEBUG - Now reporting position to SQL.")
+    else print("DEBUG - No longer reporting position to SQL.")
+    end
+    
+    while reportLocation do 
+      if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then 
+        print("[CNR] Cannot report position; Player is dead.")
+      else
+        local myPos = GetEntityCoords(PlayerPedId())
+        local doUpdate = false 
+        if not lastPos then 
+          doUpdate = true 
+        elseif #(lastPos - myPos) > 5.0 then 
+          doUpdate = true
+        end
+        if doUpdate then
+          local savePos = {
+            x = math.floor(myPos.x*1000)/1000,
+            y = math.floor(myPos.y*1000)/1000,
+            z = math.floor(myPos.z*1000)/1000
+          }
+          TriggerServerEvent('cnr:save_pos', json.encode(savePos))
+        end
+        lastPos = GetEntityCoords(PlayerPedId())
+      end
+      Citizen.Wait(12000)
+    end
+  end)
+    
+end

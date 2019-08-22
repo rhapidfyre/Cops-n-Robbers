@@ -15,7 +15,7 @@
 
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
 local scores = {}     -- Scores of players (KEYS: 'cop' and 'civ')
-
+local positions = {}  -- List of positions being saved
 
 local zone = {
   timer  = 300,       -- Time in minutes between zone changes
@@ -29,6 +29,61 @@ local reduce = {    -- Reduction of wanted level
   points   = 0.25,  -- Points each tick
   tickTime = 1      -- Time in seconds between reductions
 }
+
+
+
+
+--[[ --------------------------------------------------------------------------
+  ~ BEGIN POSITION AQUISITION SCRIPTS
+  1) Players, when loaded, will submit their position every 12 seconds
+  2) The server, every 30 seconds, loops through the positions table
+  3) For each entry found, it will update their last known position in SQL
+  4) When the update succeeds, it will remove the position entry
+  5) When a player drops, it will send and immediate update.
+]]-----------------------------------------------------------------------------
+local positions = {}
+
+RegisterServerEvent('cnr:save_pos')
+AddEventHandler('cnr:save_pos', function(pos)
+  local ply = source
+  local uid = unique[ply]
+  if uid then
+    print("DEBUG - Preserved position for Unique ID #"..uid)
+    positions[uid] = pos
+  end
+end)
+
+
+function SavePlayerPos(uid,pos)
+  if uid then
+    if not pos then pos = positions[uid] end
+    if pos then 
+      exports['ghmattimysql']:execute(
+        "UPDATE characters SET position = @p WHERE idUnique = @uid",
+        {['p'] = pos, ['uid'] = uid},
+        function()
+          -- Once updated, remove entry
+          print("DEBUG - Position ("..positions[uid]..") saved for UID #"..uid)
+          positions[uid] = nil
+        end
+      )
+    end
+  end
+end
+
+
+AddEventHandler('playerDropped', function(rsn)
+  local ply = source
+  local uid = unique[ply]
+  if uid then 
+    SavePlayerPos(uid, positions[uid])
+  end
+end)
+
+
+--[[---------------------------------------------------------------------------
+  ~ END OF POSITION ACQUISITION SCRIPTS
+--]]
 
 
 --- ConsolePrint()
