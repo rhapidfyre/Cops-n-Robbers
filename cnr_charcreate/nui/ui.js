@@ -7,6 +7,7 @@ var parentTwo = 21;
 $(function() {
 	
   var welcome = $("#motd_bkgd");
+  var pedpick = $("#next_last");
   
   var design  = $("#designer");
   var parents = $("#dsg_parents");
@@ -21,6 +22,10 @@ $(function() {
   
       if (item.showwelcome) {welcome.fadeIn(1000);}
       if (item.hidewelcome) {welcome.fadeOut(200);}
+      
+      if (item.showpedpick) {pedpick.fadeIn(800);}
+      if (item.hidepedpick) {pedpick.hide();}
+      
       if (item.motd) {$("#changes").find('ul').append(item.motd);}
       if (item.hideready) {
         $("#letsplay").removeClass('ntrdy');
@@ -40,9 +45,9 @@ $(function() {
       }
       // Emergency Close-All that all scripts must have
       if (item.hideallmenus) {
-        console.log('Emergency Closure');
         welcome.hide();
         design.hide();
+        pedpick.hide();
         HideSubMenus();
       }
       if (item.getParents) {
@@ -58,9 +63,15 @@ $(function() {
   
   // Pressing the ESC key with the menu open closes it 
   document.onkeyup = function ( data ) {
+      // ESC
       if ( data.which == 27 ) {
           if ( welcome.is( ":visible" ) ) {PlayGame();}
       }
+      // DEBUG -
+      else if (data.which == 37) {ModelSelect(1);} // LT ARROW: Prev
+      else if (data.which == 39) {ModelSelect(2);} // RT ARROW: Next
+      else if (data.which == 32) {ModelSelect(0);} // SPACE: Select Model
+      else if (data.which == 13) {ModelSelect(3);} // ENTER: Save to File
   };
 	
 });
@@ -264,4 +275,18 @@ function DoConfirm(val) {
 }
 
 
-
+// DEBUG - EXTREMELY simple character select method just to get the script going
+function ModelSelect(val) {
+  if (val == 1) {
+    $.post('http://cnr_charcreate/modelPick', JSON.stringify("last"));
+  }
+  else if (val == 2) {
+    $.post('http://cnr_charcreate/modelPick', JSON.stringify("next"));
+  }
+  else if (val == 3) {
+    $.post('http://cnr_charcreate/modelPick', JSON.stringify("addTo"));
+  }
+  else {
+    $.post('http://cnr_charcreate/modelPick', JSON.stringify("choose"));
+  }
+}

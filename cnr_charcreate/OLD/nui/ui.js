@@ -40,6 +40,7 @@ $(function() {
       }
       // Emergency Close-All that all scripts must have
       if (item.hideallmenus) {
+        console.log('Emergency Closure');
         welcome.hide();
         design.hide();
         HideSubMenus();

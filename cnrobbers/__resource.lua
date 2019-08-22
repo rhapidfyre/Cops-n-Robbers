@@ -4,17 +4,20 @@ resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 dependency 'ghmattimysql'
 
 client_scripts {
-  "shared.lua", 
-  "client.lua"
+  "ent_enum.lua",         -- Entity Enumeration
+  "sh_cnrobbers.lua",
+  "cl_cnrobbers.lua"
 }
+
 server_scripts {
-  "shared.lua",
-  "server.lua"
+  "sh_cnrobbers.lua",
+  "sv_cnrobbers.lua"
 }
 
 server_exports {
+  'ConsolePrint',
   'CurrentZone',
-  'GetUniqueId',
+  'UniqueId',
   'GetFullZoneName'
 }
 
@@ -24,11 +27,8 @@ exports {
 	'EnumeratePeds',
 	'EnumeratePickups',
   'GetActiveZone',
-  'WantedPoints',
-  'WantedLevel',
-  'ChatNotification',
-  'GetPlayers',
+  'ChatNotification',     -- A neatly formatted Chat Notification function
+  'GetPlayers',           -- OBSOLETE; Use 'GetActivePlayers()' (Native)
   'GetClosestPlayer',
-  'GetWanteds',
-  'GetFullZoneName'
 }
+

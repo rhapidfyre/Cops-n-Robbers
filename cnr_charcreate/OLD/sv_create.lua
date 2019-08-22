@@ -1,28 +1,18 @@
 
 --[[
-  Cops and Robbers: Character Creation - Server Dependencies
+  Cops and Robbers: Character Creation (SERVER)
   Created by Michael Harris (mike@harrisonline.us)
-  08/20/2019
+  05/11/2019
   
   This file handles all serversided interaction to verifying character
   information, and saving/recalling MySQL Information from the server.
   
+  No one may edit, redistribute, or otherwise use this script.
 --]]
 
-RegisterServerEvent('cnr:create_player')  -- Client has connected
-RegisterServerEvent('cnr:create_session') -- Client is ready to join
-
--- Whether the server should display connection/join messages --
-local doTalk = true 
-local doJoin = true
-local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
-local dMsg   = true -- Display debug messages
-----------------------------------------------------------------
-
-local steams    = {} -- Collection of Steam IDs by Server ID.
-local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
-local unique    = {} -- Unique IDs by player server ID
-
+-- A table consisting of player's database unique id numbers
+local unique    = {}
+local steams    = {}
 
 -- DEBUG - Whitelist
 local whitelist = {
@@ -41,7 +31,12 @@ local whitelist = {
   4) When the update succeeds, it will remove the position entry
   5) When a player drops, it will send and immediate update.
 ]]-----------------------------------------------------------------------------
+
 local positions = {}
+
+function LogTime()
+  return (os.date("%H:%M:%S", os.time()))
+end
 
 RegisterServerEvent('cnr:save_pos')
 AddEventHandler('cnr:save_pos', function(pos)
@@ -53,15 +48,13 @@ AddEventHandler('cnr:save_pos', function(pos)
 end)
 
 
-function SavePlayerPos(uid,pos)
+function SavePlayerPos(uid)
   if uid then
-    if not pos then pos = positions[uid] end
-    if pos then 
+    if positions[uid] then 
       exports['ghmattimysql']:execute(
         "UPDATE characters SET position = @p WHERE idUnique = @uid",
         {['p'] = positions[uid], ['uid'] = uid},
         function()
-          -- Once updated, remove entry
           positions[uid] = nil
         end
       )
@@ -69,34 +62,32 @@ function SavePlayerPos(uid,pos)
   end
 end
 
-
 function SaveAllPositions()
-  for uid,pos in pairs (positions) do
-    SavePlayerPos(uid, pos)
+  for k,v in pairs (positions) do
+    SavePlayerPos(k)
     Citizen.Wait(100)
   end
 end
-
 
 AddEventHandler('playerDropped', function(rsn)
   local ply = source
   local uid = unique[ply]
   if uid then 
-    if positions[uid] then SavePlayerPos(uid) end
+    if positions[uid] then 
+      SavePlayerPos(uid)
+    end
   end
 end)
-
 
 Citizen.CreateThread(function()
   while true do
-    Citizen.Wait(30000)
     SaveAllPositions()
+    Citizen.Wait(30000)
   end
 end)
-
 --[[---------------------------------------------------------------------------
   ~ END OF POSITION ACQUISITION SCRIPTS
---]]
+--]]---------------------------------------------------------------------------
 
 
 -- DEBUG - Whitelist
@@ -111,111 +102,66 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
     end
   end
   if whitelist[steamIdentifier] then 
-    cprint("^2Access granted ^7for user "..name.."; Steam ID ["..steamIdentifier.."]")
     deferrals.done()
   else
-    cprint("^1Access DENIED ^7for user"..name.."; Steam ID ["..steamIdentifier.."]")
-    cprint(name.." Disconnected. Reason: Not whitelisted.")
     deferrals.done(
       "Server is being Developed and you are not whitelisted. "..
       "Please check back soon!"
     )
+    print("Player was disconnected; "..name.." ["..steamIdentifier.."] is not whitelisted.")
   end
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
 
 
---- GetPlayerSteamId()
--- Finds the player's Steam ID. We know it exists because of deferrals.
+--- EXPORT: GetUniqueId()
+-- Returns the player's Unique ID
+-- @return The player's UID or nil
+function GetUniqueId(ply)
+  return unique[ply]
+end
+
+
 function GetPlayerSteamId(ply)
   if steams[ply] then return steams[ply] end
   local sid = nil
   for _,id in pairs(GetPlayerIdentifiers(ply)) do 
-    if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
+    if string.sub(id, 1, string.len("steam:")) == "steam:" then
+      sid = id
     end
   end
   steams[ply] = sid
-  if doTalk then
-    cprint(GetPlayerName(ply).." Steam ID ["..tostring(steams[ply]).."]")
-  end
   return sid
 end
 
-
---- ReadChangelog()
--- Scans the change log and sends it to the player
 function ReadChangelog(ply)
-  if dMsg then
-    cprint("Preparing to send changelog to "..GetPlayerName(ply))
-  end
   local changeLog = io.open("changelog.txt", "r")
   local logLines  = {}
   if changeLog then 
     for line in io.lines("changelog.txt") do 
       if line ~= "" and line then
-        n = #logLines + 1
-        if n < (max_lines + 1) then logLines[n] = line
-        end
+        logLines[#logLines + 1] = line
       end
     end
-  else
-  if dMsg then
-    cprint("Failed to open changelog.txt")
-  end
   end 
-  if dMsg then
-    cprint("Sending changelog to "..GetPlayerName(ply))
-  end
   TriggerClientEvent('cnr:changelog', ply, logLines)
   changeLog:close()
 end
 
 
-function CreateUniqueId(ply, stm)
-  -- SQL: Insert new user account for new player
-  -- DEBUG - Should really make this a stored procedure
-  exports['ghmattimysql']:execute(
-    "INSERT INTO players (idSteam, ip, username, created, lastjoin) "..
-    "VALUES (@steamid, @ip, @user, NOW(), NOW())",
-    {
-      ['steamid'] = GetPlayerSteamId(ply), 
-      ['ip']      = GetPlayerEndpoint(ply),
-      ['user']    = GetPlayerName(ply)
-    },
-    function()
-      -- SQL: Get idUnique of new player
-      exports['ghmattimysql']:scalar(
-        "SELECT idUnique FROM players WHERE idSteam = @steamid",
-        {['steamid'] = GetPlayerSteamId(ply)},
-        function(uid)
-          unique[ply] = uid
-          exports['cnrobbers']:UniqueId(ply, uid) -- Set UID for session
-          cprint("Created Unique ID "..(uid).." for  "..GetPlayerName(ply))
-        end
-      )
-    end
-  )
-end
-
-
 --- EVENT 'cnr:create_player'
--- Received by a client when they're spawned and ready to click play
+-- Received by a client when they're spawned and ready to load in
+RegisterServerEvent('cnr:create_player')
 AddEventHandler('cnr:create_player', function()
 
   local ply     = source
   local stm     = GetPlayerSteamId(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
-  
-  if doJoin then
-    cprint("^2"..ustring.." connected.^7")
-  end
+  print("[CNR "..LogTime().."] ^2"..ustring.." connected^7.")
   
   ReadChangelog(ply)
   
   if stm then
-    if dMsg then
-      cprint("Steam ID exists. Retrieving Unique ID.")
-    end
   
     -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
@@ -224,20 +170,19 @@ AddEventHandler('cnr:create_player', function()
       function(uid)
         if uid then 
           unique[ply] = uid
-          cprint("Found Unique ID "..uid.." for "..ustring)
-          exports['cnrobbers']:UniqueId(ply, uid)
-        else
-          CreateUniqueId(ply, stm)
+          print("[CNR "..LogTime().."] Unique ID ["..uid.."] found for "..ustring)
+          TriggerEvent('cnr:unique_id', ply, uid)
         end
         Citizen.Wait(200) 
-        cprint(ustring.." is ready to play.")
+        print("[CNR "..LogTime().."] "..ustring.." is ready.")
         TriggerClientEvent('cnr:create_ready', ply)
       end
     )
     
   else
-    cprint("^1No Steam ID Found for "..ustring)
-    cprint("^1"..ustring.." disconnected. ^7(No Steam Logon)")
+    local t = LogTime()
+    print("[CNR "..t.."] ^7No Steam ID Found for ^7"..ustring)
+    print("[CNR "..t.."] ^1"..ustring.." disconnected. (No Steam Logon)^7")
     DropPlayer(ply,
       "Please log into steam, or make a FREE steam account at "..
       "www.steampowered.com so we can save your progress."
@@ -248,30 +193,72 @@ end)
 
 --- EVENT 'cnr:create_session'
 -- Received by a client when they're spawned and ready to load in
+RegisterServerEvent('cnr:create_session')
 AddEventHandler('cnr:create_session', function()
   
   local ply   = source
   local pName = GetPlayerName(ply).. "("..ply..")"
+  local dt    = os.date("%H:%M:%S", os.time())
   
-  -- Retrieve all their character information
-  exports['ghmattimysql']:execute(
-    "SELECT * FROM characters WHERE idUnique = @uid",
-    {['uid'] = unique[ply]},
-    function(plyr) 
+  -- If no idUnique, then they have never played here before
+  if not unique[ply] then 
     
-      -- If character exists, load it.
-      if plyr[1] then
-        local pName = GetPlayerName(ply).."'s"
-        cprint("Reloading "..pName.." last known character information.")
-        TriggerClientEvent('cnr:create_reload', ply, plyr[1])
-      
-      -- Otherwise, create it.
-      else
-        cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
-        TriggerClientEvent('cnr:create_character', ply)
+    -- SQL: Insert new user account for new player
+    exports['ghmattimysql']:execute(
+      "INSERT INTO players (idSteam, ip, username, created, lastjoin) "..
+      "VALUES (@steamid, @ip, @user, NOW(), NOW())",
+      {
+        ['steamid'] = GetPlayerSteamId(ply), 
+        ['ip']      = GetPlayerEndpoint(ply),
+        ['user']    = GetPlayerName(ply)
+      },
+      function()
+        -- SQL: Get idUnique of new player
+        exports['ghmattimysql']:scalar(
+          "SELECT idUnique FROM players WHERE idSteam = @steamid",
+          {['steamid'] = GetPlayerSteamId(ply)},
+          function(uid)
+            unique[ply] = uid
+            TriggerEvent('cnr:unique_id', ply, uid)
+            local nt = os.date("%H:%M:%S", os.time())
+            print(
+              "[CNR "..nt.."] Unique ID "..uid.." for  "..pName.." created."
+            )
+          end
+        )
       end
-    end
-  )
+    )
+    
+    print("[CNR "..dt.."] Sending "..pName.." to Character Designer.")
+    TriggerClientEvent('cnr:create_character', ply)
+  
+  -- Otherwise, they've played before
+  else
+  
+    -- Retrieve all their character information
+    exports['ghmattimysql']:execute(
+      "SELECT * FROM characters WHERE idUnique = @uid",
+      {['uid'] = unique[ply]},
+      function(plyr) 
+        
+        -- If character exists, load it.
+        if plyr[1] then
+          print("[CNR "..dt.."] Stats exist. Reloading "..
+            GetPlayerName(ply).."'s ("..ply..") information."
+          )
+          TriggerClientEvent('cnr:create_reload', ply, plyr[1])
+        
+        -- Otherwise, create it
+        else
+          print("[CNR "..dt.."] No existing stats retrieved. "..
+            GetPlayerName(ply).." ("..ply..") is going to Character Creator."
+          )
+          TriggerClientEvent('cnr:create_character', ply)
+        end
+      end
+    )
+  
+  end
   
 end)
 
@@ -280,7 +267,7 @@ end)
 -- Received by a client when they're spawned and ready to load in
 RegisterServerEvent('cnr:create_save_character')
 AddEventHandler('cnr:create_save_character',
-  --[[function(parents, eyes, hair, perm, temp, feats, model, outfit)
+  function(parents, eyes, hair, perm, temp, feats, model, outfit)
   
     local ply = source
     local uid = unique[ply]
@@ -307,36 +294,6 @@ AddEventHandler('cnr:create_save_character',
         TriggerClientEvent('cnr:create_finished', ply)
       end
     )
-  end]]
-  function(pModel)
-    local ply = source
-    local uid = exports['cnrobbers']:UniqueId(ply)
-    exports['ghmattimysql']:execute(
-      "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
-      {['uid'] = uid, ['mdl'] = pModel},
-      function()
-        TriggerClientEvent('cnr:create_finished', ply)
-      end
-    )
   end
 )
-
-
-RegisterServerEvent('cnr:debug_save_model')
-AddEventHandler('cnr:debug_save_model', function(pModel)
-  local writeFile = io.open("resources/[cnr]/cnr_charcreate/models.txt", "a+")
-  writeFile:write("  '"..pModel.."',\n")
-  writeFile:close()
-end)
-
-
-RegisterServerEvent('cnr:debug_save_list')
-AddEventHandler('cnr:debug_save_list', function(pList)
-  local writeFile = io.open("resources/[cnr]/cnr_charcreate/models_list.txt", "a+")
-  for k,v in pairs(pList) do 
-    writeFile:write("  '"..v.."',\n")
-  end
-  writeFile:close()
-end)
-
 

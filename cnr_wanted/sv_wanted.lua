@@ -1,31 +1,36 @@
 
 --[[
-  Cops and Robbers: Wanted Scripts (SERVER)
+  Cops and Robbers: Wanted Script - Server Dependencies
   Created by Michael Harris (mike@harrisonline.us)
-  07/13/2019
+  08/19/2019
   
-  This file keeps track of various affects from being wanted, such as 
-  the wanted player HUD, clear/most wanted messages, etc.
-  
-  Permission is granted only for executing this script for the purposes
-  of playing the gamemode as intended by the developer.
+  This file contains all information that will be stored, used, and
+  manipulated by any CNR scripts in the gamemode. For example, a
+  player's level will be stored in this file and then retrieved using
+  an export; Rather than making individual SQL queries each time.
 --]]
 
-local carUse  = {}   -- Key: Server ID, Val = Vehicle ID
-local wanteds = {}   -- List of wanted players on the server
-local paused  = {}   -- List of players whose wanted points are locked
-local felony  = 39   -- Point threshold of felony level crimes
+
+RegisterServerEvent('baseevents:enteringVehicle')
+RegisterServerEvent('baseevents:enteringAborted')
+RegisterServerEvent('baseevents:enteredVehicle')
+
+
+local carUse = {}  -- Keeps track of vehicle theft actions
+local reduce = {
+  tickTime = 30,   -- Time in seconds between each reduction in wanted points
+  points   = 1.25, -- Amount of wanted points to reduce upon (reduce.time)
+}
 
 --- EXPORT: WantedPoints()
 -- Sets the player's wanted level. 
 -- @param ply      The player's server ID
 -- @param crime    The crime that was committed
 -- @param msg      If true, displays "Crime Committed" message
--- @param isFelony Points can only go >= felony if this is true, else caps at 39
-function WantedPoints(ply, crime, msg, isFelony)
+function WantedPoints(ply, crime, msg)
 
   if not ply   then return 0 end
-  if not wanteds[ply] then wanteds[ply] = 0 end -- Creates ply index
+  if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
   
   if not crime then return 0 end
   
@@ -37,7 +42,7 @@ function WantedPoints(ply, crime, msg, isFelony)
     local cn = crimeName[crime]
     if cn then
       TriggerClientEvent('chat:addMessage', ply,
-        {templateId = 'crimeMsg', args = {crimeName[crime]}
+        {templateId = 'crimeMsg', args = {crimeName[crime]}}
       )
     end
   end
@@ -47,16 +52,18 @@ function WantedPoints(ply, crime, msg, isFelony)
   while n > 0 do -- e^-(0.02x/2)
     local addPoints = true
     
-    if not isFelony then 
+    -- Ensure crime is NOT a felony
+    if (not felonies[crime]) then 
       -- If the next point would make them a felon, do nothing.
-      if wanteds[ply] + 1 >= felony then addPoints = false end
+      if wanted[ply] + 1 >= felony then addPoints = false end
     end
     
+    -- Crime is a felony, or would not make player a felon (if not a felony)
     if addPoints then 
     
-      local modifier = math.exp( -1 * ((0.02 * wanteds[ply])/2))
+      local modifier = math.exp( -1 * ((0.02 * wanted[ply])/2))
       local formula  = math.floor((modifier * 1)*100000)
-      wanteds[ply] = (wanteds[ply] + formula/100000)
+      wanted[ply] = (wanted[ply] + formula/100000)
       
     else n = 0
     end
@@ -67,11 +74,16 @@ function WantedPoints(ply, crime, msg, isFelony)
   end
   
   -- Tell other scripts about the change
-  TriggerEvent('cnr:wanted_points', ply, wanteds[ply])
-  TriggerClientEvent('cnr:wanted_level', (-1), ply, wanteds[ply])
+  TriggerEvent('cnr:wanted_points', ply, wanted[ply])
+  TriggerClientEvent('cnr:wanted_level', (-1), ply, wanted[ply])
   
 end
-
+AddEventHandler('cnr:wanted_points', function(crime, msg)
+  local ply = source
+  if crime then 
+    WantedPoints(ply, crime, msg)
+  end
+end)  
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
@@ -81,56 +93,84 @@ function WantedLevel(ply)
 
   -- If ply not given, return 0
   if not ply          then return 0 end
-  if not wanteds[ply] then wanteds[ply] = 0 end -- Create entry if not exists
+  if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
   
-  if     wanteds[ply] <   1 then return  0
-  elseif wanteds[ply] > 100 then return 11
-  else                           return (math.floor((wanteds[ply])/10) + 1)
+  if     wanted[ply] <   1 then return  0
+  elseif wanted[ply] > 100 then return 11
+  else                           return (math.floor((wanted[ply])/10) + 1)
   end
-  
   return 0
+  
 end
 
 
+--- AutoReduce()
 -- Reduces wanted points per tick
-Citizen.CreateThread(function()
+function AutoReduce()
   while true do 
-    for k,v in pairs (wanteds) do
+    for k,v in pairs (wanted) do
       if v > 0 then
         if not paused[k] then v = v - (reduce.points)
         end
       end
-      Citizen.Wait(1)
+      Citizen.Wait(10)
     end
     Citizen.Wait((reduce.tickTime)*1000)
   end
-end)
+end
+Citizen.CreateThread(AutoReduce)
 
+
+--- CheckIfWanted()
+-- Checks if player is wanted in SQL (Logged off while wanted)
+-- If SQL wanted is zero, does nothing. If wanted, sets 'wanted_client' event
+-- @param ply The player's server ID. If not given, function returns
+function CheckIfWanted(ply)
+  local uid = GetUniqueId(ply)
+  
+  if uid then
+    exports['ghmattimysql']:scalar(
+      "SELECT wanted FROM players WHERE idUnique = @uid",
+      {['uid'] = uid},
+      function(wp)
+        -- If player being checked is wanted, send update for that player
+        if not wp then 
+          print("^1[CNR ERROR] ^7SQL gave no response for wanted level query.")
+          return
+        end
+        if wp > 0 then
+          wanted[ply] = wp
+          TriggerClientEvent('cnr:wanted_client', (-1), ply, wp)
+        end
+      end
+    )
+  else
+    print("^1[CNR ERROR] ^7Unique ID was invalid ("..tostring(uid)..").")
+  end
+end
 
 
 --[[
   BASE EVENTS CALLS (entering vehicles, etc)
 ]]
 
+
 -- Attempting to enter a vehicle
-RegisterServerEvent('baseevents:enteringVehicle')
-AddEventHandler('baseevents:enteringVehicle', function(veh, seat, mdl, netVeh)
+AddEventHandler('baseevents:enteringVehicle', function(veh, seat)
   local ply = source
   carUse[ply] = veh
-  -- Ask client to check if the vehicle is locked, or if there's a driver
-  TriggerClientEvent('cnr:wanted_check_vehicle', ply, veh, mdl)
+  -- Ask client to check vehicle info (driver, faction, etc)
+  TriggerClientEvent('cnr:wanted_check_vehicle', ply, veh)
 end)
 
 
-RegisterServerEvent('baseevents:enteringAborted')
-AddEventHandler('baseevents:enteringAborted', function(veh, seat, mdl, netVeh)
+AddEventHandler('baseevents:enteringAborted', function(veh, seat)
   local ply = source
   carUse[ply] = nil
 end)
 
 
-RegisterServerEvent('baseevents:enteredVehicle')
-AddEventHandler('baseevents:enteredVehicle', function(veh, seat, mdl, netVeh)
+AddEventHandler('baseevents:enteredVehicle', function(veh, seat)
   local ply = source
   if carUse[ply] == veh then 
     -- Send message to the client to check if they own it,

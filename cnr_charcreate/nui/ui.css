@@ -4,8 +4,10 @@
   #motd_bkgd {
     border-radius: 4px;
     border-right: 2px ridge silver;
-    width: 642px;
-    height: 384px;
+    min-width: 642px;
+    min-height: 384px;
+    width: 72%;
+    height: 72%;
     margin: 0 auto;
     background: #AEB8B9;
     position: relative;
