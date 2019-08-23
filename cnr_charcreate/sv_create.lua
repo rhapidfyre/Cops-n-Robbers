@@ -203,9 +203,7 @@ AddEventHandler('cnr:create_session', function()
         local pName = GetPlayerName(ply).."'s"
         cprint("Reloading "..pName.." last known character information.")
         exports['cnr_chat']:DiscordMessage(
-          65280, "Connected",
-          name.." has connected to the server.",
-          ""
+          65280, GetPlayerName(ply).." Connected", "", ""
         )
         TriggerClientEvent('cnr:create_reload', ply, plyr[1])
         TriggerClientEvent('cnr:wallet_value', ply, plyr[1]["cash"])
@@ -216,8 +214,7 @@ AddEventHandler('cnr:create_session', function()
         cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
         exports['cnr_chat']:DiscordMessage(
           7864575, "New Player",
-          "Please welcome our newest player, "..name.."!",
-          ""
+          "Please welcome our newest player, "..GetPlayerName(name).."!", ""
         )
         TriggerClientEvent('cnr:create_character', ply)
       end

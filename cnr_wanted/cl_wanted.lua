@@ -88,6 +88,25 @@ end)
 function GetWanteds() return wanted end
 
 
+--- EXPORT WantedLevel()
+-- Returns the wanted level of the player for easier calculation
+-- @param ply Server ID, if provided
+-- @return The wanted level based on current wanted points
+function WantedLevel(ply)
+
+  -- If ply not given, return 0
+  if not ply          then return 0 end
+  if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
+  
+  if     wanted[ply] <   1 then return  0
+  elseif wanted[ply] > 100 then return 11
+  else                           return (math.floor((wanted[ply])/10) + 1)
+  end
+  return 0
+  
+end
+
+
 --- EXPORT GetClosestPlayer()
 -- Finds the closest player
 -- @return Player local ID. Must be turned into a ped object or server ID from there.
@@ -114,24 +133,24 @@ function UpdateWantedStars()
   local prevWanted = 0
   local tickCount  = 0
   while true do 
-    local wanted = 0--WantedLevel()
+    local myWanted =  WantedLevel(GetPlayerServerId(PlayerId()))
     
     -- Wanted Level has changed
-    if wanted ~= prevWanted then 
-      prevWanted = wanted -- change to reflect it
+    if myWanted ~= prevWanted then 
+      prevWanted = myWanted -- change to reflect it
       tickCount  = 0      -- Restart flash if changes again during flash
       
     else
       -- Make it flash, end on the solid version
       if tickCount < 10 then          tickCount = tickCount + 1
-        if wanted == 0 then           SendNUIMessage({nostars = true})
+        if myWanted == 0 then           SendNUIMessage({nostars = true})
         else
           -- Normal version (light saturation)
-          if tickCount % 2 == 0 then  SendNUIMessage({stars = wanted})
+          if tickCount % 2 == 0 then  SendNUIMessage({stars = myWanted})
           else
             -- Performs the flash (dark saturation)
-            if     wanted > 10 then   SendNUIMessage({stars = "c"})
-            elseif wanted >  5 then   SendNUIMessage({stars = "b"})
+            if     myWanted > 10 then   SendNUIMessage({stars = "c"})
+            elseif myWanted >  5 then   SendNUIMessage({stars = "b"})
             else                      SendNUIMessage({stars = "a"})
             end
           end

@@ -14,9 +14,11 @@
 RegisterServerEvent('baseevents:enteringVehicle')
 RegisterServerEvent('baseevents:enteringAborted')
 RegisterServerEvent('baseevents:enteredVehicle')
+RegisterServerEvent('cnr:wanted_points')
 
 
 local carUse = {}  -- Keeps track of vehicle theft actions
+local paused = {}  -- Players to keep from wanted points being reduced
 local reduce = {
   tickTime = 30,   -- Time in seconds between each reduction in wanted points
   points   = 1.25, -- Amount of wanted points to reduce upon (reduce.time)
@@ -33,6 +35,14 @@ function WantedPoints(ply, crime, msg)
   if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
   
   if not crime then return 0 end
+  if crime == 'jailed' then 
+    wanted[ply] = 0
+    TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
+    TriggerClientEvent('chat:addMessage', ply, {args={
+      "^2Your wanted level has been cleared."
+    }})
+    return 0
+  end
   
   local n = weights[crime]
   if not n then return 0 end
@@ -82,39 +92,38 @@ function WantedPoints(ply, crime, msg)
       local wants = WantedLevel(ply)
       if wants > 10 then
         exports['cnr_chat']:DiscordMessage(
-          16742400, "Federal Investigations Bureau",
+          16732160, "San Andreas' Most Wanted",
           GetPlayerName(ply).." is now on the Most Wanted list!",
           "San Andreas Most Wanted"
         )
       else
         exports['cnr_chat']:DiscordMessage(
-          16742400, "Federal Investigations Bureau",
+          16747520, "",
           GetPlayerName(ply).." is now Wanted Level "..(wants).."!",
-          "Wanted Level Increased"
+          ""
         )
       end
     -- Player's wanted level reduced
     elseif lastWanted > wanted[ply] - 10 and lastWanted >= 10 and lastWanted < 101 then
       exports['cnr_chat']:DiscordMessage(
-        16742400, "Federal Investigations Bureau",
+        16762880, "",
         GetPlayerName(ply).." is now Wanted Level "..(wants)..".",
-        "Wanted Level Decreased"
+        ""
       )
     
     -- Player is no longer wanted
     elseif lastWanted > 0 and wanted[ply] <= 0 then 
       exports['cnr_chat']:DiscordMessage(
-        16742400, "Federal Investigations Bureau",
+        13158600 , "",
         GetPlayerName(ply).." is no longer wanted by police.",
-        "Wanted Level Removed"
+        ""
       )
     
     end
   end
   
   -- Tell other scripts about the change
-  TriggerEvent('cnr:wanted_points', ply, wanted[ply])
-  TriggerClientEvent('cnr:wanted_level', (-1), ply, wanted[ply])
+  TriggerClientEvent('cnr:wanted_client', (-1), ply, wanted[ply])
   
 end
 AddEventHandler('cnr:wanted_points', function(crime, msg)
@@ -123,6 +132,7 @@ AddEventHandler('cnr:wanted_points', function(crime, msg)
     WantedPoints(ply, crime, msg)
   end
 end)  
+
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
@@ -149,7 +159,10 @@ function AutoReduce()
   while true do 
     for k,v in pairs (wanted) do
       if v > 0 then
-        if not paused[k] then v = v - (reduce.points)
+        -- If wanted level is not paused/locked, allow it to reduce
+        if not paused[k] then
+          v = v - (reduce.points)
+          TriggerClientEvent('cnr:wanted_client', (-1), k, v)
         end
       end
       Citizen.Wait(10)

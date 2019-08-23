@@ -27,6 +27,7 @@ function DiscordMessage(color, name, message, footer, copMessage)
       },
     }
   }
+  if name == "" then embed["title"] = "" end
   local discordApp = urls.feed
   if copMessage then discordApp = urls.emg end
   PerformHttpRequest(discordApp,

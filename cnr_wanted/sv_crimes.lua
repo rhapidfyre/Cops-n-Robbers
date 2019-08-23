@@ -4,16 +4,18 @@ worth = {attempt = 0.33,law = 1.425,}
 
 -- Called to get the wanted point weight of a crime
 weights = {
-  ['carjack']      = 25,
-  ['murder']       = 90,
-  ['manslaughter'] = 60,
-  ['adw']          = 20,
-  ['assault']      =  3,
-  ['discharge']    =  6,
-  ['vandalism']    =  5,
-  ['atm']          = 30,
-  ['brandish']     = 20,
-  ['robbery']      = 50,
+  ['jailed']       =  99,
+  ['carjack']      =  25,
+  ['murder']       =  90,
+  ['manslaughter'] =  60,
+  ['adw']          =  20,
+  ['assault']      =   3,
+  ['discharge']    =   6,
+  ['vandalism']    =   5,
+  ['atm']          =  30,
+  ['brandish']     =  20,
+  ['robbery']      =  50,
+  ['prisonbreak']  = 200
 }
 
 felonies = {
@@ -22,6 +24,7 @@ felonies = {
   ['adw']          = true,
   ['atm']          = true,
   ['robbery']      = true,
+  ['prisonbreak']  = true,
 }
 
 --- EXPORT: CrimePoints()
