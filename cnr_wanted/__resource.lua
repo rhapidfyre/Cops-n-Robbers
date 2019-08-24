@@ -36,6 +36,7 @@ server_exports {
   'WantedPoints',
   'CrimePoints',
   'CrimeName',
+  'CrimeList',
 }
 
 exports {

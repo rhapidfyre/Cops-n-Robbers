@@ -211,6 +211,24 @@ function CheckIfWanted(ply)
 end
 
 
+--- EXPORT: CrimeList()
+-- Returns a list of crimes committed by the player
+-- @param ply The player server ID to check.
+-- @param crime If supplied, adds crime to player's crime list
+-- @return List of crimes. If not wanted or not found, returns empty list
+function CrimeList(ply, crime)
+
+  if not ply             then return {} end
+  if not crimesList[ply] then crimesList[ply] = {} end
+  
+  local n = #(crimesList[ply]) + 1
+  if crime then crimesList[ply][n] = crime end
+  
+  return (crimesList[ply])
+  
+end
+
+
 --[[
   BASE EVENTS CALLS (entering vehicles, etc)
 ]]

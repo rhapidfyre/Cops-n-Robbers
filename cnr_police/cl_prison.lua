@@ -20,7 +20,7 @@ local leashed    = {}
 
 function IsPrisoner()
   Citizen.CreateThread(function()
-    while isPrisoner do 
+    while isPrisoner do
       if #(GetEntityCoords(PlayerPedId()) - leashed.center) > leashed.limit then
         isPrisoner = false
         TriggerServerEvent('cnr:wanted_points', 'prisonbreak')
@@ -33,42 +33,52 @@ end
 
 
 function BeginSentence(minutes)
-  while isPrisoner or isInmate do 
-    
+  local jailTime = GetGameTimer() + (minutes * 60000)
+  while jailTime > GetGameTimer() do 
+    if math.floor(jailTime/1000) % 30 == 0 then
+      print("DEBUG - 30 seconds have been served.")
+      TriggerServerEvent('cnr:prison_served_time')
+    end
     Citizen.Wait(1000)
   end
 end
 
 
-function CalculateTime()
-  local n = 0
-  for k,v in pairs(exports['cnr_wanted']:CrimeList()) do
-    n = n + exports['cnr_wanted']:GetCrimeTime(v)
-  end
-  if n > 120 then   return 120
-  elseif n < 5 then return 5
-  else              return n
-  end
-  return 5
-end
-
-
-function Imprison(idOfficer, wantedLevel)
-  local mins = CalculateTime()
-  if wantedLevel > 0 then 
-    local spawn
-    if     wantedLevel > 5 then spawns = prisons[math.random(#prisons)]
-    elseif wantedLevel > 3 then spawns = jails[math.random(#jails)]
-    end
-    Citizen.CreateThread(function()
-      BeginSentence(mins)
-    end)
-  end
+function Imprison(idOfficer, jTime, jPrison)
+  local spawn = jails[math.random(#jails)]
+  if jPrison then spawns = prisons[math.random(#prisons)] end
+  Citizen.CreateThread(function()
+    BeginSentence(jTime)
+  end)
 end
 AddEventHandler('cnr:police_imprison', Imprison)
+
+
+--- Reimprison()
+-- Called when a player logs in with a sentence still to serve
+-- Similar to Imprison() but doesn't have any calculations or notifications
+function Reimprison(jt, jp)
+  local spawn = jails[math.random(#jails)]
+  if jp == 2 then spawn = prisons[math.random(#prisons)] end
+  Citizen.CreateThread(function()
+    BeginSentence(math.floor(jt/60))
+  end)
+end
+AddEventHandler('cnr:prison_rejail', Reimprison)
 
 
 function IssueTicket(idOfficer, price)
   
 end
 AddEventHandler('cnr:ticket_client', IssueTicket)
+
+
+--- EXPORT: ReleaseClient()
+-- Releases person from jail/prison
+function ReleaseClient(isPrison)
+  local rPos = releaseSpawn[1]
+  if isPrison then rPos = releaseSpawn[2] end
+  SetEntityCoords(PlayerPedId(), rPos)
+end
+AddEventHandler('cnr:prison_release', ReleaseClient)
+

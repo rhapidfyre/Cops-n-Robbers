@@ -39,3 +39,8 @@ prisons = {
   [5] = {pos = vector3(1729.40,2562.80,45.5649), h = 170.0}
 }
 
+releaseSpawn = {
+  [1] = vector3(),
+  [2] = vector3()
+}
+
