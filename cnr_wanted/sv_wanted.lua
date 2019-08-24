@@ -17,9 +17,10 @@ RegisterServerEvent('baseevents:enteredVehicle')
 RegisterServerEvent('cnr:wanted_points')
 
 
-local carUse = {}  -- Keeps track of vehicle theft actions
-local paused = {}  -- Players to keep from wanted points being reduced
-local reduce = {
+local carUse     = {}  -- Keeps track of vehicle theft actions
+local paused     = {}  -- Players to keep from wanted points being reduced
+local crimesList = {}
+local reduce     = {
   tickTime = 30,   -- Time in seconds between each reduction in wanted points
   points   = 1.25, -- Amount of wanted points to reduce upon (reduce.time)
 }
@@ -56,8 +57,13 @@ function WantedPoints(ply, crime, msg)
       TriggerClientEvent('chat:addMessage', ply,
         {templateId = 'crimeMsg', args = {crimeName[crime]}}
       )
+      local pcl = #(crimesList[ply])
+      crimesList[ply][pcl + 1] = crime
+      TriggerClientEvent('cnr:wanted_crimelist', ply, crimesList[ply])
     end
   end
+  
+  -- Add to criminal history
   
   -- Calculates wanted points increase by each point individually
   -- This makes higher wanted levels harder to obtain
@@ -162,8 +168,11 @@ function AutoReduce()
         -- If wanted level is not paused/locked, allow it to reduce
         if not paused[k] then
           v = v - (reduce.points)
-          TriggerClientEvent('cnr:wanted_client', (-1), k, v)
         end
+      else
+        TriggerClientEvent('cnr:wanted_client', (-1), k, 0)
+        crimesList[ply] = {}
+        TriggerClientEvent('cnr:wanted_crimelist', k, {})
       end
       Citizen.Wait(10)
     end

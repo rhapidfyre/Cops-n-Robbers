@@ -7,7 +7,8 @@ dependency 'cnrobbers'
 files {
 	"nui/ui.html",
   "nui/ui.js",
-  "nui/ui.css"
+  "nui/ui.css",
+  "nui/jail.png",
 }
 
 client_scripts {

@@ -10,6 +10,7 @@
   an export; Rather than making individual SQL queries each time.
 --]]
 
+local crimeList = {} -- List of crimes player committed since last innocent
 
 -- DEBUG -
 RegisterCommand('wanted', function(s, a, r)
@@ -25,6 +26,7 @@ end)
 -- Networking
 RegisterNetEvent('cnr:wanted_list') -- Updates 'wanted' table with server table
 RegisterNetEvent('cnr:wanted_client')
+RegisterNetEvent('cnr:wanted_crimelist')
 
 
 TriggerEvent('chat:addTemplate', 'crimeMsg',
@@ -38,6 +40,21 @@ TriggerEvent('chat:addTemplate', 'levelMsg',
 
 
 local marked = {}  -- Table of killed peds ([Ped_Id] = true)
+
+
+--- EXPORT: CrimeList()
+-- Returns a list of crime codes the player has committed
+-- @return A table (list form) of crimes
+function CrimeList()
+  return crimeList
+end
+
+
+--- EVENT: 'crime_list
+-- List of crimes the player has committed
+AddEventHandler('cnr:wanted_crimelist', function(clist)
+  crimeList = clist
+end)
 
 
 --- EVENT: 'wanted_list'
@@ -69,7 +86,9 @@ AddEventHandler('cnr:wanted_client', function(ply, wp)
     
     -- If player goes innocent -> wanted or vice versa, trigger event
     if     wanted[ply] == 0 and wp  > 0 then TriggerEvent('cnr:is_wanted')
-    elseif wanted[ply]  > 0 and wp <= 0 then TriggerEvent('cnr:is_clear')
+    elseif wanted[ply]  > 0 and wp <= 0 then
+      TriggerEvent('cnr:is_clear')
+      crimeList = {}
     end
     
     -- If player was not most wanted, and will be, trigger 'is_most_wanted'

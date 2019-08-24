@@ -15,7 +15,8 @@ RegisterNetEvent('cnr:jail_client')
 RegisterNetEvent('cnr:ticket_client')
 
 local isPrisoner = false
-local leashed = {}
+local isInmate   = false
+local leashed    = {}
 
 function IsPrisoner()
   Citizen.CreateThread(function()
@@ -31,22 +32,43 @@ function IsPrisoner()
 end
 
 
-AddEventHandler('cnr:prison_client', function(idOfficer, pos, leash)
-  local oName = GetPlayerName(GetPlayerFromServerId(idOfficer))
-  TriggerEvent('chat:addMessage', {args = {
-    "^3You have been imprisoned by "..oName.."."
-  }})
+function BeginSentence(minutes)
+  while isPrisoner or isInmate do 
+    
+    Citizen.Wait(1000)
+  end
+end
+
+
+function CalculateTime()
+  local n = 0
+  for k,v in pairs(exports['cnr_wanted']:CrimeList()) do
+    n = n + exports['cnr_wanted']:GetCrimeTime(v)
+  end
+  if n > 120 then   return 120
+  elseif n < 5 then return 5
+  else              return n
+  end
+  return 5
+end
+
+
+function Imprison(idOfficer, wantedLevel)
+  local mins = CalculateTime()
+  if wantedLevel > 0 then 
+    local spawn
+    if     wantedLevel > 5 then spawns = prisons[math.random(#prisons)]
+    elseif wantedLevel > 3 then spawns = jails[math.random(#jails)]
+    end
+    Citizen.CreateThread(function()
+      BeginSentence(mins)
+    end)
+  end
+end
+AddEventHandler('cnr:police_imprison', Imprison)
+
+
+function IssueTicket(idOfficer, price)
   
-end)
-
-
-AddEventHandler('cnr:jail_client', function()
-
-end)
-
-
-AddEventHandler('cnr:ticket_client', function()
-
-end)
-
-
+end
+AddEventHandler('cnr:ticket_client', IssueTicket)

@@ -27,6 +27,11 @@ server_scripts {
 }
 
 server_exports {
+  'GetCrimeName',
+  'GetCrimeFine',
+  'GetCrimeTime',
+  'GetCrimeWeight',
+  'IsCrimeFelony',
   'WantedLevel',
   'WantedPoints',
   'CrimePoints',
@@ -34,6 +39,12 @@ server_exports {
 }
 
 exports {
+  'CrimeList',
+  'GetCrimeName',
+  'GetCrimeFine',
+  'GetCrimeTime',
+  'GetCrimeWeight',
+  'IsCrimeFelony',
   'GetWanteds',
   'WantedLevel',
   'WantedPoints',
