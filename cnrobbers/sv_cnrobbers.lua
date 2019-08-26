@@ -75,9 +75,14 @@ end
 AddEventHandler('playerDropped', function(rsn)
   local ply = source
   local uid = unique[ply]
+  local plyInfo = GetPlayerName(ply)
   if uid then 
     SavePlayerPos(uid, positions[uid])
   end
+  ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
+  exports['cnr_chat']:DiscordMessage(
+    16711680, "", plyInfo.." disconnected.", rsn
+  )
 end)
 
 
@@ -246,21 +251,6 @@ function ZoneChange()
   TriggerClientEvent('cnr:zone_change', (-1), newZone)
   TriggerEvent('cnr:zone_change', newZone)
 end
-
-
--- Performs table optimization/cleanup when a player drops
--- Finish by telling Console the player dropped
-AddEventHandler('playerDropped', function(rsn)
-  local ply     = source
-  local plyInfo = GetPlayerName(ply).." ("..ply..")"
-  if ply then
-    if unique[ply] then unique[ply] = nil end
-    ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
-    exports['cnr_chat']:DiscordMessage(
-      16711680, "", GetPlayerName(ply).." has left the game.", rsn
-    )
-  end
-end)
 
 
 -- Runs the zone change timer for choosing which zone is being played

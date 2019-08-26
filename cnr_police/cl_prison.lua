@@ -93,16 +93,17 @@ function IssueTicket(idOfficer, price)
     "You have^3 30 seconds ^7to decide your response ( F1 to Pay )."
   }})
   if not ticketWaiting then 
-  Citizen.CreateThread(function()
-    while ticketWaiting do 
-      if IsControlJustPressed(0, 288) then 
-        ticketWaiting = false
-        TriggerServerEvent('cnr:ticket_payment', idOfficer)
+    ticketWaiting = true
+    Citizen.CreateThread(function()
+      while ticketWaiting do 
+        if IsControlJustPressed(0, 288) then 
+          ticketWaiting = false
+          TriggerServerEvent('cnr:ticket_payment', idOfficer)
+        end
+        Citizen.Wait(1)
       end
-      Citizen.Wait(1)
-    end
-    ticketWaiting = false
-  end)
+      ticketWaiting = false
+    end)
   end
 end
 AddEventHandler('cnr:ticket_client', IssueTicket)
