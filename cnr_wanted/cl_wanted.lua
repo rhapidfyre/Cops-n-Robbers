@@ -11,8 +11,9 @@
 --]]
 
 local crimeList = {} -- List of crimes player committed since last innocent
-local wanted = {}
-local isCop = false
+local wanted    = {}
+local crimeCar  = {} -- Used to check GTA/Carjacking
+local isCop     = false
 
 -- DEBUG -
 RegisterCommand('wanted', function(s, a, r)
@@ -35,6 +36,8 @@ RegisterNetEvent('cnr:wanted_list') -- Updates 'wanted' table with server table
 RegisterNetEvent('cnr:wanted_client')
 RegisterNetEvent('cnr:wanted_crimelist')
 RegisterNetEvent('cnr:police_officer_duty')
+RegisterNetEvent('cnr:wanted_enter_vehicle')  -- Player entered illegal veh
+RegisterNetEvent('cnr:wanted_check_vehicle')  -- Checks if player has rt to veh
 
 
 TriggerEvent('chat:addTemplate', 'crimeMsg',
@@ -237,20 +240,16 @@ function NotCopLoops()
             end
           end
         end
-        
-      
         Citizen.Wait(0)
+        
       end
       looping = false
     end)
     
-    -- A less intensive loop for simple checks
-    -- Did someone die? Was a car stolen? etc...
+    -- A less intensive loop for simple checks that don't require each frame
+    -- Did someone die, and did you kill them? etc...
     Citizen.CreateThread(function()
       while not isCop do 
-          
-        -- Breaking into a vehicle
-        
         
         -- Killing a Ped NPC
         for peds in exports['cnrobbers']:EnumeratePeds() do 
@@ -279,6 +278,61 @@ function NotCopLoops()
         Citizen.Wait(1000)      
       end
     end)
+  end
+end
+
+
+AddEventHandler('cnr:wanted_enter_vehicle', function(veh)
+  if crimeCar.v then
+    if veh == crimeCar.v then 
+      if crimeCar.d then TriggerServerEvent('cnr:wanted_points', 'gta-npc')
+      else               TriggerServerEvent('cnr:wanted_points', 'carjack-npc')
+      end
+      crimeCar = {}
+    end
+  end
+end)
+
+
+--- EXPORT: HasRightsToVehicle
+-- Checks if local player has a right to the vehicle
+-- @param veh The local vehicle ID
+-- @return True if the vehicle has a right to use this vehicle; False if not
+function HasRightsToVehicle(veh)
+  if IsEntityAVehicle(veh) then
+    local vName = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
+    -- Vehicle is an emergency vehicle
+    if GetVehicleClass(veh) == 18 or eVehicle[GetDisplayName
+      if exports['cnr_police']:DutyStatus() then 
+        return true
+      else return false
+      end
+    -- Vehicle is *NOT* an emergency vehicle
+    else 
+      if DecorExistOn(veh, "idOwner") then 
+        if DecorGetInt(veh, "idOwner") == PlayerPedId() then return true
+        else return false -- Player is not the owner
+        end
+      else return false -- Vehicle does not have a player owned
+      end
+    end
+  else return false -- Entity isn't a vehicle
+  end
+end
+
+
+AddEventHandler('cnr:wanted_check_vehicle', function(veh)
+  local hasRight = HasRightsToVehicle(veh)
+  if not hasRight then 
+    if IsEntityAVehicle(veh) then 
+      local lockStatus = GetVehicleDoorLockStatus(veh)
+      local driver     = GetPedInVehicleSeat(veh, (-1))
+      -- Breaking into a car is only a crime if it's locked
+      if lockStatus ~= 0 and lockStatus ~= 1 then
+        if driver > 0 then crimeCar.d = true end
+        crimeCar.v = veh
+      end
+    end
   end
 end
 

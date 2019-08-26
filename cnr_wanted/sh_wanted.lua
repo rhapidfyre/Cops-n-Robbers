@@ -32,9 +32,24 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
     fine:     The amount of the fine (if applicable)
 ]]
 local crimes = {
+  ['gta-npc'] = {
+    title = "Grand Theft Auto (NPC)",
+    weight = 51, minTime = 0, maxTime = 0, isFelony = false,
+    fine = function() return (math.random(100, 1000)) end
+  },
+  ['gta'] = {
+    title = "Grand Theft Auto",
+    weight = 76, minTime = 0, maxTime = 0, isFelony = true,
+    fine = function() return (math.random(100, 1000)) end
+  },
+  ['carjack-npc'] = {
+    title = "Carjacking (NPC)",
+    weight = 31, minTime = 0, maxTime = 0, isFelony = true,
+    fine = function() return (math.random(100, 1000)) end
+  },
   ['carjack'] = {
     title = "Carjacking",
-    weight = 11, minTime = 10, maxTime = 25, isFelony = true,
+    weight = 61, minTime = 10, maxTime = 25, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['murder'] = {

@@ -52,5 +52,6 @@ exports {
   'WantedLevel',
   'WantedPoints',
   'CrimeName',
+  'HasRightsToVehicle',
 }
 
