@@ -76,10 +76,10 @@ AddEventHandler('cnr:bank_transaction', function(value, client)
   if not client then -- Sent by player, verify it.
     if value > max_transact then 
       return 0 -- Illegitimate, reject it.
-    elseif value < min_transact then
-      return 0 -- Illegitimate, reject it.
-    elseif lastTransact < GetGameTimer() + 3000 then
-      return 0 -- Too fast, reject it.
+    elseif value < min_transact and value > 0 then
+      return 0 -- Illegitimate, reject it (unless it's negative.)
+    elseif (lastTransact < GetGameTimer() + 3000) and value > 0 then
+      return 0 -- Too fast, reject it... Unless it's negative
     end
   end
   BankTransaction(ply, value)
@@ -222,9 +222,9 @@ AddEventHandler('cnr:cash_transaction', function(value, client)
   if not client then -- Sent by player, verify it.
     if value > max_transact then 
       return 0 -- Illegitimate, reject it.
-    elseif value < min_transact then
+    elseif (value < min_transact) and value > 0 then
       return 0 -- Illegitimate, reject it.
-    elseif lastTransact < GetGameTimer() + 3000 then
+    elseif (lastTransact < GetGameTimer() + 3000) and value > 0 then
       return 0 -- Too fast, reject it.
     end
   end
@@ -238,6 +238,7 @@ function SetPlayerCashValues(val, ply)
   local uid = exports['cnrobbers']:UniqueId(ply)
   if not uid then 
     msg = "No Unique ID found for player "..tostring(ply)
+    print("[CNR "..dt.."] ^1."..msg.."^7")
   else
     -- SQL: Get player's cash values
     exports['ghmattimysql']:execute(
@@ -245,16 +246,19 @@ function SetPlayerCashValues(val, ply)
       {['u'] = uid},
       function(money)
         if money[1] then 
+          plyCash[uid] = money[1]["cash"]
+          plyBank[uid] = money[1]["bank"]
           TriggerClientEvent('cnr:wallet_value', ply, money[1]["cash"])
           TriggerClientEvent('cnr:bank_account', ply, money[1]["bank"])
         else
+          plyCash[uid] = 0
+          plyBank[uid] = 0
           TriggerClientEvent('cnr:wallet_value', ply, 0)
           TriggerClientEvent('cnr:bank_account', ply, 0)
         end
       end
     )
   end
-  print("[CNR "..dt.."] ^1."..msg.."^7")
   return {0,0}
 end
 AddEventHandler('cnr:client_loaded', function()
@@ -262,3 +266,27 @@ AddEventHandler('cnr:client_loaded', function()
   if client then ply = client end
   SetPlayerCashValues(val, ply)
 end)
+
+
+--- EXPORT: GetPlayerCash()
+-- Returns the player's cash roll
+-- @param ply The player's server ID 
+-- @return The player's cash on hand. If ply is nil, returns 0
+function GetPlayerCash(ply)
+  if not ply then return 0 end
+  local uid = exports['cnrobbers']:UniqueId(ply)
+  if not plyCash[uid] then plyCash[uid] = 0 end
+  return plyCash[uid]
+end
+
+
+--- EXPORT: GetPlayerBank()
+-- Returns the player's bank roll
+-- @param ply The player's server ID 
+-- @return The player's cash in bank. If ply is nil, returns 0
+function GetPlayerBank(ply)
+  if not ply then return 0 end
+  local uid = exports['cnrobbers']:UniqueId(ply)
+  if not plyBank[uid] then plyBank[uid] = 0 end
+  return plyBank[uid]
+end

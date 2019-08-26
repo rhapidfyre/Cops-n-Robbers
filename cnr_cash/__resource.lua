@@ -35,6 +35,8 @@ server_exports {
   'BankTransfer',        -- Changes bank to wallet and wallet to bank
   'CashTransaction',     -- Add / Remove / Return player's cash
   'SetPlayerCashValues', -- Manually set HUD cash values; Retrieve from SQL
+  'GetPlayerCash',
+  'GetPlayerBank',
 }
 
 exports {
