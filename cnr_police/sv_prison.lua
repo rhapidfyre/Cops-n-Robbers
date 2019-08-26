@@ -223,6 +223,7 @@ end)
 
 AddEventHandler('playerDropped', function(reason)
   local ply      = source
+  local pName    = GetPlayerName(ply)
   local isInmate = false 
   for k,v in pairs(inmates) do 
     if v == ply then
@@ -233,7 +234,6 @@ AddEventHandler('playerDropped', function(reason)
   end
   if isInmate then 
     local uid = exports['cnrobbers']:UniqueId(ply)
-    local pName = GetPlayerName(ply)
     local jTime = serveTime[ply]
     if not pName then pName = "Unknown" end
     if not jTime then jTime = 5;cprint("^1WARNING:^7 serveTime not found!") end
@@ -255,8 +255,9 @@ end)
 
 -- Checks to see if player last logged off with time in jail/prison to serve
 AddEventHandler('cnr:client_loaded', function()
-  local ply = source
-  local uid = exports['cnrobbers']:UniqueId(ply)
+  local ply   = source
+  local pName = GetPlayerName(ply)
+  local uid   = exports['cnrobbers']:UniqueId(ply)
   if not uid then uid = 0 end
   if uid > 0 then 
     exports['ghmattimysql']:execute(
@@ -264,15 +265,15 @@ AddEventHandler('cnr:client_loaded', function()
       {['uid'] = uid},
       function(jailInfo)
         if jailInfo[1] then 
-          cprint(GetPlayerName(ply).." last logged off with time to serve.")
+          cprint(pName.." last logged off with time to serve.")
           if jailInfo[1]["sentence"] > 0 then 
             inmates[#inmates + 1] = ply
             serveTime[ply] = jailInfo[1]["sentence"]
             if jailInfo[1]["isPrisoner"] then
               prisoner[ply] = true
-              cprint(GetPlayerName(ply).." has been sent back to prison.")
+              cprint(pName.." has been sent back to prison.")
             else
-              cprint(GetPlayerName(ply).." has been sent back to jail.")
+              cprint(pName.." has been sent back to jail.")
             end
             cprint(
               "Time remaining: "..
@@ -287,11 +288,11 @@ AddEventHandler('cnr:client_loaded', function()
             ReleaseFugitive(ply)
           end
         else
-          cprint(GetPlayerName(ply).." is not a prisoner/inmate.")
+          cprint(pName.." is not a prisoner/inmate.")
         end
       end
     )
-  else cprint("sv_prison.lua unable to load Unique ID for "..GetPlayerName(ply))
+  else cprint("sv_prison.lua unable to load Unique ID for "..pName)
   end
 end)
 
