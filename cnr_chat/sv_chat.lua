@@ -30,7 +30,13 @@ function DiscordMessage(color, name, message, footer, copMessage)
   if name == "" then embed["title"] = "" end
   local discordApp = urls.feed
   if copMessage then discordApp = urls.emg end
-  print("[DISCORD]: "..message)
+  print("[DISCORD]: {1:"..
+    tostring(color).."} {2:"..
+    tostring(name).."} {3:"..
+    tostring(message).."} {4:"..
+    tostring(footer).."} {5:"..
+    tostring(discordApp)
+  )
   PerformHttpRequest(discordApp,
     function(err, text, headers) end,
     'POST',

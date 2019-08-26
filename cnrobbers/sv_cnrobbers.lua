@@ -72,16 +72,18 @@ function SavePlayerPos(uid,pos)
 end
 
 
-AddEventHandler('playerDropped', function(rsn)
+AddEventHandler('playerDropped', function(reason)
   local ply = source
   local uid = unique[ply]
   local plyInfo = GetPlayerName(ply)
   if uid then 
     SavePlayerPos(uid, positions[uid])
   end
-  ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
+  ConsolePrint(
+    "^1"..tostring(plyInfo).." disconnected. ^7("..tostring(reason)..")"
+  )
   exports['cnr_chat']:DiscordMessage(
-    16711680, "", plyInfo.." disconnected.", rsn
+    16711680, tostring(plyInfo).." Disconnected", tostring(reason), ""
   )
 end)
 
