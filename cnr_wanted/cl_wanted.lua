@@ -251,30 +251,32 @@ function NotCopLoops()
     Citizen.CreateThread(function()
       while not isCop do 
         
-        -- Killing a Ped NPC
+        -- Killing a Ped or Player
         for peds in exports['cnrobbers']:EnumeratePeds() do 
-          if not IsPedAPlayer(peds) then 
-            if IsPedDeadOrDying(peds) then
-              if not DecorExistOn(peds, "KillCrime") then 
-                DecorRegister("KillCrime", 2)
-                DecorRegister("idKiller", 3)
+          if IsPedDeadOrDying(peds) and not IsPedAPlayer(peds) then
+          
+            -- This dead ped doesn't have a decor set
+            if not DecorExistOn(peds, "KillCrime") then 
+              DecorRegister("KillCrime", 2)
+              DecorRegister("idKiller", 3)
+            end
+            
+            -- If the killing crime hasn't been ran yet
+            if not DecorGetBool(peds, "KillCrime") then
+              local killer = GetPedSourceOfDeath(peds)
+              local cause  = GetPedCauseOfDeath(peds)
+              if killer then 
+                if IsEntityAPed(killer) then 
+                  DecorSetInt(peds, "idKiller", killer)
+                end
               end
-              if not DecorGetBool(peds, "KillCrime") then
-                local killer = GetPedSourceOfDeath(peds)
-                -- DEBUG - Need to add a check of whether player ran over ped
-                if killer then 
-                  if IsEntityAPed(killer) then 
-                    DecorSetInt(peds, "idKiller", killer)
-                  end
-                end
-                DecorSetBool(peds, "KillCrime", true)
-                if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
-                  TriggerServerEvent('cnr:wanted_points', 'manslaughter')
-                end
+              if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
+                TriggerServerEvent('cnr:wanted_points', 'manslaughter')
               end
             end
           end
         end
+        
         Citizen.Wait(1000)      
       end
     end)

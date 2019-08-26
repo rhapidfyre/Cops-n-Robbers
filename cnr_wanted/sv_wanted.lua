@@ -14,6 +14,7 @@
 RegisterServerEvent('baseevents:enteringVehicle')
 RegisterServerEvent('baseevents:enteringAborted')
 RegisterServerEvent('baseevents:enteredVehicle')
+RegisterServerEvent('baseevents:onPlayerKilled')
 RegisterServerEvent('cnr:wanted_points')
 
 
@@ -281,4 +282,40 @@ AddEventHandler('baseevents:enteredVehicle', function(veh, seat)
     -- and evaluate the type of crime committed (break in, carjack, etc)
     TriggerClientEvent('cnr:wanted_enter_vehicle', ply, veh, seat)
   end
+end)
+
+
+--[[
+  (From: `baseevents`)
+  
+  deathData: An array containing the following things:
+    (int) killerType: The pedType of the ped who killed the player. (see screenshot below for the possible pedType values.)
+    (hash) weaponHash: The hash of the weapon which was used to kill the player.
+    (bool) killerInVeh: A boolean indicating if the killer was in a vehicle.
+    (int) killerVehSeat: The seat number in which the killer is sitting.
+    (string) killerVehName: The display name of the vehicle the killer is in (eg: ‘Adder’).
+    (array) deathCoords: An array containing the x, y, z coordinates of where the player died.
+]]
+AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
+
+  local victim = source
+  
+  -- Was the killer a passenger in a vehicle?
+  if deathData.killerInVeh then 
+    if deathData.killerVehSeat ~= (-1) then 
+      return 0
+    end
+  end
+  
+  -- Killer is NOT a police officer
+  if not exports['cnr_police']:DutyStatus(idKiller) then
+    exports['cnrobbers']:ConsolePrint(
+      "^1MURDER: ^3"..GetPlayerName(idKiller)..
+      " killed "..GetPlayerName(victim).."^7!"
+    )
+    WantedPoints(idKiller, 'murder', "Murder")
+  else
+    -- DEBUG - Killer was a police officer
+  end
+  
 end)
