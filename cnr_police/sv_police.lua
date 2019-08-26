@@ -10,13 +10,16 @@
   of playing the gamemode as intended by the developer.
 --]]
 
+
 RegisterServerEvent('cnr:police_backup')
 RegisterServerEvent('cnr:police_status')
 RegisterServerEvent('cnr:client_loaded')
 
+
 local cops      = {}
 local dropCop   = {}
 local carUse    = {}
+
 
 function CountCops()
   local n = 0
@@ -73,6 +76,7 @@ function DutyStatus(ply)
   return cops[ply]
 end
 
+
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
   local uid = exports['cnrobbers']:UniqueId(ply)
@@ -120,3 +124,4 @@ function RequestBackup(em, title, msg, areaName, x, y, z)
   TriggerClientEvent('cnr:police_blip_backup', (-1), source)
 end
 AddEventHandler('cnr:police_backup', RequestBackup)
+

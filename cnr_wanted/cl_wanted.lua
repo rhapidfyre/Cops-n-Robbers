@@ -170,14 +170,16 @@ function UpdateWantedStars()
 end
 
 
-function PlayerAimingAtCop(target)
-  if IsEntityAPed(target) then
-    if IsPedAPlayer(target) then
-      if exports['cnr_police']:DutyStatus(aimTarget) then 
-        if aimCop < GetGameTimer() + 10000 then
-          TriggerServerEvent('cnr:wanted_points', 'brandish-leo')
-        end
-      end
+function IsPlayerAimingAtCop(target)
+  if not DecorExistOn(target, "AimCrime") then DecorRegister("AimCrime", 2) end
+  if not DecorGetBool(target, "AimCrime") then
+    DecorSetBool(target, "AimCrime", true)
+    if exports['cnr_police']:DutyStatus(target) then 
+      TriggerServerEvent('cnr:wanted_points', 'brandish-leo')
+      Citizen.Wait(1000)
+    else
+      TriggerServerEvent('cnr:wanted_points', 'brandish')
+      Citizen.Wait(1000)
     end
   end
 end
@@ -186,11 +188,13 @@ end
 --- NotCopLoops()
 -- Runs loops if the player is not a cop. Terminates if they go onto cop duty
 -- Used to detect crimes that civilians can commit when off duty.
-local looping   = false
-local lastShot  = 0
+local looping  = false
+local lastShot = 0
 function NotCopLoops()
   if not looping then 
     looping = true
+    
+    -- An intense Wait(0) loop for immediate actions (aiming, shooting, etc)
     Citizen.CreateThread(function()
       while not isCop do 
         local ped = PlayerPedId()
@@ -199,30 +203,81 @@ function NotCopLoops()
         if IsPlayerFreeAiming(PlayerId()) then 
           local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(ped)
           if aimTarget then 
-            if aimTarget > 0 then 
-              PlayerAimingAtCop(aimTarget)
+            if IsEntityAPed(target) then
+              if IsPedAPlayer(target) then
+                local dist = #(GetEntityCoords(ped) - 
+                               GetEntityCoords(GetPlayerPed(target))
+                )
+                if dist < 120.0 then
+                  if HasEntityClearLosToEntity(ped, GetPlayerPed(target), 17) then
+                    IsPlayerAimingAtCop(aimTarget)
+                  end
+                end
+              end
             end
           end
         end
         
-        
-        
-        
-        -- Detect if aiming at a police officer
-        if 
-        
-        -- Shooting a firearm near peds
-        elseif IsPedShooting(ped) then
-          
-        -- Breaking into a vehicle
-        
-        
-        -- Killing a Ped NPC
+        -- Shooting a firearm near peds and someone can see it
+        if IsPedShooting(ped) then
+          if lastShot < GetGameTimer() then
+            local wasShotSeen = false
+            for peds in exports['cnrobbers']:EnumeratePeds() do
+              if not IsPedAPlayer(peds) then
+                if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then 
+                  if HasEntityClearLosToEntity(peds, ped, 17) then 
+                    wasShotSeen = true
+                  end
+                end
+              end
+            end
+            if wasShotSeen then 
+              lastShot = GetGameTimer() + 30000
+              TriggerServerEvent('cnr:wanted_points', 'discharge')
+            end
+          end
+        end
         
       
         Citizen.Wait(0)
       end
       looping = false
+    end)
+    
+    -- A less intensive loop for simple checks
+    -- Did someone die? Was a car stolen? etc...
+    Citizen.CreateThread(function()
+      while not isCop do 
+          
+        -- Breaking into a vehicle
+        
+        
+        -- Killing a Ped NPC
+        for peds in exports['cnrobbers']:EnumeratePeds() do 
+          if not IsPedAPlayer(peds) then 
+            if IsPedDeadOrDying(peds) then
+              if not DecorExistOn(peds, "KillCrime") then 
+                DecorRegister("KillCrime", 2)
+                DecorRegister("idKiller", 3)
+              end
+              if not DecorGetBool(peds, "KillCrime") then
+                local killer = GetPedSourceOfDeath(peds)
+                -- DEBUG - Need to add a check of whether player ran over ped
+                if killer then 
+                  if IsEntityAPed(killer) then 
+                    DecorSetInt(peds, "idKiller", killer)
+                  end
+                end
+                DecorSetBool(peds, "KillCrime", true)
+                if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
+                  TriggerServerEvent('cnr:wanted_points', 'manslaughter')
+                end
+              end
+            end
+          end
+        end
+        Citizen.Wait(1000)      
+      end
     end)
   end
 end
