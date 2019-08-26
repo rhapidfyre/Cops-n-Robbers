@@ -21,7 +21,7 @@ local carUse     = {}  -- Keeps track of vehicle theft actions
 local paused     = {}  -- Players to keep from wanted points being reduced
 local crimesList = {}
 local reduce     = {
-  tickTime = 30,   -- Time in seconds between each reduction in wanted points
+  tickTime = 10,   -- Time in seconds between each reduction in wanted points
   points   = 1.25, -- Amount of wanted points to reduce upon (reduce.time)
 }
 
@@ -32,10 +32,10 @@ local reduce     = {
 -- @param msg      If true, displays "Crime Committed" message
 function WantedPoints(ply, crime, msg)
 
-  if not ply   then return 0 end
+  if not ply         then return 0        end
   if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
+  if not crime       then return 0        end
   
-  if not crime then return 0 end
   if crime == 'jailed' then 
     wanted[ply] = 0
     TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
@@ -45,25 +45,26 @@ function WantedPoints(ply, crime, msg)
     return 0
   end
   
-  local n = weights[crime]
+  local n = GetCrimeWeight(crime)
   if not n then return 0 end
   
   local lastWanted = wanted[ply]
   
   -- Sends a crime message to the perp
   if msg then
-    local cn = crimeName[crime]
+    local cn = GetCrimeName(crime)
     if cn then
       TriggerClientEvent('chat:addMessage', ply,
-        {templateId = 'crimeMsg', args = {crimeName[crime]}}
+        {templateId = 'crimeMsg', args = {cn}}
       )
-      local pcl = #(crimesList[ply])
-      crimesList[ply][pcl + 1] = crime
-      TriggerClientEvent('cnr:wanted_crimelist', ply, crimesList[ply])
     end
   end
-  
+      
   -- Add to criminal history
+  if not crimesList[ply] then crimesList[ply] = {} end
+  local pcl = #(crimesList[ply])
+  crimesList[ply][pcl + 1] = crime
+  TriggerClientEvent('cnr:wanted_crimelist', ply, crimesList[ply])
   
   -- Calculates wanted points increase by each point individually
   -- This makes higher wanted levels harder to obtain
@@ -71,7 +72,7 @@ function WantedPoints(ply, crime, msg)
     local addPoints = true
     
     -- Ensure crime is NOT a felony
-    if (not felonies[crime]) then 
+    if (not IsCrimeFelony(crime)) then 
       -- If the next point would make them a felon, do nothing.
       if wanted[ply] + 1 >= felony then addPoints = false end
     end
@@ -79,9 +80,15 @@ function WantedPoints(ply, crime, msg)
     -- Crime is a felony, or would not make player a felon (if not a felony)
     if addPoints then 
     
+      --[[ OLD FORMULA: e^-(0.02x/2)
       local modifier = math.exp( -1 * ((0.02 * wanted[ply])/2))
       local formula  = math.floor((modifier * 1)*100000)
-      wanted[ply] = (wanted[ply] + formula/100000)
+      ]]
+      
+      -- NEW FORMULA: 1(0.98/1 ^x)
+      local modifier = (0.98) ^ wanted[ply]
+      wanted[ply]    = wanted[ply] + modifier
+      print(wanted[ply])
       
     else n = 0
     end
@@ -93,9 +100,9 @@ function WantedPoints(ply, crime, msg)
   
   -- Check for broadcast
   if lastWanted ~= wanted[ply] then 
+    local wants = WantedLevel(ply)
     -- Wanted level went up by at least 10 (1 level)
     if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then 
-      local wants = WantedLevel(ply)
       if wants > 10 then
         exports['cnr_chat']:DiscordMessage(
           16732160, "San Andreas' Most Wanted",
@@ -110,7 +117,7 @@ function WantedPoints(ply, crime, msg)
         )
       end
     -- Player's wanted level reduced
-    elseif lastWanted > wanted[ply] - 10 and lastWanted >= 10 and lastWanted < 101 then
+    elseif (lastWanted > wanted[ply] - 10) and (lastWanted >= 10) and lastWanted < 101 and wanted[ply] > 0 then
       exports['cnr_chat']:DiscordMessage(
         16762880, "",
         GetPlayerName(ply).." is now Wanted Level "..(wants)..".",
@@ -135,7 +142,12 @@ end
 AddEventHandler('cnr:wanted_points', function(crime, msg)
   local ply = source
   if crime then 
-    WantedPoints(ply, crime, msg)
+    -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
+    if DoesCrimeExist(crime) then
+      print("DEBUG - Crime exists. Charging.")
+      WantedPoints(ply, crime, msg)
+    else print("DEBUG - Crime does not exist.")
+    end
   end
 end)  
 
@@ -152,7 +164,7 @@ function WantedLevel(ply)
   
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
-  else                           return (math.floor((wanted[ply])/10) + 1)
+  else                          return (math.floor((wanted[ply])/10) + 1)
   end
   return 0
   
@@ -163,18 +175,31 @@ end
 -- Reduces wanted points per tick
 function AutoReduce()
   while true do 
-    for k,v in pairs (wanted) do
-      if v > 0 then
-        -- If wanted level is not paused/locked, allow it to reduce
-        if not paused[k] then
-          v = v - (reduce.points)
+    if wanted then
+      for k,v in pairs (wanted) do
+        if math.floor(v) > 0 then
+          -- If wanted level is not paused/locked, allow it to reduce
+          print("DEBUG - Reducing "..GetPlayerName(k).."'s wanted points.")
+          if not paused[k] then
+            local oldLevel = WantedLevel(k)
+            local newV = v - (reduce.points)
+            print("DEBUG - "..v.." - "..(reduce.points).." = "..newV..".")
+            wanted[k] = newV
+            if oldLevel > WantedLevel(k) then
+              TriggerClientEvent('cnr:wanted_client', (-1), k, wanted[k])
+            end
+          else
+            print("DEBUG - Not eligible for reduction (cops nearby)")
+          end
+        else
+          if not crimesList[k] then crimesList[k] = {} end
+          wanted[k] = 0
+          crimesList[k] = {}
+          TriggerClientEvent('cnr:wanted_client', (-1), k, 0)
+          TriggerClientEvent('cnr:wanted_crimelist', k, {})
         end
-      else
-        TriggerClientEvent('cnr:wanted_client', (-1), k, 0)
-        crimesList[ply] = {}
-        TriggerClientEvent('cnr:wanted_crimelist', k, {})
+        Citizen.Wait(10)
       end
-      Citizen.Wait(10)
     end
     Citizen.Wait((reduce.tickTime)*1000)
   end

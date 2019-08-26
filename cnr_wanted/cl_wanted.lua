@@ -11,11 +11,17 @@
 --]]
 
 local crimeList = {} -- List of crimes player committed since last innocent
+local wanted = {}
 
 -- DEBUG -
 RegisterCommand('wanted', function(s, a, r)
   if a[1] then
-    TriggerServerEvent('cnr:', 'carjack')
+    Wait(800)
+    if tonumber(a[1]) ~= 0 then
+      TriggerServerEvent('cnr:wanted_points', 'carjack', "MANUAL ENTRY")
+    else
+      TriggerServerEvent('cnr:wanted_points', 'jailed', "MANUAL CLEAR")
+    end
   else
     local ply = GetPlayerServerId(PlayerId())
     TriggerEvent('chatMessage', "^1Wanted Level: ^7"..(wanted[ply]))

@@ -16,6 +16,8 @@ mw     = 101 -- The value a player becomes "Most Wanted"
 felony = 40  -- The value a player becomes a Felon.
 wanted = {} -- Table of wanted players (KEY: Server Id, VAL: Points)
 
+local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
+
 
 --[[
   VAR: crimes
@@ -32,17 +34,17 @@ wanted = {} -- Table of wanted players (KEY: Server Id, VAL: Points)
 local crimes = {
   ['carjack'] = {
     title = "Carjacking",
-    weight = 40, minTime = 10, maxTime = 25, isFelony = true,
+    weight = 11, minTime = 10, maxTime = 25, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['murder'] = {
     title = "Murder",
-    weight = 2, minTime = 90, maxTime = 120, isFelony = true,
+    weight = 120, minTime = 90, maxTime = 120, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['murder-leo'] = {
     title = "Murder of a Law Enforcement Officer",
-    weight = 1, minTime = 10, maxTime = 25, isFelony = true,
+    weight = 200, minTime = 10, maxTime = 25, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['manslaughter'] = {
@@ -52,27 +54,27 @@ local crimes = {
   },
   ['adw'] = {
     title = "Assault with a Deadly Weapon",
-    weight = 10, minTime = 5, maxTime = 20, isFelony = true,
+    weight = 60, minTime = 5, maxTime = 20, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['assault'] = {
     title = "Simple Assault",
-    weight = 60, minTime = 1, maxTime = 5, isFelony = false,
+    weight = 10, minTime = 1, maxTime = 5, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['discharge'] = {
     title = "Discharging a Firearm",
-    weight = 90, minTime = 1, maxTime = 5, isFelony = false,
+    weight = 21, minTime = 1, maxTime = 5, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['vandalism'] = {
     title = "Vandalism",
-    weight = 100, minTime = 1, maxTime = 5, isFelony = false,
+    weight = 5, minTime = 1, maxTime = 5, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['robbery'] = {
     title = "Armed Robbery",
-    weight = 32, minTime = 20, maxTime = 30, isFelony = true,
+    weight = 90, minTime = 20, maxTime = 30, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['robbery-sa'] = {
@@ -82,8 +84,18 @@ local crimes = {
   },
   ['atm'] =  {
     title = "ATM Robbery",
-    weight = 50, minTime = 5, maxTime = 15, isFelony = true,
+    weight = 65, minTime = 5, maxTime = 15, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
+  },
+  ['unpaid'] = {
+    title = "Unpaid Ticket",
+    weight = 50, minTime = 1, maxTime = 10, isFelony = true,
+    fine = function() return (math.random(1000, 5000)) end
+  },
+  ['jailed'] = {
+    title = "Jailed/Clear",
+    weight = 0, minTime = 0, maxTime = 0, isFelony = true,
+    fine = 0
   },
 }
 
@@ -92,9 +104,11 @@ local crimes = {
 -- @param crime The string of the title of the crime (carjack, murder, etc)
 -- @return The name of the crime (always string, 'crime' if not found)
 function GetCrimeName(crime)
-  if not crime         then return "crime" end
-  if not crimes[crime] then return "crime" end
-  return crimes[crime]
+  if not crime               then  return  "crime"  end
+  if not crimes[crime]       then  return  "crime"  end
+  if not crimes[crime].title then  return  "crime"  end
+  print("DEBUG - GetCrimeTitle("..crime..") = "..(crimes[crime].title))
+  return crimes[crime].title
 end
 
 
@@ -106,7 +120,11 @@ function GetCrimeTime(crime)
   if not crime         then return 0 end
   if not crimes[crime] then return 0 end
   local c = crimes[crime]
-  return (math.random(c.minTime, c.maxTime))
+  if not c.minTime then c.minTime =  5 end
+  if not c.maxTime then c.maxTime = 10 end
+  local cTime = math.random(c.minTime, c.maxTime)
+  print("DEBUG - GetCrimeTime("..crime..") = "..cTime)
+  return cTime
 end
 
 
@@ -115,9 +133,11 @@ end
 -- @param crime The string of the title of the crime (carjack, murder, etc)
 -- @return The time (in minutes) to serve. If not found, returns 50 dollars
 function GetCrimeFine(crime)
-  if not crime         then return 0 end
-  if not crimes[crime] then return 0 end
-  return (crimes[crime].fine)
+  if not crime              then  return 0 end
+  if not crimes[crime]      then  return 0 end
+  if not crimes[crime].fine then  return 0 end
+  print("DEBUG - GetCrimeFine("..crime..") = "..(crimes[crime].fine()))
+  return (crimes[crime].fine())
 end
 
 
@@ -126,8 +146,10 @@ end
 -- @param crime The string of the title of the crime (carjack, murder, etc)
 -- @return The time (in minutes) to serve. If not found, returns 50 dollars
 function IsCrimeFelony(crime)
-  if not crime         then return false end
-  if not crimes[crime] then return false end
+  if not crime                  then  return false  end
+  if not crimes[crime]          then  return false  end
+  if not crimes[crime].isFelony then  return false  end
+  print("DEBUG - IsCrimeFelony("..crime..") = "..tostring(crimes[crime].isFelony))
   return (crimes[crime].isFelony)
 end
 
@@ -135,9 +157,30 @@ end
 --- EXPORT: GetCrimeWeight()
 -- Gets the severity of a crime
 -- @param crime The string of the title of the crime (carjack, murder, etc)
--- @return The severity weight, where 1 is most severe and 100 is least severe
+-- @return The severity weight, where 1 is least severe
 function GetCrimeWeight(crime)
-  if not crime         then return 100 end
-  if not crimes[crime] then return 100 end
+  if not crime                 then  return 1 end
+  if not crimes[crime]         then  return 1 end
+  if not crimes[crime].weight  then  return 1 end
   return (crimes[crime].weight)
+end
+
+
+--- EXPORT: DoesCrimeExist()
+-- Checks if the given crime index exists in the table
+-- @param crime The string to check for
+-- @return True if the crime exists, false if it does not 
+function DoesCrimeExist(crime)
+  if crimes[crime] then 
+    if crimes[crime].title then
+      print("DEBUG - DoesCrimeExist("..crime..") ["..(crimes[crime].title).."]")
+      return true
+    else
+      cprint("^1Crime '"..tostring(crime).."' did not exist in sh_wanted.lua")
+      return false
+    end
+  else
+    cprint("^1Crime '"..tostring(crime).."' did not exist in sh_wanted.lua")
+    return false 
+  end
 end
