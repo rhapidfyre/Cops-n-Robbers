@@ -119,6 +119,8 @@ AddEventHandler('cnr:create_reload', function(myChar)
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
   Wait(1000)
   exports['cnrobbers']:ReportPosition(true)
+  TriggerEvent('cnr:loaded')
+  TriggerServerEvent('cnr:client_loaded')
 end)
 
 
