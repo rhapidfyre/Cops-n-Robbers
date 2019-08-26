@@ -1,0 +1,17 @@
+
+  body, html {margin:0;padding:0;}
+
+  #is-jailed {
+    position: absolute;
+    bottom: 42px; right: 42px; width: 192px;
+    margin: 0; padding: 0;
+  }
+  
+  #j-time {
+    color: #f40; text-shadow: 1px 1px 3px #fff;
+    font-weight: bold; font-size: 32px; text-align: center;
+    font-family: "Lucida Console", Monaco, monospace;
+    margin: 0; padding: 0;
+  }
+  
+  #is-jailed img { position: relative; margin: -8px 0 0 0; }

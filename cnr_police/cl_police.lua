@@ -13,6 +13,7 @@
 
 RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
 RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
+RegisterNetEvent('cnr:police_reduty')
 
 
 local isCop          = false  -- True if player is on cop duty
@@ -22,6 +23,8 @@ local transition     = false
 local enteringCopCar = false
 local prevClothes    = {}
 local myAgency       = 0
+
+local forcedutyEnabled = true
 
 
 function DispatchMessage(title, msg)
@@ -204,7 +207,9 @@ function BeginCopDuty(st)
   print("DEBUG - Beginning cop duty @ station #"..st)
   local c  = depts[st]
   local wanted = exports['cnr_wanted']:GetWanteds()
-  if not wanted[GetPlayerServerId(PlayerId())] then
+  local ply = GetPlayerServerId(PlayerId())
+  if not wanted[ply] then wanted[ply] = 0 end
+  if wanted[ply] < 1 then
     print("DEBUG - Starting duty assignments.")
     transition = true
     print("DEBUG - Doing camera.")
@@ -259,12 +264,14 @@ function BeginCopDuty(st)
     TriggerEvent('chat:addMessage', {
       args = {"^1You cannot go on police duty while wanted!"}
     })
+    TriggerEvent('chat:addMessage', {
+      args = {"^1WANTED LEVEL: ^7"..(wanted[GetPlayerServerId(PlayerId())])}
+    })
     Citizen.Wait(12000)
   end
   ignoreDuty = false
   transition = false
 end
-
 
 --- Reduty()
 -- Called if the player just needs a uniform and loadout
@@ -300,11 +307,27 @@ function Reduty()
   TriggerServerEvent('cnr:police_status', true)
   TriggerEvent('cnr:police_duty', true)
   PoliceLoadout(true)
-  Citizen.Wait(3000)
+  PoliceDutyLoops()
+  Citizen.Wait(1000)
   transition = false
+  exports['cnrobbers']:ChatNotification(
+    "CHAR_CALL911", "Police Duty", "~y~Restarting Watch",
+    "You are now on Law Enforcement duty."
+  )
 end
 RegisterNetEvent('cnr:police_reduty')
 AddEventHandler('cnr:police_reduty', Reduty)
+-- DEBUG - /forceduty
+RegisterCommand('forceduty', function()
+  if forcedutyEnabled then 
+    if not isCop then Reduty()
+    else
+      TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+        "Already on Law Enforcement duty!"
+      }})
+    end
+  end
+end)
 
 
 --- EndCopDuty()
@@ -364,6 +387,35 @@ function UnlockPoliceCarDoor()
 end
 
 
+--- ImprisonClient()
+-- Sends the given ID (or closest player) to prison if they are Wanted
+function ImprisonClient(client)
+  if isCop then
+    print("DEBUG - Try to jail client.")
+    if not client then
+      client = exports['cnrobbers']:GetClosestPlayer()
+      print("DEBUG - Imprisoning nearest client.")
+    end
+    local dist = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
+    if dist < 2.0 then
+      print("DEBUG - Trying to imprison "..GetPlayerName(client))
+      TriggerServerEvent('cnr:prison_sendto', GetPlayerServerId(client))
+    else
+      TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+        "Too far away, get closer!"
+      }})
+    end
+  else
+    TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
+      "You are not on Law Enforcement duty!"
+    }})
+  end
+end
+RegisterCommand('jail', ImprisonClient)
+RegisterCommand('prison', ImprisonClient)
+RegisterCommand('ticket', ImprisonClient)
+
+
 -- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
 -- I need to find a better way to implement this later.
 local ctr = 1
@@ -372,15 +424,20 @@ function PoliceDutyLoops()
   print("DEBUG - PoliceDutyLoops()")
   Citizen.CreateThread(function()
     while isCop do 
-      if IsControlJustPressed(0, 75) then -- F
-        UnlockPoliceCarDoor()
+      if IsControlJustPressed(0, 75) then UnlockPoliceCarDoor() -- F
+      
       elseif IsControlJustPressed(0, 29) and GetLastInputMethod(2) then -- B
         if lastRequest < GetGameTimer() then
           lastRequest = GetGameTimer() + 30000
           RequestBackup(true)
         end
+        
+      elseif IsControlJustPressed(0, 288) then
+        print("DEBUG - ImprisonClient() [F1]")
+        ImprisonClient() -- F1
+      
       end
-      Citizen.Wait(100)
+      Citizen.Wait(0)
     end
   end)
 end

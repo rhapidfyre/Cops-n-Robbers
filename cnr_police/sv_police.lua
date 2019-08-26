@@ -11,6 +11,8 @@
 --]]
 
 RegisterServerEvent('cnr:police_backup')
+RegisterServerEvent('cnr:police_status')
+RegisterServerEvent('cnr:client_loaded')
 
 local cops      = {}
 local dropCop   = {}
@@ -28,8 +30,8 @@ function CountCops()
 end
 
 
-RegisterServerEvent('cnr:police_status')
 AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
+
   local ply   = source
   cops[ply]   = onDuty
   local numCops = CountCops()
@@ -41,7 +43,17 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
   else
     print("[CNR "..dt.."] There are now "..numCops.." cops on duty.")
   end
-  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty)
+  
+  local uid = exports['cnrobbers']:UniqueId(ply)
+  exports['ghmattimysql']:scalar(
+    "SELECT cop FROM players WHERE idUnique = @uid",
+    {['uid'] = uid},
+    function(cLevel)
+      if not cLevel then cLevel = 1 end
+      TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
+    end
+  )
+  
 end)
 
 
@@ -55,7 +67,6 @@ function DutyStatus(ply)
   return cops[ply]
 end
 
-RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
   local uid = exports['cnrobbers']:UniqueId(ply)

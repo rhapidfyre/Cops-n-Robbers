@@ -5,22 +5,6 @@ prison = {
 }
 
 
-jTimes = {
-  ['jailed']       =  99,
-  ['carjack']      =  25,
-  ['murder']       =  90,
-  ['manslaughter'] =  60,
-  ['adw']          =  20,
-  ['assault']      =   3,
-  ['discharge']    =   6,
-  ['vandalism']    =   5,
-  ['atm']          =  30,
-  ['brandish']     =  20,
-  ['robbery']      =  50,
-  ['prisonbreak']  = 200
-}
-
-
 jails = {
   [1] = {pos = vector3(460.932,-995.249,24.9149), h =   0.0},
   [2] = {pos = vector3(459.699,-993.791,24.9149), h = 270.0},

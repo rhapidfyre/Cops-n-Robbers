@@ -12,15 +12,17 @@ files {
 }
 
 client_scripts {
-  "cl_disable.lua", -- Disable cops/military/jets/etc
-  "cl_config.lua", 
-  "cl_police.lua",
-  "cl_prison.lua",
+  "sh_prison.lua",
+  "cl_disable.lua",         -- Disable cops/military/jets/etc
+  "cl_config.lua",          -- Client settings for prison/police scripts
+  "cl_police.lua",          -- Law Enforcement Scripts
+  "cl_prison.lua",          -- Prison/Jail/Ticket Handling
 }
 
 server_scripts {
-  "sv_config.lua",
-  "sv_police.lua",
+  "sh_prison.lua",
+  "sv_config.lua",          -- Server settings
+  "sv_police.lua",  
   "sv_prison.lua"
 }
 

@@ -254,9 +254,7 @@ AddEventHandler('playerDropped', function(rsn)
   local ply     = source
   local plyInfo = GetPlayerName(ply).." ("..ply..")"
   if ply then
-    if unique[ply] then
-      unique[ply] = nil
-    end
+    if unique[ply] then unique[ply] = nil end
     ConsolePrint("^1"..plyInfo.." disconnected. ^7("..tostring(rsn)..")")
     exports['cnr_chat']:DiscordMessage(
       16711680, "", GetPlayerName(ply).." has left the game.", rsn
