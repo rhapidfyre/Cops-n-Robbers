@@ -32,8 +32,24 @@ end
 
 AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
 
-  local ply   = source
-  cops[ply]   = onDuty
+  local ply = source
+  
+  if onDuty then
+    local uid = exports['cnrobbers']:UniqueId(ply)
+    exports['ghmattimysql']:scalar(
+      "SELECT cop FROM players WHERE idUnique = @uid",
+      {['uid'] = uid},
+      function(cLevel)
+        if not cLevel then cLevel = 1 end
+        cops[ply] = cLevel
+        TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
+      end
+    )
+  else
+    cops[ply] = nil
+    TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
+  end
+  
   local numCops = CountCops()
   local dt      = os.date("%H:%M:%S", os.time())
   if numCops < 1 then
@@ -43,16 +59,6 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
   else
     print("[CNR "..dt.."] There are now "..numCops.." cops on duty.")
   end
-  
-  local uid = exports['cnrobbers']:UniqueId(ply)
-  exports['ghmattimysql']:scalar(
-    "SELECT cop FROM players WHERE idUnique = @uid",
-    {['uid'] = uid},
-    function(cLevel)
-      if not cLevel then cLevel = 1 end
-      TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
-    end
-  )
   
 end)
 
@@ -83,6 +89,9 @@ AddEventHandler('cnr:client_loaded', function()
     end
     Citizen.Wait(1)
   end
+  for k,v in pairs(cops) do
+    TriggerClientEvent('cnr:police_officer_duty', ply, k, true, v)
+  end
 end)
 
 
@@ -97,13 +106,11 @@ AddEventHandler('playerDropped', function()
     Citizen.CreateThread(function()
       Citizen.Wait(600000)
       for k,v in pairs (dropCop) do 
-        if v == uid then
-          dropCop[uid] = nil
-        end
+        if v == uid then table.remove(dropCop, k) end
       end
     end)
   end
-  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, false)
+  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
 end)
 
 

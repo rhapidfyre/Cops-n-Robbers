@@ -14,6 +14,7 @@
 RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
 RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
 RegisterNetEvent('cnr:police_reduty')
+RegisterNetEvent('cnr:police_officer_duty')
 
 
 local isCop          = false  -- True if player is on cop duty
@@ -23,6 +24,8 @@ local transition     = false
 local enteringCopCar = false
 local prevClothes    = {}
 local myAgency       = 0
+
+local activeCops     = {}
 
 local forcedutyEnabled = true
 
@@ -100,10 +103,12 @@ local wp = {
 
 --- EXPORT: DutyStatus()
 -- Returns whether the player is on cop duty
--- DEBUG - Obsolete? (Use DutyAgency() > 0 ??)
 -- @return True if on cop duty, false if not
-function DutyStatus()
-  return isCop
+function DutyStatus(client)
+  if not client then return isCop end
+  local ply = GetPlayerServerId(client)
+  if not activeCops[ply] then return false end
+  return activeCops[ply]
 end
 
 
@@ -553,5 +558,12 @@ Citizen.CreateThread(function()
       SetVehicleModelIsSuppressed(GetHashKey(model), true)
     end
     Citizen.Wait(10000)
+  end
+end)
+
+
+AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
+  if onDuty then  activeCops[ply] = cLevel
+  else            activeCops[ply] = nil
   end
 end)

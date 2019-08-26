@@ -12,6 +12,7 @@
 
 local crimeList = {} -- List of crimes player committed since last innocent
 local wanted = {}
+local isCop = false
 
 -- DEBUG -
 RegisterCommand('wanted', function(s, a, r)
@@ -33,6 +34,7 @@ end)
 RegisterNetEvent('cnr:wanted_list') -- Updates 'wanted' table with server table
 RegisterNetEvent('cnr:wanted_client')
 RegisterNetEvent('cnr:wanted_crimelist')
+RegisterNetEvent('cnr:police_officer_duty')
 
 
 TriggerEvent('chat:addTemplate', 'crimeMsg',
@@ -115,12 +117,12 @@ function GetWanteds() return wanted end
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
--- @param ply Server ID, if provided
+-- @param ply Server ID, if provided. Local client if not provided.
 -- @return The wanted level based on current wanted points
 function WantedLevel(ply)
 
   -- If ply not given, return 0
-  if not ply          then return 0 end
+  if not ply         then ply = GetPlayerServerId(PlayerId()) end
   if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
   
   if     wanted[ply] <   1 then return  0
@@ -129,25 +131,6 @@ function WantedLevel(ply)
   end
   return 0
   
-end
-
-
---- EXPORT GetClosestPlayer()
--- Finds the closest player
--- @return Player local ID. Must be turned into a ped object or server ID from there.
-function GetClosestPlayer()
-	local ped   = PlayerPedId()
-  local myPos = GetEntityCoords(ped)
-	local cPly  = nil
-	local cDst  = math.huge
-  for i = 1, #GetActivePlayers() do 
-    local tgt = GetPlayerPed(v)
-    if tgt ~= ped then
-      local dist = #(myPos - GetEntityCoords(tgt))
-      if cDst > dist then cPly = v; cDst = dist end
-    end
-  end
-	return cPly
 end
 
 
@@ -187,22 +170,70 @@ function UpdateWantedStars()
 end
 
 
---- NotCopLoops()
--- Runs loops if the player is not a cop. Terminates if they go onto cop duty
--- Used to detect crimes that civilians can commit when off duty.
-function NotCopLoops()
-  if not isCop then
-    while true do 
-      -- Shooting a firearm near peds
-      
-      -- Breaking into a vehicle
-      
-      -- Killing a Ped NPC
-      
-      Citizen.Wait(0)
+function PlayerAimingAtCop(target)
+  if IsEntityAPed(target) then
+    if IsPedAPlayer(target) then
+      if exports['cnr_police']:DutyStatus(aimTarget) then 
+        if aimCop < GetGameTimer() + 10000 then
+          TriggerServerEvent('cnr:wanted_points', 'brandish-leo')
+        end
+      end
     end
   end
 end
+
+
+--- NotCopLoops()
+-- Runs loops if the player is not a cop. Terminates if they go onto cop duty
+-- Used to detect crimes that civilians can commit when off duty.
+local looping   = false
+local lastShot  = 0
+function NotCopLoops()
+  if not looping then 
+    looping = true
+    Citizen.CreateThread(function()
+      while not isCop do 
+        local ped = PlayerPedId()
+        
+        -- Aiming/Shooting Crimes
+        if IsPlayerFreeAiming(PlayerId()) then 
+          local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(ped)
+          if aimTarget then 
+            if aimTarget > 0 then 
+              PlayerAimingAtCop(aimTarget)
+            end
+          end
+        end
+        
+        
+        
+        
+        -- Detect if aiming at a police officer
+        if 
+        
+        -- Shooting a firearm near peds
+        elseif IsPedShooting(ped) then
+          
+        -- Breaking into a vehicle
+        
+        
+        -- Killing a Ped NPC
+        
+      
+        Citizen.Wait(0)
+      end
+      looping = false
+    end)
+  end
+end
+
+
+AddEventHandler('cnr:police_officer_duty', function(ply, onDuty)
+  if ply == GetPlayerServerId(PlayerId()) then
+    isCop = onDuty
+    if not onDuty then NotCopLoops() end
+  end
+end)
 
 
 Citizen.CreateThread(function()

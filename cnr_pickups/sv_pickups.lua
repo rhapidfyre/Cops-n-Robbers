@@ -8,13 +8,14 @@
   removing or otherwise operating pickup objects around the map.
 --]]
 
-local locs = {
-  vector3(-718.58,-884.5,23.82),   vector3(-1073.24,-1049.7,2.15),
-  vector3(-1171.63,-972.75,2.15),  vector3(-1143.33,-962.24,5.48),
-  vector3(-1147.26,-908.81,2.69),  vector3(-1183.18,-906.41,13.4),
+local pickups = {
+  {vec = vector3(-718.58,-884.5,23.82) , expires = 0}, 
+  {vec = vector3(-1073.24,-1049.7,2.15), expires = 0},
+  {vec = vector3(-1171.63,-972.75,2.15), expires = 0},
+  {vec = vector3(-1143.33,-962.24,5.48), expires = 0},
+  {vec = vector3(-1147.26,-908.81,2.69), expires = 0},
+  {vec = vector3(-1183.18,-906.41,13.4), expires = 0},
 }
-
-local pickups = {} -- List of valid drops
 
 -- DEBUG - 
 RegisterServerEvent('cnr:debug_report_pickup')
@@ -52,13 +53,20 @@ Citizen.CreateThread(function()
   while true do 
     local dieRoll = math.random(1, 100)
     if dieRoll > 80 then 
+      local eligible = {}
+      -- If expire timer is 0, pickup location is available
+      for k,v in pairs (pickups) do 
+        if v.expires == 0 then eligible[#eligible + 1] == v end
+      end
       local pickupChoice = items[math.random(#items)]
-      local i            = math.random(#locs)
-      local position     = locs[i]
+      local i            = math.random(#eligible)
+      local position     = eligible[i]
       local chosen       = i
       local n = #pickups + 1
-      pickups[n] = {i = pickupChoice, p = position, e = GetGameTimer() + 300000}
-      TriggerClientEvent('cnr:pickup_create', (-1), n, pickups[n]) 
+      pickups[i].expires = GetGameTimer() + 300000
+      TriggerClientEvent('cnr:pickup_create', (-1), n, {
+        i = pickupChoice, p = position, e = 300000
+      }) 
     end
     for k,v in pairs (pickups) do 
       if v.e < GetGameTimer() then 
