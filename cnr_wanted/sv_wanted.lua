@@ -18,11 +18,12 @@ RegisterServerEvent('baseevents:onPlayerKilled')
 RegisterServerEvent('cnr:wanted_points')
 
 
+local cprint     = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 local carUse     = {}  -- Keeps track of vehicle theft actions
 local paused     = {}  -- Players to keep from wanted points being reduced
 local crimesList = {}
 local reduce     = {
-  tickTime = 10,   -- Time in seconds between each reduction in wanted points
+  tickTime = 30,   -- Time in seconds between each reduction in wanted points
   points   = 1.25, -- Amount of wanted points to reduce upon (reduce.time)
 }
 
@@ -32,10 +33,13 @@ local reduce     = {
 -- @param crime    The crime that was committed
 -- @param msg      If true, displays "Crime Committed" message
 function WantedPoints(ply, crime, msg)
-
+  print("DEBUG - "..tostring(crime)..".")
   if not ply         then return 0        end
   if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
-  if not crime       then return 0        end
+  if not crime       then
+    cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
+    return 0
+  end
   
   if crime == 'jailed' then 
     wanted[ply] = 0
@@ -145,9 +149,9 @@ AddEventHandler('cnr:wanted_points', function(crime, msg)
   if crime then 
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
-      print("DEBUG - Crime exists. Charging.")
       WantedPoints(ply, crime, msg)
-    else print("DEBUG - Crime does not exist.")
+    else
+      cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
     end
   end
 end)  
@@ -180,17 +184,13 @@ function AutoReduce()
       for k,v in pairs (wanted) do
         if math.floor(v) > 0 then
           -- If wanted level is not paused/locked, allow it to reduce
-          print("DEBUG - Reducing "..GetPlayerName(k).."'s wanted points.")
           if not paused[k] then
             local oldLevel = WantedLevel(k)
             local newV = v - (reduce.points)
-            print("DEBUG - "..v.." - "..(reduce.points).." = "..newV..".")
             wanted[k] = newV
             if oldLevel > WantedLevel(k) then
               TriggerClientEvent('cnr:wanted_client', (-1), k, wanted[k])
             end
-          else
-            print("DEBUG - Not eligible for reduction (cops nearby)")
           end
         else
           if not crimesList[k] then crimesList[k] = {} end
@@ -265,6 +265,7 @@ AddEventHandler('baseevents:enteringVehicle', function(veh, seat)
   local ply = source
   carUse[ply] = veh
   -- Ask client to check vehicle info (driver, faction, etc)
+  print("DEBUG - Player ("..ply..") carUse[ply] = "..veh..")")
   TriggerClientEvent('cnr:wanted_check_vehicle', ply, veh)
 end)
 
@@ -280,6 +281,7 @@ AddEventHandler('baseevents:enteredVehicle', function(veh, seat)
   if carUse[ply] == veh then 
     -- Send message to the client to check if they own it,
     -- and evaluate the type of crime committed (break in, carjack, etc)
+    print("DEBUG - Check for carjacking")
     TriggerClientEvent('cnr:wanted_enter_vehicle', ply, veh, seat)
   end
 end)
@@ -309,7 +311,7 @@ AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
   
   -- Killer is NOT a police officer
   if not exports['cnr_police']:DutyStatus(idKiller) then
-    exports['cnrobbers']:ConsolePrint(
+    cprint(
       "^1MURDER: ^3"..GetPlayerName(idKiller)..
       " killed "..GetPlayerName(victim).."^7!"
     )

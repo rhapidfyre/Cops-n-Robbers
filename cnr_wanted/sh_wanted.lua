@@ -16,7 +16,15 @@ mw     = 101 -- The value a player becomes "Most Wanted"
 felony = 40  -- The value a player becomes a Felon.
 wanted = {} -- Table of wanted players (KEY: Server Id, VAL: Points)
 
-local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
+
+-- List of emergency vehicles by MODELNAME
+eVehicle = {
+  "POLICE", "POLICE2", "POLICE3", "POLICE4",
+  "SHERIFF", "SHERIFF2",
+  "FBI", "FBI2", "FIB", "FIB2",
+  "PRANGER", "FBIRANCHER",
+  "HYDRA", "RHINO", "BARRACKS"
+}
 
 
 --[[
@@ -104,6 +112,16 @@ local crimes = {
   },
   ['unpaid'] = {
     title = "Unpaid Ticket",
+    weight = 50, minTime = 1, maxTime = 10, isFelony = true,
+    fine = function() return (math.random(1000, 5000)) end
+  },
+  ['brandish'] = {
+    title = "Brandishing a Firearm",
+    weight = 5, minTime = 1, maxTime = 2, isFelony = false,
+    fine = function() return (math.random(1000, 5000)) end
+  },
+  ['brandish-leo'] = {
+    title = "Brandish Firearm upon a Law Enforcement Officer",
     weight = 50, minTime = 1, maxTime = 10, isFelony = true,
     fine = function() return (math.random(1000, 5000)) end
   },

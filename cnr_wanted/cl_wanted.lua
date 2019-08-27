@@ -20,9 +20,9 @@ RegisterCommand('wanted', function(s, a, r)
   if a[1] then
     Wait(800)
     if tonumber(a[1]) ~= 0 then
-      TriggerServerEvent('cnr:wanted_points', 'carjack', "MANUAL ENTRY")
+      TriggerServerEvent('cnr:wanted_points', 'carjack', true)
     else
-      TriggerServerEvent('cnr:wanted_points', 'jailed', "MANUAL CLEAR")
+      TriggerServerEvent('cnr:wanted_points', 'jailed', true)
     end
   else
     local ply = GetPlayerServerId(PlayerId())
@@ -177,13 +177,22 @@ function IsPlayerAimingAtCop(target)
   if not DecorExistOn(target, "AimCrime") then DecorRegister("AimCrime", 2) end
   if not DecorGetBool(target, "AimCrime") then
     DecorSetBool(target, "AimCrime", true)
-    if exports['cnr_police']:DutyStatus(target) then 
-      TriggerServerEvent('cnr:wanted_points', 'brandish-leo')
-      Citizen.Wait(1000)
+    if IsPedAPlayer(target) then 
+      if exports['cnr_police']:DutyStatus(target) then 
+        print("DEBUG - Player IS a cop. Brandish on an LEO")
+        TriggerServerEvent('cnr:wanted_points', 'brandish-leo', true)
+        Citizen.Wait(1000)
+      else  
+        print("DEBUG - Player is not a cop. Brandish only.")
+        TriggerServerEvent('cnr:wanted_points', 'brandish', true)
+        Citizen.Wait(1000)
+      end
     else
-      TriggerServerEvent('cnr:wanted_points', 'brandish')
+      print("DEBUG - Ped is an NPC. Brandish only.")
+      TriggerServerEvent('cnr:wanted_points', 'brandish', true)
       Citizen.Wait(1000)
     end
+  else print("DEBUG - Already been charged.")
   end
 end
 
@@ -204,18 +213,20 @@ function NotCopLoops()
         
         -- Aiming/Shooting Crimes
         if IsPlayerFreeAiming(PlayerId()) then 
-          local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(ped)
-          if aimTarget then 
-            if IsEntityAPed(target) then
-              if IsPedAPlayer(target) then
-                local dist = #(GetEntityCoords(ped) - 
-                               GetEntityCoords(GetPlayerPed(target))
-                )
-                if dist < 120.0 then
-                  if HasEntityClearLosToEntity(ped, GetPlayerPed(target), 17) then
-                    IsPlayerAimingAtCop(aimTarget)
-                  end
+          print("DEBUG - Free Aiming.")
+          local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
+          if DoesEntityExist(aimTarget) then 
+            if IsEntityAPed(aimTarget) then
+              print("DEBUG - Aiming at a Target.")
+              local dist = #(GetEntityCoords(ped) - 
+                             GetEntityCoords(aimTarget)
+              )
+              if dist < 120.0 then
+                if HasEntityClearLosToEntity(ped, aimTarget, 17) then
+                  IsPlayerAimingAtCop(aimTarget)
+                else print("DEBUG - No line of sight.")
                 end
+              else print("DEBUG - Too far away! ("..dist..")")
               end
             end
           end
@@ -236,7 +247,7 @@ function NotCopLoops()
             end
             if wasShotSeen then 
               lastShot = GetGameTimer() + 30000
-              TriggerServerEvent('cnr:wanted_points', 'discharge')
+              TriggerServerEvent('cnr:wanted_points', 'discharge', true)
             end
           end
         end
@@ -271,7 +282,8 @@ function NotCopLoops()
                 end
               end
               if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
-                TriggerServerEvent('cnr:wanted_points', 'manslaughter')
+                DecorSetBool(peds, "KillCrime", true)
+                TriggerServerEvent('cnr:wanted_points', 'manslaughter', true)
               end
             end
           end
@@ -287,8 +299,18 @@ end
 AddEventHandler('cnr:wanted_enter_vehicle', function(veh)
   if crimeCar.v then
     if veh == crimeCar.v then 
-      if crimeCar.d then TriggerServerEvent('cnr:wanted_points', 'gta-npc')
-      else               TriggerServerEvent('cnr:wanted_points', 'carjack-npc')
+      print("DEBUG - Player broke into the vehicle!")
+      -- Occupied: Carjacking (more serious crime)
+      if crimeCar.d then
+        if IsPedAPlayer(crimeCar.d) then
+          TriggerServerEvent('cnr:wanted_points', 'carjack', true)
+        else
+          TriggerServerEvent('cnr:wanted_points', 'carjack-npc', true)
+        end
+      -- Unoccupied: GTA
+      else
+        -- DEBUG - Check later if vehicle is owned
+        TriggerServerEvent('cnr:wanted_points', 'gta-npc', true)
       end
       crimeCar = {}
     end
@@ -304,7 +326,7 @@ function HasRightsToVehicle(veh)
   if IsEntityAVehicle(veh) then
     local vName = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
     -- Vehicle is an emergency vehicle
-    if GetVehicleClass(veh) == 18 or eVehicle[GetDisplayName
+    if GetVehicleClass(veh) == 18 or eVehicle[vName] then
       if exports['cnr_police']:DutyStatus() then 
         return true
       else return false
@@ -325,18 +347,25 @@ end
 
 AddEventHandler('cnr:wanted_check_vehicle', function(veh)
   local hasRight = HasRightsToVehicle(veh)
+  print("DEBUG - Player has rights to vehicle? ["..tostring(hasRight).."]")
   if not hasRight then 
     if IsEntityAVehicle(veh) then 
       local lockStatus = GetVehicleDoorLockStatus(veh)
       local driver     = GetPedInVehicleSeat(veh, (-1))
       -- Breaking into a car is only a crime if it's locked
       if lockStatus ~= 0 and lockStatus ~= 1 then
-        if driver > 0 then crimeCar.d = true end
+        if driver > 0 then crimeCar.d = driver end
+        print("DEBUG - Player is breaking into a car.")
         crimeCar.v = veh
+      -- Or if the vehicle is being driven
+      elseif driver > 0 then
+        crimeCar.d = driver
+        crimeCar.v = veh
+        print("DEBUG - Car is not locked.")
       end
     end
   end
-end
+end)
 
 
 AddEventHandler('cnr:police_officer_duty', function(ply, onDuty)
