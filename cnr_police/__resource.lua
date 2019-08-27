@@ -9,6 +9,7 @@ files {
   "nui/ui.js",
   "nui/ui.css",
   "nui/jail.png",
+  "nui/fine.png",
 }
 
 client_scripts {

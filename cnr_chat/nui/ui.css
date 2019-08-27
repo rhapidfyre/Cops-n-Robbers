@@ -1,0 +1,73 @@
+
+  body, html {margin:0;padding:0;}
+
+  #info_box {
+    float: right;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 512px;
+    overflow-y: hidden;
+    width: 384px;
+  }
+  .info-crime, .info-law, .info-civ {
+    margin: 8px 0 8px 0; padding: 0 0 0 0;
+    border-radius: 8px 0 0 8px;
+  }
+  .info-crime {border: 2px ridge #f80;}
+  .info-law {border: 2px ridge #08f;}
+  .info-civ {border: 2px ridge silver;}
+  .info-crime h5, .info-law h5, .info-civ h5 {
+    border-radius: 4px 0 0 0;
+    font-size: 12px;
+    margin: 0 0 0 0; padding: 2px 0 2px 8px;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+  .info-crime h5 {
+    text-shadow: 1px 1px 0 black; background: rgba(180,65,0);
+    color: #f80; border-bottom: 2px ridge #f60;
+  }
+  .info-law h5 {
+    text-shadow: 1px 1px 0 black; background: rgba(0,65,180);
+    color: #0bf; border-bottom: 2px ridge #06f;
+  }
+  .info-civ h5 {
+    text-shadow: 1px 1px 0 black; background: rgba(80,80,80);
+    color: #eee; border-bottom: 2px ridge silver;
+  }
+  .info-crime p, .info-law p, .info-civ p {
+    margin: 0; padding: 8px 4px;
+    border-radius: 0 0 0 6px;
+    font-family: "Courier New", Courier, monospace;
+    font-weight: bold;
+    text-align: center;
+  }
+  .info-crime p {
+    background: linear-gradient(to bottom, rgba(255,123,0,0.8) 0%,rgba(255,40,0,0.8) 100%);
+    color: #ccc;
+    text-shadow: 1px 1px 2px black;
+  }
+  .info-law p {
+    background: linear-gradient(to bottom, rgba(41,184,229,0.8) 0%,rgba(179,220,237,0.4) 100%);
+    color: #aff;
+    text-shadow: 1px 1px 2px black;
+  }
+  .info-civ p {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%,rgba(255,255,255,0.4) 100%);
+    color: #aff;
+    text-shadow: 1px 1px 2px black;
+  }
+  .info-crime-bar, .info-law-bar, .info-civ-bar {
+    height: 2px;
+    position: relative;
+    float: right;
+  }
+  .info-crime-bar {
+    background: red;
+  }
+  .info-law-bar {
+    background: #0df;
+  }
+  .info-civ-bar {
+    background: #eee;
+  }

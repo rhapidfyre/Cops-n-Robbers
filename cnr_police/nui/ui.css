@@ -13,5 +13,30 @@
     font-family: "Lucida Console", Monaco, monospace;
     margin: 0; padding: 0;
   }
+  #rx_ticket {
+    position: absolute;
+    right: 32px;
+    bottom: 96px;
+    width: 256px;
+    text-align: center;
+  }
+  #ticket_timer {
+    position: relative;
+    text-align: center; 
+    font-size: 42px;
+    color: #f70;
+    text-shadow: 1px 1px 0 black;
+    margin: 0 auto;
+    font-weight: bold;
+  }
+  @keyframes blink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+  }
+  img {
+      animation: blink 1s;
+      animation-iteration-count: infinite;
+  }
   
   #is-jailed img { position: relative; margin: -8px 0 0 0; }

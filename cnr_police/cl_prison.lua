@@ -83,6 +83,7 @@ AddEventHandler('cnr:prison_rejail', Reimprison)
 
 local ticketWaiting = false 
 function IssueTicket(idOfficer, price)
+  SendNUIMessage({showticket = true})
   TriggerEvent('chat:addMessage', { args = {
     "TICKET",
     "You have been issued a ticket for ^2$"..price..
@@ -94,11 +95,20 @@ function IssueTicket(idOfficer, price)
   }})
   if not ticketWaiting then 
     ticketWaiting = true
+    ticketClock = GetGameTimer() + 30000
     Citizen.CreateThread(function()
       while ticketWaiting do 
         if IsControlJustPressed(0, 288) then 
           ticketWaiting = false
           TriggerServerEvent('cnr:ticket_payment', idOfficer)
+        else
+          if GetGameTimer > ticketClock then
+            ticketWaiting = false
+          else
+            SendNUIMessage({
+              ticketTime = "0:"..((ticketClock - GetGameTimer())/1000)
+            })
+          end
         end
         Citizen.Wait(1)
       end
