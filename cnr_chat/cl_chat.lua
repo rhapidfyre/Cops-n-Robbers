@@ -53,7 +53,7 @@ function PushNotification(pType, title, message)
   table.insert(htmlTable,
     '<div class="'..(classInfo)..'" id="roll'..rolls..'"><h5>&#8227;&nbsp;'..
     title..'</h5><p>'..message..
-    '</p><div class="'..(classInfo)..'bar" id="rbar'..rolls..'"></div></div>'
+    '</p><div class="'..(classInfo)..'-bar" id="rbar'..rolls..'"></div></div>'
   )
   
   SendNUIMessage({newRoller = table.concat(htmlTable), idRoller = rolls})
