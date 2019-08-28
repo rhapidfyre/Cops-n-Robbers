@@ -22,4 +22,5 @@ server_exports {
 }
 
 exports {
+  'PushNotification'
 }

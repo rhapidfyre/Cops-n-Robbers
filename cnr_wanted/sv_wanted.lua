@@ -62,6 +62,9 @@ function WantedPoints(ply, crime, msg)
       TriggerClientEvent('chat:addMessage', ply,
         {templateId = 'crimeMsg', args = {cn}}
       )
+      TriggerClientEvent('cnr:push_notify', ply,
+        1, "Crime Committed", cn
+      )
     end
   end
       

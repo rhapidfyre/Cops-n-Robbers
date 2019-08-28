@@ -12,16 +12,77 @@
 --]]
 
 RegisterNetEvent('cnr:radio_receive')
+RegisterNetEvent('cnr:push_notify')
+
+
+local rolls = 1
+
 
 TriggerEvent('chat:addTemplate', 'radioMsg', 
   '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}</b>'..
   '</font><br><font color="#0AF"><b>**</b></font> {2} <font color="#0AF"><b>*</b></font>'
 )
 
+
 TriggerEvent('chat:addTemplate', 'errMsg', 
   '<b><font color="#F00">** ERROR:</font> {0} </b><br>'..
   '<font color="#FF6363">** Reason:</font><font color="#B5B5B5"> {1} </font>'
 )
+
+
+--- EXPORT: PushNotification()
+-- Sends a push notification to the right of the screen
+-- @param pType The type of notification (1=Crime, 2=Law, 3=Normal)
+-- @param title The title of the notification 
+-- @param message The message/body of the notification
+-- @return Returns table ([1] = False if failed, [2] = if 1, reason)
+function PushNotification(pType, title, message)
+
+  if not pType then return {true, "Type not given [1]Crime [2]Law [3]Misc"}
+  elseif not title then return {true, "No title given"}
+  elseif not message then return {true, "No message given"}
+  end
+  
+  local htmlTable = {}
+  local classInfo = "info-crime"
+  
+  if     pType == 2 then classInfo = "info-law"
+  elseif pType == 3 then classInfo = "info-civ"
+  end
+  
+  table.insert(htmlTable,
+    '<div class="'..(classInfo)..'" id="roll'..rolls..'"><h5>&#8227;&nbsp;'..
+    title..'</h5><p>'..message..
+    '</p><div class="'..(classInfo)..'bar" id="rbar'..rolls..'"></div></div>'
+  )
+  
+  SendNUIMessage({newRoller = table.concat(htmlTable), idRoller = rolls})
+    print("DEBUG - NUI Sent")
+  
+  Citizen.CreateThread(function()
+    local thisRoll = rolls
+    rolls = rolls + 1
+    if rolls > 127 then rolls = 1 end -- keep memory use low
+    local i = 300
+    print("DEBUG - Looping.")
+    while i > 0 do 
+      local t = ((i/300)*100)
+      SendNUIMessage({timeRoller = true,
+        newWidth = math.floor(t),
+        idRoller = thisRoll
+      })
+      i = i - 1
+      Citizen.Wait(1)
+    end
+    print("DEBUG - Loop Finished")
+    SendNUIMessage({timeRoller = true,
+      idRoller = thisRoll,
+      newWidth = 0
+    })
+  end)
+end
+AddEventHandler('cnr:push_notify', PushNotification)
+
 
 --- ReceiveRadioMessage()
 -- Called when a radio message is received. The player sending it has been 
