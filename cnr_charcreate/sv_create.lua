@@ -214,10 +214,12 @@ AddEventHandler('cnr:create_session', function()
       -- Otherwise, create it.
       else
         cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
-        exports['cnr_chat']:DiscordMessage(
-          7864575, "New Player",
-          "Please welcome our newest player, "..GetPlayerName(name).."!", ""
-        )
+        Citizen.CreateThread(function()
+          exports['cnr_chat']:DiscordMessage(
+            7864575, "New Player",
+            "Please welcome our newest player, "..GetPlayerName(ply).."!", ""
+          )
+        end)
         TriggerClientEvent('cnr:create_character', ply)
       end
     end

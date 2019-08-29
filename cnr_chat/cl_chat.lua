@@ -63,10 +63,10 @@ function PushNotification(pType, title, message)
     local thisRoll = rolls
     rolls = rolls + 1
     if rolls > 127 then rolls = 1 end -- keep memory use low
-    local i = 300
+    local i = 420
     print("DEBUG - Looping.")
     while i > 0 do 
-      local t = ((i/300)*100)
+      local t = ((i/420)*100)
       SendNUIMessage({timeRoller = true,
         newWidth = math.floor(t),
         idRoller = thisRoll

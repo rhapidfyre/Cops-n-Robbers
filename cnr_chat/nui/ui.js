@@ -10,6 +10,7 @@ $(function() {
     if (item.newRoller) {
       rollerBox.append(item.newRoller);
       var roller = $("#roll"+(item.idRoller));
+      roller.fadeIn(1000);
       $("#rbar"+(item.idRoller)).width('100%');
     }
     

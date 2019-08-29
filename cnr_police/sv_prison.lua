@@ -174,14 +174,7 @@ end
 AddEventHandler('cnr:prison_sendto', function(ply)
   local cop = source
   if exports['cnr_police']:DutyStatus(cop) then
-    local copPed = GetPlayerPed(cop)
-    local plyPed = GetPlayerPed(ply)
-    local a, b = GetEntityCoords(copPed), GetEntityCoords(plyPed)
-    if #(a - b) < 8.0 then 
-      ImprisonClient(ply, cop)
-    else
-      print("DEBUG - Too far away! ("..#(a-b)..")")
-    end
+    ImprisonClient(ply, cop)
   end
 end)
 

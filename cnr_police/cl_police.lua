@@ -270,7 +270,9 @@ function BeginCopDuty(st)
       args = {"^1You cannot go on police duty while wanted!"}
     })
     TriggerEvent('chat:addMessage', {
-      args = {"^1WANTED LEVEL: ^7"..(wanted[GetPlayerServerId(PlayerId())])}
+      args = {"^1WANTED LEVEL: ^7"..(
+        math.floor(wanted[GetPlayerServerId(PlayerId())])
+      )}
     })
     Citizen.Wait(12000)
   end

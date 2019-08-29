@@ -13,6 +13,7 @@
   .info-crime, .info-law, .info-civ {
     margin: 8px 0 8px 0; padding: 0 0 0 0;
     border-radius: 8px 0 0 8px;
+    display: none;
   }
   .info-crime {border: 2px ridge #f80;}
   .info-law {border: 2px ridge #08f;}
