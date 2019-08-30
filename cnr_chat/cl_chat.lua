@@ -87,7 +87,7 @@ AddEventHandler('cnr:push_notify', PushNotification)
 --- ReceiveRadioMessage()
 -- Called when a radio message is received. The player sending it has been 
 -- verified. The function checks if receive is Law and then displays it.
--- @param name   The player name and Server ID # of sending player
+-- @param pName  The player name and Server ID # of sending player
 -- @param isDept If true, sends to everyone on Public Safety (dept msg)
 -- @param msg    The radio message being received
 function ReceiveRadioMessage(isDept, pName, msg, cop, ems, fire)

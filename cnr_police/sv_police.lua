@@ -24,10 +24,7 @@ local carUse    = {}
 function CountCops()
   local n = 0
   for k,v in pairs(cops) do
-    if v then 
-      n = n + 1
-      print("DEBUG - Counted +1 Cops")
-    end
+    if v then n = n + 1 end
   end
   return n
 end
@@ -54,7 +51,8 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
   end
   
   local numCops = CountCops()
-  local dt      = os.date("%H:%M:%S", os.time())
+  local dt      = os.date("%H:%M", os.time())
+  
   if numCops < 1 then
     print("[CNR "..dt.."] There are no cops on duty.")
   elseif numCops == 1 then

@@ -41,4 +41,5 @@ exports {
   'DutyAgency',
   'SendDispatch',
   'JailStatus',     -- Allows client to check if someone is in jail/prison
+  'CopRank',
 }

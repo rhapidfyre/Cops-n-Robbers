@@ -35,6 +35,7 @@ copUniform = {
 depts = {
   [1] = { -- Mission Row
     zone    = 1, title   = "LSPD Station", agency = 1,
+    heliPos = vector3(449.689, -981.328, 44.0797),
     duty    = vector3(452.811, -989.455, 30.689), -- Duty spot detection
     walkTo  = vector3(447.79, -986.319, 30.689),  -- Where to walk out to
     leave   = nil, -- Optional (TP here before leaving)
@@ -49,6 +50,7 @@ depts = {
   },
   [2] = { -- Vespucci Beach
     zone    = 1, title   = "LSPD Station", agency = 1,
+    heliPos = vector3(-1096.42, -836.155, 38.0635),
     duty    = vector3(-1060.22, -826.492, 19.212),
     leave   = vector3(-1107.84, -846.551, 19.317),
     walkTo  = vector3(-1114.27, -841.893, 19.317),
@@ -63,6 +65,7 @@ depts = {
   },
   [3] = { -- Vinewood Station
     zone    = 1, title   = "LSPD Station", agency = 1,
+    heliPos = vector3(580.119, 11.9018, 103.621),
     duty    = vector3(639.60, 1.343, 82.787),
     leave   = vector3(620.156, 18.32, 87.91),
     walkTo  = vector3(621.442, 21.902, 88.341),
@@ -77,6 +80,7 @@ depts = {
   },
   [4] = { -- Davis Station
     zone    = 1, title   = "Sheriff's Office", agency = 2,
+    heliPos = vector3(363.259, -1598.38, 37.3365),
     duty    = vector3(360.73, -1584.57, 29.292),
     leave   = vector3(369.89, -1607.80, 29.292),
     walkTo  = vector3(375.20, -1615.17, 29.292),
@@ -91,6 +95,7 @@ depts = {
   },
   [5] = { -- Beaver Bush Station
     zone    = 2, title   = "Ranger Station", agency = 5,
+    heliPos = vector3(422.011, 723.176, 198.10),
     duty    = vector3(379.219, 792.047, 190.408),
     walkTo  = vector3(385.185, 791.670, 190.409),
     camview = vector3(370.397, 784.786, 191.625),
@@ -104,6 +109,7 @@ depts = {
   },
   [6] = { -- Sandy Shores Station
     zone    = 1, title   = "Sheriff's Office", agency = 3,
+    heliPos = vector3(1870.08, 3631.55, 34.94),
     duty    = vector3(1854.17, 3684.85, 34.26),
     walkTo  = vector3(1856.01, 3682.29, 34.26),
     camview = vector3(1857.08, 3671.20, 36.85),
@@ -117,6 +123,7 @@ depts = {
   },
   [7] = { -- Fort Zancudo Station
     zone    = 4, title   = "Military Police", agency = 6,
+    heliPos = vector3(-2414.84, 2977.07, 34.013),
     duty    = vector3(-2441.04, 2951.72, 34.848),
     walkTo  = vector3(-2440.32, 2956.20, 32.960),
     camview = vector3(-2445.09, 2983.29, 37.310),
@@ -130,6 +137,7 @@ depts = {
   },
   [8] = { -- Paleto Bay Station
     zone    = 3, title   = "Sheriff's Office", agency = 3,
+    heliPos = vector3(-475.922, 5988.51, 31.7212),
     duty    = vector3(-444.676, 6014.86, 31.716),
     walkTo  = vector3(-441.16, 6018.55, 31.542),
     camview = vector3(-440.71, 6036.50, 34.741),
@@ -207,3 +215,11 @@ policeCar = {
   ["FBI2"]     = true,
   ["PRANCHER"] = true,
 }
+
+function IsUsingPoliceVehicle()
+  if not IsPedInAnyPoliceVehicle(PlayerPedId()) then
+    local veh = GetDisplayNameFromVehicleModel(GetEntityModel(GetVehiclePedIsIn(ped)))
+    if policeCar[veh] then return true end
+  else return true end
+  return false
+end

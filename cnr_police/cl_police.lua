@@ -24,9 +24,18 @@ local transition     = false
 local enteringCopCar = false
 local prevClothes    = {}
 local myAgency       = 0
-
 local activeCops     = {}
+local myCopRank      = 1
 
+
+--- EXPORT: CopRank()
+-- Allows other scripts to get the client's cop rank
+function CopRank()
+  return myCopRank
+end
+
+
+-- DEBUG - /forceduty
 local forcedutyEnabled = true
 
 
@@ -568,4 +577,5 @@ AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
   if onDuty then  activeCops[ply] = cLevel
   else            activeCops[ply] = nil
   end
+  if PlayerId() == GetPlayerFromServerId(ply) then myCopRank = cLevel end
 end)
