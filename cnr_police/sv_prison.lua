@@ -19,6 +19,7 @@ RegisterServerEvent('cnr:prison_sendto')
 RegisterServerEvent('cnr:prison_time_served') -- 30 seconds served
 RegisterServerEvent('cnr:client_loaded')
 RegisterServerEvent('cnr:police_door')
+RegisterServerEvent('cnr:prison_break')
 
 
 local inmates   = {}
@@ -58,7 +59,9 @@ end
 --- ReleaseFugitive()
 -- Removes all traces of player inmate/prison info from tables
 -- Also triggers prison_release event
-function ReleaseFugitive(ply)
+-- @param ply The player's server ID to release 
+-- @param isBreakout True if the player broke out of prison
+function ReleaseFugitive(ply, isBreakout)
 
   local uid = exports['cnrobbers']:UniqueId(ply)
   
@@ -66,7 +69,17 @@ function ReleaseFugitive(ply)
     if v == ply then table.remove(inmates, k) end
   end
   
-  TriggerClientEvent('cnr:prison_release', ply, prisoner[ply])
+  if not isBreakout then
+    TriggerClientEvent('cnr:prison_release', ply, prisoner[ply])
+    cprint(
+      GetPlayerName(k).." has served their debt to society, "..
+      "and has been ^2released^7."
+    )
+  else
+    cprint(
+      "^3"..GetPlayerName(k).." has broken out of jail/prison!."
+    )
+  end
   
   if serveTime[ply] then serveTime[ply] = 0   end
   if prisoner[k]    then prisoner[k]    = nil end
@@ -78,13 +91,12 @@ function ReleaseFugitive(ply)
     function() end
   )
   
-  cprint(
-    GetPlayerName(k).." has served their debt to society, "..
-    "and has been ^2released^7."
-  )
-  
 end
 
+
+AddEventHandler('cnr:prison_break', function()
+  ReleaseFugitive(source, true)
+end)
 
 function ImprisonClient(ply, cop)
   if ply and cop then 
@@ -360,11 +372,8 @@ AddEventHandler('cnr:police_door', function(doorNumber, isLocked)
   if DutyStatus(source) then 
     if pdDoors[doorNumber] then
       pdDoors[doorNumber].locked = isLocked
-      print("DEBUG - PD Door #"..doorNumber.." is locked ["..tostring(isLocked).."]")
       TriggerClientEvent('cnr:police_doors', (-1), doorNumber, isLocked)
     end
-  else
-    print("DEBUG - ERROR; Player is not an on duty cop.")
   end
 end)
 
