@@ -16,6 +16,7 @@ RegisterNetEvent('cnr:ticket_client')
 RegisterNetEvent('cnr:police_imprison')
 RegisterNetEvent('cnr:prison_rejail')
 RegisterNetEvent('cnr:prison_release')
+RegisterNetEvent('cnr:police_doors')
 
 local isPrisoner = false
 local isInmate   = false
@@ -131,4 +132,108 @@ function ReleaseClient(isPrison)
   isInmate   = false 
 end
 AddEventHandler('cnr:prison_release', ReleaseClient)
+
+
+-- Draws text on screen as positional
+local function DrawText3D(x, y, z, text) 
+  local onScreen,_x,_y = GetScreenCoordFromWorldCoord(x,y,z)
+  local dist = GetDistanceBetweenCoords(GetGameplayCamCoords(), x, y, z, 1)
+  
+  local fov = (1/GetGameplayCamFov()) * 100
+  SetDrawOrigin(x, y, z, 0);
+  BeginTextCommandDisplayText("STRING")
+  SetTextScale(0.28, 0.28)
+  SetTextFont(0)
+  SetTextProportional(1)
+  SetTextColour(255, 255, 255, 255)
+  SetTextDropshadow(0, 0, 0, 0, 255)
+  SetTextEdge(2, 0, 0, 0, 150)
+  SetTextDropShadow()
+  SetTextOutline()
+  SetTextCentre(1)
+  AddTextComponentString(text)
+  DrawText(0.0, 0.0)
+  ClearDrawOrigin()
+end
+
+
+-- Handles jail doors
+Citizen.CreateThread(function()
+	for i = 1, #pdDoors do 
+		local door = GetClosestObjectOfType(
+      pdDoors[i].vect.x, pdDoors[i].vect.y, pdDoors[i].vect.z,
+      1.0, GetHashKey(pdDoors[i].name),
+      false, false, false
+    )
+		FreezeEntityPosition(door, pdDoors[i].locked)
+	end
+  local cDoor = 0
+  while true do
+    local myPos = GetEntityCoords(PlayerPedId())
+    if DutyStatus() then 
+    
+      if cDoor < 1 then 
+      
+        -- Find closest door
+        local cDist = math.huge
+        for i = 1, #pdDoors do 
+          local dist = #(myPos - pdDoors[i].vect)
+          if cDist > dist then cDoor = i; cDist = dist end
+          Citizen.Wait(10)
+        end
+        
+      else
+      
+        -- Calculate door stuff
+        -- If we did cDoor = pdDoors[i], the lock status would not update
+        if #(myPos - pdDoors[cDoor].vect) < 1.2 then 
+          
+          local door = GetClosestObjectOfType(
+            pdDoors[cDoor].vect.x, pdDoors[cDoor].vect.y, pdDoors[cDoor].vect.z,
+            1.0, GetHashKey(pdDoors[cDoor].name)
+          )
+          
+          -- Door exists
+          if door > 0 then
+            local dPos = GetEntityCoords(door)
+            if pdDoors[cDoor].locked then
+              DrawText3D(dPos.x, dPos.y, dPos.z, "~g~SECURED ~w~(E)")
+            else
+              DrawText3D(dPos.x, dPos.y, dPos.z, "~r~UNLOCKED ~w~(E)")
+            end
+          
+            -- Lock/Unlock the door
+            if IsControlJustPressed(0, 38) then 
+              TriggerServerEvent('cnr:police_door',
+                cDoor, (not pdDoors[cDoor].locked)
+              )
+            end
+          
+          end
+          
+          
+        -- If distance is greater than that, find a new door
+        else
+          cDoor = 0
+          Citizen.Wait(100)
+        end
+      end
+      
+    end
+    Citizen.Wait(0)
+  end
+end)
+
+AddEventHandler('cnr:police_doors', function(n, dLock)
+  print("DEBUG - Server updated Door #"..n.." lock status. [Locked = "..tostring(dLock).."]")
+  pdDoors[n].locked = dLock
+  local door = GetClosestObjectOfType(
+    pdDoors[n].vect.x, pdDoors[n].vect.y, pdDoors[n].vect.z,
+    1.0, GetHashKey(pdDoors[n].name)
+  )
+  if door then
+    SetDoorAjarAngle(door, 0.0, 0, 1)
+		FreezeEntityPosition(door, pdDoors[n].locked)
+  end
+end)
 

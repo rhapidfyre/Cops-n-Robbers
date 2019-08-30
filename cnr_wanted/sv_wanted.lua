@@ -16,6 +16,7 @@ RegisterServerEvent('baseevents:enteringAborted')
 RegisterServerEvent('baseevents:enteredVehicle')
 RegisterServerEvent('baseevents:onPlayerKilled')
 RegisterServerEvent('cnr:wanted_points')
+RegisterServerEvent('cnr:client_loaded')
 
 
 local cprint     = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
@@ -324,3 +325,22 @@ AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
   end
   
 end)
+
+
+-- Called when a player signs in. Sends them the wanted persons list.
+AddEventHandler('cnr:client_loaded', function()
+  local ply = source
+  for k,v in pairs(wanted) do 
+    TriggerClientEvent('cnr:wanted_client', ply, k, v)
+  end
+end)
+
+
+
+
+
+
+
+
+
+

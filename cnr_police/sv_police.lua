@@ -82,7 +82,7 @@ AddEventHandler('cnr:client_loaded', function()
   local uid = exports['cnrobbers']:UniqueId(ply)
   for k,v in pairs(dropCop) do 
     if v == uid then 
-      TriggerClientEvent('cnr:police_reduty', source)
+      TriggerClientEvent('cnr:police_reduty', ply)
       TriggerClientEvent('cnr:police_officer_duty', (-1), ply, true)
       TriggerClientEvent('chat:addMessage', {
         color     = {255,180,40},
@@ -93,6 +93,7 @@ AddEventHandler('cnr:client_loaded', function()
     end
     Citizen.Wait(1)
   end
+  -- Sends list of on duty cops to connecting player
   for k,v in pairs(cops) do
     TriggerClientEvent('cnr:police_officer_duty', ply, k, true, v)
   end

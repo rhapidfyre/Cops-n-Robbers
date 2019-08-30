@@ -18,6 +18,8 @@ RegisterServerEvent('cnr:prison_break')       -- Starts the prison break event
 RegisterServerEvent('cnr:prison_sendto')
 RegisterServerEvent('cnr:prison_time_served') -- 30 seconds served
 RegisterServerEvent('cnr:client_loaded')
+RegisterServerEvent('cnr:police_door')
+
 
 local inmates   = {}
 local prisoner  = {}    -- Used if player is in big boy jail
@@ -25,9 +27,11 @@ local serveTime = {}
 local tickets   = {}
 local cprint    = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
+
 local ticketTime    = 30 -- Time in seconds to give player to pay ticket
 local minFineAmount = 100
 local maxFineAmount = 25000
+
 
 -- Where key is the wanted level
 local ticketPrice = {
@@ -252,6 +256,13 @@ AddEventHandler('cnr:client_loaded', function()
   local pName = GetPlayerName(ply)
   local uid   = exports['cnrobbers']:UniqueId(ply)
   if not uid then uid = 0 end
+  
+  -- Send current door lock status
+  for i = 1, #pdDoors do 
+    TriggerClientEvent('cnr:police_doors', (-1), i, pdDoors[i].locked)
+  end
+  
+  -- Check inmate status
   if uid > 0 then 
     exports['ghmattimysql']:execute(
       "SELECT * FROM inmates WHERE idUnique = @uid",
@@ -342,6 +353,19 @@ AddEventHandler('cnr:prison_time_served', function()
     ReleaseFugitive(ply)
   end
   -- DEBUG - Add an admin note for all failing cases (non-release)
+end)
+
+
+AddEventHandler('cnr:police_door', function(doorNumber, isLocked)
+  if DutyStatus(source) then 
+    if pdDoors[doorNumber] then
+      pdDoors[doorNumber].locked = isLocked
+      print("DEBUG - PD Door #"..doorNumber.." is locked ["..tostring(isLocked).."]")
+      TriggerClientEvent('cnr:police_doors', (-1), doorNumber, isLocked)
+    end
+  else
+    print("DEBUG - ERROR; Player is not an on duty cop.")
+  end
 end)
 
 

@@ -322,7 +322,7 @@ function Reduty()
     "You are now on Law Enforcement duty."
   )
 end
-RegisterNetEvent('cnr:police_reduty')
+
 AddEventHandler('cnr:police_reduty', Reduty)
 -- DEBUG - /forceduty
 RegisterCommand('forceduty', function()
