@@ -1,0 +1,37 @@
+
+  Minijobs are jobs that can be done at any time by any person, and do not
+  require any special skill or duty status. 'canPolice' will be a Boolean
+  that determines if an on duty cop can do the minijob.
+  
+  - FISHING
+  - HUNTING
+  - STREET DEALER
+  - CROP HARVESTING
+  
+  FISHING (canPolice = true)
+    Fishing increases your skill to get better
+    Can catch useful items like basic guns, or fish to sell
+    Always Legal
+  
+  HUNTING (canPolice = true)
+    Can kill animals for profit
+    Illegal if poaching on private property or killing protected animals
+    Protected animals net more money
+    Killing a protected animal results in wanted points
+  
+  GUN DEALER (canPolice = false)
+    Collect crates for materials found around the map
+    Craft illegal items out of the materials found
+    Sell or give away the items you craft
+    
+  DRUG DEALER (canPolice = false)
+    Players can plant Marijuana that will become part of the world.
+    They must wait 12 hours for it to grow and then they can harvest it.
+    Once Harvested, they can take it to a Processor.
+    Once processed it can be consumed or sold.
+    
+    Players can collect drug crates around the map, that can be taken to a
+    processor. Once processed (timed), players can pick it up and use it to
+    make drugs that can be either consumed or traded/sold.
+    
+    Cops won't recognize "Drug Materials", so craft it as needed.

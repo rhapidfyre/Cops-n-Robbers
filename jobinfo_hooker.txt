@@ -1,0 +1,28 @@
+
+  JOB IDEA: Escort Service
+  
+    - Overview
+      Players can offer sex to each other for cash.
+    
+    - How to Obtain
+      Start prostitute duty at any gentlemen's club.
+    
+    - How to Cancel/End Duty
+      To end duty, return to any gentlemen's club.
+    
+    - Missions
+      While this job allows people to offer sex to players for money,
+      there are chances for missions.
+      
+      Players will get requests by high profile individuals.
+      Players respond to these high profile people, and perform the tasks.
+      The high profile individuals may be police officers undercover.
+      These tasks will be high paying.
+      
+    - Special Notes
+      Players can contract diseases from NPCs and infected players.
+      Two uninfected players won't be able to infect each other.
+      STDs cannot be cured but their damage can be mitigated.
+      
+      Players can pick up NPC hookers at any time when they're working
+      As long as no other peds see them, they won't become wanted

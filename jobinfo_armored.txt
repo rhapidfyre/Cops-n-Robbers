@@ -1,0 +1,32 @@
+
+  JOB IDEA: Armored Van
+  
+    - Overview
+      Players can go on duty as an armored truck driver.
+      The truck is empty until players pick up money from ATMs, banks, business
+      The player can either continue to pick up more cash, or drop it off.
+      Players get paid when they drop money loads off.
+    
+    - How to Obtain
+      Go on duty at the Union Repository
+    
+    - How to Cancel/End Duty
+      Leave the truck behind or return it to the Union Repository.
+      Leaving the truck behind with cash inside results in Wanted Points
+    
+    - Missions
+      Players will be given multiple locations to choose from for picking up.
+      They can continue to pick up money from all locations until they're 
+      either full, or want to drop off. This allows players to make their own
+      plans, plan their own routes, and avoid being predictable.
+      
+    - Special Notes
+      Players can steal the money they're picking up, but they immediately
+      become wanted. 
+      
+      Players can attack armored vehicles for the loot. Just like in GTA
+      Online, throwing a sticky bomb on the back of the truck and blowing the 
+      doors off will result in dumping all the cash out of it.
+      
+      Armored Car robberies result in an immediate Wanted Level.
+      The money stolen can't be laundered for 30 minutes.

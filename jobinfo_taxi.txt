@@ -1,0 +1,19 @@
+
+  JOB IDEA: Taxi Driver
+  
+    - Overview
+      Players can go on duty as a taxi driver.
+      Taxi drivers transport people around the map.
+    
+    - How to Obtain
+      Go on duty at any of the axi locations
+    
+    - How to Cancel/End Duty
+      Leave the taxi behind or return it to one of the taxi depots
+    
+    - Missions
+      Players will receive calls to go pick up NPCs for cash. Paid on dropoff.
+      Players will also get flagdowns. Paid on dropoff.
+      
+    - Special Notes
+      
