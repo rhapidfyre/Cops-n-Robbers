@@ -125,6 +125,16 @@ local crimes = {
     weight = 50, minTime = 1, maxTime = 10, isFelony = true,
     fine = function() return (math.random(1000, 5000)) end
   },
+  ['prisonbreak'] = {
+    title = "Prison Break",
+    weight = 128, minTime = 20, maxTime = 30, isFelony = true,
+    fine = function() return (math.random(1000, 5000)) end
+  },
+  ['jailbreak'] = {
+    title = "Jailbreak",
+    weight = 60, minTime = 5, maxTime = 10, isFelony = true,
+    fine = function() return (math.random(1000, 5000)) end
+  },
   ['jailed'] = {
     title = "Jailed/Clear",
     weight = 0, minTime = 0, maxTime = 0, isFelony = true,
