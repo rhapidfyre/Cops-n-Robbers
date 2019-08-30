@@ -213,20 +213,16 @@ function NotCopLoops()
         
         -- Aiming/Shooting Crimes
         if IsPlayerFreeAiming(PlayerId()) then 
-          print("DEBUG - Free Aiming.")
           local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
           if DoesEntityExist(aimTarget) then 
             if IsEntityAPed(aimTarget) then
-              print("DEBUG - Aiming at a Target.")
               local dist = #(GetEntityCoords(ped) - 
                              GetEntityCoords(aimTarget)
               )
               if dist < 120.0 then
                 if HasEntityClearLosToEntity(ped, aimTarget, 17) then
                   IsPlayerAimingAtCop(aimTarget)
-                else print("DEBUG - No line of sight.")
                 end
-              else print("DEBUG - Too far away! ("..dist..")")
               end
             end
           end
