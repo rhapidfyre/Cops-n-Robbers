@@ -16,7 +16,11 @@
 
 resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 
-dependency 'ghmattimysql'
+dependencies {
+  'ghmattimysql',
+  'baseevents',
+  'spawnmanager'
+}
 
 client_scripts {
   "ent_enum.lua",         -- Entity Enumeration

@@ -29,19 +29,6 @@ AddEventHandler('onResourceStart', function(rn)
 end)
 
 
--- Discord Rich Presence
-Citizen.CreateThread(function()
-	while true do
-		SetDiscordAppId(613118632549154817) -- Discord app id
-		SetDiscordRichPresenceAsset('CopsNRobbers') -- Big picture asset name
-    SetDiscordRichPresenceAssetText('Cops and Robbers FiveM') -- Big picture hover text
-    SetDiscordRichPresenceAssetSmall('cnr_logo') -- Small picture asset name
-    SetDiscordRichPresenceAssetSmallText('Cops and Robbers FiveM') -- Small picture hover text
-		Citizen.Wait(600000) --How often should this script check for updated assets? (in MS)
-	end
-end)
-
-
 --- SetActiveZone()
 -- Called by server to tell client what the current zone is
 function SetActiveZone(aZone)

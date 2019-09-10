@@ -266,6 +266,7 @@ AddEventHandler('cnr:client_loaded', function()
   TriggerClientEvent('cnr:active_zone', source, zone.active)
 end)
 
+SetGameType('5M Cops and Robbers')
 
 
 
