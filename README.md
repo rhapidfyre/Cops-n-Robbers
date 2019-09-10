@@ -24,6 +24,11 @@ server, you will need to provide an SQL database.
 Please note the coding convention at the bottom of this ReadMe before submitting
 a pull request.
 
+An SQL file has been provided for you to be able to run your own server. Simply
+import the file into an SQL database, and use a resource to connect to it. Once
+impoted, the game mode will do the rest. Be sure to restart the server after 
+importing the database.
+
 ## Copyright Information
 
 Anyone is free to create their own servers with the files in this repository. 
@@ -38,6 +43,14 @@ go to the original creator as well as the contributors as applicable.
   * [Cash & Banking] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_cash)
   * [Character Creation] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_charcreate)
   * [Chat & Notifications] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_chat)
+  
+## Pull Requests
+
+To submit your code to the master branch, the coding convention must be (mostly)
+followed. I'll put some work in for your first few contributions, but if it becomes
+a reocurring issue, I will stop accepting them from you. If you add to make any 
+changes to the DATABASE, be sure to include an updated SQL export file, so we can
+wipe and re-import the changes.
 
 ## Code Convention
 

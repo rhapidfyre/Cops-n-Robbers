@@ -1,17 +1,4 @@
 
---[[
-  Cops and Robbers: Convenience Robberies (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  07/19/2019
-  
-  This file contains the functionality to rob stores. This is not for heists,
-  bank robberies, or other major events, but rather for holding up gas stations,
-  bars, nightclubs, and similar.
-  
-  Permission is granted only for executing this script for the purposes
-  of playing the gamemode as intended by the developer.
---]]
-
 RegisterNetEvent('cnr:robbery_lock_status')
 RegisterNetEvent('cnr:robbery_locks')
 RegisterNetEvent('cnr:robbery_drops')

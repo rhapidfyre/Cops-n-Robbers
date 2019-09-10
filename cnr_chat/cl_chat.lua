@@ -19,6 +19,7 @@ AddEventHandler('onClientResourceStart', function(rname)
   end
 end)
 
+
 --- EXPORT: PushNotification()
 -- Sends a push notification to the right of the screen
 -- @param pType The type of notification (1=Crime, 2=Law, 3=Normal)

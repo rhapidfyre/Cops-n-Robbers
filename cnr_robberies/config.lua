@@ -1,19 +1,10 @@
 
---[[
-  Cops and Robbers: Convenience Robberies (SHARED CONFIG)
-  Created by Michael Harris (mike@harrisonline.us)
-  07/19/2019
-  
-  Contains coordinates and other shared variable information.
-  
-  Permission is granted only for executing this script for the purposes
-  of playing the gamemode as intended by the developer.
---]]
-
 --[[ OPTIONALS:
   safe: If exists, bonus safe for extra cash
   bDoor: If exists, backdoor exit point
     alley: Where bDoor gets out. One way. If bDoor exists then alley exists
+    
+  Any code should check for the existence of these variables before using them
 ]]
 
 clerkModels = {"a_f_y_indian_01","a_f_o_indian_01"}
