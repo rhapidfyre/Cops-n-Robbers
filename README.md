@@ -67,10 +67,12 @@ is located in the header of the __resource.lua file.
 ## Pull Requests
 
 To submit your code to the master branch, the coding convention must be (mostly)
-followed. I'll put some work in for your first few contributions, but if it becomes
-a reocurring issue, I will stop accepting them from you. If you add to make any 
-changes to the DATABASE, be sure to include an updated SQL export file, so we can
-wipe and re-import the changes.
+followed. I'll put some extra work in for your first few contributions, but if it becomes
+a reocurring issue, I will stop accepting pull requests from you. If you make any 
+changes to the DATABASE, be sure to include an updated SQL file, so we can update
+our databases to match, or there will be errors and inconsistencies.
+
+TL;DR - Any changes to SQL schema must be included in your pull request.
 
 ## Code Convention
 
