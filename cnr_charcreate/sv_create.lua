@@ -16,17 +16,6 @@ local unique    = {} -- Unique IDs by player server ID
 
 
 -- DEBUG - Whitelist
-local whitelist = {
-  ["steam:110000100c58e26"] = true, -- RhapidFyre (main)
-  ["steam:1100001353615fc"] = true, -- RhapidFyre (laptop)
-  ["steam:110000100ea2fbe"] = true, -- Justin Chapman (ChapmanTX)
-  ["steam:110000101e66d0e"] = true, -- Mark (Briglair)
-  ["steam:110000102aba6ce"] = true, -- Jordan Guntel (jguntel)
-  ["steam:110000105b0ca79"] = true, -- Bobby Duke (duke)
-}
-
-
--- DEBUG - Whitelist
 local function OnPlayerConnecting(name, setKickReason, deferrals)
   local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
   deferrals.defer()
@@ -37,7 +26,7 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
       break
     end
   end
-  if whitelist[steamIdentifier] then 
+  if steamIdentifier then 
     cprint("^2Access granted ^7for user "..name.."; Steam ID ["..steamIdentifier.."]")
     deferrals.done()
   else
