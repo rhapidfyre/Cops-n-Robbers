@@ -1,14 +1,4 @@
 
---[[
-  Cops and Robbers: Law Enforcement - Jail/Prison Scripts (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/22/2019
-  
-  This file handles all the functionality to jailing players, releasing players,
-  as well as prison functionality for prisoners and police officers.
-  
-  Also handles tickets/citations.
---]]
 
 RegisterNetEvent('cnr:prison_client')
 RegisterNetEvent('cnr:jail_client')

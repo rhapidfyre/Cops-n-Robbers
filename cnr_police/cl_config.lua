@@ -1,15 +1,4 @@
 
---[[
-  Cops and Robbers: Law Enforcement Scripts (CONFIG)
-  Created by Michael Harris (mike@harrisonline.us)
-  07/12/2019
-  
-  This file handles all configuration variables, coordinates, and settings
-  
-  Permission is granted only for executing this script for the purposes
-  of playing the gamemode as intended by the developer.
---]]
-
 maleHash   = GetHashKey("mp_m_freemode_01")
 femaleHash = GetHashKey("mp_f_freemode_01")
 

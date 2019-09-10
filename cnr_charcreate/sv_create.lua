@@ -1,13 +1,4 @@
 
---[[
-  Cops and Robbers: Character Creation - Server Dependencies
-  Created by Michael Harris (mike@harrisonline.us)
-  08/20/2019
-  
-  This file handles all serversided interaction to verifying character
-  information, and saving/recalling MySQL Information from the server.
-  
---]]
 
 RegisterServerEvent('cnr:create_player')  -- Client has connected
 RegisterServerEvent('cnr:create_session') -- Client is ready to join

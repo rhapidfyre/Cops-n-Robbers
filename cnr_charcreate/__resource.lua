@@ -1,4 +1,22 @@
 
+--[[
+  Character Creation
+  Created by RhapidFyre
+  
+  This file controls creating the player's character, changing character
+  information, or any other aspect of character control. When a player joins 
+  for the first time, this script has them choose a model, and a spawn point.
+  When the player wants to change their physical appearance (not clothing, but 
+  rather, eye color and more) they will invoke functions in this script.
+  
+  In the future, we will switch from using random Ped Models, to using the
+  proper freemode model. In the sake of time, I opted to use Ped Models.
+  
+  Contributors:
+    -
+  
+  Created 08/20/2019
+--]]
 resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 
 ui_page "nui/ui.html"

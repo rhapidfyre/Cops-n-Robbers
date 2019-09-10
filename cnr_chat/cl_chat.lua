@@ -1,16 +1,4 @@
 
---[[
-  Cops and Robbers: Clans Script (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/19/2019
-  
-  Handles chat-like functions, such as /r(adio).
-  Future scripts will replace the FiveM default chat.
-  
-  Permission granted solely for the execution of the script as intended by
-  the developer.
---]]
-
 RegisterNetEvent('cnr:radio_receive')
 RegisterNetEvent('cnr:push_notify')
 

@@ -1,4 +1,23 @@
 
+--[[
+  Cops and Robbers: Law Enforcement
+  Created by RhapidFyre
+  
+  These files contain all of the law enforcement scripts. Prison, jail, tickets,
+  going on and off duty, handcuffing, etc. Anything revolving around law
+  enforcement should be in this resource.
+  
+  -- DEBUG - Developer's Note:
+  To avoid clutter, major components of the law enforcement system, such as 
+  PRISON versus POLICE PERMISSIONS should be in separate files, or even
+  subdirectories.
+  
+  Contributors:
+    -
+  
+  Created 07/12/2019
+--]]
+
 resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 
 ui_page "nui/ui.html"

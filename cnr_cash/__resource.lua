@@ -1,17 +1,17 @@
 
+--[[
+  Cops and Robbers: Cash / Banking / Money Transaction(s)
+  Created by RhapidFyre
+  
+  These files contain all the features to using money.
+  
+  Contributors:
+    -
+  
+  Created 07/22/2019
+--]]
+
 resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
-
---[[        RESOURCE EVENTS 
-  CLIENT:
-    cnr:bank_account  (n)  Changes the player's bank value on screen (abs)
-    cnr:wallet_value  (n)  Changes the player's cash value on screen (abs)
-
-  SERVER:
-    (if cl param is given, replaces ply=source with given client)
-    cnr:cash_transaction (n, cl)  Changes wallet by given value (+/-)
-    cnr:bank_transfer    (n, cl)  (+): Hand to Bank, (-): Bank to Hand
-    cnr:bank_transaction (n, cl)  Changes bank by given value (+/-)
-]]
 
 ui_page "nui/ui.html"
 dependency 'cnrobbers'
@@ -35,8 +35,8 @@ server_exports {
   'BankTransfer',        -- Changes bank to wallet and wallet to bank
   'CashTransaction',     -- Add / Remove / Return player's cash
   'SetPlayerCashValues', -- Manually set HUD cash values; Retrieve from SQL
-  'GetPlayerCash',
-  'GetPlayerBank',
+  'GetPlayerCash',       -- Gets the player's current cash on hand
+  'GetPlayerBank',       -- Gets the player's current bank account value
 }
 
 exports {

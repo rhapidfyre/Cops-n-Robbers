@@ -1,13 +1,9 @@
 
 --[[
-  Cops and Robbers: Character Creation Config - Client Dependencies
-  Created by Michael Harris (mike@harrisonline.us)
-  08/20/2019
+  File Information: See __resource.lua
   
-  This file handles all client-sided configuration settings, and
-  variable declarations for use by client scripts in this resource.
-  
---]]
+  This file contains the information needed for outfits, models, etc.
+]]
 
 
 -- Hash key's used for storing indexes and comparing
@@ -76,33 +72,37 @@ maxOverlays = {
   [7] = 10, [8] = 9,  [9] = 17, [10] = 16, [11] = 11, [12] = 1
 }
 
+
 spPoints = {
   [1] = { -- Los Santos Spawn Areas
-    vector3(435.76, -644.29, 28.74),   -- Bus Depot
-    vector3(169.24, -993.29, 30.10),   -- South Legion Square
-    vector3(126.007, -1732.17, 30.11), -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84), -- South Vespucci Beach
+    vector3(435.76, -644.29, 28.74),    -- Bus Depot
+    vector3(169.24, -993.29, 30.10),    -- South Legion Square
+    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
+    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
   },
-  [2] = { -- Senora Desert Spawn Areas -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),   -- Bus Depot
-    vector3(169.24, -993.29, 30.10),   -- South Legion Square
-    vector3(126.007, -1732.17, 30.11), -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84), -- South Vespucci Beach
+  [2] = { -- Senora Desert Spawn Areas  -- DEBUG - Change later
+    vector3(435.76, -644.29, 28.74),    -- Bus Depot
+    vector3(169.24, -993.29, 30.10),    -- South Legion Square
+    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
+    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
   },
-  [3] = { -- Paleto Bay Spawn Areas    -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),   -- Bus Depot
-    vector3(169.24, -993.29, 30.10),   -- South Legion Square
-    vector3(126.007, -1732.17, 30.11), -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84), -- South Vespucci Beach
+  [3] = { -- Paleto Bay Spawn Areas     -- DEBUG - Change later
+    vector3(435.76, -644.29, 28.74),    -- Bus Depot
+    vector3(169.24, -993.29, 30.10),    -- South Legion Square
+    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
+    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
   },
-  [4] = { -- Fort Zancudo Spawn Areas  -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),   -- Bus Depot
-    vector3(169.24, -993.29, 30.10),   -- South Legion Square
-    vector3(126.007, -1732.17, 30.11), -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84), -- South Vespucci Beach
+  [4] = { -- Fort Zancudo Spawn Areas   -- DEBUG - Change later
+    vector3(435.76, -644.29, 28.74),    -- Bus Depot
+    vector3(169.24, -993.29, 30.10),    -- South Legion Square
+    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
+    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
   }
 }
 
+
+-- pedModels: List holding all the models a player can choose from.
+-- DEBUG - This is TEMPORARY until we move to the Freemode Model system.
 pedModels = {
   'a_f_m_beach_01',
   'a_f_m_bevhills_01',

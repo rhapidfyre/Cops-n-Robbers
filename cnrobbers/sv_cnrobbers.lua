@@ -1,18 +1,4 @@
 
---[[
-  Cops and Robbers Server Dependencies
-  Created by Michael Harris (mike@harrisonline.us)
-  08/19/2019
-  
-  This file contains all information that will be stored, used, and
-  manipulated by any CNR scripts in the gamemode. For example, a
-  player's level will be stored in this file and then retrieved using
-  an export; Rather than making individual SQL queries each time.
-  
-  No one may edit, redistribute, or otherwise use this script.
---]]
-
-
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
 local scores = {}     -- Scores of players (KEYS: 'cop' and 'civ')
 local positions = {}  -- List of positions being saved
