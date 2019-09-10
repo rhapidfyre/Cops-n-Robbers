@@ -15,6 +15,17 @@ of life, such as realistic naming or licensing. The point of the game is to
 have quick action, run from the cops, chase bad guys, shoot people, and gain
 cash.
 
+## Self-Sufficient Gamemode / Dependencies
+
+The goal is to be a self-sufficient gamemode. This means, while currently we
+use the base resources and GHMattiMySQL, the intention is that we will over time
+have our own integration with SQL, and handle our own chat and spawning events.
+In the interest of time, we're using dependencies.
+
+If you do not want to use GHMattiMySQL, spawnmanager, or any of those other
+resources while you contribute, simply change the dependencies in the base
+gamemode resource (cnrobbers).
+
 ## Developer Information
 
 If you wish to contribute or help in the development of this gamemode, you can 
