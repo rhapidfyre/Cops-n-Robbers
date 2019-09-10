@@ -18,17 +18,18 @@ RegisterNetEvent('cnr:push_notify')
 local rolls = 1
 
 
-TriggerEvent('chat:addTemplate', 'radioMsg', 
-  '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}</b>'..
-  '</font><br><font color="#0AF"><b>**</b></font> {2} <font color="#0AF"><b>*</b></font>'
-)
-
-
-TriggerEvent('chat:addTemplate', 'errMsg', 
-  '<b><font color="#F00">** ERROR:</font> {0} </b><br>'..
-  '<font color="#FF6363">** Reason:</font><font color="#B5B5B5"> {1} </font>'
-)
-
+AddEventHandler('onClientResourceStart', function(rname)
+  if rname == GetCurrentResourceName() then
+    TriggerEvent('chat:addTemplate', 'radioMsg', 
+      '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}</b>'..
+      '</font><br><font color="#0AF"><b>**</b></font> {2} <font color="#0AF"><b>*</b></font>'
+    )
+    TriggerEvent('chat:addTemplate', 'errMsg', 
+      '<b><font color="#F00">** ERROR:</font> {0} </b><br>'..
+      '<font color="#FF6363">** Reason:</font><font color="#B5B5B5"> {1} </font>'
+    ) 
+  end
+end)
 
 --- EXPORT: PushNotification()
 -- Sends a push notification to the right of the screen

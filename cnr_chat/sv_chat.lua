@@ -61,11 +61,11 @@ end)
 AddEventHandler('cnr:radio_message', function(msg, isDept)
   local ply   = source
   local isCop = exports['cnr_police']:DutyStatus(ply)
-  print("Player is cop? "..tostring(isCop))
   --local isEMS  = exports['cnr_ems']:DutyStatus(ply)
   --local isFire = exports['cnr_fire']:DutyStatus(ply)
   if isCop or isEMS or isFire then
     local pName = GetPlayerName(ply)
+    print("DEBUG - Radio Message ("..pName.."): "..msg)
     TriggerClientEvent('cnr:radio_receive', (-1), isDept, pName.." ("..ply..")",
       msg, isCop, isEMS, isFire
     )

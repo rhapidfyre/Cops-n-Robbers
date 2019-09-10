@@ -574,8 +574,46 @@ end)
 
 
 AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
+
   if onDuty then  activeCops[ply] = cLevel
   else            activeCops[ply] = nil
   end
-  if PlayerId() == GetPlayerFromServerId(ply) then myCopRank = cLevel end
+  
+  local idPlayer = GetPlayerFromServerId(ply)
+  
+  if PlayerId() == idPlayer then
+    if not onDuty then
+      exports['cnr_chat']:PushNotification(
+        2, "DUTY STATUS CHANGED", "You are no longer on duty."
+      )
+      
+    else
+      myCopRank = cLevel
+      exports['cnr_chat']:PushNotification(
+        2, "DUTY STATUS CHANGED", "You are now on duty<br>Cop Level: "..cLevel
+      )
+      
+    end
+    
+  else
+    if DutyStatus() then
+      if onDuty then 
+        exports['cnr_chat']:PushNotification(
+          2, "NEW UNIT AVAILABLE", "Officer "..GetPlayerName(idPlayer)..
+          " is now On Duty<br>Cop Level: "..cLevel
+        )
+      else
+        exports['cnr_chat']:PushNotification(
+          2, "NEW UNIT AVAILABLE", "Officer "..GetPlayerName(idPlayer)..
+          " is no longer available."
+        )
+      end
+    end
+  end
 end)
+
+
+
+
+
+
