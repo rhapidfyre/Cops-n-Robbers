@@ -1,22 +1,6 @@
 
---[[
-  Cops and Robbers: Chat Script (SERVER)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/19/2019
-  
-  Handles chat-like functions, such as /r(adio).
-  Future scripts will replace the FiveM default chat.
-  
-  Permission granted solely for the execution of the script as intended by
-  the developer.
---]]
-
-local urls = {
-  feed = "https://discordapp.com/api/webhooks/614207378791071744/ZG1quo6TI-WiJwDEKwXDvyMA0mZAgEtlAb9_ruM8l5tqS_IJO6ZAgBi8wSv8SokHTkL0",
-  emg  = "https://discordapp.com/api/webhooks/614209606511493147/RanDk3hsVsi39FrUuldoCxZtF4qAvy6BTPGB3dbJfMZXTTwoelWahTIJzbFIetKUlorN"
-}
-
 function DiscordMessage(color, name, message, footer, copMessage)
+
   local embed = {
     {
       ["color"] = color,
@@ -27,22 +11,19 @@ function DiscordMessage(color, name, message, footer, copMessage)
       },
     }
   }
+  
   if name == "" then embed["title"] = "" end
   local discordApp = urls.feed
   if copMessage then discordApp = urls.emg end
-  print("[DISCORD]: {1:"..
-    tostring(color).."} {2:"..
-    tostring(name).."} {3:"..
-    tostring(message).."} {4:"..
-    tostring(footer).."} {5:"..
-    tostring(discordApp)
-  )
+  
+  -- Sends the message to the Discord API for dispatch
   PerformHttpRequest(discordApp,
     function(err, text, headers) end,
     'POST',
     json.encode({username = "Game Monitor", embeds = embed}),
     {['Content-Type'] = 'application/json' }
   )
+  
 end
 RegisterServerEvent('_chat:messageEntered')
 RegisterServerEvent('cnr:radio_message')

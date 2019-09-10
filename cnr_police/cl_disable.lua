@@ -1,3 +1,8 @@
+
+
+-- Disables police NPCs, restricts vehicle usage (tanks, etc), and more
+
+
 Citizen.CreateThread(function()
 	while true do
 		for i = 1, 14 do EnableDispatchService(i, false) end
@@ -8,9 +13,12 @@ Citizen.CreateThread(function()
 	end
 end)
 
+
 local restricted = {
   ["RHINO"] = true,
 }
+
+
 Citizen.CreateThread(function()
   while true do 
     Wait(0)
@@ -38,6 +46,7 @@ Citizen.CreateThread(function()
     end
   end
 end)
+
 
 Citizen.CreateThread(function()
   -- Removes air traffic

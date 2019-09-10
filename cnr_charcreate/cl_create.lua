@@ -1,15 +1,9 @@
 
---[[
-  Cops and Robbers: Character Creation (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/20/2019
-  
-  This file handles all client-sided interaction to verifying character
-  information, switching characters, and creating characters.
-  
---]]
 
 -- DEBUG - Remove later
+-- /relog
+-- Allows the player to invoke the create_player event as if
+-- they had just connected to the server.
 RegisterCommand('relog', function()
   if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
   SetCamParams(cam, -1756.53, -1117.24, 18.0, 6.0, 0.0, 0.0, 50.0) 
@@ -22,6 +16,7 @@ RegisterCommand('relog', function()
 end)
 
 
+-- On connection to the server
 AddEventHandler('onClientGameTypeStart', function()   
   print("DEBUG - Preparing to load player into the server.")
   --exports.spawnmanager:setAutoSpawn(false)
@@ -50,6 +45,8 @@ AddEventHandler('cnr:create_ready', function()
 end)
 
 
+--- EVENT: create_finished
+-- Called when the player has finished creating their player model
 RegisterNetEvent('cnr:create_finished')
 AddEventHandler('cnr:create_finished', function()
   local game_area = exports['cnrobbers']:GetActiveZone()
@@ -145,6 +142,8 @@ AddEventHandler('cnr:create_character', function()
 end)
 
 
+--- NUI: playGame
+-- Called when the player clicks "PLAY" at the welcome screen
 RegisterNUICallback("playGame", function(data, cb)
   SendNUIMessage({hidewelcome = true})
   DoScreenFadeOut(300)
@@ -156,7 +155,10 @@ RegisterNUICallback("playGame", function(data, cb)
 end)
 
 
--- DEBUG - 
+-- DEBUG - Model Selection
+-- This is the temporary ped model selection.
+-- We will make the move to the freemode models once we have more time, but 
+-- this works for the time being.
 local pm = 0
 function ModelChoice(data, cb)
   local oldPM = pm

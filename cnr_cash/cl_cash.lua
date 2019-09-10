@@ -1,14 +1,4 @@
 
---[[
-  Cops and Robbers: Cash Script (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  07/22/2019
-  
-  Handles cash, bank, and HUD affairs relating to money.
-  This resource is an open license and free for anyone to modify or use
---]]
-
-
 local myCash, myBank = 0, 0
 
 
@@ -38,23 +28,21 @@ end
 
 --- EVENT: cnr:wallet_value
 RegisterNetEvent('cnr:wallet_value')
-AddEventHandler('cnr:wallet_value', function(cash)
-	if cash >= 1000 then
-		myCash = addComma(tostring(cash))
-	else
-		myCash = cash
+AddEventHandler('cnr:wallet_value', function(val)
+	if val >= 1000 then  myCash = addComma(tostring(val))
+	else                 myCash = val
 	end
-	StatSetInt('MP0_WALLET_BALANCE', math.floor(cash), true)
+  -- Sets the actual cash/wallet balance on screen/in the ESC menu
+	StatSetInt('MP0_WALLET_BALANCE', math.floor(val), true)
 end)
 
 
 --- EVENT: cnr:bank_account
 RegisterNetEvent('cnr:bank_account')
-AddEventHandler('cnr:bank_account', function(cash)
-	if cash >= 1000 then
-		myCash = addComma(tostring(cash))
-	else
-		myCash = cash
+AddEventHandler('cnr:bank_account', function(val)
+	if val >= 1000 then  myBank = addComma(tostring(val))
+	else                 myBank = val
 	end
-	StatSetInt('BANK_BALANCE', math.floor(cash), true)
+  -- Sets the actual bank account balance on the screen/ESC menu
+	StatSetInt('BANK_BALANCE', math.floor(val), true)
 end)

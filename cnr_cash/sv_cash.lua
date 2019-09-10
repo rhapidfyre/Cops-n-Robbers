@@ -1,14 +1,4 @@
 
---[[
-  Cops and Robbers: Cash Script (SERVER)
-  Created by Michael Harris (mike@harrisonline.us)
-  07/22/2019
-  
-  Handles cash, bank, and HUD affairs relating to money.
-  This resource is an open license and free for anyone to modify or use
---]]
-
-
 RegisterServerEvent('cnr:cash_transaction')
 RegisterServerEvent('cnr:bank_transaction')
 RegisterServerEvent('cnr:bank_transfer')
