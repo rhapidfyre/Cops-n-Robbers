@@ -39,10 +39,19 @@ go to the original creator as well as the contributors as applicable.
 
 ## Resource Files
 
+All details of what each individual resource controls and is used for
+is located in the header of the __resource.lua file.
+
   * [Blips & Radar Info](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_blips)
-  * [Cash & Banking] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_cash)
-  * [Character Creation] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_charcreate)
-  * [Chat & Notifications] (https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_chat)
+  * [Cash & Banking](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_cash)
+  * [Character Creation](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_charcreate)
+  * [Chat & Notifications](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_chat)
+  * [Clans](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_clans)
+  * [Death](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_death)
+  * [Law Enforcement](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_police)
+  * [Robberies & Heists](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_robberies)
+  * [Scoreboard](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_scoreboard)
+  * [Wanted Script](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_wanted)
   
 ## Pull Requests
 
