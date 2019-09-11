@@ -27,7 +27,7 @@ DELIMITER $$
 -- Procedures
 --
 DROP PROCEDURE IF EXISTS `offline_inmate`$$
-CREATE DEFINER=`localhost`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
+CREATE PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
     NO SQL
 BEGIN
 	
@@ -57,7 +57,7 @@ END$$
 -- Functions
 --
 DROP FUNCTION IF EXISTS `bank_transaction`$$
-CREATE DEFINER=`localhost`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -77,7 +77,7 @@ BEGIN
 END$$
 
 DROP FUNCTION IF EXISTS `cash_transaction`$$
-CREATE DEFINER=`localhost`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -98,7 +98,7 @@ BEGIN
 END$$
 
 DROP FUNCTION IF EXISTS `new_player`$$
-CREATE DEFINER=`localhost`@`%` FUNCTION `new_player`(`steam` VARCHAR(50), `fivem` VARCHAR(50), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
+CREATE FUNCTION `new_player`(`steam` VARCHAR(100), `fivem` VARCHAR(100), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
     NO SQL
 BEGIN
 
@@ -135,12 +135,16 @@ END$$
 
 DELIMITER ;
 
+DROP TABLE IF EXISTS `clans`;
+DROP TABLE IF EXISTS `characters`;
+DROP TABLE IF EXISTS `inmates`;
+DROP TABLE IF EXISTS `robberies`;
+DROP TABLE IF EXISTS `players`;
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `characters`
 --
-
 CREATE TABLE IF NOT EXISTS `characters` (
   `dbid` int(16) NOT NULL,
   `idUnique` int(16) unsigned NOT NULL,
@@ -195,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `inmates` (
 CREATE TABLE IF NOT EXISTS `players` (
   `idUnique` int(16) unsigned NOT NULL,
   `idSteam` varchar(82) DEFAULT NULL,
-  `idFiveM` varchar(32) DEFAULT NULL,
+  `idFiveM` varchar(100) DEFAULT NULL,
   `idClan` int(16) unsigned NOT NULL DEFAULT '0',
   `ip` varchar(15) DEFAULT NULL,
   `username` varchar(32) DEFAULT NULL,

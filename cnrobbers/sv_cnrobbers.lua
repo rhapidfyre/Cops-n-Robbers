@@ -1,5 +1,6 @@
 
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
+local fivem  = {}     -- List of FiveM License IDs by Server ID
 local scores = {}     -- Scores of players (KEYS: 'cop' and 'civ')
 local positions = {}  -- List of positions being saved
 
@@ -104,21 +105,32 @@ function UniqueId(ply, uid)
     
     -- Otherwise, find it.
     else
-      local sid = nil
+    
+      local idFound = nil
+
       -- If unique ID doesn't exist, find it
-      -- We know they have one because of deferral check upon joining.
       for _,id in pairs(GetPlayerIdentifiers(ply)) do 
-        if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
+        if string.sub(id, 1, string.len("steam:")) == "steam:" then
+          idFound = id
+          print("DEBUG - Found Steam ID ["..id.."]")
+        elseif string.sub(id, 1, string.len("license:")) == "license:" then
+          if not idFound then -- Prefer the SteamID versus the FiveM ID
+            idFound = id
+            print("DEBUG - Found FiveM ID ["..id.."]")
+          end
         end
       end
-      if sid then
-        local steam = exports['ghmattimysql']:scalarSync(
-          "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
-          {['steam'] = sid}
+      
+      if idFound then
+        local idNumber = exports['ghmattimysql']:scalarSync(
+          "SELECT idUnique FROM players "..
+          "WHERE idSteam = @idNum OR idFiveM = @idNum LIMIT 1",
+          {['idNum'] = idFound}
         )
-           unique[ply] = steam
+           unique[ply] = idNumber
       else unique[ply] = 0
       end
+      
     end
   else
     print("DEBUG - ERROR; 'ply' not given to 'UniqueId()' (sv_cnrobbers.lua)")

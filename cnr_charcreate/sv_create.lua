@@ -74,7 +74,6 @@ function GetPlayerLicense(ply)
   if fivem[ply] then return fivem[ply] end
   local fid = nil
   for _,id in pairs(GetPlayerIdentifiers(ply)) do 
-    print("DEBUG - ^3"..tostring(id))
     if string.sub(id, 1, string.len("license:")) == "license:" then fid = id
     end
   end
@@ -131,7 +130,7 @@ function CreateUniqueId(ply)
   )
   if uid > 0 then 
     unique[ply] = uid
-    exports['cnrobbers']:UniqueId(ply, uid) -- Set UID for session
+    exports['cnrobbers']:UniqueId(ply, tonumber(uid)) -- Set UID for session
     cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
   else
     cprint("^1A Fatal Error has occurred, and the player has been dropped.")
@@ -139,6 +138,7 @@ function CreateUniqueId(ply)
     print("The player is not logged into Steam, AND has an invalid FiveM ID.")
     DropPlayer(ply, "Fatal Error; Steam Logon or FiveM License required.")
   end
+  return unique[ply]
 end
 
 
@@ -178,13 +178,19 @@ AddEventHandler('cnr:create_player', function()
           exports['cnrobbers']:UniqueId(ply, uid)
         else
           print("DEBUG - UID Nonexistant")
-          if CreateUniqueId(ply) < 1 then 
+          local uid = CreateUniqueId(ply)
+          if uid < 1 then 
             cprint("^1A Fatal Error has Occurred.")
             cprint("No player ID given to CreateUniqueId() in sv_create.lua")
+          else
+            cprint(
+              "Successfully created UID ("..tostring(uid)..
+              ") for player "..GetPlayerName(ply)
+            )
           end
         end
         Citizen.Wait(200) 
-        cprint(ustring.." is ready to play.")
+        cprint(ustring.." is loaded in, and ready to play!")
         TriggerClientEvent('cnr:create_ready', ply)
       end
     )
@@ -275,6 +281,7 @@ AddEventHandler('cnr:create_save_character',
   function(pModel)
     local ply = source
     local uid = exports['cnrobbers']:UniqueId(ply)
+    print("DEBUG - INSERT INTO characters ("..tostring(uid)..", "..tostring(pModel)..").....")
     exports['ghmattimysql']:execute(
       "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
       {['uid'] = uid, ['mdl'] = pModel},
