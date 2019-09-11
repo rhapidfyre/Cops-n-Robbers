@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 11, 2019 at 05:56 PM
+-- Generation Time: Sep 11, 2019 at 09:41 PM
 -- Server version: 5.5.60-MariaDB
 -- PHP Version: 5.4.16
 
@@ -19,12 +19,15 @@ SET time_zone = "+00:00";
 --
 -- Database: `cnrobbers`
 --
+CREATE DATABASE IF NOT EXISTS cnrobbers;
+USE cnrobbers;
 
 DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`rhapidfyre`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
+DROP PROCEDURE IF EXISTS `offline_inmate`$$
+CREATE PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
     NO SQL
 BEGIN
 	
@@ -53,12 +56,12 @@ END$$
 --
 -- Functions
 --
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+DROP FUNCTION IF EXISTS `bank_transaction`$$
+CREATE FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
-  /* The game script verifies this won't be negative
-  before SQL receives it */
+  # Game script must verify non-negative before calling
   
   DECLARE money INT;
   
@@ -73,7 +76,8 @@ BEGIN
   RETURN money;
 END$$
 
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+DROP FUNCTION IF EXISTS `cash_transaction`$$
+CREATE FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -93,7 +97,8 @@ BEGIN
   RETURN money;
 END$$
 
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `new_player`(`steam` VARCHAR(50), `fivem` VARCHAR(50), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
+DROP FUNCTION IF EXISTS `new_player`$$
+CREATE FUNCTION `new_player`(`steam` VARCHAR(100), `fivem` VARCHAR(100), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
     NO SQL
 BEGIN
 
@@ -130,12 +135,16 @@ END$$
 
 DELIMITER ;
 
+DROP TABLE IF EXISTS `clans`;
+DROP TABLE IF EXISTS `characters`;
+DROP TABLE IF EXISTS `inmates`;
+DROP TABLE IF EXISTS `robberies`;
+DROP TABLE IF EXISTS `players`;
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `characters`
 --
-
 CREATE TABLE IF NOT EXISTS `characters` (
   `dbid` int(16) NOT NULL,
   `idUnique` int(16) unsigned NOT NULL,
@@ -190,7 +199,7 @@ CREATE TABLE IF NOT EXISTS `inmates` (
 CREATE TABLE IF NOT EXISTS `players` (
   `idUnique` int(16) unsigned NOT NULL,
   `idSteam` varchar(82) DEFAULT NULL,
-  `idFiveM` varchar(32) DEFAULT NULL,
+  `idFiveM` varchar(100) DEFAULT NULL,
   `idClan` int(16) unsigned NOT NULL DEFAULT '0',
   `ip` varchar(15) DEFAULT NULL,
   `username` varchar(32) DEFAULT NULL,
