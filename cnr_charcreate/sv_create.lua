@@ -16,6 +16,8 @@ local unique    = {} -- Unique IDs by player server ID
 
 
 -- DEBUG - Whitelist
+-- In the near future, this needs to use more than just a Steam verification
+-- so people can play from multiple sources and not just rely upon Steam.
 local function OnPlayerConnecting(name, setKickReason, deferrals)
   local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
   deferrals.defer()
@@ -27,21 +29,22 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
     end
   end
   if steamIdentifier then 
-    cprint("^2Access granted ^7for user "..name.."; Steam ID ["..steamIdentifier.."]")
+    cprint("^2Success; User is logged into Steam.")
     deferrals.done()
+  
   else
-    cprint("^1Access DENIED ^7for user"..name.."; Steam ID ["..steamIdentifier.."]")
-    cprint(name.." Disconnected. Reason: Not whitelisted.")
+    cprint("^1Failure; User is NOT logged into Steam.")
+    cprint(name.." Disconnected. Reason: Not using Steam.")
     deferrals.done(
-      "Server is being Developed and you are not whitelisted. "..
-      "Please check back soon!"
+      "The current version of this gamemode requires that you use Steam."
     )
     exports['cnr_chat']:DiscordMessage(
       16711680, "Disconnect",
-      name.." failed to validate. Disconnected.",
-      "Whitelist Violation"
+      name.." is not logged into Steam.",
+      "No Steam Logon"
     )
   end
+  
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
 
@@ -81,7 +84,7 @@ function ReadChangelog(ply)
     end
   else
   if dMsg then
-    cprint("Failed to open changelog.txt")
+    cprint("changelog.txt Did not exist. This is more a notice than an error.")
   end
   end 
   if dMsg then
