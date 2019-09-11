@@ -11,11 +11,12 @@ local dMsg   = true -- Display debug messages
 ----------------------------------------------------------------
 
 local steams    = {} -- Collection of Steam IDs by Server ID.
+local fivem     = {} -- Collection of FiveM License #s by Server ID.
 local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
 local unique    = {} -- Unique IDs by player server ID
 
 
--- DEBUG - Whitelist
+--[[ DEBUG - Whitelist
 -- In the near future, this needs to use more than just a Steam verification
 -- so people can play from multiple sources and not just rely upon Steam.
 local function OnPlayerConnecting(name, setKickReason, deferrals)
@@ -47,7 +48,7 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
   
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
-
+]]
 
 --- GetPlayerSteamId()
 -- Finds the player's Steam ID. We know it exists because of deferrals.
@@ -55,6 +56,7 @@ function GetPlayerSteamId(ply)
   if steams[ply] then return steams[ply] end
   local sid = nil
   for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+    print("DEBUG - ^3"..tostring(id).."^7")
     if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
     end
   end
@@ -65,6 +67,23 @@ function GetPlayerSteamId(ply)
   return sid
 end
 
+
+-- GetPlayerLicense()
+-- Finds the player's FiveM License ID
+function GetPlayerLicense(ply)
+  if fivem[ply] then return fivem[ply] end
+  local fid = nil
+  for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+    print("DEBUG - ^3"..tostring(id))
+    if string.sub(id, 1, string.len("fivem:")) == "fivem:" then fid = id
+    end
+  end
+  fivem[ply] = fid
+  if doTalk then
+    cprint(GetPlayerName(ply).." FiveM ID ["..tostring(fivem[ply]).."]")
+  end
+  return fid
+end
 
 --- ReadChangelog()
 -- Scans the change log and sends it to the player
@@ -83,9 +102,9 @@ function ReadChangelog(ply)
       end
     end
   else
-  if dMsg then
-    cprint("changelog.txt Did not exist. This is more a notice than an error.")
-  end
+    if dMsg then
+      cprint("changelog.txt not found. You can safely ignore this warning.")
+    end
   end 
   if dMsg then
     cprint("Sending changelog to "..GetPlayerName(ply))
@@ -95,30 +114,35 @@ function ReadChangelog(ply)
 end
 
 
-function CreateUniqueId(ply, stm)
+--- CreateUniqueId()
+-- Creates a new entry to the 'players' table of the SQL Database, and then 
+-- assigns the Unique ID to the 'unique' table variable.
+-- @param ply The Player's Server ID. If not given, function ends
+function CreateUniqueId(ply)
+  
+  if not ply then return 0 end
+  
   -- SQL: Insert new user account for new player
-  -- DEBUG - Should really make this a stored procedure
-  exports['ghmattimysql']:execute(
-    "INSERT INTO players (idSteam, ip, username, created, lastjoin) "..
-    "VALUES (@steamid, @ip, @user, NOW(), NOW())",
+  -- If steamid and fiveid are nil, the procedure will return 0
+  local uid = exports['ghmattimysql']:scalarSync(
+    "SELECT new_player (@steamid, @fiveid, @ip, @user)",
     {
       ['steamid'] = GetPlayerSteamId(ply), 
+      ['fiveid']  = GetPlayerLicense(ply),
       ['ip']      = GetPlayerEndpoint(ply),
       ['user']    = GetPlayerName(ply)
-    },
-    function()
-      -- SQL: Get idUnique of new player
-      exports['ghmattimysql']:scalar(
-        "SELECT idUnique FROM players WHERE idSteam = @steamid",
-        {['steamid'] = GetPlayerSteamId(ply)},
-        function(uid)
-          unique[ply] = uid
-          exports['cnrobbers']:UniqueId(ply, uid) -- Set UID for session
-          cprint("Created Unique ID "..(uid).." for  "..GetPlayerName(ply))
-        end
-      )
-    end
+    }
   )
+  if uid > 0 then 
+    unique[ply] = uid
+    exports['cnrobbers']:UniqueId(ply, uid) -- Set UID for session
+    cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
+  else
+    cprint("^1A Fatal Error has occurred, and the player has been dropped.")
+    print("5M:CNR was unable to ascertain a Unique ID for "..GetPlayerName(ply))
+    print("The player is not logged into Steam, AND has an invalid FiveM ID.")
+    DropPlayer(ply, "Fatal Error; Steam Logon or FiveM License required.")
+  end
 end
 
 
@@ -127,8 +151,12 @@ end
 AddEventHandler('cnr:create_player', function()
 
   local ply     = source
-  local stm     = GetPlayerSteamId(ply)
+  local sid     = GetPlayerSteamId(ply)
+  local fid     = GetPlayerLicense(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
+  
+  if not sid then sid = 0 end
+  if not fid then fid = 0 end
   
   if doJoin then
     cprint("^2"..ustring.." connected.^7")
@@ -136,22 +164,28 @@ AddEventHandler('cnr:create_player', function()
   
   ReadChangelog(ply)
   
-  if stm then
+  if sid or fid > 0 then
     if dMsg then
-      cprint("Steam ID exists. Retrieving Unique ID.")
+      cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
     end
   
     -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
-      "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
-      {['steam'] = stm},
+      "SELECT idUnique FROM players "..
+      "WHERE idSteam = @steam OR idFiveM = @five LIMIT 1",
+      {['steam'] = sid, ['five'] = fid},
       function(uid)
         if uid then 
+          print("DEBUG - UID Exists.")
           unique[ply] = uid
           cprint("Found Unique ID "..uid.." for "..ustring)
           exports['cnrobbers']:UniqueId(ply, uid)
         else
-          CreateUniqueId(ply, stm)
+          print("DEBUG - UID Nonexistant")
+          if CreateUniqueId(ply) < 1 then 
+            cprint("^1A Fatal Error has Occurred.")
+            cprint("No player ID given to CreateUniqueId() in sv_create.lua")
+          end
         end
         Citizen.Wait(200) 
         cprint(ustring.." is ready to play.")
@@ -160,11 +194,10 @@ AddEventHandler('cnr:create_player', function()
     )
     
   else
-    cprint("^1No Steam ID Found for "..ustring)
-    cprint("^1"..ustring.." disconnected. ^7(No Steam Logon)")
+    cprint("^1"..ustring.." disconnected. ^7(No ID Validation Obtained)")
     DropPlayer(ply,
-      "Please log into steam, or make a FREE steam account at "..
-      "www.steampowered.com so we can save your progress."
+      "Your FiveM License was invalid, and you are not using Steam. "..
+      "Please relaunch FiveM, or log into Steam to play on this server."
     )
   end
 end)

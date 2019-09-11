@@ -1,12 +1,14 @@
 
 # Cops-n-Robbers
-## Repository Information
+## Gamemode Information (Section 1)
+
+### Repository Information
 
 This repository is the collection of the latest version of Cops and Robbers for
 FiveM. This gamemode is written in Lua, with graphical interface written in 
 HTML, CSS and Javascript(JQuery).
 
-## Gamemode Information 
+### Gamemode Information 
 
 Cops and Robbers (hereforth 'CNR') is a game where regular civilians can choose
 to either commit a crime and run from the cops, live a legitimate life, or 
@@ -15,7 +17,7 @@ of life, such as realistic naming or licensing. The point of the game is to
 have quick action, run from the cops, chase bad guys, shoot people, and gain
 cash.
 
-## Self-Sufficient Gamemode / Dependencies
+### Self-Sufficient Gamemode / Dependencies
 
 The goal is to be a self-sufficient gamemode. This means, while currently we
 use the base resources and GHMattiMySQL, the intention is that we will over time
@@ -26,7 +28,33 @@ If you do not want to use GHMattiMySQL, spawnmanager, or any of those other
 resources while you contribute, simply change the dependencies in the base
 gamemode resource (cnrobbers).
 
-## Developer Information
+## Installation Instructions (Section 2)
+
+### SQL DATABASE
+
+You will need to download [GHMattiMySQL](https://github.com/GHMatti/ghmattimysql) 
+which is a FiveM Resource for interacting with the MySQL Database.
+You can find GHMattiMySQL by clicking [on Github](https://github.com/GHMatti/ghmattimysql)
+Currently, 5M:CNR is dependent upon this resource as there is a heavy use of 
+databasing for preserving player information. 
+
+To install the database, ensure you have a valid MySQL Connection with GHMattiMySQL.
+Using either the command prompt, or an interactive program such as MYSQL Workbench or PHPMyAdmin,
+import the SQL file given in the repository. This file is the latest version of 
+the SQL instructions on establishing the database for the gamemode.
+
+### Game Script
+
+The game script as of the current version is reliable on a few base resources.
+FiveM is installed with these resources, you just have to activate them.
+* Spawn Manager `start spawnmanager`
+* Base Events `start baseevents`
+* FiveM Chat `start chat`
+
+The gamemode will not start without these resources running, and connecting
+players will not be able to join.
+
+## Developer Information (Section 3)
 
 If you wish to contribute or help in the development of this gamemode, you can 
 create your own fork of the project. If you wish to test the script on your own
@@ -40,15 +68,7 @@ import the file into an SQL database, and use a resource to connect to it. Once
 impoted, the game mode will do the rest. Be sure to restart the server after 
 importing the database.
 
-## Copyright Information
-
-Anyone is free to create their own servers with the files in this repository. 
-All files in the repository have an open license and can be used in any way. FiveM
-terms of use prohibit any profit from using their service, and this gamemode is 
-provided for the community to host a unique game. All credit, if given, should
-go to the original creator as well as the contributors as applicable.
-
-## Resource Files
+### Resource Files
 
 All details of what each individual resource controls and is used for
 is located in the header of the __resource.lua file.
@@ -64,7 +84,7 @@ is located in the header of the __resource.lua file.
   * [Scoreboard](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_scoreboard)
   * [Wanted Script](https://github.com/rhapidfyre/Cops-n-Robbers/tree/master/cnr_wanted)
   
-## Pull Requests
+### Pull Requests
 
 To submit your code to the master branch, the coding convention must be (mostly)
 followed. I'll put some extra work in for your first few contributions, but if it becomes
@@ -74,7 +94,7 @@ our databases to match, or there will be errors and inconsistencies.
 
 TL;DR - Any changes to SQL schema must be included in your pull request.
 
-## Code Convention
+### Code Convention
 
 Any notes made that require revisiting or changing later must be exactly "-- DEBUG -",
 which is the search term we will look for when finalizing a script. There should 
@@ -96,3 +116,10 @@ On top of complying with LDoc, all code submitted must conform to the following:
 Try to keep to an 80 character maximum per line, but do not sacrifice easily-readable code for a spacing requirement.
 I.e: It is not necessary to break a print string into 3 lines just to fit within 80 chars
 
+# Copyright Information
+
+Anyone is free to create their own servers with the files in this repository. 
+All files in the repository have an open license and can be used in any way. FiveM
+terms of use prohibit any profit from using their service, and this gamemode is 
+provided for the community to host a unique game. All credit, if given, should
+go to the original creator as well as the contributors as applicable.
