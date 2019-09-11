@@ -2,6 +2,15 @@
 # Cops-n-Robbers
 ## Gamemode Information (Section 1)
 
+## Current Controls
+
+Please keep in mind this gamemode is fluid and controls can change at any time.
+PLEASE review the control list every time the master is updated!
+
+* (F2): Issue a ticket (For now, it also arrests the nearby player)
+* (E): Interaction Key (For all interactive functions in the game)
+* Rob Store: Point a gun
+
 ### Repository Information
 
 This repository is the collection of the latest version of Cops and Robbers for
