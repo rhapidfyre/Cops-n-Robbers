@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 11, 2019 at 05:56 PM
+-- Generation Time: Sep 11, 2019 at 09:41 PM
 -- Server version: 5.5.60-MariaDB
 -- PHP Version: 5.4.16
 
@@ -57,8 +57,7 @@ CREATE DEFINER=`localhost`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNE
     NO SQL
 BEGIN
   
-  /* The game script verifies this won't be negative
-  before SQL receives it */
+  # Game script must verify non-negative before calling
   
   DECLARE money INT;
   
