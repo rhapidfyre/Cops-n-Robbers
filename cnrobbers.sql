@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 10, 2019 at 04:28 AM
+-- Generation Time: Sep 11, 2019 at 05:56 PM
 -- Server version: 5.5.60-MariaDB
 -- PHP Version: 5.4.16
 
@@ -24,7 +24,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`localhost`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
+CREATE DEFINER=`rhapidfyre`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
     NO SQL
 BEGIN
 	
@@ -53,7 +53,7 @@ END$$
 --
 -- Functions
 --
-CREATE DEFINER=`localhost`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -73,7 +73,7 @@ BEGIN
   RETURN money;
 END$$
 
-CREATE DEFINER=`localhost`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -91,6 +91,41 @@ BEGIN
     WHERE idUnique = uid;
     
   RETURN money;
+END$$
+
+CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `new_player`(`steam` VARCHAR(50), `fivem` VARCHAR(50), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
+    NO SQL
+BEGIN
+
+	DECLARE uid INT UNSIGNED DEFAULT 0;
+    DECLARE tst TIMESTAMP;
+    
+    SET tst = CURRENT_TIMESTAMP;
+    
+    # If Steam ID or FiveM License is Valid, Continue
+    IF steam IS NOT NULL OR fivem IS NOT NULL THEN 
+      SET uid = 1;
+    END IF;
+    
+    # If UID is not 0 (no Steam/5M License), continue
+    IF uid != 9999 THEN 
+    
+      # Insert new Entry
+      INSERT INTO players (
+          idSteam, idFiveM, ip, username, created, lastjoin
+      )
+      VALUES (
+          steam, fivem, ip, username, tst, tst
+      );
+      
+      # Get the new Entry's UID
+      SELECT idUnique INTO uid FROM players
+        WHERE created = tst LIMIT 1;
+  
+    END IF;
+    
+    RETURN uid;
+
 END$$
 
 DELIMITER ;
@@ -116,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `preset2` text NOT NULL,
   `preset3` text NOT NULL,
   `position` varchar(48) NOT NULL DEFAULT '{"x":0.1,"y":0.1,"z":0.1}'
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -170,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `players` (
   `reason` text,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastjoin` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -229,7 +264,7 @@ ALTER TABLE `robberies`
 -- AUTO_INCREMENT for table `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `dbid` int(16) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=26;
+  MODIFY `dbid` int(16) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT for table `clans`
 --
@@ -244,7 +279,7 @@ ALTER TABLE `inmates`
 -- AUTO_INCREMENT for table `players`
 --
 ALTER TABLE `players`
-  MODIFY `idUnique` int(16) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+  MODIFY `idUnique` int(16) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=8;
 --
 -- AUTO_INCREMENT for table `robberies`
 --
