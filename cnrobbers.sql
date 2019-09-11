@@ -24,7 +24,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`rhapidfyre`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
+CREATE DEFINER=`localhost`@`%` PROCEDURE `offline_inmate`(IN `uid` INT(16) UNSIGNED, IN `serve` INT(32), IN `isBigJail` TINYINT(1))
     NO SQL
 BEGIN
 	
@@ -53,7 +53,7 @@ END$$
 --
 -- Functions
 --
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE DEFINER=`localhost`@`%` FUNCTION `bank_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -73,7 +73,7 @@ BEGIN
   RETURN money;
 END$$
 
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
+CREATE DEFINER=`localhost`@`%` FUNCTION `cash_transaction`(`uid` INT(16) UNSIGNED, `amt` INT(32)) RETURNS int(32)
     NO SQL
 BEGIN
   
@@ -93,7 +93,7 @@ BEGIN
   RETURN money;
 END$$
 
-CREATE DEFINER=`rhapidfyre`@`%` FUNCTION `new_player`(`steam` VARCHAR(50), `fivem` VARCHAR(50), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
+CREATE DEFINER=`localhost`@`%` FUNCTION `new_player`(`steam` VARCHAR(50), `fivem` VARCHAR(50), `ip` VARCHAR(15), `username` VARCHAR(56)) RETURNS int(16) unsigned
     NO SQL
 BEGIN
 
