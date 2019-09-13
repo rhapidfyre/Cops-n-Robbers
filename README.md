@@ -3,9 +3,8 @@
 
 ## Headers
 
-### DISCORD: [jaxxkKp](https://discord.gg/jaxxkKp)
-### Official Gamemode Server: **104.168.163.78**
-
+**Discord Invite:** [jaxxkKp](https://discord.gg/jaxxkKp)
+Official Test Server: **104.168.163.78**
 
 ## Gamemode Information (Section 1)
 
