@@ -1,5 +1,12 @@
 
 # Cops-n-Robbers
+
+## Headers
+
+### DISCORD: [jaxxkKp](https://discord.gg/jaxxkKp)
+### Official Gamemode Server: **104.168.163.78**
+
+
 ## Gamemode Information (Section 1)
 
 ## Current Controls
