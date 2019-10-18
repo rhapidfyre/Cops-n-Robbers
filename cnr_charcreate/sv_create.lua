@@ -117,6 +117,10 @@ function CreateUniqueId(ply)
   
   if not ply then return 0 end
   
+  -- Filter username for special characters
+  local filtered = GetPlayerName(ply)
+  filtered = string.gsub(filtered, "[%W]", "")
+  
   -- SQL: Insert new user account for new player
   -- If steamid and fiveid are nil, the procedure will return 0
   local uid = exports['ghmattimysql']:scalarSync(
@@ -125,7 +129,7 @@ function CreateUniqueId(ply)
       ['steamid'] = GetPlayerSteamId(ply), 
       ['fiveid']  = GetPlayerLicense(ply),
       ['ip']      = GetPlayerEndpoint(ply),
-      ['user']    = GetPlayerName(ply)
+      ['user']    = filtered
     }
   )
   if uid > 0 then 
