@@ -1,6 +1,9 @@
 
 
--- DEBUG - Remove later
+local connected = false
+
+
+--[[ DEBUG - Remove later
 -- /relog
 -- Allows the player to invoke the create_player event as if
 -- they had just connected to the server.
@@ -13,25 +16,29 @@ RegisterCommand('relog', function()
   SendNUIMessage({showwelcome = true})
   SetNuiFocus(true, true)
   TriggerServerEvent('cnr:create_player')
-end)
+end)]]
 
 
 -- On connection to the server
-AddEventHandler('onClientGameTypeStart', function()   
-  print("DEBUG - Preparing to load player into the server.")
-  --exports.spawnmanager:setAutoSpawn(false)
+--AddEventHandler('onClientGameTypeStart', function()   
+AddEventHandler('onClientResourceStart', function(resname)
+  if GetCurrentResourceName() == resname then
   
-  Citizen.Wait(1000)
-  
-  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-  SetCamParams(cam, -1756.53, -1117.24, 18.0, 6.0, 0.0, 0.0, 50.0) 
-  RenderScriptCams(true, true, 500, true, true)
-  SetCamActive(cam, true)
-  
-  print("DEBUG - Requesting for the server to send us the changelog.")
-  SendNUIMessage({showwelcome = true})
-  SetNuiFocus(true, true)
-  TriggerServerEvent('cnr:create_player')
+    --exports.spawnmanager:setAutoSpawn(false)
+    Citizen.Wait(100)
+    
+    print("DEBUG - Requesting for the server to let me spawn.")
+    --SendNUIMessage({showwelcome = true})
+    --SetNuiFocus(true, true)
+    
+    Citizen.CreateThread(function()
+      while not connected do 
+        TriggerServerEvent('cnr:create_player')
+        Citizen.Wait(3000)
+      end
+      print("DEBUG - The Server has acknowledged my connection.")
+    end)
+  end
 end)
 
 
@@ -40,8 +47,9 @@ end)
 -- and the player can join.
 RegisterNetEvent('cnr:create_ready')
 AddEventHandler('cnr:create_ready', function() 
-  print("DEBUG - Changing button from ^1LOADING ^7to ^2PLAY")
-  SendNUIMessage({hideready = true})
+  --print("DEBUG - Changing button from ^1LOADING ^7to ^2PLAY")
+  --SendNUIMessage({hideready = true})
+  connected = true
 end)
 
 
@@ -100,24 +108,26 @@ AddEventHandler('cnr:create_reload', function(myChar)
   SendNUIMessage({hideallmenus = true})
   SetNuiFocus(false)
   local lastPos = json.decode(myChar["position"])
-  SetEntityCoords(PlayerPedId(), lastPos['x'], lastPos['y'], lastPos['z'])
+  --SetEntityCoords(PlayerPedId(), lastPos['x'], lastPos['y'], lastPos['z'])
   local myModel = GetHashKey(myChar["model"])
   print("DEBUG - Reloading Model ["..tostring(myChar["model"]).."]")
-  RequestModel(myModel)
-  while not HasModelLoaded(myModel) do Wait(1) end
-  SetPlayerModel(PlayerId(), myModel)
-  SetModelAsNoLongerNeeded(myModel)
-  Wait(200)
-  SetNuiFocus(false)
-  SetCamActive(cam, false)
-  RenderScriptCams(false, true, 500, true, true)
-  cam = nil
-  Wait(100)
-  if IsScreenFadedOut() then DoScreenFadeIn(1000) end
-  Wait(1000)
-  exports['cnrobbers']:ReportPosition(true)
-  TriggerEvent('cnr:loaded')
-  TriggerServerEvent('cnr:client_loaded')
+  --RequestModel(myModel)
+  --while not HasModelLoaded(myModel) do Wait(1) end
+  --SetPlayerModel(PlayerId(), myModel)
+  --SetModelAsNoLongerNeeded(myModel)
+	exports.spawnmanager:spawnPlayer({
+		x     = lastPos.x,
+		y     = lastPos.y,
+		z     = lastPos.z,
+		model = myChar['model']
+	}, function()
+    SetNuiFocus(false)
+    exports['cnrobbers']:ReportPosition(true)
+    TriggerEvent('cnr:loaded')
+    TriggerEvent('cnr:wallet_valet', myChar['cash'])
+    TriggerEvent('cnr:bank_account', myChar['bank'])
+    TriggerServerEvent('cnr:client_loaded')
+  end)
 end)
 
 

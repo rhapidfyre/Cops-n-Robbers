@@ -180,8 +180,6 @@ AddEventHandler('cnr:create_player', function()
     cprint("^2"..ustring.." connected.^7")
   end
   
-  ReadChangelog(ply)
-  
   if sid or fid > 0 then
     if dMsg then
       cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
@@ -214,6 +212,7 @@ AddEventHandler('cnr:create_player', function()
         Citizen.Wait(200) 
         cprint(ustring.." is loaded in, and ready to play!")
         TriggerClientEvent('cnr:create_ready', ply)
+        CreateSession(ply)
       end
     )
     
@@ -229,27 +228,22 @@ end)
 
 --- EVENT 'cnr:create_session'
 -- Received by a client when they're spawned and ready to load in
-AddEventHandler('cnr:create_session', function()
-  
-  local ply   = source
-  local pName = GetPlayerName(ply).. "("..ply..")"
+function CreateSession(ply)
   
   -- Retrieve all their character information
   exports['ghmattimysql']:execute(
     "SELECT * FROM characters WHERE idUnique = @uid",
     {['uid'] = unique[ply]},
-    function(plyr) 
-    
+    function(plyr)
+
       -- If character exists, load it.
       if plyr[1] then
         local pName = GetPlayerName(ply).."'s"
         cprint("Reloading "..pName.." last known character information.")
         exports['cnr_chat']:DiscordMessage(
-          65280, GetPlayerName(ply).." Connected", "", ""
+          65280, GetPlayerName(ply).." has joined the game!", "", ""
         )
         TriggerClientEvent('cnr:create_reload', ply, plyr[1])
-        TriggerClientEvent('cnr:wallet_value', ply, plyr[1]["cash"])
-        TriggerClientEvent('cnr:bank_account', ply, plyr[1]["bank"])
       
       -- Otherwise, create it.
       else
@@ -257,7 +251,7 @@ AddEventHandler('cnr:create_session', function()
         Citizen.CreateThread(function()
           exports['cnr_chat']:DiscordMessage(
             7864575, "New Player",
-            "Please welcome our newest player, "..GetPlayerName(ply).."!", ""
+            "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
           )
         end)
         TriggerClientEvent('cnr:create_character', ply)
@@ -265,53 +259,23 @@ AddEventHandler('cnr:create_session', function()
     end
   )
   
-end)
+end
 
 
 --- EVENT 'cnr:create_save_character'
 -- Received by a client when they're spawned and ready to load in
 RegisterServerEvent('cnr:create_save_character')
-AddEventHandler('cnr:create_save_character',
-  --[[function(parents, eyes, hair, perm, temp, feats, model, outfit)
-  
-    local ply = source
-    local uid = unique[ply]
-    
-    -- SQL: Insert new player character
-    exports['ghmattimysql']:execute(
-      "INSERT INTO characters "..
-      "(idUnique, model, blenddata, hairstyle, bodystyle, overlay, clothes, preset1, preset2, preset3) "..
-      "VALUES (@uid, @mdl, @blend, @hair, @body, @tmp, @wear, @wear, @wear, @wear)",
-      {
-        ['uid']   = uid,     ['mdl']  = model,
-        ['blend'] = parents, ['hair'] = hair,   ['body'] = perm,
-        ['tmp']   = temp,    ['wear'] = outfit
-      },
-      function()
-        TriggerClientEvent('chat:addMessage', (-1), {
-          color     = {245,220,60},
-          multiline = false,
-          args      = {
-            "Please welcome our newest player",
-            GetPlayerName(ply)
-          }
-        })
-        TriggerClientEvent('cnr:create_finished', ply)
-      end
-    )
-  end]]
-  function(pModel)
-    local ply = source
-    local uid = exports['cnrobbers']:UniqueId(ply)
-    print("DEBUG - INSERT INTO characters ("..tostring(uid)..", "..tostring(pModel)..").....")
-    exports['ghmattimysql']:execute(
-      "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
-      {['uid'] = uid, ['mdl'] = pModel},
-      function()
-        TriggerClientEvent('cnr:create_finished', ply)
-      end
-    )
-  end
-)
+AddEventHandler('cnr:create_save_character', function(pModel)
+  local ply = source
+  local uid = exports['cnrobbers']:UniqueId(ply)
+  print("DEBUG - INSERT INTO characters ("..tostring(uid)..", "..tostring(pModel)..").....")
+  exports['ghmattimysql']:execute(
+    "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
+    {['uid'] = uid, ['mdl'] = pModel},
+    function()
+      TriggerClientEvent('cnr:create_finished', ply)
+    end
+  )
+end)
 
 
