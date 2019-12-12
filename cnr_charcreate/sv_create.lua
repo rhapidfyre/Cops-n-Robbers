@@ -109,6 +109,31 @@ function ReadChangelog(ply)
 end
 
 
+function GetPlayerInformation(ply)
+  local plyInfo = GetPlayerIdentifiers(ply)
+  local infoTable = {
+    ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
+    ['ip'] = GetPlayerEndpoint(ply)
+  }
+  for _,id in pairs (plyInfo) do 
+    if string.sub(id, 1, string.len("steam:")) == "steam:" then
+      infoTable['stm'] = id
+    elseif string.sub(id, 1, string.len("license:")) == "license:" then
+      infoTable['soc'] = id
+    elseif string.sub(id, 1, string.len("fivem:")) == "fivem:" then
+      infoTable['five'] = id
+    elseif string.sub(id, 1, string.len("discord:")) == "steam:" then
+      infoTable['discd'] = id
+    end
+  end
+  
+  local filtered = GetPlayerName(ply)
+  infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
+  print("DEBUG - User Values:\n"..json.encode(infoTable))
+  return infoTable
+end
+
+
 --- CreateUniqueId()
 -- Creates a new entry to the 'players' table of the SQL Database, and then 
 -- assigns the Unique ID to the 'unique' table variable.
@@ -118,19 +143,12 @@ function CreateUniqueId(ply)
   if not ply then return 0 end
   
   -- Filter username for special characters
-  local filtered = GetPlayerName(ply)
-  filtered = string.gsub(filtered, "[%W]", "")
   
   -- SQL: Insert new user account for new player
   -- If steamid and fiveid are nil, the procedure will return 0
   local uid = exports['ghmattimysql']:scalarSync(
-    "SELECT new_player (@steamid, @fiveid, @ip, @user)",
-    {
-      ['steamid'] = GetPlayerSteamId(ply), 
-      ['fiveid']  = GetPlayerLicense(ply),
-      ['ip']      = GetPlayerEndpoint(ply),
-      ['user']    = filtered
-    }
+    "SELECT new_player (@stm, @soc, @five, @disc, @ip, @user)",
+    {GetPlayerInformation(ply)}
   )
   if uid > 0 then 
     unique[ply] = uid
