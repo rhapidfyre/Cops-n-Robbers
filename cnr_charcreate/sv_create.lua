@@ -157,8 +157,8 @@ function CreateUniqueId(ply)
   else
     cprint("^1A Fatal Error has occurred, and the player has been dropped.")
     print("5M:CNR was unable to ascertain a Unique ID for "..GetPlayerName(ply))
-    print("The player is not logged into Steam, AND has an invalid FiveM ID.")
-    DropPlayer(ply, "Fatal Error; Steam Logon or FiveM License required.")
+    print("The player is not using any methods of identification.")
+    DropPlayer(ply, "Fatal Error; Steam, Social Club, FiveM, or Discord License required on this server for stats tracking.")
   end
   return unique[ply]
 end
