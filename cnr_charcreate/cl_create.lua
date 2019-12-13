@@ -3,20 +3,13 @@
 local connected = false
 
 
---[[ DEBUG - Remove later
+-- DEBUG - Remove later
 -- /relog
 -- Allows the player to invoke the create_player event as if
 -- they had just connected to the server.
 RegisterCommand('relog', function()
-  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-  SetCamParams(cam, -1756.53, -1117.24, 18.0, 6.0, 0.0, 0.0, 50.0) 
-  RenderScriptCams(true, true, 500, true, true)
-  SetCamActive(cam, true)
-  print("DEBUG - Requesting for the server to send us the changelog.")
-  SendNUIMessage({showwelcome = true})
-  SetNuiFocus(true, true)
   TriggerServerEvent('cnr:create_player')
-end)]]
+end)
 
 
 -- On connection to the server
@@ -135,19 +128,24 @@ end)
 -- Called if the player hasn't played here before, and needs a character
 RegisterNetEvent('cnr:create_character')
 AddEventHandler('cnr:create_character', function()
+
   SendNUIMessage({hidewelcome = true})
+  SetNuiFocus(true, true)
+  
   if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
   SetEntityCoords(PlayerPedId(), -1702.72, -1085.94, 13.1523)
   SetEntityHeading(PlayerPedId(), 40.0)
   SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
   RenderScriptCams(true, true, 500, true, true)
   SetCamActive(cam, true)
+  
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
+  
   Citizen.Wait(600)
   SendNUIMessage({showpedpick = true})
   
   -- Default model spawn
-  ModelChoice("next")
+  ModelChoice("random")
   
 end)
 
@@ -169,7 +167,7 @@ end)
 -- This is the temporary ped model selection.
 -- We will make the move to the freemode models once we have more time, but 
 -- this works for the time being.
-local pm = 0
+local pm = 1
 function ModelChoice(data, cb)
   local oldPM = pm
   if coolDown then
@@ -180,6 +178,7 @@ function ModelChoice(data, cb)
   coolDown = true
   
   if data == "random" then 
+    print("^3DEBUG - Menu given RANDOM MODEL command!")
     oldPM = pm
     pm = math.random(#pedModels)
     while not pedModels[pm] do 
@@ -188,14 +187,17 @@ function ModelChoice(data, cb)
     end
   
   elseif data == "last" then 
+    print("^3DEBUG - Menu given LAST command!")
     pm = pm - 1
     if pm < 1 then pm = #pedModels end
   
   elseif data == "next" then 
+    print("^3DEBUG - Menu given NEXT command!")
     pm = pm + 1
     if pm > #pedModels then pm = 1 end
   
   else
+    print("^3DEBUG - No argument given to menu, submitting character for approval.")
     TriggerServerEvent('cnr:create_save_character', pedModels[pm])
     coolDown = false
     return 0

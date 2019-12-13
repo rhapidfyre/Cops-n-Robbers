@@ -146,9 +146,13 @@ function CreateUniqueId(ply)
   
   -- SQL: Insert new user account for new player
   -- If steamid and fiveid are nil, the procedure will return 0
+  local ids = GetPlayerInformation(ply)
   local uid = exports['ghmattimysql']:scalarSync(
     "SELECT new_player (@stm, @soc, @five, @disc, @ip, @user)",
-    {GetPlayerInformation(ply)}
+    {
+      ['stm'] = ids['stm'], ['soc'] = ids['soc'], ['five'] = ids['five'],
+      ['disc'] = ids['discd'], ['ip'] = ids['ip'], ['user'] = ids['user']
+    }
   )
   if uid > 0 then 
     unique[ply] = uid
@@ -169,18 +173,14 @@ end
 AddEventHandler('cnr:create_player', function()
 
   local ply     = source
-  local sid     = GetPlayerSteamId(ply)
-  local fid     = GetPlayerLicense(ply)
+  local ids     = GetPlayerInformation(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
-  
-  if not sid then sid = 0 end
-  if not fid then fid = 0 end
   
   if doJoin then
     cprint("^2"..ustring.." connected.^7")
   end
   
-  if sid or fid > 0 then
+  if ids then
     if dMsg then
       cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
     end
@@ -188,8 +188,9 @@ AddEventHandler('cnr:create_player', function()
     -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
       "SELECT idUnique FROM players "..
-      "WHERE idSteam = @steam OR idFiveM = @five LIMIT 1",
-      {['steam'] = sid, ['five'] = fid},
+      "WHERE idSteam = @steam OR idFiveM = @five OR idSocialClub = @soc "..
+      "OR idDiscord = @disc LIMIT 1",
+      {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']},
       function(uid)
         if uid then 
           print("DEBUG - UID Exists.")
@@ -247,12 +248,13 @@ function CreateSession(ply)
       
       -- Otherwise, create it.
       else
+        Citizen.Wait(1000)
         cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
         Citizen.CreateThread(function()
-          exports['cnr_chat']:DiscordMessage(
-            7864575, "New Player",
-            "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
-          )
+          --exports['cnr_chat']:DiscordMessage(
+          --  7864575, "New Player",
+          --  "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
+          --)
         end)
         TriggerClientEvent('cnr:create_character', ply)
       end
@@ -267,7 +269,7 @@ end
 RegisterServerEvent('cnr:create_save_character')
 AddEventHandler('cnr:create_save_character', function(pModel)
   local ply = source
-  local uid = exports['cnrobbers']:UniqueId(ply)
+  local uid = unique[ply]
   print("DEBUG - INSERT INTO characters ("..tostring(uid)..", "..tostring(pModel)..").....")
   exports['ghmattimysql']:execute(
     "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",

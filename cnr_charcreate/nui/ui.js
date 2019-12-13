@@ -70,7 +70,7 @@ $(function() {
       // DEBUG -
       else if (data.which == 37) {ModelSelect(1);} // LT ARROW: Prev
       else if (data.which == 39) {ModelSelect(2);} // RT ARROW: Next
-      else if (data.which == 32) {ModelSelect(0);} // SPACE: Select Model
+      //else if (data.which == 32) {ModelSelect(0);} // SPACE: Select Model
   };
 	
 });
