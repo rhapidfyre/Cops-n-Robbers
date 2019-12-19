@@ -19,11 +19,12 @@ dependency 'cnrobbers'
 
 
 client_scripts {
-  "cl_pickup.lua"
+  "cl_pickups.lua"
 }
 
 server_scripts {
-  "sv_pickup.lua"
+  "sv_config.lua",
+  "sv_pickups.lua"
 }
 
 server_exports {

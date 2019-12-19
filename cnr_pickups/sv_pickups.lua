@@ -31,7 +31,7 @@ Citizen.CreateThread(function()
   
 	while true do
     
-		if tick.timer >= tick.fire 
+		if tick.timer >= tick.fire then
     
 			local plyCount = #GetPlayers()
       tick.timer = 0

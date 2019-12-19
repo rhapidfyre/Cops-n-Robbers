@@ -2,7 +2,7 @@
 local pickups = {  -- An array of pickup types
   [1] = { -- Weapons; `item` will be the WEAPON_NAME, and `qty` shall be the AMMO GIVEN
     { 
-      mdl = "replace_me.mdl", -- The model of the object
+      mdl = "w_pi_pistol.mdl", -- The model of the object
       item = "WEAPON_PISTOL", -- The actual weapon name to give 
       qty = function() math.random(12, 96) end -- How much ammo to provide
     },
@@ -23,15 +23,15 @@ local pickups = {  -- An array of pickup types
     {mdl = "replace_me.mdl", qty = function() math.random(60, 85) end},
     {mdl = "replace_me.mdl", qty = 100},
   },
-  [3] = { -- Healthpacks
+  [3] = {
+    {-- Healthpacks
       mdl = "replace_me.mdl", -- The model of the object
       qty = function() math.random(12, 50) end -- The % of health it provides
     },
     {mdl = "replace_me.mdl", qty = function() math.random(5, 10) end},
     {mdl = "replace_me.mdl", qty = function() math.random(60, 85) end},
     {mdl = "replace_me.mdl", qty = 100},
-  },
-  
+  }
 }
 
 --[[ TABLE: spots
@@ -41,8 +41,8 @@ local pickups = {  -- An array of pickup types
     pos (Position)        => Spawn Vector
 ]]
 local spots   = {
-  {occupied = false, types = {}, pos = vector3()}, -- 1st eligible spawn location
-  {occupied = false, types = {}, pos = vector3()}, -- 2nd eligible spawn location
+  {occupied = false, types = {}, pos = vector3(0.0,0.0,0.0)}, -- 1st eligible spawn location
+  {occupied = false, types = {}, pos = vector3(0.0,0.0,0.0)}, -- 2nd eligible spawn location
 } 
 
 

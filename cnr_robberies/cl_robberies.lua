@@ -71,7 +71,7 @@ function StartRobbery(n)
     local attack = false
     local take   = 0
     TriggerServerEvent('cnr:robbery_send_lock', n, true)
-    TriggerServerEvent('cnr:wanted_points', 'brandish', 'Brandishing a Firearm')
+    TriggerServerEvent('cnr:wanted_points', 'brandish', 'Attempted Robbery')
     rob[n].lockout = true
     Citizen.CreateThread(function()
       while isRobbing do 
@@ -109,7 +109,7 @@ function StartRobbery(n)
         end
         Wait(100)
       end
-      TriggerServerEvent('cnr:wanted_points', 'robbery', 'Robbery (Armed)')
+      TriggerServerEvent('cnr:wanted_points', 'robbery', 'Armed Robbery')
       if take > 0 then 
         print("DEBUG - Robbery Take: $"..take)
         hasBag = true

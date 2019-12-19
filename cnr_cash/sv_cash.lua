@@ -226,10 +226,7 @@ function SetPlayerCashValues(val, ply)
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
   local uid = exports['cnrobbers']:UniqueId(ply)
-  if not uid then 
-    msg = "No Unique ID found for player "..tostring(ply)
-    print("[CNR "..dt.."] ^1."..msg.."^7")
-  else
+  if uid then 
     -- SQL: Get player's cash values
     exports['ghmattimysql']:execute(
       "SELECT cash,bank FROM characters WHERE idUnique = @u",
@@ -251,7 +248,7 @@ function SetPlayerCashValues(val, ply)
   end
   return {0,0}
 end
-AddEventHandler('cnr:client_loaded', function()
+AddEventHandler('cnr:client_loaded', function(client)
   local ply = source
   if client then ply = client end
   SetPlayerCashValues(val, ply)
