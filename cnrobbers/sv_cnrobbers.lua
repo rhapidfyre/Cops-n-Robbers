@@ -92,6 +92,31 @@ end
 AddEventHandler('cnr:print', ConsolePrint)
 
 
+function GetPlayerInformation(ply)
+  local plyInfo = GetPlayerIdentifiers(ply)
+  local infoTable = {
+    ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
+    ['ip'] = GetPlayerEndpoint(ply)
+  }
+  for _,id in pairs (plyInfo) do 
+    if string.sub(id, 1, string.len("steam:")) == "steam:" then
+      infoTable['stm'] = id
+    elseif string.sub(id, 1, string.len("license:")) == "license:" then
+      infoTable['soc'] = id
+    elseif string.sub(id, 1, string.len("fivem:")) == "fivem:" then
+      infoTable['five'] = id
+    elseif string.sub(id, 1, string.len("discord:")) == "steam:" then
+      infoTable['discd'] = id
+    end
+  end
+  
+  local filtered = GetPlayerName(ply)
+  infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
+  print("DEBUG - User Values:\n"..json.encode(infoTable))
+  return infoTable
+end
+
+
 --- EXPORT: UniqueId()
 -- Assigns / Retrieves player's Unique ID (SQL Database ID Number)
 -- @param ply The player (server ID) to get the UID for
@@ -106,30 +131,17 @@ function UniqueId(ply, uid)
     -- Otherwise, find it.
     else
     
-      local idFound = nil
-
-      -- If unique ID doesn't exist, find it
-      for _,id in pairs(GetPlayerIdentifiers(ply)) do 
-        if string.sub(id, 1, string.len("steam:")) == "steam:" then
-          idFound = id
-          print("DEBUG - Found Steam ID ["..id.."]")
-        elseif string.sub(id, 1, string.len("license:")) == "license:" then
-          if not idFound then -- Prefer the SteamID versus the FiveM ID
-            idFound = id
-            print("DEBUG - Found FiveM ID ["..id.."]")
-          end
-        end
-      end
+      local ids = GetPlayerInformation(ply)
       
-      if idFound then
-        local idNumber = exports['ghmattimysql']:scalarSync(
-          "SELECT idUnique FROM players "..
-          "WHERE idSteam = @idNum OR idFiveM = @idNum LIMIT 1",
-          {['idNum'] = idFound}
-        )
-           unique[ply] = idNumber
-      else unique[ply] = 0
-      end
+      local idNumber = exports['ghmattimysql']:scalarSync(
+        "SELECT idUnique FROM players "..
+        "WHERE idSteam = @steam OR idFiveM = @five "..
+        "OR idSocialClub = @soc OR idDiscord = @disc LIMIT 1",
+        {['steam' = ids['stm'], ['five'] = ids['five'],
+        ['soc'] = ids['soc'], ['disc'] = ids['discd']}
+      )
+      
+      unique[ply] = idNumber
       
     end
   else
