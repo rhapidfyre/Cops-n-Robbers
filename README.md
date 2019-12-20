@@ -1,10 +1,16 @@
+| MASTER | [DEV BRANCH](https://github.com/rhapidfyre/Cops-n-Robbers/tree/dev) |
+|---------|--------|
+|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?branch=master)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?branch=dev)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|
 
-# Cops-n-Robbers
+![](git_banner.jpg)
+
+# 5M Cops and Robbers (5M:CNR)
+### A Cops and Robbers Gamemode for [FiveM](https://fivem.net/). 
 
 ## Headers
 
-**Discord Invite:** [jaxxkKp](https://discord.gg/jaxxkKp)
-Official Test Server: **104.168.163.78**
+**Discord Invite:** [Join us on Discord](https://discord.gg/jaxxkKp)
+Official Test Server: **www.rhapidfyre.com:30120**
 
 ## Gamemode Information (Section 1)
 
