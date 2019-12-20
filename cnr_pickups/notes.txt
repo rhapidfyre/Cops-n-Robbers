@@ -1,0 +1,17 @@
+
+  - Server Start:
+    - Load in pickups from `pickup_types`
+    - Generate a Hash for each one
+    - Load in spots from `pickup_spots`
+    
+  - When Zone Changes:
+    - Cancel all Pickups
+    - Reload pickups & Spots (as in 'Server Start')
+    
+  - When Pickups are Destroyed (cleared)
+    - Reload pickups & Spots (as in 'Server Start')
+    
+  - When a player obtains a pickup
+    - Regenerate a new hash for that pickup spot
+    
+  
