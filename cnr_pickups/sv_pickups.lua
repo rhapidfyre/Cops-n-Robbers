@@ -1,8 +1,15 @@
 
+RegisterServerEvent('cnr:obtain_pickup')
+
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 --local tick = {timer = 0, fire = 90, mini = 90, maxi = 300} -- 1.5 to 5 minutes
-local tick = {timer = 0, fire = 10, mini = 10, maxi = 30} -- DEBUG
+local tick = {timer = 0, fire = 5, mini = 5, maxi = 5} -- DEBUG
+
+ -- Pickups ordered by hashes
+ -- Ensures the client picked up a valid pickup, not one they made up.
+local hashes = {}
+
 
 -- Pickup Spawn Event
 --[[
@@ -18,10 +25,9 @@ local tick = {timer = 0, fire = 10, mini = 10, maxi = 30} -- DEBUG
     - Send it to all clients for rendering
 ]]
 Citizen.CreateThread(function()
-
-  Citizen.Wait(3000)
   
   -- How many seconds until the timer should fire
+  Citizen.Wait(2000)
   tick.fire = math.random((tick.mini), (tick.maxi))
   
   -- Get time to next crate in seconds
@@ -48,11 +54,11 @@ Citizen.CreateThread(function()
           if spot then
             -- Pick a random type from spots idx
             local n = math.random(#spot.types)
+            local pickupInfo = GetPickupFromType(n, spot.pos, spot.sHash)
             
-            -- Send it to the clients for rendering
-            TriggerClientEvent('cnr:pickup_create', (-1),
-              GetPickupFromType(n, spot.pos)
-            )
+            -- Store the hash, then send it to the clients for rendering
+            TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo)
+            
           else
             cprint("Unable to find an available pickup, even though script thought one was available.")
           
@@ -75,3 +81,22 @@ Citizen.CreateThread(function()
 		Citizen.Wait(1000)
 	end
 end)
+
+
+AddEventHandler('cnr:obtain_pickup', function(pInfo)
+  local client = source
+  if pInfo then
+    if HashMatch(pInfo.sHash) then
+      TriggerClientEvent('cnr:grant_pickup', (-1), client, pInfo)
+      
+    else
+      TriggerClientEvent('chat:addMessage', {multiline = true, args = {
+        "^1ERROR", "Pickup hash challenge failed."
+      }})
+      cprint("Hash challenge ^1failure ^7on item pickup by Player #"..client)
+      
+    end
+  else print("DEBUG - Error.")
+  end
+end)
+

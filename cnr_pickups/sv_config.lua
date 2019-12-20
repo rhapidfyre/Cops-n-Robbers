@@ -42,9 +42,46 @@ local pickups = {  -- An array of pickup types
     pos (Position)        => Spawn Vector
 ]]
 local spots   = {
-  [1] = {occupied = false, types = {1}, pos = vector3(0.0,4.0,70.92)}, -- 1st eligible spawn location
-  [2] = {occupied = false, types = {1}, pos = vector3(-1.7,5.25,71.05)}, -- 2nd eligible spawn location
+  [1] = {types = {1}, pos = vector3(0.0,4.0,70.92)}, -- 1st eligible spawn location
+  [2] = {types = {1}, pos = vector3(-1.7,5.25,71.05)}, -- 2nd eligible spawn location
 } 
+
+
+--- UniqueHash()
+-- Checks if the hash generated is unique from hashes in `spots`
+local function UniqueHash(genHash)
+  for k,v in pairs (spots) do 
+      if v.sHash == genHash then return false end
+  end
+  return true
+end
+
+
+--- SetHashForSpot()
+-- Creates a hash for each spot for today's game session
+-- Ensures players aren't hacking the events to give themselves stuff
+function SetHashForSpot(n)
+
+  local temp     = ""
+  local goodHash = false
+  local chars = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+                "U", "V", "W", "X", "Y", "Z"};
+
+  while not goodHash do
+    Wait(100)
+    for i=1, 8 do
+      local idx = math.random(#chars)
+      temp = temp..chars[idx]
+    end
+    
+    -- Ensure the hash is Unique
+    goodHash = UniqueHash(temp)
+  end
+  return temp
+  
+end
 
 
 --- DestroyAllPickups()
@@ -76,19 +113,55 @@ end
 -- Picks an available spot then sets it as occupied
 -- @return Table of spot chosen, nil if failed
 function ChooseSpotThenOccupy()
+
   local avSpots = {}
+  
+  -- Choose spot
   for k,v in pairs (spots) do 
     if not v.occupied then
+      if not v.sHash then 
+        v.sHash = SetHashForSpot(k)
+        print("DEBUG - Generated hash for spot #"..k)
+      end
       local n = #avSpots + 1
       avSpots[n] = k
     end
   end
+  
+  -- Then Occupy
   if #avSpots > 0 then
     local i = math.random(#avSpots)
-    spots[i].occupied = true
-    return ( spots[i] )
+    local key = avSpots[i]
+    spots[key].occupied = true
+    print("DEBUG - spots["..key.."] is now occupied")
+    return ( spots[key] )
   end
+  
   return nil
+  
+end
+
+
+--- HashMatch()
+-- Challenge to check if player gave a valid hash
+-- @return Truth value of hash passed
+function HashMatch(pHash)
+  print("DEBUG - pHash Challenge ["..tostring(pHash).."]")
+  if not pHash then return false end
+  for i = 1, #spots do 
+    print("DEBUG - "..spots[i].sHash.." ?= "..pHash)
+    if spots[i].sHash == pHash then
+      if spots[i].occupied then
+        spots[i].occupied = false
+        return true
+      else
+        print("DEBUG - The hash was right, but the spot wasn't occupied (hack?)")
+        return false
+      end
+    end
+  end
+  print("DEBUG - NO match.")
+  return false
 end
 
 
@@ -102,7 +175,8 @@ end
 --- GetPickupFromType()
 -- Gets a random pickup type from the type table and handle the spot position
 -- @returns mdl, icon, item, qty
-function GetPickupFromType(tValue, pos)
+function GetPickupFromType(tValue, pos, hash)
+
   print("DEBUG - TYPE["..tValue.."]")
   if not tValue          then tValue = 1 end
   if not pickups[tValue] then tValue = 1 end
@@ -110,10 +184,13 @@ function GetPickupFromType(tValue, pos)
   local n        = math.random(#pickups[tValue])
   local retValue = pickups[tValue][n]
   local count    = retValue.quantity()
+  
   return ({
+    pType    = tValue,
     model    = retValue.mdl,
     blipIcon = retValue.icon,
     name     = retValue.item,
+    sHash    = hash,
     qty      = count,
     posn     = pos
   })
