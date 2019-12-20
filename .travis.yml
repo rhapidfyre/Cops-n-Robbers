@@ -1,0 +1,38 @@
+# travis ci with luacheck
+language: python
+sudo: false
+
+env:
+  - LUA="lua=5.3"
+
+before_install:
+  - pip install hererocks
+  - hererocks lua_install -r^ --$LUA
+  - export PATH=$PATH:$PWD/lua_install/bin
+
+install:
+  - luarocks install luacheck
+
+script:
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnrobbers
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_blips
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_cash
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_charcreate
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_chat
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_clans
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_death
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_pickups
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_police
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_robberies
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_scoreboard
+  - luacheck -g -a --no-max-line-length --no-max-comment-line-length cnr_wanted
+  
+after_success:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh success $WEBHOOK_URL
+  
+after_failure:
+  - wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - ./send.sh failure $WEBHOOK_URL
