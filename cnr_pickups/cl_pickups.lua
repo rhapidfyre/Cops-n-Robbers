@@ -8,10 +8,10 @@ local tableFree = true -- Ensures no operations are done on 'pickups' when true
 
 -- DEBUG - Test
 RegisterCommand('obtain', function(s,args,r)
-  if not args then args = {1} end
+  if not args then args = 1 end
   local myPos = GetEntityCoords(PlayerPedId())
   TriggerServerEvent('cnr:debug_save_pickup',
-    myPos.x, myPos.y, myPos.z, args
+    myPos.x, myPos.y, myPos.z, tonumber(args[1])
   )
 end)
 
@@ -19,7 +19,7 @@ end)
 -- Creates the pickup object then returns it
 -- @return Object
 local function CreatePickupObj(pickup)
-  local modelHash = GetHashKey(pickup.model)
+  local modelHash = GetHashKey(pickup.p_model)
   RequestModel(modelHash)
   while not HasModelLoaded(modelHash) do Wait(1) end
   local tempObj = CreateObject(modelHash, pickup.posn)
@@ -50,6 +50,7 @@ Citizen.CreateThread(function()
       local myPos = GetEntityCoords(PlayerPedId())
       
       for i = 1, #pickups do
+        
         local objDist = #(myPos - pickups[i].posn)
         if not DoesEntityExist(pickups[i].obj) then 
           if objDist < 120.0 then
@@ -59,7 +60,7 @@ Citizen.CreateThread(function()
               
               -- Create a blip for it
               pickups[i].blip = CreatePickupBlip(
-                pickups[i].obj, pickups[i].blipIcon
+                pickups[i].obj, pickups[i].icon
               )
               
             -- Pickup Decayed
@@ -73,7 +74,7 @@ Citizen.CreateThread(function()
           end
           
         else -- Object does exist
-          if objDist < 1.8 then 
+          if objDist < 1.2 then 
             PlaySoundFrontend((-1), "RANK_UP", "HUD_AWARDS", 0)
             Citizen.CreateThread(function()
               local stopGlow = GetGameTimer() + 2000
@@ -84,7 +85,7 @@ Citizen.CreateThread(function()
               end
             end)
             pickups[i].decay = true
-            TriggerServerEvent('cnr:obtain_pickup', pickups[i])
+            TriggerServerEvent('cnr:obtain_pickup', pickups[i].pHash)
             DeleteObject(pickups[i].obj)
             pickups[i].obj = nil
           
@@ -110,10 +111,12 @@ Citizen.CreateThread(function()
             local heading = GetEntityHeading(pickups[i].obj) + 1.1
             if heading > 359.0 then heading = 0.0 end
             SetEntityHeading(pickups[i].obj, heading)
+            
           end
           
           if DoesEntityExist(pickups[i].obj) then
             DrawLightWithRange(pickups[i].posn, 255, 10, 0, 1.25, 4.0)
+            
           end
         end
       end
@@ -124,7 +127,7 @@ end)
 
 AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
   for k,v in pairs (pickups) do 
-    if v.sHash == pInfo.sHash then 
+    if v.pHash == pInfo.pHash then 
       -- Remove pickup from info table
       while not tableFree do Wait(1) end
       tableFree = false -- Stops all other operations on `pickups`
@@ -133,14 +136,14 @@ AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
       
       if GetPlayerServerId(PlayerId()) == picker then
         local ped = PlayerPedId()
-        
+        print("DEBUG - Received ["..pInfo.p_item.."]")
         -- Weapon Pickup (Type 1)
-        if pInfo.pType == 1 then
-          local wpnHash = GetHashKey(pInfo.name)
+        if pInfo.p_type == 1 then
+          local wpnHash = GetHashKey(pInfo.p_item)
           GiveWeaponToPed(ped, wpnHash, pInfo.qty, false, true)
           
         -- Armor Pickup (Type 2)
-        elseif pInfo.pType == 2 then
+        elseif pInfo.p_type == 2 then
           local newArmor = GetPedArmour(ped) + pInfo.qty
           if newArmor > GetPlayerMaxArmour(PlayerId()) then 
             newArmor = GetPlayerMaxArmour(PlayerId())
@@ -148,7 +151,7 @@ AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
           SetPedArmour(ped, newArmor)
         
         -- Health Pickup (Type 3)
-        elseif pInfo.pType == 3 then
+        elseif pInfo.p_type == 3 then
           local newHealth = GetEntityHealth(ped) + pInfo.qty
           if newHealth > GetEntityMaxHealth(ped) then 
             newHealth = GetEntityMaxHealth(ped)
@@ -168,7 +171,9 @@ AddEventHandler('cnr:pickup_create', function(pInfo)
   tableFree = false -- Stops all other operations on `pickups`
   local n = #pickups + 1
   pickups[n] = pInfo
+  pickups[n].posn = vector3(pInfo['pos_x'], pInfo['pos_y'], pInfo['pos_z'])
   tableFree = true -- Continues operations
+  print("DEBUG - Now tracking "..#pickups.." pickups.")
 end)
 
 
