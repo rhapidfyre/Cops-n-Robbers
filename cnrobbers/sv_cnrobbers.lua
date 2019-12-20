@@ -137,7 +137,7 @@ function UniqueId(ply, uid)
         "SELECT idUnique FROM players "..
         "WHERE idSteam = @steam OR idFiveM = @five "..
         "OR idSocialClub = @soc OR idDiscord = @disc LIMIT 1",
-        {['steam' = ids['stm'], ['five'] = ids['five'],
+        {['steam'] = ids['stm'], ['five'] = ids['five'],
         ['soc'] = ids['soc'], ['disc'] = ids['discd']}
       )
       

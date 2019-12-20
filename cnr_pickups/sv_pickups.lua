@@ -1,7 +1,8 @@
 
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
-local tick = {timer = 0, fire = 90, mini = 90, maxi = 300} -- 1.5 to 5 minutes
+--local tick = {timer = 0, fire = 90, mini = 90, maxi = 300} -- 1.5 to 5 minutes
+local tick = {timer = 0, fire = 10, mini = 10, maxi = 30} -- DEBUG
 
 -- Pickup Spawn Event
 --[[
@@ -25,8 +26,7 @@ Citizen.CreateThread(function()
   
   -- Get time to next crate in seconds
   print(
-    "^3[SRP ILLICIT] ^7Next crate spawns at "..
-    (os.date("%H:%M", os.time() + add)).." local time."
+    "^3[SRP ILLICIT] ^7Next pickup spawns in "..(tick.fire).." seconds."
   )
   
 	while true do
@@ -35,18 +35,39 @@ Citizen.CreateThread(function()
     
 			local plyCount = #GetPlayers()
       tick.timer = 0
-      tick.fire = math.random((tick.mini), (tick.maxi)) * 60
+      tick.fire = math.random((tick.mini), (tick.maxi))
       
 			if plyCount > 0 then
         
-        local pickupInfo = {}
-        TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo)
+        local avPickups = AvailablePickups()
+        if #avPickups[1] > 0 then 
+        
+          print("DEBUG - Spawning a pickup!")
+          local spot = ChooseSpotThenOccupy()
+          
+          if spot then
+            -- Pick a random type from spots idx
+            local n = math.random(#spot.types)
+            
+            -- Send it to the clients for rendering
+            TriggerClientEvent('cnr:pickup_create', (-1),
+              GetPickupFromType(n, spot.pos)
+            )
+          else
+            cprint("Unable to find an available pickup, even though script thought one was available.")
+          
+          end
+        else
+          print("DEBUG - All pickup positions are occupied!")
+        end
         
 			else
 				cprint("^3No players on the server. Any existing pickups have been cleared.")
         DestroyAllPickups()
         
 			end
+      
+      cprint("Next pickup will be available in "..(tick.fire).. " seconds.")
       
 		end
   
