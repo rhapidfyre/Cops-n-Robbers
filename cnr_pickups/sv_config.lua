@@ -17,21 +17,19 @@ local pickups = {  -- An array of pickup types
   },
   [2] = { -- Armor
     {
-      mdl = "replace_me", -- The model of the object
-      quantity = function() return math.random(12, 50) end -- The % of armor it provides
+      mdl = "prop_armour_pickup", -- The model of the object
+      quantity = function() return math.random(5, 20) end -- The % of armor it provides
     },
-    {mdl = "replace_me", quantity = function() return math.random(5, 10) end},
-    {mdl = "replace_me", quantity = function() return math.random(60, 85) end},
-    {mdl = "replace_me", quantity = function() return 100 end},
+    {mdl = "prop_armour_pickup", quantity = function() return math.random(12, 50) end},
+    {mdl = "prop_armour_pickup", quantity = function() return math.random(25, 60) end},
   },
   [3] = {
     {-- Healthpacks
-      mdl = "replace_me", -- The model of the object
-      quantity = function() return math.random(12, 50) end -- The % of health it provides
+      mdl = "p_syringe_01", -- The model of the object
+      quantity = function() return math.random(5, 20) end -- The % of health it provides
     },
-    {mdl = "replace_me", quantity = function() return math.random(5, 10) end},
-    {mdl = "replace_me", quantity = function() return math.random(60, 85) end},
-    {mdl = "replace_me", quantity = function() return 100 end},
+    {mdl = "prop_ld_health_pack", quantity = function() return math.random(25, 65) end},
+    {mdl = "sm_prop_smug_crate_s_medical", quantity = function() return 100 end},
   }
 }
 
@@ -42,8 +40,8 @@ local pickups = {  -- An array of pickup types
     pos (Position)        => Spawn Vector
 ]]
 local spots   = {
-  [1] = {types = {1}, pos = vector3(0.0,4.0,70.92)}, -- 1st eligible spawn location
-  [2] = {types = {1}, pos = vector3(-1.7,5.25,71.05)}, -- 2nd eligible spawn location
+  [1] = {types = {2}, pos = vector3(0.0,4.0,70.92)}, -- 1st eligible spawn location
+  [2] = {types = {2}, pos = vector3(-1.7,5.25,71.05)}, -- 2nd eligible spawn location
 } 
 
 
@@ -121,7 +119,6 @@ function ChooseSpotThenOccupy()
     if not v.occupied then
       if not v.sHash then 
         v.sHash = SetHashForSpot(k)
-        print("DEBUG - Generated hash for spot #"..k)
       end
       local n = #avSpots + 1
       avSpots[n] = k
@@ -133,7 +130,6 @@ function ChooseSpotThenOccupy()
     local i = math.random(#avSpots)
     local key = avSpots[i]
     spots[key].occupied = true
-    print("DEBUG - spots["..key.."] is now occupied")
     return ( spots[key] )
   end
   
@@ -146,21 +142,17 @@ end
 -- Challenge to check if player gave a valid hash
 -- @return Truth value of hash passed
 function HashMatch(pHash)
-  print("DEBUG - pHash Challenge ["..tostring(pHash).."]")
   if not pHash then return false end
   for i = 1, #spots do 
-    print("DEBUG - "..spots[i].sHash.." ?= "..pHash)
     if spots[i].sHash == pHash then
       if spots[i].occupied then
         spots[i].occupied = false
         return true
       else
-        print("DEBUG - The hash was right, but the spot wasn't occupied (hack?)")
         return false
       end
     end
   end
-  print("DEBUG - NO match.")
   return false
 end
 
@@ -177,7 +169,6 @@ end
 -- @returns mdl, icon, item, qty
 function GetPickupFromType(tValue, pos, hash)
 
-  print("DEBUG - TYPE["..tValue.."]")
   if not tValue          then tValue = 1 end
   if not pickups[tValue] then tValue = 1 end
   

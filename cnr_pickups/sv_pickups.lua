@@ -48,12 +48,11 @@ Citizen.CreateThread(function()
         local avPickups = AvailablePickups()
         if #avPickups[1] > 0 then 
         
-          print("DEBUG - Spawning a pickup!")
           local spot = ChooseSpotThenOccupy()
           
           if spot then
             -- Pick a random type from spots idx
-            local n = math.random(#spot.types)
+            local n = spot.types[math.random(#spot.types)]
             local pickupInfo = GetPickupFromType(n, spot.pos, spot.sHash)
             
             -- Store the hash, then send it to the clients for rendering
@@ -64,7 +63,6 @@ Citizen.CreateThread(function()
           
           end
         else
-          print("DEBUG - All pickup positions are occupied!")
         end
         
 			else
@@ -96,7 +94,6 @@ AddEventHandler('cnr:obtain_pickup', function(pInfo)
       cprint("Hash challenge ^1failure ^7on item pickup by Player #"..client)
       
     end
-  else print("DEBUG - Error.")
   end
 end)
 

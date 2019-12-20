@@ -46,7 +46,6 @@ Citizen.CreateThread(function()
           if objDist < 120.0 then
             if not pickups[i].decay then
               
-              print("DEBUG - Rendering pickup #"..i)
               pickups[i].obj = CreatePickupObj(pickups[i])
               
               -- Create a blip for it
@@ -82,7 +81,6 @@ Citizen.CreateThread(function()
           
           elseif objDist > 160.0 then 
             DeleteObject(pickups[i].obj)
-            print("DEBUG - Derendered Pickup #"..i.." to save frames.")
           
           end
         end
@@ -116,16 +114,12 @@ Citizen.CreateThread(function()
 end)
 
 AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
-  print("DEBUG - A player has picked up a pickup!")
   for k,v in pairs (pickups) do 
     if v.sHash == pInfo.sHash then 
-      print("DEBUG - Hash Matched on cnr:grant_pickup")
       -- Remove pickup from info table
       while not tableFree do Wait(1) end
       tableFree = false -- Stops all other operations on `pickups`
       table.remove(pickups, k)
-      print("DEBUG - Pickup #"..k.." has been removed!")
-      print("DEBUG - Now tracking "..#pickups.." pickups.")
       tableFree = true -- Continues operations
       
       if GetPlayerServerId(PlayerId()) == picker then
@@ -138,9 +132,9 @@ AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
           
         -- Armor Pickup (Type 2)
         elseif pInfo.pType == 2 then
-          local newArmor = GetEntityArmour(ped) + pInfo.qty
-          if newArmor > GetEntityMaxArmour(ped) then 
-            newArmor = GetEntityMaxArmour(ped)
+          local newArmor = GetPedArmour(ped) + pInfo.qty
+          if newArmor > GetPlayerMaxArmour(PlayerId()) then 
+            newArmor = GetPlayerMaxArmour(PlayerId())
           end
           SetPedArmour(ped, newArmor)
         
@@ -153,11 +147,8 @@ AddEventHandler('cnr:grant_pickup', function(picker, pInfo)
           SetEntityHealth(ped, newHealth)
         
         -- Something else (AKA: Hacked)
-        else print("DEBUG - Unrecognized Item.")
         end
-      else print("DEBUG - Wasn't me.")
       end
-    else print("DEBUG - Hash Mismatch on cnr:grant_pickup")
     end
   end
 end)
@@ -168,14 +159,12 @@ AddEventHandler('cnr:pickup_create', function(pInfo)
   tableFree = false -- Stops all other operations on `pickups`
   local n = #pickups + 1
   pickups[n] = pInfo
-  print("DEBUG - Now tracking "..#pickups.." pickups.")
   tableFree = true -- Continues operations
 end)
 
 
 RegisterCommand('remguns', function()
   for _,v in pairs (pickups) do v.decay = true end
-  print("DEBUG - All pickups marked for removal! (client side only)")
 end)
 
 
