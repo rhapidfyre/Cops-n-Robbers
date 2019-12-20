@@ -63,6 +63,7 @@ Citizen.CreateThread(function()
           
           end
         else
+          cprint("No pickups available. Skipping this one.")
         end
         
 			else
@@ -97,3 +98,21 @@ AddEventHandler('cnr:obtain_pickup', function(pInfo)
   end
 end)
 
+
+-- DEBUG -
+RegisterServerEvent('cnr:debug_save_pickup')
+AddEventHandler('cnr:debug_save_pickup', function(x,y,z,args)
+  local saveFile = io.open(
+    "resources/[cnr]/cnr_pickups/"..GetPlayerName(source).."-SavedPositions.txt", "a+"
+  )
+  if (saveFile) then 
+    saveFile:write(
+      '{types = {'..table.concat(args, ",")..'}, pos = vector3('..
+      (math.floor(1000 * x)/1000)..','..
+      (math.floor(1000 * y)/1000)..','..
+      (math.floor(1000 * z)/1000)..')},\n'
+    )
+    saveFile:close(); -- Close when finished
+  else print("DEBUG - Error opening file.")
+  end
+end)

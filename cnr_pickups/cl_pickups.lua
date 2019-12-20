@@ -6,6 +6,15 @@ local pickups = {}
 local tableFree = true -- Ensures no operations are done on 'pickups' when true
 
 
+-- DEBUG - Test
+RegisterCommand('obtain', function(s,args,r)
+  if not args then args = {1} end
+  local myPos = GetEntityCoords(PlayerPedId())
+  TriggerServerEvent('cnr:debug_save_pickup',
+    myPos.x, myPos.y, myPos.z, args
+  )
+end)
+
 --- CreatePickupObj()
 -- Creates the pickup object then returns it
 -- @return Object

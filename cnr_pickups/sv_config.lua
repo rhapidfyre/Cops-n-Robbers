@@ -39,10 +39,7 @@ local pickups = {  -- An array of pickup types
     types (pType)         => Which pickups are allowed to spawn here (should be at least 1)
     pos (Position)        => Spawn Vector
 ]]
-local spots   = {
-  [1] = {types = {2}, pos = vector3(0.0,4.0,70.92)}, -- 1st eligible spawn location
-  [2] = {types = {2}, pos = vector3(-1.7,5.25,71.05)}, -- 2nd eligible spawn location
-} 
+local spots   = {} 
 
 
 --- UniqueHash()
