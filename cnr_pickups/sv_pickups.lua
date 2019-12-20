@@ -28,6 +28,7 @@ Citizen.CreateThread(function()
   
   -- How many seconds until the timer should fire
   Citizen.Wait(2000)
+  GeneratePickupInfo()
   tick.fire = math.random((tick.mini), (tick.maxi))
   
   -- Get time to next crate in seconds
@@ -44,26 +45,11 @@ Citizen.CreateThread(function()
       tick.fire = math.random((tick.mini), (tick.maxi))
       
 			if plyCount > 0 then
-        
-        local avPickups = AvailablePickups()
-        if #avPickups[1] > 0 then 
-        
-          local spot = ChooseSpotThenOccupy()
-          
-          if spot then
-            -- Pick a random type from spots idx
-            local n = spot.types[math.random(#spot.types)]
-            local pickupInfo = GetPickupFromType(n, spot.pos, spot.sHash)
-            
-            -- Store the hash, then send it to the clients for rendering
-            TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo)
-            
-          else
-            cprint("Unable to find an available pickup, even though script thought one was available.")
-          
-          end
-        else
-          cprint("No pickups available. Skipping this one.")
+        local pickupInfo = exports['GHMattiMySQL']:execute("SELECT new_pickup")
+        if pickupInfo then 
+          TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo)
+          print("DEBUG - Created a pickup.")
+        else print("DEBUG - All pickup positions occupied.")
         end
         
 			else
@@ -72,7 +58,7 @@ Citizen.CreateThread(function()
         
 			end
       
-      cprint("Next pickup will be available in "..(tick.fire).. " seconds.")
+      GeneratePickupInfo()
       
 		end
   
