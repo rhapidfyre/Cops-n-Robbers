@@ -1,5 +1,6 @@
 
 
+RegisterServerEvent('cnr:police_dispatch')
 RegisterServerEvent('cnr:police_backup')
 RegisterServerEvent('cnr:police_status')
 RegisterServerEvent('cnr:client_loaded')
@@ -17,6 +18,18 @@ function CountCops()
   end
   return n
 end
+
+
+function DispatchPolice(title, zName, position)
+  if not zName then zName = "San Andreas" end
+  TriggerClientEvent('cnr:dispatch', (-1), title, zName, position)
+  exports['cnr_chat']:DiscordMessage(
+    35578, "Crime Reported", "A(n) "..title.." was reported in "..zName, title, true
+  )
+end
+AddEventHandler('cnr:police_dispatch', function(title, zName, position)
+  DispatchPolice(title, zName, position)
+end)
 
 
 AddEventHandler('cnr:police_status', function(onDuty, agencyNum)

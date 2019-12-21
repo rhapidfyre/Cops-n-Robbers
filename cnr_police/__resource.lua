@@ -52,7 +52,8 @@ server_exports {
   'Jail',         -- Put player in Jail
   'Probation',    -- Release from Jail
   'Parole',       -- Release from Prison
-  'CountCops'
+  'CountCops',
+  'DispatchPolice'
 }
 
 exports {

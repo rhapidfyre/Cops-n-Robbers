@@ -68,15 +68,16 @@ end)
 
 --- EXPORT: DispatchMessage()
 -- Sends a message to on duty cop as dispatch
-function SendDispatch(title, place, area, x, y, z)
+function SendDispatch(title, place, pos, y, z)
   if isCop then 
-    if x and y and z then
+    if type(pos) ~= "vector3" then pos = vector3(x, y, z) end
+    if pos then
       if not title then title = "9-1-1" end
       if not place then place = "Cell Phone 911" end
       if not area then area   = "Unknown Area" end
-      DispatchMessage(title, place.." ("..area..")")
-      DispatchNotification(title, place.."~n~"..area)
-      DispatchBlip(x, y, z, title)
+      DispatchMessage(title, place)
+      DispatchNotification(title, place)
+      DispatchBlip(pos.x, pos.y, pos.z, title)
     end
   end
 end
