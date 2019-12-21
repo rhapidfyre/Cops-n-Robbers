@@ -38,6 +38,7 @@ function CreatePickupBlip(obj, icon)
   SetBlipDisplay(temp, 5)
   SetBlipSprite(temp, icon)
   SetBlipColour(temp, 0)
+  SetBlipScale(temp, 0.65)
   SetBlipAsShortRange(temp, true)
   return temp
 end
@@ -53,16 +54,16 @@ Citizen.CreateThread(function()
         
         local objDist = #(myPos - pickups[i].posn)
         if not DoesEntityExist(pickups[i].obj) then 
-          if objDist < 120.0 then
+          if objDist < 220.0 then
             if not pickups[i].decay then
               
               pickups[i].obj = CreatePickupObj(pickups[i])
               
               -- Create a blip for it
               pickups[i].blip = CreatePickupBlip(
-                pickups[i].obj, pickups[i].icon
+                pickups[i].obj, pickups[i].p_icon
               )
-              
+  
             -- Pickup Decayed
             else
               if DoesEntityExist(pickups[i].obj) then 
@@ -74,13 +75,20 @@ Citizen.CreateThread(function()
           end
           
         else -- Object does exist
-          if objDist < 1.2 then 
+          if objDist < 0.85 then 
             PlaySoundFrontend((-1), "RANK_UP", "HUD_AWARDS", 0)
             Citizen.CreateThread(function()
               local stopGlow = GetGameTimer() + 2000
               local glowPos = GetEntityCoords(pickups[i].obj)
+              local glowCol = {255,0,0}
+              if pickups[i].p_type == 2 then glowCol = {0,120,255}
+              elseif pickups[i].p_type == 3 then glowCol = {0,255,0}
+              end
               while stopGlow > GetGameTimer() do 
-                DrawLightWithRange(glowPos, 0, 255, 0, 3.0, 6.0)
+                DrawLightWithRange(
+                  glowPos.x, glowPos.y, glowPos.z - 0.8,
+                  glowCol[1], glowCol[2], glowCol[3], 12.0, 4.0
+                )
                 Citizen.Wait(0)
               end
             end)
@@ -89,16 +97,16 @@ Citizen.CreateThread(function()
             DeleteObject(pickups[i].obj)
             pickups[i].obj = nil
           
-          elseif objDist > 160.0 then 
+          elseif objDist > 280.0 then 
             DeleteObject(pickups[i].obj)
           
           end
         end
-        Citizen.Wait(10)
+        Citizen.Wait(1)
       end
       tableFree = true
     end
-    Citizen.Wait(100)
+    Citizen.Wait(10)
   end
 end)
 

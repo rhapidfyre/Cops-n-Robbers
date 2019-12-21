@@ -9,12 +9,7 @@ end)
 
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
---local tick = {timer = 0, fire = 90, mini = 90, maxi = 300} -- 1.5 to 5 minutes
-local tick = {timer = 0, fire = 5, mini = 5, maxi = 5} -- DEBUG
-
- -- Pickups ordered by hashes
- -- Ensures the client picked up a valid pickup, not one they made up.
-local hashes = {}
+local tick = {timer = 0, fire = 30, mini = 300, maxi = 900} -- 5 to 15 minutes
 
 
 --- DestroyAllPickups()
