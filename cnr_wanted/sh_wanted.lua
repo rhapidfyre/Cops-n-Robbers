@@ -41,7 +41,7 @@ eVehicle = {
 ]]
 local crimes = {
   ['gta-npc'] = {
-    title = "Grand Theft Auto (NPC)",
+    title = "Grand Theft Auto",
     weight = 51, minTime = 0, maxTime = 0, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
@@ -51,7 +51,7 @@ local crimes = {
     fine = function() return (math.random(100, 1000)) end
   },
   ['carjack-npc'] = {
-    title = "Carjacking (NPC)",
+    title = "Carjacking",
     weight = 31, minTime = 0, maxTime = 0, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
@@ -66,12 +66,12 @@ local crimes = {
     fine = function() return (math.random(100, 1000)) end
   },
   ['murder-leo'] = {
-    title = "Murder of a Law Enforcement Officer",
+    title = "Murder of a LEO",
     weight = 200, minTime = 10, maxTime = 25, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['manslaughter'] = {
-    title = "Manslaughter (Killing an NPC)",
+    title = "Manslaughter",
     weight = 45, minTime = 5, maxTime = 10, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
@@ -86,7 +86,7 @@ local crimes = {
     fine = function() return (math.random(100, 1000)) end
   },
   ['discharge'] = {
-    title = "Discharging a Firearm",
+    title = "Firearm Discharge",
     weight = 12, minTime = 1, maxTime = 5, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
@@ -116,17 +116,17 @@ local crimes = {
     fine = function() return (math.random(1000, 5000)) end
   },
   ['brandish'] = {
-    title = "Brandishing a Firearm",
+    title = "Firearm Brandished",
     weight = 5, minTime = 2, maxTime = 5, isFelony = false,
     fine = function() return (math.random(1000, 5000)) end
   },
   ['brandish-npc'] = {
-    title = "Brandishing a Firearm (NPC)",
+    title = "Firearm Brandished",
     weight = 5, minTime = 1, maxTime = 2, isFelony = false,
     fine = function() return (math.random(1000, 5000)) end
   },
   ['brandish-leo'] = {
-    title = "Brandish Firearm on a LEO",
+    title = "Firearm Brandished on a LEO",
     weight = 50, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(1000, 5000)) end
   },
@@ -155,7 +155,6 @@ function GetCrimeName(crime)
   if not crime               then  return  "crime"  end
   if not crimes[crime]       then  return  "crime"  end
   if not crimes[crime].title then  return  "crime"  end
-  print("DEBUG - GetCrimeTitle("..crime..") = "..(crimes[crime].title))
   return crimes[crime].title
 end
 
@@ -171,7 +170,6 @@ function GetCrimeTime(crime)
   if not c.minTime then c.minTime =  5 end
   if not c.maxTime then c.maxTime = 10 end
   local cTime = math.random(c.minTime, c.maxTime)
-  print("DEBUG - GetCrimeTime("..crime..") = "..cTime)
   return cTime
 end
 
@@ -184,7 +182,6 @@ function GetCrimeFine(crime)
   if not crime              then  return 0 end
   if not crimes[crime]      then  return 0 end
   if not crimes[crime].fine then  return 0 end
-  print("DEBUG - GetCrimeFine("..crime..") = "..(crimes[crime].fine()))
   return (crimes[crime].fine())
 end
 
@@ -197,7 +194,6 @@ function IsCrimeFelony(crime)
   if not crime                  then  return false  end
   if not crimes[crime]          then  return false  end
   if not crimes[crime].isFelony then  return false  end
-  print("DEBUG - IsCrimeFelony("..crime..") = "..tostring(crimes[crime].isFelony))
   return (crimes[crime].isFelony)
 end
 
@@ -221,7 +217,6 @@ end
 function DoesCrimeExist(crime)
   if crimes[crime] then 
     if crimes[crime].title then
-      print("DEBUG - DoesCrimeExist("..crime..") ["..(crimes[crime].title).."]")
       return true
     else
       cprint("^1Crime '"..tostring(crime).."' did not exist in sh_wanted.lua")
