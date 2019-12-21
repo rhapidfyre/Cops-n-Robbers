@@ -1,6 +1,6 @@
 | MASTER | [DEV BRANCH](https://github.com/rhapidfyre/Cops-n-Robbers/tree/dev) |
 |---------|--------|
-|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?branch=master)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?branch=dev)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|
+|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?token=YQuixjt64y8Lxxz9tvQ5&branch=master)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|[![Build Status](https://travis-ci.com/rhapidfyre/Cops-n-Robbers.svg?token=YQuixjt64y8Lxxz9tvQ5&branch=dev-build)](https://travis-ci.com/rhapidfyre/Cops-n-Robbers)|
 
 ![](git_banner.jpg)
 
