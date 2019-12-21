@@ -35,7 +35,6 @@ AddEventHandler('cnr:save_pos', function(pos)
   local ply = source
   local uid = unique[ply]
   if uid then
-    print("DEBUG - Preserved position for Unique ID #"..uid)
     positions[uid] = pos
   end
 end)
@@ -50,7 +49,6 @@ function SavePlayerPos(uid,pos)
         {['p'] = pos, ['uid'] = uid},
         function()
           -- Once updated, remove entry
-          print("DEBUG - Position ("..positions[uid]..") saved for UID #"..uid)
           positions[uid] = nil
         end
       )

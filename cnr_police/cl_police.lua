@@ -62,9 +62,6 @@ function DispatchBlip(x,y,z,title)
   end)
 end
 
-RegisterCommand('disp', function()
-  SendDispatch("Silent Alarm", "LTD Gasoline", "Grove Street", -46.9504, -1758.19, 29.421)
-end)
 
 --- EXPORT: DispatchMessage()
 -- Sends a message to on duty cop as dispatch

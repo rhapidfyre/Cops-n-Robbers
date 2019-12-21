@@ -129,7 +129,6 @@ function GetPlayerInformation(ply)
   
   local filtered = GetPlayerName(ply)
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
-  print("DEBUG - User Values:\n"..json.encode(infoTable))
   return infoTable
 end
 
