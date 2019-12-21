@@ -50,5 +50,6 @@ exports {
   'GetPlayers',           -- OBSOLETE; Use 'GetActivePlayers()' (Native)
   'GetClosestPlayer',     -- Gets the local client reference of the nearest player
   'ReportPosition',       -- Tells script whether or not to report loc to SQL
+  'GetFullZoneName'       -- Returns the name as specified in sh_cnrobbers.lua
 }
 

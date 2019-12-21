@@ -160,17 +160,6 @@ function CurrentZone()
 end
 
 
---- EXPORT: GetFullZoneName()
--- Returns the name found for the zone in shared.lua
--- If one isn't found, returns "San Andreas"
--- @param abbrv The abbreviation of the zone name given by runtime
--- @return A string containing the proper zone name ("LS Airport")
-function GetFullZoneName(abbrv)
-  if not zoneByName[abbrv] then return "San Andreas" end
-  return (zoneByName[abbrv])
-end
-
-
 --- EXPORT: ZoneNotification()
 -- Called when the zone is changing / has changed / will be changed
 function ZoneNotification(i, t, s, m)

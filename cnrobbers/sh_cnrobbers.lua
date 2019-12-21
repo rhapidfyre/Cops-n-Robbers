@@ -1,5 +1,5 @@
 
-zoneByName = {
+local zoneByName = {
   ["AIRP"]    = {name = 'Los Santos Airport', z = 1},
   ["ALAMO"]   = {name = 'Alamo Sea', z = 2},
   ["ALTA"]    = {name = 'Alta', z = 1},
@@ -90,3 +90,14 @@ zoneByName = {
   ["ZP_ORT"]  = {name = 'Port of South Los Santos ', z = 1},
   ["ZQ_UAR"]  = {name = 'Davis Quartz', z = 1},
 }
+
+
+--- EXPORT: GetFullZoneName()
+-- Returns the name found for the zone in shared.lua
+-- If one isn't found, returns "San Andreas"
+-- @param abbrv The abbreviation of the zone name given by runtime
+-- @return A string containing the proper zone name ("LS Airport")
+function GetFullZoneName(abbrv)
+  if not zoneByName[abbrv] then return "San Andreas" end
+  return (zoneByName[abbrv].name)
+end

@@ -5,7 +5,6 @@ RegisterNetEvent('cnr:chat_notify')
 local activeZone = 1      -- What zone is currently active
 local plyCount   = 255    -- Used Internally (Obsolete? Use GetActivePlayers())
 
-
 -- DEBUG -
 local restarted = {}
 AddEventHandler('onResourceStop', function(rn)
@@ -36,21 +35,6 @@ function SetActiveZone(aZone)
   activeZone = aZone
 end
 AddEventHandler('cnr:active_zone', SetActiveZone)
-
-
---[[----
-    EXPORTS
---]]----
-
-
---- EXPORT: GetFullZoneName()
--- Returns the name found for the zone in shared.lua
--- If one isn't found, returns "San Andreas"
--- @param abbrv The abbreviation of the zone name given by script
-function GetFullZoneName(abbrv)
-  if not zoneByName[abbrv] then return "San Andreas" end
-  return zoneByName[abbrv]
-end
 
 
 --- EXPORT: GetPlayers()
