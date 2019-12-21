@@ -127,7 +127,6 @@ function GetPlayerInformation(ply)
     end
   end
 
-  local filtered = GetPlayerName(ply)
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   return infoTable
 end
@@ -198,7 +197,7 @@ AddEventHandler('cnr:create_player', function()
           exports['cnrobbers']:UniqueId(ply, uid)
         else
           print("DEBUG - UID Nonexistant")
-          local uid = CreateUniqueId(ply)
+          uid = CreateUniqueId(ply)
           if uid < 1 then
             cprint("^1A Fatal Error has Occurred.")
             cprint("No player ID given to CreateUniqueId() in sv_create.lua")

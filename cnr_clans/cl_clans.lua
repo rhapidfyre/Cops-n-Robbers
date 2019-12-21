@@ -4,10 +4,6 @@ RegisterNetEvent('cnr:clans_members') -- Receive clan members of selected clan
 RegisterNetEvent('cnr:clan_tag')      -- tells client their clan tag
 RegisterNetEvent('cnr:clan_leader')   -- tells client they're the clan leader
 
-local clanLeader = false  -- Whether the client is the leader or not
-local myClan     = 0      -- ID Number of the player's clan
-local myTag      = ''
-
 --[[ DEBUG - Disables clan menu
 Citizen.CreateThread(function()
   while true do
@@ -94,10 +90,8 @@ AddEventHandler('cnr:clans_members', function(ldr, plys)
   end
 end)
 
-local selected_member = 0
 RegisterNUICallback("clanMenu", function(data, cb)
   print("DEBUG - Received NUICallback 'clanMenu'")
-  selected_member = 0
   if data.action == "exit" then
     SetNuiFocus(false)
     menuEnabled = false
@@ -110,19 +104,12 @@ RegisterNUICallback("clanMenu", function(data, cb)
     TriggerServerEvent('cnr:clans_roster', tonumber(data.clanNumber))
 
   elseif data.action == "memberInfo" then
-    selected_member = data.member
     local t = mbr[data.member]
     print("DEBUG - ViewMember("..tostring(data.member)..") -> ["..tostring(t[1]).."]")
     SendNUIMessage({showmember = true, nm = t[1], clv = t[2], leo = t[3]})
 
   elseif data.action == "closeMember" then
     SendNUIMessage({hidemember = true})
-
-  elseif data.action == "newLeader" then
-
-
-  elseif data.action == "remove" then
-
 
   end
 end)

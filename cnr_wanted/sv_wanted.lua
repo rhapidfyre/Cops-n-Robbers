@@ -195,9 +195,8 @@ function WantedLevel(ply)
 
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
-  else                          return (math.floor((wanted[ply])/10) + 1)
   end
-  return 0
+  return (math.floor((wanted[ply])/10) + 1)
 
 end
 
@@ -342,8 +341,6 @@ AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
       " killed "..GetPlayerName(victim).."^7!"
     )
     WantedPoints(idKiller, 'murder', "Murder")
-  else
-    -- DEBUG - Killer was a police officer
   end
 
 end)

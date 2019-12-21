@@ -39,7 +39,7 @@ function BankTransaction(ply, n)
           end
           if cont then
             -- SQL: Get current value of player's bank account
-            local bank = exports['ghmattimysql']:scalarSync(
+            exports['ghmattimysql']:execute(
               "UPDATE characters SET bank = @v WHERE idUnique = @u",
               {['v'] = newVal, ['u'] = uid}
             )
@@ -185,7 +185,7 @@ function CashTransaction(ply, n)
           end
           if cont then
             -- SQL: Get current value of player's cash account
-            local cash = exports['ghmattimysql']:scalarSync(
+            exports['ghmattimysql']:execute(
               "UPDATE characters SET cash = @v WHERE idUnique = @u",
               {['v'] = newVal, ['u'] = uid}
             )
@@ -224,8 +224,6 @@ end)
 
 
 function SetPlayerCashValues(val, ply)
-  local dt  = os.date("%H:%M.%I", os.time())
-  local msg = ""
   local uid = exports['cnrobbers']:UniqueId(ply)
   if uid then
     -- SQL: Get player's cash values

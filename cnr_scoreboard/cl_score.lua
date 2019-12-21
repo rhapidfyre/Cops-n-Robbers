@@ -3,7 +3,6 @@ local disIdentifier = 128
 local ignorePlayerNameDistance = false
 local wantedPlayers = {}
 local copPlayers    = {}
-local plyBlips      = {}
 
 local copColors = {
   [1]  = {190,200,255}, [2]  = {185,185,255},
@@ -20,14 +19,6 @@ local wantedColors = {
   [7]  = {255,112,32},  [8]  = {255,105,25},
   [9]  = {255,90,15},   [10] = {255,78,0},
   [11] = {255, 40, 0}
-}
-
-local blipWanted = {
-  [1] = 16, [2] = 5, [3] = 0, [4] = 0, [5] = 0
-}
-
-local blipCops   = {
-  [1] = 16, [2] = 5, [3] = 0, [4] = 0, [5] = 0
 }
 
 function sanitize(txt)
@@ -148,7 +139,6 @@ Citizen.CreateThread(function()
         blip = GetBlipFromEntity(ped)
         -- Blip does not exist, create it, and we'll fix it next frame (DEBUG - )
         if not DoesBlipExist(blip) then
-          local sv = GetPlayerServerId(i)
           blip = AddBlipForEntity(ped)
           SetBlipScale(blip, 0.8)
           SetBlipDisplay(blip, 8)
@@ -171,7 +161,6 @@ function DrawText3D(x,y,z, text, col) -- some useful function, use it if you wan
   elseif scale < 0.15 then scale = 0.15
   end
 
-  local fov = (1/GetGameplayCamFov()) * 100
   if onScreen then
     --SetTextScale(0.0*scale, 0.55*scale)
     SetTextScale(scale + 0.12, scale + 0.12)
@@ -231,7 +220,6 @@ Citizen.CreateThread(function()
             DrawText3D(x2, y2, z2+1, sv, nameColor)
           else
             if ((distance < disIdentifier)) then
-              local idName = sv
               DrawText3D(x2, y2, z2+1, GetPlayerName(i).." ["..sv.."]", nameColor)
             end
           end

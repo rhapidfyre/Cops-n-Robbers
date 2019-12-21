@@ -61,7 +61,6 @@ function BeginSentence(secondz)
   end
 
   -- Time has either been served, or they broke out of jail/prison
-  jailTime = 0
   SendNUIMessage({hidejail = true})
   Citizen.Wait(3000)
 
@@ -158,10 +157,7 @@ AddEventHandler('cnr:prison_release', ReleaseClient)
 
 -- Draws text on screen as positional
 local function DrawText3D(x, y, z, text)
-  local onScreen,_x,_y = GetScreenCoordFromWorldCoord(x,y,z)
-  local dist = GetDistanceBetweenCoords(GetGameplayCamCoords(), x, y, z, 1)
-
-  local fov = (1/GetGameplayCamFov()) * 100
+  local onScreen = GetScreenCoordFromWorldCoord(x,y,z)
   SetDrawOrigin(x, y, z, 0);
   BeginTextCommandDisplayText("STRING")
   SetTextScale(0.28, 0.28)
@@ -335,23 +331,23 @@ AddEventHandler('cnr:police_doors', ToggleDoorLockStatus)
 Citizen.CreateThread(function()
 
   -- Prison Blip
-  local blip = AddBlipForCoord(prison.center)
-  SetBlipSprite(blip, 285)
-  SetBlipDisplay(blip, 2)
-  SetBlipScale(blip, 1.0)
-  SetBlipAsShortRange(blip, true)
+  local pblip = AddBlipForCoord(prison.center)
+  SetBlipSprite(pblip, 285)
+  SetBlipDisplay(pblip, 2)
+  SetBlipScale(pblip, 1.0)
+  SetBlipAsShortRange(pblip, true)
   BeginTextCommandSetBlipName("STRING")
   AddTextComponentString("State Prison")
-  EndTextCommandSetBlipName(blip)
+  EndTextCommandSetBlipName(pblip)
 
   -- Jail Blip
-  local blip = AddBlipForCoord(jails[3].pos)
-  SetBlipSprite(blip, 285)
-  SetBlipDisplay(blip, 2)
-  SetBlipScale(blip, 1.0)
-  SetBlipAsShortRange(blip, true)
+  local jblip = AddBlipForCoord(jails[3].pos)
+  SetBlipSprite(jblip, 285)
+  SetBlipDisplay(jblip, 2)
+  SetBlipScale(jblip, 1.0)
+  SetBlipAsShortRange(jblip, true)
   BeginTextCommandSetBlipName("STRING")
   AddTextComponentString("Jailhouse")
-  EndTextCommandSetBlipName(blip)
+  EndTextCommandSetBlipName(jblip)
 
 end)

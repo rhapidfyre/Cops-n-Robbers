@@ -102,7 +102,7 @@ AddEventHandler('cnr:create_reload', function(myChar)
   SetNuiFocus(false)
   local lastPos = json.decode(myChar["position"])
   --SetEntityCoords(PlayerPedId(), lastPos['x'], lastPos['y'], lastPos['z'])
-  local myModel = GetHashKey(myChar["model"])
+  --local myModel = GetHashKey(myChar["model"])
   print("DEBUG - Reloading Model ["..tostring(myChar["model"]).."]")
   --RequestModel(myModel)
   --while not HasModelLoaded(myModel) do Wait(1) end

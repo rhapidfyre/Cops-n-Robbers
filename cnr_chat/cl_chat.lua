@@ -142,9 +142,7 @@ function SendRadioMessage(source, args, raw, isDept)
     end
   else
     local cmd = "/radio"
-    if isDept then cmd = "/dept"
-    else
-    end
+    if isDept then cmd = "/dept" end
     TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
       cmd, "You are not on public safety duty."
     }})

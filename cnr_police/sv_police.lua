@@ -8,7 +8,6 @@ RegisterServerEvent('cnr:client_loaded')
 
 local cops      = {}
 local dropCop   = {}
-local carUse    = {}
 
 
 function CountCops()

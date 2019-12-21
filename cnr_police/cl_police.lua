@@ -9,8 +9,6 @@ local isCop          = false  -- True if player is on cop duty
 local ignoreDuty     = false  -- Disables cop duty point
 local cam            = nil
 local transition     = false
-local enteringCopCar = false
-local prevClothes    = {}
 local myAgency       = 0
 local activeCops     = {}
 local myCopRank      = 1
@@ -88,13 +86,6 @@ function DutyAgency()
   return myAgency
 end
 
--- Wanted Point weights for certain actions
-local wp = {
-  attempt = 10, -- Atempt to Steal Public Safety
-  carjack = 50, -- Carjack public safety
-  gta     = 40  -- Steal Public Safety Vehicle
-}
-
 
 --- EXPORT: DutyStatus()
 -- Returns whether the player is on cop duty
@@ -153,8 +144,6 @@ function PoliceLoadout(toggle)
     GiveWeaponToPed(ped, GetHashKey("WEAPON_NIGHTSTICK"), 1, true, false)
     GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL"), 200, true, false)
     GiveWeaponToPed(ped, GetHashKey("WEAPON_CARBINERIFLE"), 200, true, false)
-  else -- Give owned weapons
-
   end
 end
 
@@ -420,7 +409,6 @@ RegisterCommand('ticket', ImprisonClient)
 
 -- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
 -- I need to find a better way to implement this later.
-local ctr = 1
 local lastRequest = 0
 function PoliceDutyLoops()
   print("DEBUG - PoliceDutyLoops()")

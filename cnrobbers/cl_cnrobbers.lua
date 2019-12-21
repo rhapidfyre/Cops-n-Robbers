@@ -3,7 +3,6 @@ RegisterNetEvent('cnr:active_zone')
 RegisterNetEvent('cnr:chat_notify')
 
 local activeZone = 1      -- What zone is currently active
-local plyCount   = 255    -- Used Internally (Obsolete? Use GetActivePlayers())
 
 -- DEBUG -
 local restarted = {}

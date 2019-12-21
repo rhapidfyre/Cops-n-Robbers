@@ -50,9 +50,6 @@ TriggerEvent('chat:addTemplate', 'levelMsg',
 )
 
 
-local marked = {}  -- Table of killed peds ([Ped_Id] = true)
-
-
 --- EXPORT: CrimeList()
 -- Returns a list of crime codes the player has committed
 -- @return A table (list form) of crimes
@@ -130,9 +127,8 @@ function WantedLevel(ply)
 
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
-  else                           return (math.floor((wanted[ply])/10) + 1)
   end
-  return 0
+  return (math.floor((wanted[ply])/10) + 1)
 
 end
 
@@ -223,7 +219,7 @@ function NotCopLoops()
 
         -- Aiming/Shooting Crimes
         if IsPlayerFreeAiming(PlayerId()) then
-          local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
+          local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
           if DoesEntityExist(aimTarget) then
             if IsEntityAPed(aimTarget) then
               local dist = #(GetEntityCoords(ped) -
@@ -287,7 +283,6 @@ function NotCopLoops()
             -- If the killing crime hasn't been ran yet
             if not DecorGetBool(peds, "KillCrime") then
               local killer = GetPedSourceOfDeath(peds)
-              local cause  = GetPedCauseOfDeath(peds)
               if killer then
                 if IsEntityAPed(killer) then
                   DecorSetInt(peds, "idKiller", killer)

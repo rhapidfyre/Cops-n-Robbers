@@ -6,7 +6,6 @@ RegisterNetEvent('cnr:zone_change') -- If zone changes, change dropoffs
 
 local isRobbing = false
 local takeDrops = {}
-local hasBag    = false
 local bagDraw   = 45
 
 
@@ -111,7 +110,6 @@ function StartRobbery(n)
       TriggerServerEvent('cnr:wanted_points', 'robbery', 'Armed Robbery')
       if take > 0 then
         print("DEBUG - Robbery Take: $"..take)
-        hasBag = true
         SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0)
       end
       isRobbing = false
@@ -221,7 +219,7 @@ function CreateRobberyClerks()
   Citizen.CreateThread(function()
     while true do
       local ped   = PlayerPedId()
-      local myPos = GetEntityCoords(PlayerPedId())
+      local myPos = GetEntityCoords(ped)
       for i = 1, #rob do
         if not rob[i].clerk then
           if #(rob[i].stand - myPos) < 100.0 then
@@ -303,8 +301,7 @@ function OfferDropSpots(giveBag)
   local zn       = exports['cnrobbers']:GetActiveZone()
   local eligible = dropSpots[zn]
 
-  for i = 0, 3 do
-    i = #takeDrops + 1
+  for i = 1, 3 do
     local n      = math.random(#eligible)
     takeDrops[i] = {pos = table.remove(eligible, n)[1]}
   end

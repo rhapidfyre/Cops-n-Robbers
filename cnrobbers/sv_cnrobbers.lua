@@ -1,8 +1,5 @@
 
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
-local fivem  = {}     -- List of FiveM License IDs by Server ID
-local scores = {}     -- Scores of players (KEYS: 'cop' and 'civ')
-local positions = {}  -- List of positions being saved
 
 local zone = {
   timer  = 300,       -- Time in minutes between zone changes
@@ -10,15 +7,6 @@ local zone = {
   active = 1,         -- The currently active zone
   pick   = 18000000,  -- The next time to pick a zone (in ms)
 }
-
-
-local reduce = {    -- Reduction of wanted level
-  points   = 0.25,  -- Points each tick
-  tickTime = 1      -- Time in seconds between reductions
-}
-
-
-
 
 --[[ --------------------------------------------------------------------------
   ~ BEGIN POSITION AQUISITION SCRIPTS
@@ -108,7 +96,6 @@ function GetPlayerInformation(ply)
     end
   end
 
-  local filtered = GetPlayerName(ply)
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   print("DEBUG - User Values:\n"..json.encode(infoTable))
   return infoTable

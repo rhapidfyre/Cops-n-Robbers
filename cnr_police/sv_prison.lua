@@ -24,23 +24,13 @@ local minFineAmount = 100
 local maxFineAmount = 25000
 
 
--- Where key is the wanted level
-local ticketPrice = {
-  [1] = function() return (math.random(1000,3000)) end,
-  [2] = function() return (math.random(2250,5000)) end,
-  [3] = function() return (math.random(4000,9000)) end,
-  [4] = function() return (math.random(6000,12000)) end
-}
-
-
 function CalculateTime(ply)
   local n = 0
   for k,v in pairs(exports['cnr_wanted']:CrimeList(ply)) do
     n = n + exports['cnr_wanted']:GetCrimeTime(v)
   end
   if n > 120 then   return 120
-  elseif n < 5 then return 5
-  else              return n
+  elseif n > 5 then return n
   end
   return 5
 end
