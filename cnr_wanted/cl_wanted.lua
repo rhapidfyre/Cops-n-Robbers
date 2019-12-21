@@ -177,31 +177,28 @@ function IsPlayerAimingAtCop(target)
   if not DecorExistOn(target, "AimCrime") then DecorRegister("AimCrime", 2) end
   if not DecorGetBool(target, "AimCrime") then
     DecorSetBool(target, "AimCrime", true)
+    local myPos = GetEntityCoords(PlayerPedId())
     if IsPedAPlayer(target) then 
       if exports['cnr_police']:DutyStatus(target) then 
         print("DEBUG - Player IS a cop. Brandish on an LEO")
-        TriggerServerEvent('cnr:wanted_points', 'brandish-leo', true)
-        Citizen.Wait(1000)
-      else  
-        print("DEBUG - Player is not a cop. Brandish only.")
-        local myPos = GetEntityCoords(PlayerPedId())
-        TriggerServerEvent('cnr:police_dispatch',
-          "Firearm Brandishing",
+        TriggerServerEvent('cnr:wanted_points', 'brandish-leo', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
           myPos
         )
-        TriggerServerEvent('cnr:wanted_points', 'brandish', true)
+        Citizen.Wait(1000)
+      else  
+        print("DEBUG - Player is not a cop. Brandish only.")
+        TriggerServerEvent('cnr:wanted_points', 'brandish', true,
+          exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+          myPos
+        )
         Citizen.Wait(1000)
       end
     else
-      print("DEBUG - Ped is an NPC. Brandish only.")
-      local myPos = GetEntityCoords(PlayerPedId())
-      TriggerServerEvent('cnr:police_dispatch',
-        "Firearm Brandishing",
-        exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-        myPos
+      TriggerServerEvent('cnr:wanted_points', 'brandish-npc', true,
+          exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+          myPos
       )
-      TriggerServerEvent('cnr:wanted_points', 'brandish-npc', true)
       Citizen.Wait(1000)
     end
   else print("DEBUG - Already been charged.")
@@ -214,6 +211,7 @@ end
 -- Used to detect crimes that civilians can commit when off duty.
 local looping  = false
 local lastShot = 0
+local lastAim  = 0
 function NotCopLoops()
   if not looping then 
     looping = true
@@ -233,7 +231,10 @@ function NotCopLoops()
               )
               if dist < 120.0 then
                 if HasEntityClearLosToEntity(ped, aimTarget, 17) then
-                  IsPlayerAimingAtCop(aimTarget)
+                  if lastAim < GetGameTimer() then 
+                    lastAim = GetGameTimer() + 12000
+                    IsPlayerAimingAtCop(aimTarget)
+                  end
                 end
               end
             end
@@ -254,14 +255,11 @@ function NotCopLoops()
               end
             end
             if wasShotSeen then 
-              lastShot = GetGameTimer() + 30000
-                local myPos = GetEntityCoords(PlayerPedId())
-                TriggerServerEvent('cnr:police_dispatch',
-                  "Shots Fired",
-                  exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                  myPos
-                )
-              TriggerServerEvent('cnr:wanted_points', 'discharge', true)
+              lastShot = GetGameTimer() + 12000
+              TriggerServerEvent('cnr:wanted_points', 'discharge', true,
+                exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+                myPos
+              )
             end
           end
         end
@@ -298,12 +296,10 @@ function NotCopLoops()
               if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
                 DecorSetBool(peds, "KillCrime", true)
                 local myPos = GetEntityCoords(PlayerPedId())
-                TriggerServerEvent('cnr:police_dispatch',
-                  "Manslaughter (NPC Killed)",
+                TriggerServerEvent('cnr:wanted_points', 'manslaughter', true,
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
                   myPos
                 )
-                TriggerServerEvent('cnr:wanted_points', 'manslaughter', true)
               end
             end
           end
@@ -321,28 +317,26 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh)
     if veh == crimeCar.v then 
       print("DEBUG - Player broke into the vehicle!")
       -- Occupied: Carjacking (more serious crime)
+      local myPos = GetEntityCoords(PlayerPedId())
       if crimeCar.d then
         if IsPedAPlayer(crimeCar.d) then
-          TriggerServerEvent('cnr:wanted_points', 'carjack', true)
+          TriggerServerEvent('cnr:wanted_points', 'carjack', true,
+            exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+            myPos
+          )
         else
-          TriggerServerEvent('cnr:wanted_points', 'carjack-npc', true)
+          TriggerServerEvent('cnr:wanted_points', 'carjack-npc', true,
+            exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+            myPos
+          )
         end
-        local myPos = GetEntityCoords(PlayerPedId())
-        TriggerServerEvent('cnr:police_dispatch',
-          "Carjacking",
-          exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-          myPos
-        )
       -- Unoccupied: GTA
       else
-        -- DEBUG - Check later if vehicle is owned
-        local myPos = GetEntityCoords(PlayerPedId())
-        TriggerServerEvent('cnr:police_dispatch',
-          "Grand Theft Auto",
+        -- DEBUG - Add check later to see if vehicle is owned
+        TriggerServerEvent('cnr:wanted_points', 'gta-npc', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
           myPos
         )
-        TriggerServerEvent('cnr:wanted_points', 'gta-npc', true)
       end
       crimeCar = {}
     end

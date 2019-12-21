@@ -163,11 +163,18 @@ function WantedPoints(ply, crime, msg)
     cprint(GetPlayerName(ply)..": "..crime)
   end
 end
-AddEventHandler('cnr:wanted_points', function(crime, msg)
+local tracking = {}
+AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
   local ply = source
   if crime then 
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
+      if not tracking[ply] then
+        tracking[ply] = GetGameTimer() + 30000
+        exports['cnr_police']:DispatchPolice(
+          GetCrimeName(crime), zName, posn
+        )
+      end
       WantedPoints(ply, crime, msg)
     else
       cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")

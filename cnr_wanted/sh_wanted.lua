@@ -62,7 +62,7 @@ local crimes = {
   },
   ['murder'] = {
     title = "Murder",
-    weight = 120, minTime = 90, maxTime = 120, isFelony = true,
+    weight = 180, minTime = 90, maxTime = 120, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
   ['murder-leo'] = {
@@ -72,7 +72,7 @@ local crimes = {
   },
   ['manslaughter'] = {
     title = "Manslaughter (Killing an NPC)",
-    weight = 20, minTime = 5, maxTime = 10, isFelony = false,
+    weight = 45, minTime = 5, maxTime = 10, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['adw'] = {
@@ -87,7 +87,7 @@ local crimes = {
   },
   ['discharge'] = {
     title = "Discharging a Firearm",
-    weight = 21, minTime = 1, maxTime = 5, isFelony = false,
+    weight = 12, minTime = 1, maxTime = 5, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['vandalism'] = {
