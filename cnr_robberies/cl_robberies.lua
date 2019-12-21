@@ -15,7 +15,6 @@ RegisterCommand('.stopanim', function()
   ClearPedSecondaryTask(PlayerPedId())
 end)
 
-
 function SpawnStoreClerk(n)
   if n then
   if rob[n] then
@@ -131,9 +130,26 @@ function StartRobbery(n)
   end
 end
 
-
 Citizen.CreateThread(function()
-  Citizen.Wait(3000)
+  local atmCrackers = {
+    [GetHashKey("WEAPON_BAT")] = true,
+    [GetHashKey("WEAPON_HAMMER")] = true,
+    [GetHashKey("WEAPON_GOLFCLUB")] = true, 
+    [GetHashKey("WEAPON_CROWBAR")] = true, 
+    [GetHashKey("WEAPON_HATCHET")] = true, 
+    [GetHashKey("WEAPON_NIGHTSTICK")] = true, 
+    [GetHashKey("WEAPON_WRENCH")] = true
+  }
+  Citizen.Wait(2000)
+  local atms = exports['cnr_cash']:ListATMs()
+  for i = 1, #atms do 
+    local temp = AddBlipForCoord(atms[i].pos)
+    SetBlipSprite(temp, 276)
+    SetBlipColour(temp, 43)
+    SetBlipAsShortRange(temp, true)
+    SetBlipDisplay(temp, 5)
+    atms[i].blip = temp
+  end
   while true do 
     local myPos = GetEntityCoords(PlayerPedId())
     for i = 1, #rob do 
@@ -169,6 +185,31 @@ Citizen.CreateThread(function()
         end
       end
       ]]
+    end
+    for i = 1, #atms do
+      if #(myPos - atms[i].pos) < 2.65 then 
+        if IsControlJustPressed(0, 24) then
+          if atmCrackers[GetSelectedPedWeapon(PlayerPedId())] then
+            TriggerServerEvent('cnr:robbery_atm',
+              exports['cnrobbers']:GetFullZoneName(GetNameOfZone(atms[i].pos)),
+              atms[i].pos
+            )
+          else
+            ClearPrints()
+            SetTextEntry_2("STRING")
+            AddTextComponentString("~w~YOU MUST USE A ~r~MELEE WEAPON")
+            DrawSubtitleTimed(3000, 1)
+          end
+          Wait(3000)
+        
+        else
+          ClearPrints()
+          SetTextEntry_2("STRING")
+          AddTextComponentString("~w~PRESS (~r~ATTACK~w~) TO CRACK THE ATM")
+          DrawSubtitleTimed(10, 1)
+        
+        end
+      end
     end
     Citizen.Wait(0)
   end

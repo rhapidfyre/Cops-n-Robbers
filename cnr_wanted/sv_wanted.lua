@@ -35,7 +35,6 @@ local reduce     = {
 -- @param msg      If true, displays "Crime Committed" message
 function WantedPoints(ply, crime, msg)
   if not exports['cnr_police']:DutyStatus(ply) then
-    print("DEBUG - "..tostring(crime)..".")
     if not ply         then return 0        end
     if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
     if not crime       then
@@ -111,7 +110,6 @@ function WantedPoints(ply, crime, msg)
         -- NEW FORMULA: 1(0.98/1 ^x)
         local modifier = (0.98) ^ wanted[ply]
         wanted[ply]    = wanted[ply] + modifier
-        print(wanted[ply])
         
       else n = 0
       end

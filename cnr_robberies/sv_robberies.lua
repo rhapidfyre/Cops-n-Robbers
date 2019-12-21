@@ -4,7 +4,30 @@ RegisterServerEvent('cnr:robbery_take')       -- The cash won from the robbery
 RegisterServerEvent('cnr:robbery_dropped')    -- Converts all robberies to cash
 RegisterServerEvent('cnr:client_loaded')      -- Called when the char enters
 RegisterServerEvent('cnr:robbery_alarm')      -- Rx's and dispatches an alarm
+RegisterServerEvent('cnr:robbery_atm')
 
+local atmRobbed = {}
+
+AddEventHandler('cnr:robbery_atm', function(zoneName, position)
+  local client = source
+  if not atmRobbed[client] then atmRobbed[client] = GetGameTimer() end
+  if atmRobbed[client] <= GetGameTimer() then 
+    atmRobbed[client] = GetGameTimer() + 300000
+    exports['cnr_cash']:CashTransaction(client, math.random(100,1000))
+    exports['cnr_wanted']:WantedPoints(client, 'atm', true)
+    exports['cnr_police']:DispatchPolice(
+      "ATM Alarm", zoneName, position
+    )
+  else
+    TriggerClientEvent('chat:addMessage', client, {
+      multiline = true,
+      args = {
+        "^1ATM ROBBERY",
+        "You've recently robbed an ATM! Try again later."
+      }
+    })
+  end
+end)
 
 --- EVENT cnr:robbery_take
 -- Called when a player finishes a robbery
@@ -24,7 +47,7 @@ AddEventHandler('cnr:robbery_take', function(cashTake)
     end
     
   else
-    TriggerClientEvent('chat:addMessage', {
+    TriggerClientEvent('chat:addMessage', client, {
       multiline = true,
       args = {
         "ROBBERY FAILED",
@@ -73,9 +96,9 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
     Citizen.CreateThread(function()
       Citizen.Wait(math.random(1, 10) * 1000)
       local mission = rob[storeNumber]
-      TriggerClientEvent('cnr:dispatch', (-1),
-        "Hold-up Alarm", mission.title, mission.area,
-        mission.spawn.x, mission.spawn.x, mission.spawn.z
+      exports['cnr_police']:DispatchPolice(
+        "Hold-up Alarm", mission.title..", in "..mission.area,
+        vector3(mission.spawn.x, mission.spawn.x, mission.spawn.z)
       )
       exports['cnr_chat']:DiscordMessage(
         16753920, "Robbery",

@@ -106,8 +106,8 @@ local crimes = {
     fine = function() return (math.random(100, 1000)) end
   },
   ['atm'] =  {
-    title = "ATM Robbery",
-    weight = 65, minTime = 5, maxTime = 15, isFelony = true,
+    title = "ATM Burglary",
+    weight = 32, minTime = 5, maxTime = 15, isFelony = false,
     fine = function() return (math.random(100, 1000)) end
   },
   ['unpaid'] = {
@@ -117,12 +117,17 @@ local crimes = {
   },
   ['brandish'] = {
     title = "Brandishing a Firearm",
+    weight = 5, minTime = 2, maxTime = 5, isFelony = false,
+    fine = function() return (math.random(1000, 5000)) end
+  },
+  ['brandish-npc'] = {
+    title = "Brandishing a Firearm (NPC)",
     weight = 5, minTime = 1, maxTime = 2, isFelony = false,
     fine = function() return (math.random(1000, 5000)) end
   },
   ['brandish-leo'] = {
-    title = "Brandish Firearm upon a Law Enforcement Officer",
-    weight = 50, minTime = 1, maxTime = 10, isFelony = true,
+    title = "Brandish Firearm on a LEO",
+    weight = 50, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(1000, 5000)) end
   },
   ['prisonbreak'] = {
