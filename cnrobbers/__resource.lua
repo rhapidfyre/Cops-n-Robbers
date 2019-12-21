@@ -2,15 +2,15 @@
 --[[
   Cops and Robbers
   Created by RhapidFyre
-  
+
   These files contain all the stored values used across scripts, such as a
-  player's Unique ID, Steam ID, or other values that we wish to store or 
-  otherwise manipulate, without having to make a Database call or search for 
+  player's Unique ID, Steam ID, or other values that we wish to store or
+  otherwise manipulate, without having to make a Database call or search for
   the information again.
-  
+
   Contributors:
     -
-  
+
   Created 08/19/2019
 --]]
 
@@ -41,7 +41,7 @@ server_exports {
 }
 
 exports {
-	'EnumerateObjects', 
+	'EnumerateObjects',
 	'EnumerateVehicles',
 	'EnumeratePeds',
 	'EnumeratePickups',

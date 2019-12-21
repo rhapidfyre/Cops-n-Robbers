@@ -18,7 +18,7 @@ AddEventHandler('onResourceStart', function(rn)
     TriggerEvent('chat:addMessage', {args={
       "An admin has restarted the ^3"..rn.." ^7resource!"
     }})
-    if rn == "cnr_police" then 
+    if rn == "cnr_police" then
       TriggerEvent('chat:addMessage', {args={
         "Any active cops must reduty to continue!"
       }})
@@ -62,7 +62,7 @@ function GetClosestPlayer()
 	local cPly  = nil
 	local cDst  = math.huge
   local plys  = GetActivePlayers()
-  
+
 	for i = 1, #plys do
 		local tgt = GetPlayerPed(plys[i])
 		if tgt ~= ped then
@@ -70,7 +70,7 @@ function GetClosestPlayer()
 			if cDst > dist then cPly = plys[i]; cDst = dist end
 		end
 	end
-  
+
 	return cPly
 end
 
@@ -104,19 +104,19 @@ RegisterCommand('zones', function()
     color = {255,140,20}, multiline = false,
     args = {"ACTIVE ZONE", "Zone #"..activeZone}
   })
-  
+
   local temp = {}
-  
+
   -- Build a numerical order list of zones
-  for k,v in pairs (zoneByName) do 
+  for k,v in pairs (zoneByName) do
     local n = #(temp[v.z]) + 1
     temp[v.z][n] = v.name
   end
- 
+
   -- Display the numerical order list of zones
-  for _,i in pairs (temp) do 
+  for _,i in pairs (temp) do
     local listed = {}
-    for k,v in pairs (v) do 
+    for k,v in pairs (v) do
       listed[#listed + 1] = v
     end
     TriggerEvent('chat:addMessage', {
@@ -125,7 +125,7 @@ RegisterCommand('zones', function()
       args = {"Zone #"..i..":", table.concat(listed, ", ")}
     })
   end
-  
+
   -- Get player's position and determine the zone they're in
   local myPos = GetEntityCoords(PlayerPedId())
   local zn    = GetNameOfZone(myPos.x, myPos.y, myPos.z)
@@ -138,7 +138,7 @@ RegisterCommand('zones', function()
       tostring(zName.name).." (Zone #"..tostring(zName.z)..")"
     }
   })
-  
+
 end)
 
 
@@ -146,24 +146,24 @@ end)
 -- Start saving the player's location
 function ReportPosition(truth)
   reportLocation = truth
-  
+
   -- Sends update to MySQL every 12 seconds
   -- Does not send the update if position has not changed
   Citizen.CreateThread(function()
-  
+
     if reportLocation then print("DEBUG - Now reporting position to SQL.")
     else print("DEBUG - No longer reporting position to SQL.")
     end
-    
-    while reportLocation do 
-      if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then 
+
+    while reportLocation do
+      if plyIsDead or IsPedDeadOrDying(PlayerPedId()) then
         print("[CNR] Cannot report position; Player is dead.")
       else
         local myPos = GetEntityCoords(PlayerPedId())
-        local doUpdate = false 
-        if not lastPos then 
-          doUpdate = true 
-        elseif #(lastPos - myPos) > 5.0 then 
+        local doUpdate = false
+        if not lastPos then
+          doUpdate = true
+        elseif #(lastPos - myPos) > 5.0 then
           doUpdate = true
         end
         if doUpdate then
@@ -179,5 +179,5 @@ function ReportPosition(truth)
       Citizen.Wait(12000)
     end
   end)
-    
+
 end

@@ -3,7 +3,7 @@
   Cops and Robbers: Wanted Script - Client Dependencies
   Created by Michael Harris (mike@harrisonline.us)
   08/19/2019
-  
+
   This file contains all information that will be stored, used, and
   manipulated by any CNR scripts in the gamemode. For example, a
   player's level will be stored in this file and then retrieved using
@@ -87,27 +87,27 @@ AddEventHandler('cnr:wanted_client', function(ply, wp)
   -- If no wanted points or player is given, assume or return
   if not wp  then wp = 0     end
   if not ply then return 0   end
-  
+
   -- If the player being passed is the local client, check for events
-  if ply == GetPlayerServerId(PlayerId()) then 
-    
+  if ply == GetPlayerServerId(PlayerId()) then
+
     -- If no wanted table entry, create one.
     if not wanted[ply] then wanted[ply] = 0
     end
-    
+
     -- If player goes innocent -> wanted or vice versa, trigger event
     if     wanted[ply] == 0 and wp  > 0 then TriggerEvent('cnr:is_wanted')
     elseif wanted[ply]  > 0 and wp <= 0 then
       TriggerEvent('cnr:is_clear')
       crimeList = {}
     end
-    
+
     -- If player was not most wanted, and will be, trigger 'is_most_wanted'
     if wanted[ply] < mw and wp > mw then TriggerEvent('cnr:is_most_wanted')
     end
-    
+
   end
-  
+
   wanted[ply] = wp -- Update wanted list entry
 end)
 
@@ -127,13 +127,13 @@ function WantedLevel(ply)
   -- If ply not given, return 0
   if not ply         then ply = GetPlayerServerId(PlayerId()) end
   if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
-  
+
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
   else                           return (math.floor((wanted[ply])/10) + 1)
   end
   return 0
-  
+
 end
 
 
@@ -143,14 +143,14 @@ end
 function UpdateWantedStars()
   local prevWanted = 0
   local tickCount  = 0
-  while true do 
+  while true do
     local myWanted =  WantedLevel(GetPlayerServerId(PlayerId()))
-    
+
     -- Wanted Level has changed
-    if myWanted ~= prevWanted then 
+    if myWanted ~= prevWanted then
       prevWanted = myWanted -- change to reflect it
       tickCount  = 0      -- Restart flash if changes again during flash
-      
+
     else
       -- Make it flash, end on the solid version
       if tickCount < 10 then          tickCount = tickCount + 1
@@ -178,15 +178,15 @@ function IsPlayerAimingAtCop(target)
   if not DecorGetBool(target, "AimCrime") then
     DecorSetBool(target, "AimCrime", true)
     local myPos = GetEntityCoords(PlayerPedId())
-    if IsPedAPlayer(target) then 
-      if exports['cnr_police']:DutyStatus(target) then 
+    if IsPedAPlayer(target) then
+      if exports['cnr_police']:DutyStatus(target) then
         print("DEBUG - Player IS a cop. Brandish on an LEO")
         TriggerServerEvent('cnr:wanted_points', 'brandish-leo', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
           myPos
         )
         Citizen.Wait(1000)
-      else  
+      else
         print("DEBUG - Player is not a cop. Brandish only.")
         TriggerServerEvent('cnr:wanted_points', 'brandish', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
@@ -213,25 +213,25 @@ local looping  = false
 local lastShot = 0
 local lastAim  = 0
 function NotCopLoops()
-  if not looping then 
+  if not looping then
     looping = true
-    
+
     -- An intense Wait(0) loop for immediate actions (aiming, shooting, etc)
     Citizen.CreateThread(function()
-      while not isCop do 
+      while not isCop do
         local ped = PlayerPedId()
-        
+
         -- Aiming/Shooting Crimes
-        if IsPlayerFreeAiming(PlayerId()) then 
+        if IsPlayerFreeAiming(PlayerId()) then
           local isAiming, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
-          if DoesEntityExist(aimTarget) then 
+          if DoesEntityExist(aimTarget) then
             if IsEntityAPed(aimTarget) then
-              local dist = #(GetEntityCoords(ped) - 
+              local dist = #(GetEntityCoords(ped) -
                              GetEntityCoords(aimTarget)
               )
               if dist < 120.0 then
                 if HasEntityClearLosToEntity(ped, aimTarget, 17) then
-                  if lastAim < GetGameTimer() then 
+                  if lastAim < GetGameTimer() then
                     lastAim = GetGameTimer() + 12000
                     IsPlayerAimingAtCop(aimTarget)
                   end
@@ -240,21 +240,21 @@ function NotCopLoops()
             end
           end
         end
-        
+
         -- Shooting a firearm near peds and someone can see it
         if IsPedShooting(ped) then
           if lastShot < GetGameTimer() then
             local wasShotSeen = false
             for peds in exports['cnrobbers']:EnumeratePeds() do
               if not IsPedAPlayer(peds) then
-                if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then 
-                  if HasEntityClearLosToEntity(peds, ped, 17) then 
+                if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then
+                  if HasEntityClearLosToEntity(peds, ped, 17) then
                     wasShotSeen = true
                   end
                 end
               end
             end
-            if wasShotSeen then 
+            if wasShotSeen then
               lastShot = GetGameTimer() + 12000
               TriggerServerEvent('cnr:wanted_points', 'discharge', true,
                 exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
@@ -264,36 +264,36 @@ function NotCopLoops()
           end
         end
         Citizen.Wait(0)
-        
+
       end
       looping = false
     end)
-    
+
     -- A less intensive loop for simple checks that don't require each frame
     -- Did someone die, and did you kill them? etc...
     Citizen.CreateThread(function()
-      while not isCop do 
-        
+      while not isCop do
+
         -- Killing a Ped or Player
-        for peds in exports['cnrobbers']:EnumeratePeds() do 
+        for peds in exports['cnrobbers']:EnumeratePeds() do
           if IsPedDeadOrDying(peds) and not IsPedAPlayer(peds) then
-          
+
             -- This dead ped doesn't have a decor set
-            if not DecorExistOn(peds, "KillCrime") then 
+            if not DecorExistOn(peds, "KillCrime") then
               DecorRegister("KillCrime", 2)
               DecorRegister("idKiller", 3)
             end
-            
+
             -- If the killing crime hasn't been ran yet
             if not DecorGetBool(peds, "KillCrime") then
               local killer = GetPedSourceOfDeath(peds)
               local cause  = GetPedCauseOfDeath(peds)
-              if killer then 
-                if IsEntityAPed(killer) then 
+              if killer then
+                if IsEntityAPed(killer) then
                   DecorSetInt(peds, "idKiller", killer)
                 end
               end
-              if DecorGetInt(peds, "idKiller") == PlayerPedId() then 
+              if DecorGetInt(peds, "idKiller") == PlayerPedId() then
                 DecorSetBool(peds, "KillCrime", true)
                 local myPos = GetEntityCoords(PlayerPedId())
                 TriggerServerEvent('cnr:wanted_points', 'manslaughter', true,
@@ -304,8 +304,8 @@ function NotCopLoops()
             end
           end
         end
-        
-        Citizen.Wait(1000)      
+
+        Citizen.Wait(1000)
       end
     end)
   end
@@ -314,7 +314,7 @@ end
 
 AddEventHandler('cnr:wanted_enter_vehicle', function(veh)
   if crimeCar.v then
-    if veh == crimeCar.v then 
+    if veh == crimeCar.v then
       print("DEBUG - Player broke into the vehicle!")
       -- Occupied: Carjacking (more serious crime)
       local myPos = GetEntityCoords(PlayerPedId())
@@ -353,13 +353,13 @@ function HasRightsToVehicle(veh)
     local vName = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
     -- Vehicle is an emergency vehicle
     if GetVehicleClass(veh) == 18 or eVehicle[vName] then
-      if exports['cnr_police']:DutyStatus() then 
+      if exports['cnr_police']:DutyStatus() then
         return true
       else return false
       end
     -- Vehicle is *NOT* an emergency vehicle
-    else 
-      if DecorExistOn(veh, "idOwner") then 
+    else
+      if DecorExistOn(veh, "idOwner") then
         if DecorGetInt(veh, "idOwner") == PlayerPedId() then return true
         else return false -- Player is not the owner
         end
@@ -374,8 +374,8 @@ end
 AddEventHandler('cnr:wanted_check_vehicle', function(veh)
   local hasRight = HasRightsToVehicle(veh)
   print("DEBUG - Player has rights to vehicle? ["..tostring(hasRight).."]")
-  if not hasRight then 
-    if IsEntityAVehicle(veh) then 
+  if not hasRight then
+    if IsEntityAVehicle(veh) then
       local lockStatus = GetVehicleDoorLockStatus(veh)
       local driver     = GetPedInVehicleSeat(veh, (-1))
       -- Breaking into a car is only a crime if it's locked

@@ -4,7 +4,7 @@ RegisterServerEvent('cnr:create_player')  -- Client has connected
 RegisterServerEvent('cnr:create_session') -- Client is ready to join
 
 -- Whether the server should display connection/join messages --
-local doTalk = true 
+local doTalk = true
 local doJoin = true
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 local dMsg   = true -- Display debug messages
@@ -24,15 +24,15 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
   deferrals.defer()
   deferrals.update(string.format("Checking Whitelist for user %s", name))
   for _,v in pairs(identifiers) do
-    if string.find(v, "steam") then 
+    if string.find(v, "steam") then
       steamIdentifier = v
       break
     end
   end
-  if steamIdentifier then 
+  if steamIdentifier then
     cprint("^2Success; User is logged into Steam.")
     deferrals.done()
-  
+
   else
     cprint("^1Failure; User is NOT logged into Steam.")
     cprint(name.." Disconnected. Reason: Not using Steam.")
@@ -45,7 +45,7 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
       "No Steam Logon"
     )
   end
-  
+
 end
 AddEventHandler("playerConnecting", OnPlayerConnecting)
 ]]
@@ -55,7 +55,7 @@ AddEventHandler("playerConnecting", OnPlayerConnecting)
 function GetPlayerSteamId(ply)
   if steams[ply] then return steams[ply] end
   local sid = nil
-  for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+  for _,id in pairs(GetPlayerIdentifiers(ply)) do
     print("DEBUG - ^3"..tostring(id).."^7")
     if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
     end
@@ -73,7 +73,7 @@ end
 function GetPlayerLicense(ply)
   if fivem[ply] then return fivem[ply] end
   local fid = nil
-  for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+  for _,id in pairs(GetPlayerIdentifiers(ply)) do
     if string.sub(id, 1, string.len("license:")) == "license:" then fid = id
     end
   end
@@ -89,8 +89,8 @@ end
 function ReadChangelog(ply)
   local changeLog = io.open("changelog.txt", "r")
   local logLines  = {}
-  if changeLog then 
-    for line in io.lines("changelog.txt") do 
+  if changeLog then
+    for line in io.lines("changelog.txt") do
       if line ~= "" and line then
         n = #logLines + 1
         if n < (max_lines + 1) then logLines[n] = line end
@@ -100,7 +100,7 @@ function ReadChangelog(ply)
     if dMsg then
       cprint("changelog.txt not found. You can safely ignore this warning.")
     end
-  end 
+  end
   if changelog then
     if dMsg then cprint("Sending changelog to "..GetPlayerName(ply)) end
     changeLog:close()
@@ -115,7 +115,7 @@ function GetPlayerInformation(ply)
     ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
     ['ip'] = GetPlayerEndpoint(ply)
   }
-  for _,id in pairs (plyInfo) do 
+  for _,id in pairs (plyInfo) do
     if string.sub(id, 1, string.len("steam:")) == "steam:" then
       infoTable['stm'] = id
     elseif string.sub(id, 1, string.len("license:")) == "license:" then
@@ -126,7 +126,7 @@ function GetPlayerInformation(ply)
       infoTable['discd'] = id
     end
   end
-  
+
   local filtered = GetPlayerName(ply)
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   return infoTable
@@ -134,15 +134,15 @@ end
 
 
 --- CreateUniqueId()
--- Creates a new entry to the 'players' table of the SQL Database, and then 
+-- Creates a new entry to the 'players' table of the SQL Database, and then
 -- assigns the Unique ID to the 'unique' table variable.
 -- @param ply The Player's Server ID. If not given, function ends
 function CreateUniqueId(ply)
-  
+
   if not ply then return 0 end
-  
+
   -- Filter username for special characters
-  
+
   -- SQL: Insert new user account for new player
   -- If steamid and fiveid are nil, the procedure will return 0
   local ids = GetPlayerInformation(ply)
@@ -153,7 +153,7 @@ function CreateUniqueId(ply)
       ['disc'] = ids['discd'], ['ip'] = ids['ip'], ['user'] = ids['user']
     }
   )
-  if uid > 0 then 
+  if uid > 0 then
     unique[ply] = uid
     exports['cnrobbers']:UniqueId(ply, tonumber(uid)) -- Set UID for session
     cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
@@ -174,16 +174,16 @@ AddEventHandler('cnr:create_player', function()
   local ply     = source
   local ids     = GetPlayerInformation(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
-  
+
   if doJoin then
     cprint("^2"..ustring.." connected.^7")
   end
-  
+
   if ids then
     if dMsg then
       cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
     end
-  
+
     -- SQL: Retrieve character information
     exports['ghmattimysql']:scalar(
       "SELECT idUnique FROM players "..
@@ -191,7 +191,7 @@ AddEventHandler('cnr:create_player', function()
       "OR idDiscord = @disc LIMIT 1",
       {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']},
       function(uid)
-        if uid then 
+        if uid then
           print("DEBUG - UID Exists.")
           unique[ply] = uid
           cprint("Found Unique ID "..uid.." for "..ustring)
@@ -199,7 +199,7 @@ AddEventHandler('cnr:create_player', function()
         else
           print("DEBUG - UID Nonexistant")
           local uid = CreateUniqueId(ply)
-          if uid < 1 then 
+          if uid < 1 then
             cprint("^1A Fatal Error has Occurred.")
             cprint("No player ID given to CreateUniqueId() in sv_create.lua")
           else
@@ -209,13 +209,13 @@ AddEventHandler('cnr:create_player', function()
             )
           end
         end
-        Citizen.Wait(200) 
+        Citizen.Wait(200)
         cprint(ustring.." is loaded in, and ready to play!")
         TriggerClientEvent('cnr:create_ready', ply)
         CreateSession(ply)
       end
     )
-    
+
   else
     cprint("^1"..ustring.." disconnected. ^7(No ID Validation Obtained)")
     DropPlayer(ply,
@@ -229,7 +229,7 @@ end)
 --- EVENT 'cnr:create_session'
 -- Received by a client when they're spawned and ready to load in
 function CreateSession(ply)
-  
+
   -- Retrieve all their character information
   exports['ghmattimysql']:execute(
     "SELECT * FROM characters WHERE idUnique = @uid",
@@ -244,7 +244,7 @@ function CreateSession(ply)
           65280, GetPlayerName(ply).." has joined the game!", "", ""
         )
         TriggerClientEvent('cnr:create_reload', ply, plyr[1])
-      
+
       -- Otherwise, create it.
       else
         Citizen.Wait(1000)
@@ -259,7 +259,7 @@ function CreateSession(ply)
       end
     end
   )
-  
+
 end
 
 

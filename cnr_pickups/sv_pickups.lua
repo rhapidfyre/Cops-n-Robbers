@@ -2,7 +2,7 @@
 RegisterServerEvent('cnr:obtain_pickup')
 
 AddEventHandler('onResourceStart', function(rname)
-  if GetCurrentResourceName() == rname then 
+  if GetCurrentResourceName() == rname then
     DestroyAllPickups()
   end
 end)
@@ -24,7 +24,7 @@ function DestroyAllPickups()
       TriggerClientEvent('cnr:pickups_destroyed', (-1))
     end
   )
-  
+
 end
 
 
@@ -42,39 +42,39 @@ end
     - Send it to all clients for rendering
 ]]
 Citizen.CreateThread(function()
-  
+
   -- How many seconds until the timer should fire
   Citizen.Wait(2000)
   tick.fire = math.random((tick.mini), (tick.maxi))
-  
+
 	while true do
-    
+
 		if tick.timer >= tick.fire then
-    
+
 			local plyCount = #GetPlayers()
       tick.timer = 0
       tick.fire = math.random((tick.mini), (tick.maxi))
-      
+
 			if plyCount > 0 then
         local pickupInfo = exports.ghmattimysql:executeSync("CALL new_pickup()")
-        if pickupInfo[1] then 
+        if pickupInfo[1] then
           if pickupInfo[1][1]['pHash'] ~= "NA" then
             TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo[1][1])
             print("DEBUG - Created a pickup.")
           end
         end
-        
+
 			else
 				cprint("^3No players on the server. Any existing pickups have been cleared.")
         DestroyAllPickups()
-        
+
 			end
-      
+
 		end
-  
+
 		tick.timer = tick.timer + 1
 		Citizen.Wait(1000)
-    
+
 	end
 end)
 

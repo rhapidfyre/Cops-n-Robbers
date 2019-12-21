@@ -66,7 +66,7 @@ end
 --- EXPORT: DispatchMessage()
 -- Sends a message to on duty cop as dispatch
 function SendDispatch(title, place, pos, y, z)
-  if isCop then 
+  if isCop then
     if type(pos) ~= "vector3" then pos = vector3(x, y, z) end
     if pos then
       if not title then title = "9-1-1" end
@@ -130,13 +130,13 @@ end)
 function RequestBackup(emergent)
   local pos    = GetEntityCoords(PlayerPedId())
   local myArea = exports['cnrobbers']:GetFullZoneName(GetNameOfZone(pos.x,pos.y,pos.z))
-  if emergent then 
+  if emergent then
     TriggerServerEvent('cnr:police_backup', true, "Backup Request",
-      "^1Immediate Need", myArea, pos.x, pos.y, pos.z      
+      "^1Immediate Need", myArea, pos.x, pos.y, pos.z
     )
   else
     TriggerServerEvent('cnr:police_backup', false, "Backup Request",
-      "^3Urgent Need", myArea, pos.x, pos.y, pos.z      
+      "^3Urgent Need", myArea, pos.x, pos.y, pos.z
     )
   end
 end
@@ -154,7 +154,7 @@ function PoliceLoadout(toggle)
     GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL"), 200, true, false)
     GiveWeaponToPed(ped, GetHashKey("WEAPON_CARBINERIFLE"), 200, true, false)
   else -- Give owned weapons
-    
+
   end
 end
 
@@ -173,12 +173,12 @@ function PoliceCamera(c)
     c.caminfo.fov
   )
   Citizen.CreateThread(function()
-    while transition do 
+    while transition do
       HideHudAndRadarThisFrame()
       Citizen.Wait(0)
     end
   end)
-  if c.leave then 
+  if c.leave then
     SetEntityCoords(PlayerPedId(), c.leave)
   end
   Citizen.Wait(3000)
@@ -233,7 +233,7 @@ function BeginCopDuty(st)
     for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
       SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
     end]]
-    
+
     -- DEBUG - Using Ped Model System
     oldModel = GetEntityModel(PlayerPedId())
     print(oldModel)
@@ -242,7 +242,7 @@ function BeginCopDuty(st)
     while not HasModelLoaded(newModel) do Wait(1) end
     SetPlayerModel(PlayerId(), newModel)
     SetModelAsNoLongerNeeded(newModel)
-  
+
     print("DEBUG - Clothes set.")
     TriggerServerEvent('cnr:police_status', true)
     TriggerEvent('cnr:police_duty', true)
@@ -296,7 +296,7 @@ function Reduty()
   for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end]]
-  
+
   -- DEBUG - Using Ped Model System
   oldModel = GetEntityModel(PlayerPedId())
   print(oldModel)
@@ -305,7 +305,7 @@ function Reduty()
   while not HasModelLoaded(newModel) do Wait(1) end
   SetPlayerModel(PlayerId(), newModel)
   SetModelAsNoLongerNeeded(newModel)
-    
+
   TriggerServerEvent('cnr:police_status', true)
   TriggerEvent('cnr:police_duty', true)
   PoliceLoadout(true)
@@ -321,7 +321,7 @@ end
 AddEventHandler('cnr:police_reduty', Reduty)
 -- DEBUG - /forceduty
 RegisterCommand('forceduty', function()
-  if forcedutyEnabled then 
+  if forcedutyEnabled then
     if not isCop then Reduty()
     else
       TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
@@ -344,13 +344,13 @@ function EndCopDuty(st)
   for k,v in pairs (prevClothes) do
     SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
   end]]
-  
+
   -- DEBUG - Using Ped Model System
   RequestModel(oldModel)
   while not HasModelLoaded(oldModel) do Wait(1) end
   SetPlayerModel(PlayerId(), oldModel)
   SetModelAsNoLongerNeeded(oldModel)
-    
+
   TriggerServerEvent('cnr:police_status', false)
   TriggerEvent('cnr:police_duty', false)
   TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
@@ -368,16 +368,16 @@ end
 
 function UnlockPoliceCarDoor()
   local veh = GetVehiclePedIsTryingToEnter(PlayerPedId())
-  if veh > 0 then 
+  if veh > 0 then
     local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
     if policeCar[mdl] then
-      if GetVehicleDoorLockStatus(veh) > 0 then 
-        if isCop then 
+      if GetVehicleDoorLockStatus(veh) > 0 then
+        if isCop then
           SetVehicleDoorsLocked(veh, 0)
           SetVehicleNeedsToBeHotwired(veh, false)
           Citizen.CreateThread(function()
             Citizen.Wait(6000)
-            if GetVehiclePedIsIn(PlayerPedId()) ~= veh then 
+            if GetVehiclePedIsIn(PlayerPedId()) ~= veh then
               SetVehicleDoorsLocked(veh, 2)
               SetVehicleNeedsToBeHotwired(veh, true)
             end
@@ -425,19 +425,19 @@ local lastRequest = 0
 function PoliceDutyLoops()
   print("DEBUG - PoliceDutyLoops()")
   Citizen.CreateThread(function()
-    while isCop do 
+    while isCop do
       if IsControlJustPressed(0, 75) then UnlockPoliceCarDoor() -- F
-      
+
       elseif IsControlJustPressed(0, 29) and GetLastInputMethod(2) then -- B
         if lastRequest < GetGameTimer() then
           lastRequest = GetGameTimer() + 30000
           RequestBackup(true)
         end
-        
+
       elseif IsControlJustPressed(0, 288) then
         print("DEBUG - ImprisonClient() [F1]")
         ImprisonClient() -- F1
-      
+
       end
       Citizen.Wait(0)
     end
@@ -446,7 +446,7 @@ end
 
 
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     if not ignoreDuty and not transition then
       local myPos = GetEntityCoords(PlayerPedId())
       for i = 1, #depts do
@@ -469,12 +469,12 @@ end)
 local backupBlips = {}
 AddEventHandler('cnr:police_blip_backup', function(ply)
   local plys = exports['cnrobbers']:GetPlayers()
-  for k,v in pairs (plys) do 
-    if GetPlayerFromServerId(ply) == v then 
-      if DoesBlipExist(v) then 
-        
+  for k,v in pairs (plys) do
+    if GetPlayerFromServerId(ply) == v then
+      if DoesBlipExist(v) then
+
       else
-      
+
       end
     end
   end
@@ -499,12 +499,12 @@ local restricted = {
   ["RHINO"] = true,
 }
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     Wait(0)
 
     --[[ Stops cops from dropping weapons
-    for ped in exports['southland']:EnumeratePeds() do 
-      if ped then 
+    for ped in exports['southland']:EnumeratePeds() do
+      if ped then
         if ped > 0 then
           SetPedDropsWeaponsWhenDead(ped, false)
         end
@@ -564,26 +564,26 @@ AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
   if onDuty then  activeCops[ply] = cLevel
   else            activeCops[ply] = nil
   end
-  
+
   local idPlayer = GetPlayerFromServerId(ply)
-  
+
   if PlayerId() == idPlayer then
     if not onDuty then
       exports['cnr_chat']:PushNotification(
         2, "DUTY STATUS CHANGED", "You are no longer on duty."
       )
-      
+
     else
       myCopRank = cLevel
       exports['cnr_chat']:PushNotification(
         2, "DUTY STATUS CHANGED", "You are now on duty<br>Cop Level: "..cLevel
       )
-      
+
     end
-    
+
   else
     if DutyStatus() then
-      if onDuty then 
+      if onDuty then
         exports['cnr_chat']:PushNotification(
           2, "NEW UNIT AVAILABLE", "Officer "..GetPlayerName(idPlayer)..
           " is now On Duty<br>Cop Level: "..cLevel

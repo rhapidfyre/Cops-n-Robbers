@@ -10,22 +10,22 @@ local myTag      = ''
 
 --[[ DEBUG - Disables clan menu
 Citizen.CreateThread(function()
-  while true do 
-  
+  while true do
+
     -- Close the menu if the player pauses or dies
-    if menuEnabled then 
-      if IsPauseMenuActive() or IsPedDeadOrDying(PlayerPedId()) then 
+    if menuEnabled then
+      if IsPauseMenuActive() or IsPedDeadOrDying(PlayerPedId()) then
           SendNUIMessage({close = true})
           SetNuiFocus(false)
       end
     end
-    
+
     -- DEBUG - Change to F2 later (trainer/lambda menu)
     if IsControlJustPressed(0, 20) then
       print("DEBUG - Pressed Z")
       if not IsPauseMenuActive() and not menuEnabled then
         print("DEBUG - Eligible.")
-        if not IsPedDeadOrDying(PlayerPedId()) then 
+        if not IsPedDeadOrDying(PlayerPedId()) then
           print("DEBUG - Not dying.")
           menuEnabled = true
           SetNuiFocus(true, true)
@@ -35,7 +35,7 @@ Citizen.CreateThread(function()
         end
       end
     end
-    
+
     Citizen.Wait(10)
   end
 end)
@@ -68,7 +68,7 @@ AddEventHandler('cnr:clans_receive', function(clanInfo)
 end)
 
 AddEventHandler('cnr:clans_members', function(ldr, plys)
-  if plys then 
+  if plys then
     local htmlTable = {}
     print("DEBUG - Adding all other members.")
     local i = 1
@@ -98,31 +98,31 @@ local selected_member = 0
 RegisterNUICallback("clanMenu", function(data, cb)
   print("DEBUG - Received NUICallback 'clanMenu'")
   selected_member = 0
-  if data.action == "exit" then 
+  if data.action == "exit" then
     SetNuiFocus(false)
     menuEnabled = false
     mbr = {}
-    
+
   elseif data.action == "roster" then
     print("DEBUG - Show Roster for idClan ["..(data.clanNumber).."]")
     SendNUIMessage({showload = true})
     Citizen.Wait(300)
     TriggerServerEvent('cnr:clans_roster', tonumber(data.clanNumber))
-    
+
   elseif data.action == "memberInfo" then
     selected_member = data.member
     local t = mbr[data.member]
     print("DEBUG - ViewMember("..tostring(data.member)..") -> ["..tostring(t[1]).."]")
     SendNUIMessage({showmember = true, nm = t[1], clv = t[2], leo = t[3]})
-    
+
   elseif data.action == "closeMember" then
     SendNUIMessage({hidemember = true})
-    
-  elseif data.action == "newLeader" then 
-    
-  
-  elseif data.action == "remove" then 
-    
-  
+
+  elseif data.action == "newLeader" then
+
+
+  elseif data.action == "remove" then
+
+
   end
 end)

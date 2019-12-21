@@ -49,16 +49,16 @@ end
 --- ReleaseFugitive()
 -- Removes all traces of player inmate/prison info from tables
 -- Also triggers prison_release event
--- @param ply The player's server ID to release 
+-- @param ply The player's server ID to release
 -- @param isBreakout True if the player broke out of prison
 function ReleaseFugitive(ply, isBreakout)
 
   local uid = exports['cnrobbers']:UniqueId(ply)
-  
-  for k,v in pairs (inmates) do 
+
+  for k,v in pairs (inmates) do
     if v == ply then table.remove(inmates, k) end
   end
-  
+
   if not isBreakout then
     TriggerClientEvent('cnr:prison_release', ply, prisoner[ply])
     cprint(
@@ -70,17 +70,17 @@ function ReleaseFugitive(ply, isBreakout)
       "^3"..GetPlayerName(k).." has broken out of jail/prison!."
     )
   end
-  
+
   if serveTime[ply] then serveTime[ply] = 0   end
   if prisoner[k]    then prisoner[k]    = nil end
-  
+
   -- SQL: Remove inmate record
   exports['ghmattimysql']:execute(
     "DELETE FROM inmates WHERE idUnique = @uid",
     {['uid'] = uid},
     function() end
   )
-  
+
 end
 
 
@@ -89,17 +89,17 @@ AddEventHandler('cnr:prison_break', function()
 end)
 
 function ImprisonClient(ply, cop)
-  if ply and cop then 
-  
+  if ply and cop then
+
     local wantedLevel = exports['cnr_wanted']:WantedLevel(ply)
     local uid         = exports['cnrobbers']:UniqueId(ply)
-    
+
     -- Jail / Prison
-    if wantedLevel > 3 then 
-    
+    if wantedLevel > 3 then
+
       serveTime[ply]        = CalculateTime(ply) * 60
       inmates[#inmates + 1] = ply
-      
+
       if wantedLevel > 5 then
         prisoner[ply] = true
         cprint("^4"..GetPlayerName(ply)..
@@ -110,27 +110,27 @@ function ImprisonClient(ply, cop)
           " has been sent to jail for "..(serveTime[ply]/60).." minutes!"
         )
       end
-      
+
       -- Tell client to go to prison
       TriggerClientEvent('cnr:police_imprison', ply,
         cop, (serveTime[ply]/60), prisoner[ply]
       )
-      
+
       -- SQL: Insert inmate to SQL
       exports['ghmattimysql']:execute(
         "INSERT INTO inmates (idUnique, sentence, isPrison) "..
         "VALUES (@uid, @jt, @p)",
         {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = prisoner[ply]}
       )
-    
+
     -- Ticket
-    elseif wantedLevel > 0 then 
+    elseif wantedLevel > 0 then
       if not tickets[ply] then tickets[ply] = 0 end
       if tickets[ply] > 0 then
         TriggerClientEvent('chat:addMessage', cop, {args={
           "^1That player already has a ticket, wait to see if they pay it!"
         }})
-        
+
       else
         local n = 0
         local cList = exports['cnr_wanted']:CrimeList(ply)
@@ -140,7 +140,7 @@ function ImprisonClient(ply, cop)
           n = n + cFine
           print("DEBUG - $"..tostring(n))
         end
-        
+
         if n < minFineAmount then n = minFineAmount
         elseif n > maxFineAmount then n = maxFineAmount end
         tickets[ply] = n
@@ -149,32 +149,32 @@ function ImprisonClient(ply, cop)
           "^2You have issued ^7"..GetPlayerName(ply).." ^2a ticket "..
           "for ^7$"..tickets[ply].."^2.\nWait to see if they pay the fine..."
         }})
-        
-        -- Create ticketTime timer to 
+
+        -- Create ticketTime timer to
         Citizen.CreateThread(function()
           local cl = ply
           Citizen.Wait(ticketTime * 1000)
-          if tickets[cl] > 0 then 
+          if tickets[cl] > 0 then
             exports['cnr_wanted']:WantedPoints(cl, 'unpaid')
             TriggerClientEvent('chat:addMessage', cl, {templateId = 'crimeMsg',
               args = {"Failure to Pay a Citation"}
             })
           end
         end)
-        
+
       end
       return 0 -- Return as to not run the WantedLevel() export below
-      
-    else 
+
+    else
       TriggerClientEvent('chat:addMessage', cop, { args = {
         "^1Player #"..ply.." is not wanted!"
       }})
       return 0 -- Return as to not run the WantedLevel() export below
-      
+
     end
-    
+
     exports['cnr_wanted']:WantedPoints(ply, 'jailed')
-    
+
   end
 end
 AddEventHandler('cnr:prison_sendto', function(ply)
@@ -186,17 +186,17 @@ end)
 
 
 AddEventHandler('cnr:ticket_payment', function(idOfficer)
-  local ply = source 
+  local ply = source
   if not tickets[ply] then tickets[ply] = 0 end
-  if tickets[ply] > 0 then 
+  if tickets[ply] > 0 then
     local tPay = tickets[ply]
     local plyCash = exports['cnr_cash']:GetPlayerCash(ply)
-    if tPay <= plyCash then 
+    if tPay <= plyCash then
       exports['cnr_cash']:CashTransaction(tPay, ply)
       tickets[ply] = 0
     else
       plyCash = exports['cnr_cash']:GetPlayerBank(ply)
-      if tPay <= plyCash then 
+      if tPay <= plyCash then
         exports['cnr_cash']:BankTransaction(tPay, ply)
       else
         TriggerClientEvent('chat:addMessage', ply, { args = {
@@ -205,7 +205,7 @@ AddEventHandler('cnr:ticket_payment', function(idOfficer)
         return 0
       end
     end
-    if idOfficer then 
+    if idOfficer then
       exports['cnr_wanted']:WantedPoints(ply, 'jailed')
       TriggerClientEvent('chat:addMessage', idOfficer, { args = {
         "^3"..GetPlayerName(ply).."^2 paid the ticket and is no longer wanted."
@@ -223,15 +223,15 @@ end)
 AddEventHandler('playerDropped', function(reason)
   local ply      = source
   local pName    = GetPlayerName(ply)
-  local isInmate = false 
-  for k,v in pairs(inmates) do 
+  local isInmate = false
+  for k,v in pairs(inmates) do
     if v == ply then
       isInmate = true
       table.remove(inmates, k) -- Perform list cleanup
       break
       end
   end
-  if isInmate then 
+  if isInmate then
     local uid = exports['cnrobbers']:UniqueId(ply)
     local jTime = serveTime[ply]
     if not pName then pName = "Unknown" end
@@ -258,21 +258,21 @@ AddEventHandler('cnr:client_loaded', function()
   local pName = GetPlayerName(ply)
   local uid   = exports['cnrobbers']:UniqueId(ply)
   if not uid then uid = 0 end
-  
+
   -- Send current door lock status
-  for i = 1, #pdDoors do 
+  for i = 1, #pdDoors do
     TriggerClientEvent('cnr:police_doors', (-1), i, pdDoors[i].locked)
   end
-  
+
   -- Check inmate status
-  if uid > 0 then 
+  if uid > 0 then
     exports['ghmattimysql']:execute(
       "SELECT * FROM inmates WHERE idUnique = @uid",
       {['uid'] = uid},
       function(jailInfo)
-        if jailInfo[1] then 
+        if jailInfo[1] then
           cprint(pName.." last logged off with time to serve.")
-          if jailInfo[1]["sentence"] > 0 then 
+          if jailInfo[1]["sentence"] > 0 then
             inmates[#inmates + 1] = ply
             serveTime[ply] = jailInfo[1]["sentence"]
             if jailInfo[1]["isPrisoner"] then
@@ -286,7 +286,7 @@ AddEventHandler('cnr:client_loaded', function()
               math.floor(jailInfo[1]["sentence"]/60).." minutes & "..
               math.floor(jailInfo[1]["sentence"]%60).." seconds."
             )
-            TriggerClientEvent('cnr:prison_rejail', ply, 
+            TriggerClientEvent('cnr:prison_rejail', ply,
               jailInfo[1]["sentence"], jailInfo[1]["isPrison"]
             )
           else
@@ -305,7 +305,7 @@ end)
 
 -- Handles jail / inmate timers
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     for k,v in pairs (serveTime) do
       if v then
         if v < 1 then
@@ -334,15 +334,15 @@ end)
   an admin that they tried to get released.
 ]]
 AddEventHandler('cnr:prison_time_served', function()
-  local ply       = source 
-  local isJailed  = false 
-  for k,v in pairs (inmates) do 
+  local ply       = source
+  local isJailed  = false
+  for k,v in pairs (inmates) do
     if v == ply then isJailed = true end
   end
-  if isJailed then 
-    if serveTime[ply] then 
+  if isJailed then
+    if serveTime[ply] then
       -- If less than 1 minute remaining
-      if serveTime[ply] < 61 then 
+      if serveTime[ply] < 61 then
         print("DEBUG - Player stuck in jail, releasing.")
         ReleaseFugitive(ply)
       end
@@ -359,7 +359,7 @@ end)
 
 
 AddEventHandler('cnr:police_door', function(doorNumber, isLocked)
-  if DutyStatus(source) then 
+  if DutyStatus(source) then
     if pdDoors[doorNumber] then
       pdDoors[doorNumber].locked = isLocked
       TriggerClientEvent('cnr:police_doors', (-1), doorNumber, isLocked)

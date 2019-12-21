@@ -2,14 +2,14 @@
 --[[
   Cops and Robbers: Robberies & Heists
   Created by RhapidFyre
-  
-  These files contain all of the scripts for robberies, heists, and anything 
+
+  These files contain all of the scripts for robberies, heists, and anything
   that requires the players to steal from NPCs. Personal robberies, jewelry
   missions, etc. This does not include any jobs, such as armored transport.
-  
+
   Contributors:
     -
-  
+
   Created 07/19/2019
 --]]
 

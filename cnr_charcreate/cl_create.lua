@@ -13,19 +13,19 @@ end)
 
 
 -- On connection to the server
---AddEventHandler('onClientGameTypeStart', function()   
+--AddEventHandler('onClientGameTypeStart', function()
 AddEventHandler('onClientResourceStart', function(resname)
   if GetCurrentResourceName() == resname then
-  
+
     --exports.spawnmanager:setAutoSpawn(false)
     Citizen.Wait(100)
-    
+
     print("DEBUG - Requesting for the server to let me spawn.")
     --SendNUIMessage({showwelcome = true})
     --SetNuiFocus(true, true)
-    
+
     Citizen.CreateThread(function()
-      while not connected do 
+      while not connected do
         TriggerServerEvent('cnr:create_player')
         Citizen.Wait(3000)
       end
@@ -35,11 +35,11 @@ AddEventHandler('onClientResourceStart', function(resname)
 end)
 
 
---- EVENT: create_ready 
+--- EVENT: create_ready
 -- Called when the character (or lack thereof) is ready
 -- and the player can join.
 RegisterNetEvent('cnr:create_ready')
-AddEventHandler('cnr:create_ready', function() 
+AddEventHandler('cnr:create_ready', function()
   --print("DEBUG - Changing button from ^1LOADING ^7to ^2PLAY")
   --SendNUIMessage({hideready = true})
   connected = true
@@ -131,22 +131,22 @@ AddEventHandler('cnr:create_character', function()
 
   SendNUIMessage({hidewelcome = true})
   SetNuiFocus(true, true)
-  
+
   if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
   SetEntityCoords(PlayerPedId(), -1702.72, -1085.94, 13.1523)
   SetEntityHeading(PlayerPedId(), 40.0)
   SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
   RenderScriptCams(true, true, 500, true, true)
   SetCamActive(cam, true)
-  
+
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
-  
+
   Citizen.Wait(600)
   SendNUIMessage({showpedpick = true})
-  
+
   -- Default model spawn
   ModelChoice("random")
-  
+
 end)
 
 
@@ -165,7 +165,7 @@ end)
 
 -- DEBUG - Model Selection
 -- This is the temporary ped model selection.
--- We will make the move to the freemode models once we have more time, but 
+-- We will make the move to the freemode models once we have more time, but
 -- this works for the time being.
 local pm = 1
 function ModelChoice(data, cb)
@@ -174,42 +174,42 @@ function ModelChoice(data, cb)
     TriggerEvent('chatMessage', "^8You're clicking too fast! Please Wait.")
     return 0
   end
-  
+
   coolDown = true
-  
-  if data == "random" then 
+
+  if data == "random" then
     print("^3DEBUG - Menu given RANDOM MODEL command!")
     oldPM = pm
     pm = math.random(#pedModels)
-    while not pedModels[pm] do 
+    while not pedModels[pm] do
       pm = math.random(#pedModels)
       Wait(10)
     end
-  
-  elseif data == "last" then 
+
+  elseif data == "last" then
     print("^3DEBUG - Menu given LAST command!")
     pm = pm - 1
     if pm < 1 then pm = #pedModels end
-  
-  elseif data == "next" then 
+
+  elseif data == "next" then
     print("^3DEBUG - Menu given NEXT command!")
     pm = pm + 1
     if pm > #pedModels then pm = 1 end
-  
+
   else
     print("^3DEBUG - No argument given to menu, submitting character for approval.")
     TriggerServerEvent('cnr:create_save_character', pedModels[pm])
     coolDown = false
     return 0
-    
+
   end
-  
+
   local newHash = GetHashKey(pedModels[pm])
-  
+
   local timeOut = GetGameTimer() + 4000
   RequestModel(newHash)
   while not HasModelLoaded(newHash) do
-    if GetGameTimer() > timeOut then 
+    if GetGameTimer() > timeOut then
       TriggerEvent('chatMessage', "^1Failed to load model ["..pedModels[pm]..
         "].\nModel removed from eligible list. Please try again."
       )
@@ -220,7 +220,7 @@ function ModelChoice(data, cb)
     end
     Wait(10)
   end
-  
+
   SetPlayerModel(PlayerId(), newHash)
   SetModelAsNoLongerNeeded(newHash)
   coolDown = false

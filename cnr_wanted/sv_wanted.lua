@@ -3,7 +3,7 @@
   Cops and Robbers: Wanted Script - Server Dependencies
   Created by Michael Harris (mike@harrisonline.us)
   08/19/2019
-  
+
   This file contains all information that will be stored, used, and
   manipulated by any CNR scripts in the gamemode. For example, a
   player's level will be stored in this file and then retrieved using
@@ -29,7 +29,7 @@ local reduce     = {
 }
 
 --- EXPORT: WantedPoints()
--- Sets the player's wanted level. 
+-- Sets the player's wanted level.
 -- @param ply      The player's server ID
 -- @param crime    The crime that was committed
 -- @param msg      If true, displays "Crime Committed" message
@@ -41,16 +41,16 @@ function WantedPoints(ply, crime, msg)
       cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
       return 0
     end
-    
-    if crime == 'jailed' then 
+
+    if crime == 'jailed' then
       wanted[ply] = 0
       TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
       TriggerClientEvent('chat:addMessage', ply, {args={
         "^2Your wanted level has been cleared."
       }})
       return 0
-    elseif crime == 'prisonbreak' or crime == 'jailbreak' then 
-      if crime == 'prisonbreak' then 
+    elseif crime == 'prisonbreak' or crime == 'jailbreak' then
+      if crime == 'prisonbreak' then
         TriggerClientEvent('cnr:radio_receive', (-1),
           true, "DISPATCH", "An inmate is escaping from Mission Row PD!",
           true, false, false
@@ -63,12 +63,12 @@ function WantedPoints(ply, crime, msg)
       end
       Citizen.Wait(30000)
     end
-    
+
     local n = GetCrimeWeight(crime)
     if not n then return 0 end
-    
+
     local lastWanted = wanted[ply]
-    
+
     -- Sends a crime message to the perp
     if msg then
       local cn = GetCrimeName(crime)
@@ -81,49 +81,49 @@ function WantedPoints(ply, crime, msg)
         )
       end
     end
-        
+
     -- Add to criminal history
     if not crimesList[ply] then crimesList[ply] = {} end
     local pcl = #(crimesList[ply])
     crimesList[ply][pcl + 1] = crime
     TriggerClientEvent('cnr:wanted_crimelist', ply, crimesList[ply])
-    
+
     -- Calculates wanted points increase by each point individually
     -- This makes higher wanted levels harder to obtain
     while n > 0 do -- e^-(0.02x/2)
       local addPoints = true
-      
+
       -- Ensure crime is NOT a felony
-      if (not IsCrimeFelony(crime)) then 
+      if (not IsCrimeFelony(crime)) then
         -- If the next point would make them a felon, do nothing.
         if wanted[ply] + 1 >= felony then addPoints = false end
       end
-      
+
       -- Crime is a felony, or would not make player a felon (if not a felony)
-      if addPoints then 
-      
+      if addPoints then
+
         --[[ OLD FORMULA: e^-(0.02x/2)
         local modifier = math.exp( -1 * ((0.02 * wanted[ply])/2))
         local formula  = math.floor((modifier * 1)*100000)
         ]]
-        
+
         -- NEW FORMULA: 1(0.98/1 ^x)
         local modifier = (0.98) ^ wanted[ply]
         wanted[ply]    = wanted[ply] + modifier
-        
+
       else n = 0
       end
-      
+
       n = n - 1
       Wait(0)
-      
+
     end
-    
+
     -- Check for broadcast
-    if lastWanted ~= wanted[ply] then 
+    if lastWanted ~= wanted[ply] then
       local wants = WantedLevel(ply)
       -- Wanted level went up by at least 10 (1 level)
-      if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then 
+      if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then
         if wants > 10 then
           exports['cnr_chat']:DiscordMessage(
             16732160, "San Andreas' Most Wanted",
@@ -144,18 +144,18 @@ function WantedPoints(ply, crime, msg)
           GetPlayerName(ply).." is now Wanted Level "..(wants)..".",
           ""
         )
-      
+
       -- Player is no longer wanted
-      elseif lastWanted > 0 and wanted[ply] <= 0 then 
+      elseif lastWanted > 0 and wanted[ply] <= 0 then
         exports['cnr_chat']:DiscordMessage(
           13158600 , "",
           GetPlayerName(ply).." is no longer wanted by police.",
           ""
         )
-      
+
       end
     end
-    
+
     -- Tell other scripts about the change
     TriggerClientEvent('cnr:wanted_client', (-1), ply, wanted[ply])
   else
@@ -166,7 +166,7 @@ end
 local tracking = {}
 AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
   local ply = source
-  if crime then 
+  if crime then
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
       if not tracking[ply] then
@@ -180,7 +180,7 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
       cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
     end
   end
-end)  
+end)
 
 
 --- EXPORT WantedLevel()
@@ -192,20 +192,20 @@ function WantedLevel(ply)
   -- If ply not given, return 0
   if not ply          then return 0 end
   if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
-  
+
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
   else                          return (math.floor((wanted[ply])/10) + 1)
   end
   return 0
-  
+
 end
 
 
 --- AutoReduce()
 -- Reduces wanted points per tick
 function AutoReduce()
-  while true do 
+  while true do
     if wanted then
       for k,v in pairs (wanted) do
         if math.floor(v) > 0 then
@@ -240,14 +240,14 @@ Citizen.CreateThread(AutoReduce)
 -- @param ply The player's server ID. If not given, function returns
 function CheckIfWanted(ply)
   local uid = GetUniqueId(ply)
-  
+
   if uid then
     exports['ghmattimysql']:scalar(
       "SELECT wanted FROM players WHERE idUnique = @uid",
       {['uid'] = uid},
       function(wp)
         -- If player being checked is wanted, send update for that player
-        if not wp then 
+        if not wp then
           print("^1[CNR ERROR] ^7SQL gave no response for wanted level query.")
           return
         end
@@ -272,12 +272,12 @@ function CrimeList(ply, crime)
 
   if not ply             then return {} end
   if not crimesList[ply] then crimesList[ply] = {} end
-  
+
   local n = #(crimesList[ply]) + 1
   if crime then crimesList[ply][n] = crime end
-  
+
   return (crimesList[ply])
-  
+
 end
 
 
@@ -304,7 +304,7 @@ end)
 
 AddEventHandler('baseevents:enteredVehicle', function(veh, seat)
   local ply = source
-  if carUse[ply] == veh then 
+  if carUse[ply] == veh then
     -- Send message to the client to check if they own it,
     -- and evaluate the type of crime committed (break in, carjack, etc)
     print("DEBUG - Check for carjacking")
@@ -315,7 +315,7 @@ end)
 
 --[[
   (From: `baseevents`)
-  
+
   deathData: An array containing the following things:
     (int) killerType: The pedType of the ped who killed the player. (see screenshot below for the possible pedType values.)
     (hash) weaponHash: The hash of the weapon which was used to kill the player.
@@ -327,14 +327,14 @@ end)
 AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
 
   local victim = source
-  
+
   -- Was the killer a passenger in a vehicle?
-  if deathData.killerInVeh then 
-    if deathData.killerVehSeat ~= (-1) then 
+  if deathData.killerInVeh then
+    if deathData.killerVehSeat ~= (-1) then
       return 0
     end
   end
-  
+
   -- Killer is NOT a police officer
   if not exports['cnr_police']:DutyStatus(idKiller) then
     cprint(
@@ -345,14 +345,14 @@ AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
   else
     -- DEBUG - Killer was a police officer
   end
-  
+
 end)
 
 
 -- Called when a player signs in. Sends them the wanted persons list.
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
-  for k,v in pairs(wanted) do 
+  for k,v in pairs(wanted) do
     TriggerClientEvent('cnr:wanted_client', ply, k, v)
   end
 end)

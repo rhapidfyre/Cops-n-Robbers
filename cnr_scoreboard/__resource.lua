@@ -2,14 +2,14 @@
 --[[
   Cops and Robbers: Score Tracking
   Created by RhapidFyre
-  
-  Handles all scoreboard related displays, scorekeeping, as well as 
+
+  Handles all scoreboard related displays, scorekeeping, as well as
   player floating names (above head), and any other tracking features that
   does not belong in the Radar or other more applicable script(s).
-  
+
   Contributors:
     -
-  
+
   Created 07/13/2019
 --]]
 

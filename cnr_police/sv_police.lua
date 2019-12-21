@@ -35,7 +35,7 @@ end)
 AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
 
   local ply = source
-  
+
   if onDuty then
     local uid = exports['cnrobbers']:UniqueId(ply)
     exports['ghmattimysql']:scalar(
@@ -51,10 +51,10 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
     cops[ply] = nil
     TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
   end
-  
+
   local numCops = CountCops()
   local dt      = os.date("%H:%M", os.time())
-  
+
   if numCops < 1 then
     print("[CNR "..dt.."] There are no cops on duty.")
   elseif numCops == 1 then
@@ -62,7 +62,7 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
   else
     print("[CNR "..dt.."] There are now "..numCops.." cops on duty.")
   end
-  
+
 end)
 
 
@@ -80,8 +80,8 @@ end
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
   local uid = exports['cnrobbers']:UniqueId(ply)
-  for k,v in pairs(dropCop) do 
-    if v == uid then 
+  for k,v in pairs(dropCop) do
+    if v == uid then
       TriggerClientEvent('cnr:police_reduty', ply)
       TriggerClientEvent('cnr:police_officer_duty', (-1), ply, true)
       TriggerClientEvent('chat:addMessage', {
@@ -105,12 +105,12 @@ end)
 AddEventHandler('playerDropped', function()
   local ply = source
   local uid = exports['cnrobbers']:UniqueId(ply)
-  if cops[ply] then 
+  if cops[ply] then
     cops[ply] = nil
     dropCop[#dropCop + 1] = uid
     Citizen.CreateThread(function()
       Citizen.Wait(600000)
-      for k,v in pairs (dropCop) do 
+      for k,v in pairs (dropCop) do
         if v == uid then table.remove(dropCop, k) end
       end
     end)

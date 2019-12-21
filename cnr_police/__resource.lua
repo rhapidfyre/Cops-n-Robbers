@@ -2,19 +2,19 @@
 --[[
   Cops and Robbers: Law Enforcement
   Created by RhapidFyre
-  
+
   These files contain all of the law enforcement scripts. Prison, jail, tickets,
   going on and off duty, handcuffing, etc. Anything revolving around law
   enforcement should be in this resource.
-  
+
   -- DEBUG - Developer's Note:
-  To avoid clutter, major components of the law enforcement system, such as 
+  To avoid clutter, major components of the law enforcement system, such as
   PRISON versus POLICE PERMISSIONS should be in separate files, or even
   subdirectories.
-  
+
   Contributors:
     -
-  
+
   Created 07/12/2019
 --]]
 
@@ -42,12 +42,12 @@ client_scripts {
 server_scripts {
   "sh_prison.lua",
   "sv_config.lua",          -- Server settings
-  "sv_police.lua",  
+  "sv_police.lua",
   "sv_prison.lua"
 }
 
 server_exports {
-  'DutyStatus',   
+  'DutyStatus',
   'Imprison',     -- Put player in Prison
   'Jail',         -- Put player in Jail
   'Probation',    -- Release from Jail

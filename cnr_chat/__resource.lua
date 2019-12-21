@@ -2,15 +2,15 @@
 --[[
   Cops and Robbers: Cash / Banking / Money Transaction(s)
   Created by RhapidFyre
-  
+
   These files contain all of the chat functionality, such as chat templates,
-  discord notifications, and more. Eventually, this resource will replace the 
+  discord notifications, and more. Eventually, this resource will replace the
   FiveM default chat resource. In the interest of time, this currently just
   utilizes the base chat resource to get the game working.
-  
+
   Contributors:
     -
-  
+
   Created 08/19/2019
 --]]
 

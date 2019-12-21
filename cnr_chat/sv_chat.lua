@@ -11,18 +11,18 @@ function DiscordMessage(color, name, message, footer, copMessage)
       },
     }
   }
-  
+
   if name == "" then embed["title"] = "" end
   local discordApp = urls.feed
   if copMessage then discordApp = urls.emg end
-  
+
   -- Sends the message to the Discord API for dispatch
   PerformHttpRequest(discordApp,
     function(err, text, headers) end, 'POST',
     json.encode({username = "Server Monitor", embeds = embed}),
     {['Content-Type'] = 'application/json' }
   )
-  
+
 end
 RegisterServerEvent('_chat:messageEntered')
 RegisterServerEvent('cnr:radio_message')

@@ -2,14 +2,14 @@
 --[[
   Cops and Robbers: Wanted Scripts
   Created by RhapidFyre
-  
-  These files handle players criminal activity, that isn't scripted or part of 
+
+  These files handle players criminal activity, that isn't scripted or part of
   a job such as a robbery or heist. Handles things like carjacking, shooting
   at other players, and shooting in public.
-  
+
   Contributors:
     -
-  
+
   Created 07/12/2019
 --]]
 

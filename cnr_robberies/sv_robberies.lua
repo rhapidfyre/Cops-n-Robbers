@@ -11,7 +11,7 @@ local atmRobbed = {}
 AddEventHandler('cnr:robbery_atm', function(zoneName, position)
   local client = source
   if not atmRobbed[client] then atmRobbed[client] = GetGameTimer() end
-  if atmRobbed[client] <= GetGameTimer() then 
+  if atmRobbed[client] <= GetGameTimer() then
     atmRobbed[client] = GetGameTimer() + 300000
     exports['cnr_cash']:CashTransaction(client, math.random(100,1000))
     exports['cnr_wanted']:WantedPoints(client, 'atm', true)
@@ -36,7 +36,7 @@ AddEventHandler('cnr:robbery_take', function(cashTake)
   if cashTake > 0 then
     local ply = source
     local uid = exports['cnrobbers']:UniqueId(ply)
-    if uid then 
+    if uid then
       TriggerClientEvent('cnr:robbery_drops', ply)
       -- SQL: Add cash take to robbery DB.
       -- This has to be cashed in later
@@ -45,7 +45,7 @@ AddEventHandler('cnr:robbery_take', function(cashTake)
         {['u'] = uid, ['m'] = cashTake}
       )
     end
-    
+
   else
     TriggerClientEvent('chat:addMessage', client, {
       multiline = true,
@@ -59,7 +59,7 @@ end)
 
 
 AddEventHandler('cnr:robbery_dropped', function()
-  local ply = source 
+  local ply = source
   local uid = exports['cnrobbers']:UniqueId(ply)
   if uid then
     exports['ghmattimysql']:scalar(
@@ -89,9 +89,9 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
   rob[storeNumber].lockout = lockStatus
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = "Store #"..storeNumber.." has been unlocked and can be robbed."
-  if lockStatus then 
+  if lockStatus then
     msg = "Store #"..storeNumber.." was just robbed, and has been locked."
-    
+
     -- Dispatch Alarm
     Citizen.CreateThread(function()
       Citizen.Wait(math.random(1, 10) * 1000)
@@ -106,7 +106,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
         true
       )
     end)
-    
+
     -- Unlock robbery after 15 to 40 minutes
     Citizen.CreateThread(function()
       local waitTime = (math.random(15, 40) * 60)
@@ -118,7 +118,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
       -- Recursively unlock the store for robbery
       TriggerEvent('cnr:robbery_send_lock', storeNumber, false)
     end)
-    
+
   end
   print("[CNR "..dt.."] "..msg)
   TriggerClientEvent('cnr:robbery_lock_status', (-1), storeNumber, lockStatus)
@@ -127,7 +127,7 @@ end)
 AddEventHandler('cnr:client_loaded', function()
   local ply = source
   local lockouts = {}
-  for k,v in pairs (rob) do 
+  for k,v in pairs (rob) do
     lockouts[k] = v.lockout
   end
   TriggerClientEvent('cnr:robbery_locks', ply, lockouts)
@@ -136,7 +136,7 @@ AddEventHandler('cnr:client_loaded', function()
     "SELECT * FROM robberies WHERE idUnique = @u",
     {['u'] = uid},
     function(takes)
-      if takes[1] then 
+      if takes[1] then
         TriggerClientEvent('cnr:robbery_drops')
       end
     end

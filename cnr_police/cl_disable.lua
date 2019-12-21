@@ -20,12 +20,12 @@ local restricted = {
 
 
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     Wait(0)
 
     --[[ Stops cops from dropping weapons
-    for ped in exports['southland']:EnumeratePeds() do 
-      if ped then 
+    for ped in exports['southland']:EnumeratePeds() do
+      if ped then
         if ped > 0 then
           SetPedDropsWeaponsWhenDead(ped, false)
         end

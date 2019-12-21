@@ -48,7 +48,7 @@ end
 function BeginSentence(secondz)
   local jailTime = (secondz * 60)
   SendNUIMessage({showjail = true})
-  
+
   -- While serving time and is in jail or prison
   while jailTime > 0 and (isInmate or isPrisoner) do
     local secs = math.floor(jailTime%60)
@@ -59,12 +59,12 @@ function BeginSentence(secondz)
     jailTime = jailTime - 1
     Citizen.Wait(1000)
   end
-  
+
   -- Time has either been served, or they broke out of jail/prison
   jailTime = 0
   SendNUIMessage({hidejail = true})
   Citizen.Wait(3000)
-  
+
   -- If either of these are true, we served our time but still stuck in a cell
   -- Notify server that we think we're not supposed to be in jail/prison anymore
   if isPrisoner or isInmate then
@@ -104,7 +104,7 @@ end
 AddEventHandler('cnr:prison_rejail', Reimprison)
 
 
-local ticketWaiting = false 
+local ticketWaiting = false
 function IssueTicket(idOfficer, price)
   SendNUIMessage({showticket = true})
   TriggerEvent('chat:addMessage', { args = {
@@ -116,12 +116,12 @@ function IssueTicket(idOfficer, price)
     "TICKET",
     "You have^3 30 seconds ^7to decide your response ( F1 to Pay )."
   }})
-  if not ticketWaiting then 
+  if not ticketWaiting then
     ticketWaiting = true
     ticketClock = GetGameTimer() + 30000
     Citizen.CreateThread(function()
-      while ticketWaiting do 
-        if IsControlJustPressed(0, 288) then 
+      while ticketWaiting do
+        if IsControlJustPressed(0, 288) then
           ticketWaiting = false
           TriggerServerEvent('cnr:ticket_payment', idOfficer)
         else
@@ -151,16 +151,16 @@ function ReleaseClient(isPrison)
   SetEntityCoords(PlayerPedId(), rPos)
   jailTime   = 0
   isPrisoner = false
-  isInmate   = false 
+  isInmate   = false
 end
 AddEventHandler('cnr:prison_release', ReleaseClient)
 
 
 -- Draws text on screen as positional
-local function DrawText3D(x, y, z, text) 
+local function DrawText3D(x, y, z, text)
   local onScreen,_x,_y = GetScreenCoordFromWorldCoord(x,y,z)
   local dist = GetDistanceBetweenCoords(GetGameplayCamCoords(), x, y, z, 1)
-  
+
   local fov = (1/GetGameplayCamFov()) * 100
   SetDrawOrigin(x, y, z, 0);
   BeginTextCommandDisplayText("STRING")
@@ -182,8 +182,8 @@ end
 -- Handles jail door lock status
 local cDoor = 0
 Citizen.CreateThread(function()
-  while true do 
-    for i = 1, #pdDoors do 
+  while true do
+    for i = 1, #pdDoors do
       local door = GetClosestObjectOfType(
         pdDoors[i].vect.x, pdDoors[i].vect.y, pdDoors[i].vect.z,
         1.0, GetHashKey(pdDoors[i].name),
@@ -202,14 +202,14 @@ function FindRestrictedDoor()
   local cDist = math.huge
   local myPos = GetEntityCoords(PlayerPedId())
   local door  = 0
-  for i = 1, #pdDoors do 
+  for i = 1, #pdDoors do
     local dist = #(myPos - pdDoors[i].vect)
     if cDist > dist and i ~= 2 then door = i; cDist = dist end
   end
   return door
 end
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     if DutyStatus() then cDoor = FindRestrictedDoor() end
     Citizen.Wait(100)
   end
@@ -225,14 +225,14 @@ local prisonDoors = {
   getOut = vector3(1849.54, 2585.81, 45.672)
 }
 Citizen.CreateThread(function()
-  while true do 
-    if DutyStatus() then 
+  while true do
+    if DutyStatus() then
       local ped   = PlayerPedId()
       local myPos = GetEntityCoords(ped)
-      
+
       -- If closest door is a prison gate
-      if cDoor == 9 or cDoor == 10 then 
-        if #(myPos - (pdDoors[cDoor].vect)) < 20.0 then 
+      if cDoor == 9 or cDoor == 10 then
+        if #(myPos - (pdDoors[cDoor].vect)) < 20.0 then
           if IsUsingPoliceVehicle() then
             local sv = (pdDoors[cDoor].vect) -- sv = Short Vectorname
             if pdDoors[cDoor].locked then
@@ -246,9 +246,9 @@ Citizen.CreateThread(function()
           end
         end
       end
-      
+
       -- If near the enter/exit point(s)
-      if #(myPos - prisonDoors.enter) < 400.0 then 
+      if #(myPos - prisonDoors.enter) < 400.0 then
         DrawMarker(1,
           prisonDoors.enter.x, prisonDoors.enter.y, prisonDoors.enter.z - 1.08,
           0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.4, 1.4, 0.52, 0, 80, 200, 120
@@ -257,9 +257,9 @@ Citizen.CreateThread(function()
           prisonDoors.leave.x, prisonDoors.leave.y, prisonDoors.leave.z - 1.08,
           0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.4, 1.4, 0.52, 0, 80, 200, 120
         )
-        if #(myPos - prisonDoors.enter) < 0.8 then 
+        if #(myPos - prisonDoors.enter) < 0.8 then
           SetEntityCoords(ped, prisonDoors.goIn)
-        elseif #(myPos - prisonDoors.leave) < 0.8 then 
+        elseif #(myPos - prisonDoors.leave) < 0.8 then
           SetEntityCoords(ped, prisonDoors.getOut)
         end
       end
@@ -273,21 +273,21 @@ end)
 Citizen.CreateThread(function()
   while true do
     local myPos = GetEntityCoords(PlayerPedId())
-    if DutyStatus() then 
-      if cDoor > 0 then 
+    if DutyStatus() then
+      if cDoor > 0 then
         -- Calculate door stuff
         -- If we did cDoor = pdDoors[i], the lock status would not update
         local distCheck = #(myPos - pdDoors[cDoor].vect)
-        if (distCheck < 3.0) then 
-          
+        if (distCheck < 3.0) then
+
           local door = GetClosestObjectOfType(
             pdDoors[cDoor].vect.x, pdDoors[cDoor].vect.y, pdDoors[cDoor].vect.z,
             1.0, GetHashKey(pdDoors[cDoor].name)
           )
-          
+
           -- Check if restricted (sally port, prison gate, etc)
           if cDoor < 9 and cDoor ~= 4 then
-          
+
             -- Allow E unlock/lock
             if door > 0 then
               local dPos = GetEntityCoords(door)
@@ -296,11 +296,11 @@ Citizen.CreateThread(function()
               else
                 DrawText3D(dPos.x, dPos.y, dPos.z, "~r~UNLOCKED ~w~(E)")
               end
-            
+
               -- Lock/Unlock the door
-              if IsControlJustPressed(0, 38) then 
-                if cDoor > 5 and CopRank() < 7 and (pdDoors[cDoor].locked) then 
-                  TriggerEvent('cnr:push_notify', 
+              if IsControlJustPressed(0, 38) then
+                if cDoor > 5 and CopRank() < 7 and (pdDoors[cDoor].locked) then
+                  TriggerEvent('cnr:push_notify',
                     2, "INSUFFICIENT RANK",
                     "Your cop rank only allows you to LOCK this door."
                   )
@@ -310,12 +310,12 @@ Citizen.CreateThread(function()
                   )
                 end
               end
-            
+
             end
           end
         end
       end
-      
+
     end
     Citizen.Wait(0)
   end
@@ -343,7 +343,7 @@ Citizen.CreateThread(function()
   BeginTextCommandSetBlipName("STRING")
   AddTextComponentString("State Prison")
   EndTextCommandSetBlipName(blip)
-  
+
   -- Jail Blip
   local blip = AddBlipForCoord(jails[3].pos)
   SetBlipSprite(blip, 285)
@@ -353,5 +353,5 @@ Citizen.CreateThread(function()
   BeginTextCommandSetBlipName("STRING")
   AddTextComponentString("Jailhouse")
   EndTextCommandSetBlipName(blip)
-  
+
 end)

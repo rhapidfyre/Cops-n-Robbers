@@ -2,12 +2,12 @@
 --[[
   Cops and Robbers: Cash / Banking / Money Transaction(s)
   Created by RhapidFyre
-  
+
   These files contain all the features to using money.
-  
+
   Contributors:
     -
-  
+
   Created 07/22/2019
 --]]
 

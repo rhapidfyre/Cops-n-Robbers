@@ -85,9 +85,9 @@ Citizen.CreateThread(function()
     "SELECT c.tag,c.idLeader FROM players p LEFT JOIN clans c "..
     "ON c.idClan = p.idClan WHERE p.idUnique = @u",
     function(cInfo)
-      if cInfo[1] then 
+      if cInfo[1] then
         TriggerClientEvent('cnr:clan_tag', ply, cInfo[1]["tag"])
-        if cInfo[1]["idLeader"] == uid then 
+        if cInfo[1]["idLeader"] == uid then
           TriggerClientEvent('cnr:clan_leader', ply, true)
         end
       end

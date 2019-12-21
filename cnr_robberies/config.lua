@@ -3,7 +3,7 @@
   safe: If exists, bonus safe for extra cash
   bDoor: If exists, backdoor exit point
     alley: Where bDoor gets out. One way. If bDoor exists then alley exists
-    
+
   Any code should check for the existence of these variables before using them
 ]]
 

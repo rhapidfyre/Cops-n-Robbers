@@ -19,28 +19,28 @@ local plyBank = {}
 function BankTransaction(ply, n)
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
-  if ply then 
-    if n then 
+  if ply then
+    if n then
       local uid = exports['cnrobbers']:UniqueId(ply)
-      if uid then 
+      if uid then
         if not plyBank[uid] then plyBank[uid] = 0 end
         -- SQL: Change bank value
         local bank = exports['ghmattimysql']:scalarSync(
           "SELECT bank FROM characters WHERE idUnique = @uid",
           {['uid'] = uid}
         )
-        if bank then 
+        if bank then
           local cont   = true
           local newVal = bank + n
-          if n < 0 then 
+          if n < 0 then
             if newVal < 0 then
               cont = false
             end
           end
-          if cont then 
+          if cont then
             -- SQL: Get current value of player's bank account
             local bank = exports['ghmattimysql']:scalarSync(
-              "UPDATE characters SET bank = @v WHERE idUnique = @u", 
+              "UPDATE characters SET bank = @v WHERE idUnique = @u",
               {['v'] = newVal, ['u'] = uid}
             )
             plyBank[uid] = newVal
@@ -65,7 +65,7 @@ AddEventHandler('cnr:bank_transaction', function(value, client)
   local ply = source
   if client then ply = client end
   if not client then -- Sent by player, verify it.
-    if value > max_transact then 
+    if value > max_transact then
       return 0 -- Illegitimate, reject it.
     elseif value < min_transact and value > 0 then
       return 0 -- Illegitimate, reject it (unless it's negative.)
@@ -85,17 +85,17 @@ end)
 function BankTransfer(ply, n) --[[
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
-  if ply then 
-    if n then 
+  if ply then
+    if n then
       local uid = exports['cnrobbers']:UniqueId(ply)
-      if uid then 
+      if uid then
         if not plyBank[uid] then plyBank[uid] = 0 end
         if not plyCash[uid] then plyCash[uid] = 0 end
         local money = exports['ghmattimysql']:executeSync(
           "SELECT cash,bank FROM characters WHERE idUnique = @u",
           {['u'] = uid}
         )
-        if money[1] then 
+        if money[1] then
           -- From bank to hand
           if n < 0 then
             local newVal  = money[1]["bank"] + n
@@ -122,10 +122,10 @@ function BankTransfer(ply, n) --[[
                 end
               )
             end
-            
+
           -- From hand to bank
-          elseif n > 0 then 
-          
+          elseif n > 0 then
+
           else
             msg = "Transfer amount was zero. Ignoring."
           end
@@ -145,7 +145,7 @@ AddEventHandler('cnr:bank_transfer', function(value, client)
   local ply = source
   if client then ply = client end
   if not client then -- Sent by player, verify it.
-    if value > max_transact then 
+    if value > max_transact then
       return 0 -- Illegitimate, reject it.
     elseif value < min_transact then
       return 0 -- Illegitimate, reject it.
@@ -165,28 +165,28 @@ end)
 function CashTransaction(ply, n)
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
-  if ply then 
-    if n then 
+  if ply then
+    if n then
       local uid = exports['cnrobbers']:UniqueId(ply)
-      if uid then 
+      if uid then
         if not plyCash[uid] then plyCash[uid] = 0 end
         -- SQL: Change cash value
         local cash = exports['ghmattimysql']:scalarSync(
           "SELECT cash FROM characters WHERE idUnique = @uid",
           {['uid'] = uid}
         )
-        if cash then 
+        if cash then
           local cont   = true
           local newVal = cash + n
-          if n < 0 then 
+          if n < 0 then
             if newVal < 0 then
               cont = false
             end
           end
-          if cont then 
+          if cont then
             -- SQL: Get current value of player's cash account
             local cash = exports['ghmattimysql']:scalarSync(
-              "UPDATE characters SET cash = @v WHERE idUnique = @u", 
+              "UPDATE characters SET cash = @v WHERE idUnique = @u",
               {['v'] = newVal, ['u'] = uid}
             )
             plyCash[uid] = newVal
@@ -211,7 +211,7 @@ AddEventHandler('cnr:cash_transaction', function(value, client)
   local ply = source
   if client then ply = client end
   if not client then -- Sent by player, verify it.
-    if value > max_transact then 
+    if value > max_transact then
       return 0 -- Illegitimate, reject it.
     elseif (value < min_transact) and value > 0 then
       return 0 -- Illegitimate, reject it.
@@ -227,13 +227,13 @@ function SetPlayerCashValues(val, ply)
   local dt  = os.date("%H:%M.%I", os.time())
   local msg = ""
   local uid = exports['cnrobbers']:UniqueId(ply)
-  if uid then 
+  if uid then
     -- SQL: Get player's cash values
     exports['ghmattimysql']:execute(
       "SELECT cash,bank FROM characters WHERE idUnique = @u",
       {['u'] = uid},
       function(money)
-        if money[1] then 
+        if money[1] then
           plyCash[uid] = money[1]["cash"]
           plyBank[uid] = money[1]["bank"]
           TriggerClientEvent('cnr:wallet_value', ply, money[1]["cash"])
@@ -258,7 +258,7 @@ end)
 
 --- EXPORT: GetPlayerCash()
 -- Returns the player's cash roll
--- @param ply The player's server ID 
+-- @param ply The player's server ID
 -- @return The player's cash on hand. If ply is nil, returns 0
 function GetPlayerCash(ply)
   if not ply then return 0 end
@@ -270,7 +270,7 @@ end
 
 --- EXPORT: GetPlayerBank()
 -- Returns the player's bank roll
--- @param ply The player's server ID 
+-- @param ply The player's server ID
 -- @return The player's cash in bank. If ply is nil, returns 0
 function GetPlayerBank(ply)
   if not ply then return 0 end

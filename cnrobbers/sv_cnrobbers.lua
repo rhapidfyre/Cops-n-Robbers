@@ -43,7 +43,7 @@ end)
 function SavePlayerPos(uid,pos)
   if uid then
     if not pos then pos = positions[uid] end
-    if pos then 
+    if pos then
       exports['ghmattimysql']:execute(
         "UPDATE characters SET position = @p WHERE idUnique = @uid",
         {['p'] = pos, ['uid'] = uid},
@@ -61,7 +61,7 @@ AddEventHandler('playerDropped', function(reason)
   local ply = source
   local uid = unique[ply]
   local plyInfo = GetPlayerName(ply)
-  if uid then 
+  if uid then
     SavePlayerPos(uid, positions[uid])
   end
   ConsolePrint(
@@ -96,7 +96,7 @@ function GetPlayerInformation(ply)
     ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
     ['ip'] = GetPlayerEndpoint(ply)
   }
-  for _,id in pairs (plyInfo) do 
+  for _,id in pairs (plyInfo) do
     if string.sub(id, 1, string.len("steam:")) == "steam:" then
       infoTable['stm'] = id
     elseif string.sub(id, 1, string.len("license:")) == "license:" then
@@ -107,7 +107,7 @@ function GetPlayerInformation(ply)
       infoTable['discd'] = id
     end
   end
-  
+
   local filtered = GetPlayerName(ply)
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   print("DEBUG - User Values:\n"..json.encode(infoTable))
@@ -121,16 +121,16 @@ end
 -- @param uid If provided, sets player's UID. If nil, returns UID
 -- @return Returns the Unique ID, or 0 if not found
 function UniqueId(ply, uid)
-  if ply then 
-  
+  if ply then
+
     -- If UID is given, assign it.
     if uid then unique[ply] = uid
-    
+
     -- Otherwise, find it.
     else
-    
+
       local ids = GetPlayerInformation(ply)
-      
+
       local idNumber = exports['ghmattimysql']:scalarSync(
         "SELECT idUnique FROM players "..
         "WHERE idSteam = @steam OR idFiveM = @five "..
@@ -138,9 +138,9 @@ function UniqueId(ply, uid)
         {['steam'] = ids['stm'], ['five'] = ids['five'],
         ['soc'] = ids['soc'], ['disc'] = ids['discd']}
       )
-      
+
       unique[ply] = idNumber
-      
+
     end
   else
     print("DEBUG - ERROR; 'ply' not given to 'UniqueId()' (sv_cnrobbers.lua)")
@@ -170,16 +170,16 @@ end
 -- DEBUG - OBSOLETE; Use 'UniqueId(ply, uid)' instead
 -- @return The player's UID, or 0 if not found (always int)
 function GetUniqueId(ply)
-  if not unique[ply] then 
-  
+  if not unique[ply] then
+
     -- If unique ID doesn't exist, find it
     -- We know they have one because of deferral check upon joining.
     local sid = nil
-    for _,id in pairs(GetPlayerIdentifiers(ply)) do 
+    for _,id in pairs(GetPlayerIdentifiers(ply)) do
       if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
       end
     end
-    
+
     -- If Steam ID was found, retrieve player's UID.
     if sid then
       local steam = exports['ghmattimysql']:scalarSync(
@@ -198,14 +198,14 @@ end
 -- Handles changing over the zone. No params, no return.
 function ZoneChange()
   local newZone = math.random(zone.count)
-  while newZone == zone.active do 
+  while newZone == zone.active do
     newZone = math.random(zone.count); Wait(1)
   end
-  
+
   local n = 300 -- 5 Minutes, in seconds
   ConsolePrint("^3Zone "..(newZone).." will unlock in 5 minutes.")
-  
-  while n > 30 do 
+
+  while n > 30 do
     if n % 60 == 0 then
       local mins = (n/60).." minutes"
       if     n/60 == 1 then mins = "1 minute"
@@ -215,35 +215,35 @@ function ZoneChange()
         "^3"..mins.."^1 until zone change!"}
       })
       ZoneNotification("CHAR_SOCIAL_CLUB",
-        "Zone Change", "~r~"..mins, 
+        "Zone Change", "~r~"..mins,
         "Active zone is changing soon!"
       )
     end
     n = n - 1
     Wait(1000)
   end
-  
+
   Citizen.Wait(20000)
-  
-  for i = 0, 9 do 
-    TriggerClientEvent('chat:addMessage', (-1), 
+
+  for i = 0, 9 do
+    TriggerClientEvent('chat:addMessage', (-1),
       {args = {"^1Zone ^3#"..newZone.." ^1activates in ^3"..(10-i).." Second(s)^1!!"}}
     )
     Citizen.Wait(1000)
   end
-  
+
   zone.active = newZone
   ConsolePrint("^2Zone "..(newZone).." is now active.")
-  
-  TriggerClientEvent('chat:addMessage', (-1), 
+
+  TriggerClientEvent('chat:addMessage', (-1),
     {args = {"^2Zone ^7#"..(newZone).." ^2is now the active Zone! (^7/zones^2)"}}
   )
-  
+
   ZoneNotification("CHAR_SOCIAL_CLUB",
-    "Zone Change", "~g~New Zone Active", 
+    "Zone Change", "~g~New Zone Active",
     "Zone #"..newZone.." is active."
   )
-  
+
   -- Tell clients and server the zone has changed
   -- This gives the option to use exports['cnrobbers']:CurrentZone(), or to wait for event
   -- DO NOT MAKE THIS EVENT SAFE FOR NETWORKING
@@ -254,12 +254,12 @@ end
 
 -- Runs the zone change timer for choosing which zone is being played
 function ZoneLoop()
-  while true do 
+  while true do
     if GetGameTimer() > zone.pick then
-    
+
       zone.pick = GetGameTimer() + (zone.timer * 60 * 1000)
-      
-      --[[ 
+
+      --[[
         Threaded to ensure the (zone.timer) is consistent, and doesn't add
         5 minutes of tick every time the script decides to change the zone.
       ]]

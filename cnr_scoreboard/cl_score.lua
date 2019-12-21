@@ -32,9 +32,9 @@ local blipCops   = {
 
 function sanitize(txt)
     local replacements = {
-        ['&' ] = '&amp;', 
-        ['<' ] = '&lt;', 
-        ['>' ] = '&gt;', 
+        ['&' ] = '&amp;',
+        ['<' ] = '&lt;',
+        ['>' ] = '&gt;',
         ['\n'] = '<br/>'
     }
     return txt
@@ -108,7 +108,7 @@ Citizen.CreateThread(function()
               '<tr><th>Civ Level</th><td>1</td></tr>'..
               '</table></div>'
             )
-            
+
           -- Is Not Wanted
           else
             print("DEBUG - no WP value found; Not wanted.")
@@ -120,7 +120,7 @@ Citizen.CreateThread(function()
               '</table></div>'
             )
           end
-          
+
 				end
         print("DEBUG - dispatching to jquery.")
 				SendNUIMessage({ text = table.concat(players) })
@@ -140,14 +140,14 @@ end)
 
 
 Citizen.CreateThread(function()
-  while true do 
+  while true do
     local plyTable = GetActivePlayers()
     for _,i in ipairs (plyTable) do
       local ped = GetPlayerPed(i)
       if ped ~= PlayerPedId() then
         blip = GetBlipFromEntity(ped)
         -- Blip does not exist, create it, and we'll fix it next frame (DEBUG - )
-        if not DoesBlipExist(blip) then 
+        if not DoesBlipExist(blip) then
           local sv = GetPlayerServerId(i)
           blip = AddBlipForEntity(ped)
           SetBlipScale(blip, 0.8)
@@ -170,7 +170,7 @@ function DrawText3D(x,y,z, text, col) -- some useful function, use it if you wan
   if     scale >  0.2 then scale = 0.20
   elseif scale < 0.15 then scale = 0.15
   end
-  
+
   local fov = (1/GetGameplayCamFov()) * 100
   if onScreen then
     --SetTextScale(0.0*scale, 0.55*scale)
@@ -184,31 +184,31 @@ function DrawText3D(x,y,z, text, col) -- some useful function, use it if you wan
     SetTextCentre(true)
     SetTextDropShadow()
     SetTextOutline()
-    
+
     SetTextEntry("STRING")
     AddTextComponentString(text)
     DrawText(_x,_y - 0.025)
-    
+
   end
 end
 
 function NameColoring(sv)
 
-  if wantedPlayers[sv] then 
+  if wantedPlayers[sv] then
     local wl = wantedPlayers[sv]
-    if wl > 0 then 
+    if wl > 0 then
       return wantedColors[wl]
     end
   end
-  
+
   local cplayer = copPlayers[sv]
   if cplayer then
     local ccolor = copColors[cplayer]
     if ccolor then return ccolor end
   end
-  
+
   return {255,255,255}
-  
+
 end
 
 -- Detects players and prepares to draw text above their head
@@ -218,14 +218,14 @@ Citizen.CreateThread(function()
     for _,i in ipairs (plyTable) do
       local ped = GetPlayerPed(i)
       if ped ~= PlayerPedId() then
-      
+
         local sv        = GetPlayerServerId(i)
         local nameColor = NameColoring(sv)
-        
+
         x1, y1, z1 = table.unpack(GetEntityCoords( PlayerPedId(), true ))
         x2, y2, z2 = table.unpack(GetEntityCoords( ped, true ))
         distance   = math.floor(GetDistanceBetweenCoords(x1,  y1,  z1,  x2,  y2,  z2,  true))
-      
+
         if HasEntityClearLosToEntity(PlayerPedId(), ped, 17) then
           if (ignorePlayerNameDistance) then
             DrawText3D(x2, y2, z2+1, sv, nameColor)
