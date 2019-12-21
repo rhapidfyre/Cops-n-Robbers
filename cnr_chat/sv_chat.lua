@@ -18,9 +18,8 @@ function DiscordMessage(color, name, message, footer, copMessage)
   
   -- Sends the message to the Discord API for dispatch
   PerformHttpRequest(discordApp,
-    function(err, text, headers) end,
-    'POST',
-    json.encode({username = "Game Monitor", embeds = embed}),
+    function(err, text, headers) end, 'POST',
+    json.encode({username = "Server Monitor", embeds = embed}),
     {['Content-Type'] = 'application/json' }
   )
   
