@@ -4,6 +4,7 @@ RegisterServerEvent('cnr:bank_transaction')
 RegisterServerEvent('cnr:bank_transfer')
 RegisterServerEvent('cnr:client_loaded')
 
+RegisterServerEvent('cnr:atm_usage')
 
 local plyCash = {}
 local plyBank = {}

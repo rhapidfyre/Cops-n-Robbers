@@ -1,4 +1,6 @@
 
+RegisterNetEvent('cnr:atm_user')
+
 local myCash, myBank = 0, 0
 
 

@@ -23,10 +23,12 @@ files {
 }
 
 client_scripts {
+  "sh_config.lua",
   "cl_cash.lua"
 }
 
 server_scripts {
+  "sh_config.lua",
   "sv_cash.lua"
 }
 
@@ -37,9 +39,11 @@ server_exports {
   'SetPlayerCashValues', -- Manually set HUD cash values; Retrieve from SQL
   'GetPlayerCash',       -- Gets the player's current cash on hand
   'GetPlayerBank',       -- Gets the player's current bank account value
+  'ListATMs',   -- Return a list of ATM info
 }
 
 exports {
   'CashOnHand', -- Return value of client's wallet
-  'CashInBank'  -- Return value of client's bank
+  'CashInBank',  -- Return value of client's bank
+  'ListATMs',   -- Return a list of ATM info
 }
