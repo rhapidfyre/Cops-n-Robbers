@@ -157,7 +157,6 @@ AddEventHandler('cnr:prison_release', ReleaseClient)
 
 -- Draws text on screen as positional
 local function DrawText3D(x, y, z, text)
-  local onScreen = GetScreenCoordFromWorldCoord(x,y,z)
   SetDrawOrigin(x, y, z, 0);
   BeginTextCommandDisplayText("STRING")
   SetTextScale(0.28, 0.28)
