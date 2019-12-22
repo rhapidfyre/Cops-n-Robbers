@@ -1,0 +1,224 @@
+<html>
+
+    <head>
+        <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+        <script src="ui.js" type="text/javascript"></script>
+        <link href="ui.css" rel="stylesheet" type="text/css"/>
+    </head>
+
+  <body>
+  
+  
+  
+
+<div id="admin-menu" class="center-vert" style="display: none;">
+
+  <div id="admin-misc">
+  
+    <!-- Admin Controller -->
+    <div id="admin-ctlr">
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Spawn" readonly></th></tr>
+        <tr>
+          <td><button>Vehicle</button></td>
+          <td><button>Pickup</button></td>
+        </tr>
+        <tr>
+          <td><button>Weapon</button></td>
+          <td><button>Ped</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Remove (Nearby)" readonly></th></tr>
+        <tr>
+          <td><button>Vehicles</button></td>
+          <td><button>Pickups</button></td>
+        </tr>
+        <tr>
+          <td colspan="2"><button>Pedestrians</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Give Cash" readonly></th></tr>
+        <tr>
+          <td><button>$1,000</button></td>
+          <td><button>$100</button></td>
+        </tr>
+        <tr>
+          <td><button>$10</button></td>
+          <td><button>$1</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Take Cash" readonly></th></tr>
+        <tr>
+          <td><button>$1,000</button></td>
+          <td><button>$100</button></td>
+        </tr>
+        <tr>
+          <td><button>$10</button></td>
+          <td><button>$1</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Time" readonly></th></tr>
+        <tr>
+          <td><button>Morning</button></td>
+          <td><button>Evening</button></td>
+        </tr>
+        <tr>
+          <td><button>Noon</button></td>
+          <td><button>Night</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Weather" readonly></th></tr>
+        <tr>
+          <td><button>Sunny</button></td>
+          <td><button>Rain</button></td>
+        </tr>
+        <tr>
+          <td><button>Storm</button></td>
+          <td><button>Fog</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Vehicle Control" readonly></th></tr>
+        <tr>
+          <td><button>Delete</button></td>
+          <td><button>Lk / UnL</button></td>
+        </tr>
+        <tr>
+          <td><button>Fix</button></td>
+          <td><button>Inflate</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Teleport" readonly></th></tr>
+        <tr>
+          <td><button>Bring</button></td>
+          <td><button>Player</button></td>
+        </tr>
+        <tr>
+          <td><button>A-Jail</button></td>
+          <td><button>Waypoint</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Moderate" readonly></th></tr>
+        <tr>
+          <td><button>Warning</button></td>
+          <td><button>Freeze</button></td>
+        </tr>
+        <tr>
+          <td><button>Kick Out</button></td>
+          <td><button>Ban</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Announce" readonly></th></tr>
+        <tr>
+          <td><button>Send SMS</button></td>
+          <td><button>Discord</button></td>
+        </tr>
+        <tr>
+          <td><button>Chat</button></td>
+          <td><button>Adm Chat</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th colspan="2"><input type="text" value="Death Control" readonly></th></tr>
+        <tr>
+          <td><button>Slay</button></td>
+          <td><button>Revive</button></td>
+        </tr>
+        <tr>
+          <td><button>Health</button></td>
+          <td><button>Armor</button></td>
+        </tr>
+      </table>
+      </div>
+      
+      <div class="admin-ctrl">
+      <table>
+        <tr><th><input type="text" value="Wanted Level" readonly></th></tr>
+        <tr>
+          <td><button>Set</button></td>
+        </tr>
+        <tr>
+          <td><button>Reset</button></td>
+        </tr>
+      </table>
+      </div>
+      
+    </div>
+    <!-- End of Admin Controller -->
+    
+  </div>
+  
+  <div id="player-list">
+    <table>
+      <tr><td>1</td><th class="cop1">Police1</th></tr>
+      <tr><td>3</td><th class="wl5">Wanted5</th></tr>
+      <tr><td>4</td><th>Innocent</th></tr>
+      <tr><td>9</td><th class="wl8">Wanted8</th></tr>
+      <tr><td>14</td><th class="cop2">Police2</th></tr>
+      <tr><td class="adm">15</td><th class="adm wl4">Admin1</th></tr>
+      <tr><td>16</td><th class="wl3">Wanted3</th></tr>
+      <tr><td>21</td><th class="cop3">Police3</th></tr>
+      <tr><td class="adm">23</td><th class="adm">Admin1</th></tr>
+      <tr><td>25</td><th class="cop4">Police4</th></tr>
+      <tr><td>26</td><th class="wl4">Wanted4</th></tr>
+      <tr><td>27</td><th class="wl9">Wanted9</th></tr>
+      <tr><td>31</td><th class="cop5">Police5</th></tr>
+      <tr><td>32</td><th class="cop6">Police6</th></tr>
+      <tr><td class="adm">33</td><th class="adm cop4">Admin1</th></tr>
+      <tr><td>42</td><th class="wl6">Wanted6</th></tr>
+      <tr><td>43</td><th class="cop7">Police7</th></tr>
+      <tr><td>44</td><th class="cop8">Police8</th></tr>
+      <tr><td>46</td><th class="wl7">Wanted7</th></tr>
+      <tr><td>49</td><th class="cop9">Police9</th></tr>
+      <tr><td>51</td><th class="cop10">Police10</th></tr>
+      <tr><td>56</td><th class="wl1">Wanted1</th></tr>
+      <tr><td>57</td><th class="wl2">Wanted2</th></tr>
+      <tr><td>59</td><th class="wl10">Wanted10</th></tr>
+    </table>
+  </div>
+  
+</div>
+  
+  
+	</body>
+</html>
