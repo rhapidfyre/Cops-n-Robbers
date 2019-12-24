@@ -6,15 +6,45 @@ RegisterNetEvent('cnr:push_notify')
 local rolls = 1
 
 
+RegisterCommand('testchat', function (s, args, r)
+  if not args[1] then TriggerEvent('chatMessage', 'boop')
+  else
+    TriggerEvent('chat:addMessage', {templateId = args[1],
+      multiline = true, args = {
+        args[2], args[3], args[4]
+      }
+    })
+
+  end
+end)
+
+
 AddEventHandler('onClientResourceStart', function(rname)
   if rname == GetCurrentResourceName() then
-    TriggerEvent('chat:addTemplate', 'radioMsg',
-      '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}</b>'..
-      '</font><br><font color="#0AF"><b>**</b></font> {2} <font color="#0AF"><b>*</b></font>'
+    TriggerEvent('chat:addTemplate', 'pd_radio',
+      '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}:</b>'..
+      '</font> <i>{2}</i> <font color="#0077B3"><b>*</b></font>'
+    )
+    TriggerEvent('chat:addTemplate', 'fd_radio',
+      '<font color="#F66">**<b> [</font>'..'{0}<font color="#F66">] {1}:</b>'..
+      '</font> <i>{2}</i> <font color="#FF4D4D"><b>*</b></font>'
     )
     TriggerEvent('chat:addTemplate', 'errMsg',
-      '<b><font color="#F00">** ERROR:</font> {0} </b><br>'..
-      '<font color="#FF6363">** Reason:</font><font color="#B5B5B5"> {1} </font>'
+      '<b><font color="#F00">SYSTEM ERROR</font> ({0}) </b><br>'..
+      '<font color="#FF6363">** Response:</font> '..
+      '<font color="#B5B5B5">{1}</font>'
+    )
+    TriggerEvent('chat:addTemplate', 'disp_law',
+      '<b><font color="#0BF">[POLICE DISPATCH]</font> '..
+      '<font color="#66F">{0}</font>'
+    )
+    TriggerEvent('chat:addTemplate', 'disp_fire',
+      '<b><font color="#F66">[FIRE DISPATCH]</font> '..
+      '<font color="#FF4D4D">{0}</font>'
+    )
+    TriggerEvent('chat:addTemplate', 'cb_radio',
+      '<b><font color="#CF6">[CB CH. {0}]</font> '..
+      '<font color="#690">** {1}, over. *</font>'
     )
   end
 end)
