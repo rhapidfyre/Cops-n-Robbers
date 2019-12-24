@@ -230,34 +230,32 @@ end)
 function CreateSession(ply)
 
   -- Retrieve all their character information
-  exports['ghmattimysql']:execute(
+  local plyr = exports['ghmattimysql']:executeSync(
     "SELECT * FROM characters WHERE idUnique = @uid",
-    {['uid'] = unique[ply]},
-    function(plyr)
-
-      -- If character exists, load it.
-      if plyr[1] then
-        local pName = GetPlayerName(ply).."'s"
-        cprint("Reloading "..pName.." last known character information.")
-        exports['cnr_chat']:DiscordMessage(
-          65280, GetPlayerName(ply).." has joined the game!", "", ""
-        )
-        TriggerClientEvent('cnr:create_reload', ply, plyr[1])
-
-      -- Otherwise, create it.
-      else
-        Citizen.Wait(1000)
-        cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
-        Citizen.CreateThread(function()
-          --exports['cnr_chat']:DiscordMessage(
-          --  7864575, "New Player",
-          --  "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
-          --)
-        end)
-        TriggerClientEvent('cnr:create_character', ply)
-      end
-    end
+    {['uid'] = unique[ply]}
   )
+
+  -- If character exists, load it.
+  if plyr[1] then
+    local pName = GetPlayerName(ply).."'s"
+    cprint("Reloading "..pName.." last known character information.")
+    exports['cnr_chat']:DiscordMessage(
+      65280, GetPlayerName(ply).." has joined the game!", "", ""
+    )
+    TriggerClientEvent('cnr:create_reload', ply, plyr[1])
+
+  -- Otherwise, create it.
+  else
+    Citizen.Wait(1000)
+    cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
+    Citizen.CreateThread(function()
+      --exports['cnr_chat']:DiscordMessage(
+      --  7864575, "New Player",
+      --  "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
+      --)
+    end)
+    TriggerClientEvent('cnr:create_character', ply)
+  end
 
 end
 

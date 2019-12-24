@@ -17,7 +17,7 @@ end)
 AddEventHandler('onClientResourceStart', function(resname)
   if GetCurrentResourceName() == resname then
 
-    --exports.spawnmanager:setAutoSpawn(false)
+    exports.spawnmanager:setAutoSpawn(false)
     Citizen.Wait(100)
 
     print("DEBUG - Requesting for the server to let me spawn.")
@@ -101,13 +101,13 @@ AddEventHandler('cnr:create_reload', function(myChar)
   SendNUIMessage({hideallmenus = true})
   SetNuiFocus(false)
   local lastPos = json.decode(myChar["position"])
-  --SetEntityCoords(PlayerPedId(), lastPos['x'], lastPos['y'], lastPos['z'])
-  --local myModel = GetHashKey(myChar["model"])
   print("DEBUG - Reloading Model ["..tostring(myChar["model"]).."]")
-  --RequestModel(myModel)
-  --while not HasModelLoaded(myModel) do Wait(1) end
-  --SetPlayerModel(PlayerId(), myModel)
-  --SetModelAsNoLongerNeeded(myModel)
+  
+  while not connected do
+    Citizen.Wait(100)
+  end
+  Citizen.Wait(3000)
+    
 	exports.spawnmanager:spawnPlayer({
 		x     = lastPos.x,
 		y     = lastPos.y,
