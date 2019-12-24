@@ -1,0 +1,2 @@
+
+-- server clothing config
