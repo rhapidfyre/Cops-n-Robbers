@@ -19,9 +19,8 @@ end)
 
 RegisterCommand('reloadmodel', function()
   RequestModel(oldModel)
-  while not HasModelLoaded(mdl) do Wait(10) end
-  oldModel = GetEntityModel(PlayerPedId())
-  SetPlayerModel(mdl)
+  while not HasModelLoaded(oldModel) do Wait(10) end
+  SetPlayerModel(oldModel)
   SetPedDefaultComponentVariation(PlayerPedId())
   print("DEBUG - Reloaded previous model")
 end)

@@ -55,6 +55,11 @@ local crimes = {
     weight = 31, minTime = 0, maxTime = 0, isFelony = true,
     fine = function() return (math.random(100, 1000)) end
   },
+  ['664-carjack'] = {
+    title = "Attempted Carjacking",
+    weight = 9, minTime = 2, maxTime = 12, isFelony = false,
+    fine = function() return (math.random(100, 1000)) end
+  },
   ['carjack'] = {
     title = "Carjacking",
     weight = 61, minTime = 10, maxTime = 25, isFelony = true,

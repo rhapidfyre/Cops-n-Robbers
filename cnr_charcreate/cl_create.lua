@@ -102,12 +102,12 @@ AddEventHandler('cnr:create_reload', function(myChar)
   SetNuiFocus(false)
   local lastPos = json.decode(myChar["position"])
   print("DEBUG - Reloading Model ["..tostring(myChar["model"]).."]")
-  
+
   while not connected do
     Citizen.Wait(100)
   end
   Citizen.Wait(3000)
-    
+
 	exports.spawnmanager:spawnPlayer({
 		x     = lastPos.x,
 		y     = lastPos.y,
