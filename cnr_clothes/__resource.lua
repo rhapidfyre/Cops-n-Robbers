@@ -22,12 +22,12 @@ files {
 
 client_scripts {
   "cl_config.lua",
-  "cl_clothing.lua"
+  "cl_clothes.lua"
 }
 
 server_scripts {
   "sv_config.lua",
-  "sv_clothing.lua"
+  "sv_clothes.lua"
 }
 
 server_exports {
