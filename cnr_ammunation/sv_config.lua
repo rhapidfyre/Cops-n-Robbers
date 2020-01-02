@@ -1,0 +1,2 @@
+
+-- ammu server config
