@@ -4,6 +4,21 @@ RegisterNetEvent('cnr:chat_notify')
 
 local activeZone = 1      -- What zone is currently active
 
+
+-- If player is in an interior, make them walk/invincible
+-- DEBUG - Note: Change this later to disregard walking/godmode if in a bank/24-7/house/etc
+Citizen.CreateThread(function()
+  while true do 
+    if GetInteriorAtCoords(GetEntityCoords(PlayerPedId())) > 0 then 
+      
+    else
+    
+    end
+    Wait(0)
+  end
+end)
+
+
 -- DEBUG -
 local restarted = {}
 AddEventHandler('onResourceStop', function(rn)

@@ -21,6 +21,10 @@ end)
 
 AddEventHandler('onClientResourceStart', function(rname)
   if rname == GetCurrentResourceName() then
+    TriggerEvent('chat:addTemplate', 'sysMsg',
+      '<b><font color="#FC0">[NOTICE]</font> '..
+      '<font color="#996">{0}</font>'
+    )
     TriggerEvent('chat:addTemplate', 'pd_radio',
       '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}:</b>'..
       '</font> <i>{2}</i> <font color="#0077B3"><b>*</b></font>'

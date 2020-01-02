@@ -37,4 +37,6 @@ server_scripts {
 
 server_exports {}
 
-exports {}
+exports {
+  'InsideGunRange' -- Checks if player is in a no-crime reporting area (gun range)
+}

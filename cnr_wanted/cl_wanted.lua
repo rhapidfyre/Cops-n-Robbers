@@ -219,44 +219,50 @@ function NotCopLoops()
 
         -- Aiming/Shooting Crimes
         if IsPlayerFreeAiming(PlayerId()) then
-          local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
-          if DoesEntityExist(aimTarget) then
-            if IsEntityAPed(aimTarget) then
-              local dist = #(GetEntityCoords(ped) -
-                             GetEntityCoords(aimTarget)
-              )
-              if dist < 120.0 then
-                if HasEntityClearLosToEntity(ped, aimTarget, 17) then
-                  if lastAim < GetGameTimer() then
-                    lastAim = GetGameTimer() + 12000
-                    IsPlayerAimingAtCop(aimTarget)
+          if not exports['cnr_ammunation']:InsideGunRange() then
+            local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
+            if DoesEntityExist(aimTarget) then
+              if IsEntityAPed(aimTarget) then
+                local dist = #(GetEntityCoords(ped) -
+                              GetEntityCoords(aimTarget)
+                )
+                if dist < 120.0 then
+                  if HasEntityClearLosToEntity(ped, aimTarget, 17) then
+                    if lastAim < GetGameTimer() then
+                      lastAim = GetGameTimer() + 12000
+                      IsPlayerAimingAtCop(aimTarget)
+                    end
                   end
                 end
               end
             end
+          else print("DEBUG - Aiming Ignored; Within a no-reporting zone.")
           end
         end
 
         -- Shooting a firearm near peds and someone can see it
         if IsPedShooting(ped) then
-          if lastShot < GetGameTimer() then
-            local wasShotSeen = false
-            for peds in exports['cnrobbers']:EnumeratePeds() do
-              if not IsPedAPlayer(peds) then
-                if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then
-                  if HasEntityClearLosToEntity(peds, ped, 17) then
-                    wasShotSeen = true
+          if not exports['cnr_ammunation']:InsideGunRange() then
+            if lastShot < GetGameTimer() then
+              local wasShotSeen = false
+              for peds in exports['cnrobbers']:EnumeratePeds() do
+                if not IsPedAPlayer(peds) then
+                  if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then
+                    if HasEntityClearLosToEntity(peds, ped, 17) then
+                      wasShotSeen = true
+                    end
                   end
                 end
               end
+              if wasShotSeen then
+                lastShot = GetGameTimer() + 12000
+                TriggerServerEvent('cnr:wanted_points', 'discharge', true,
+                  exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+                  myPos
+                )
+              end
             end
-            if wasShotSeen then
-              lastShot = GetGameTimer() + 12000
-              TriggerServerEvent('cnr:wanted_points', 'discharge', true,
-                exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                myPos
-              )
-            end
+          else print("DEBUG - Gunshot ignored; Within a no-reporting zone.")
           end
         end
         Citizen.Wait(0)
