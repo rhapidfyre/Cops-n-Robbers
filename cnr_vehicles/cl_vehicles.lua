@@ -11,6 +11,10 @@ local lockLv = {
   [10] = "Ignore Attempt to Enter"
 }
 
+local KEY = {
+  ['v_shoot'] = 25, ['v_aim'] = 26
+}
+
 -- client vehicles
 local thisVehicle = 0
 local thisDriver  = 0
@@ -21,11 +25,12 @@ RegisterCommand('vehmodel', function()
   TriggerEvent('chatMessage', "^3DEBUG - [^7"..GetEntityModel(GetVehiclePedIsIn(PlayerPedId())).."^3]")
 end)
 
-local function VehicleHint(msg)
+local function VehicleHint(msg, count)
+  if not count then count = 1 end
   ClearPrints()
   SetTextEntry_2("STRING")
   AddTextComponentString(msg)
-  DrawSubtitleTimed(101, 1)
+  DrawSubtitleTimed(count, 1)
 end
 
 --- DoParkedVehicleLock()
@@ -102,6 +107,58 @@ function DoParkedVehicleLock(veh)
   lockChecked[veh] = true
 end
 
+local function DenyDriveby(vehl)
+  local ped = PlayerPedId()
+  local pid = PlayerId()
+  
+  -- If driving, check weapon
+  if GetPedInVehicleSeat(vehl, (-1)) == ped then
+    if GetCurrentPedWeapon(ped, GetHashKey("WEAPON_VINTAGEPISTOL")) then
+      SetPlayerCanDoDriveBy(pid, true)
+    elseif GetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED")) then 
+      SetPlayerCanDoDriveBy(pid, true)
+    else
+      if IsControlJustPressed(0, KEY['v_shoot']) and GetVehicleClass(vehl) ~= 18 then
+        VehicleHint("~r~Drivers ~w~cannot shoot from the vehicle")
+      end
+      DisableControlAction(0, KEY['v_aim'], true)
+      SetPlayerCanDoDriveBy(pid, false)
+      
+    end
+    
+  -- If not driving, allow
+  else
+    SetPlayerCanDoDriveBy(pid, true)
+  end
+ 
+end
+
+local disableShuffle = true
+local function DenySeatShuffle(vehl)
+  local ped = PlayerPedId()
+  if IsPedInAnyVehicle(ped, false) and disableShuffle then
+  	if GetPedInVehicleSeat(vehl, 0) == ped then
+      
+      if GetPedInVehicleSeat(vehl, (-1)) < 1 then
+        VehicleHint("~w~Hold ~g~Z ~w~to take the driver seat")
+      end
+      
+      if IsControlJustPressed(0, 20) and IsInputDisbled(0) then
+        print("DEBUG - Shuffle to driver seat")
+        disableShuffle = false
+        Citizen.CreateThread(function()
+          Citizen.Wait(3000); disableShuffle = true
+        end)
+      end
+      
+  		if GetIsTaskActive(ped, 165) then
+        SetPedIntoVehicle(ped, GetVehiclePedIsIn(ped, false), 0)
+  		end
+      
+  	end
+  end
+end
+
 Citizen.CreateThread(function()
   while true do
 
@@ -110,6 +167,8 @@ Citizen.CreateThread(function()
     -- Things to do if the player is in a vehicle
     if thisVehicle > 0 then
       thisDriver = GetPedInVehicleSeat(thisVehicle, (-1))
+      DenyDriveby(thisVehicle)
+      DenySeatShuffle(thisVehicle)
 
     -- Things to do if the player is NOT in a vehicle
     else
@@ -122,7 +181,7 @@ Citizen.CreateThread(function()
 
         local lockStatus = GetVehicleDoorLockStatus(entering)
         if lockStatus > 1 and lockStatus < 7 then
-          VehicleHint("(~g~E~w~): USE WINDOW BREAKER")
+          VehicleHint("(~g~E~w~): USE WINDOW BREAKER", 100)
           if IsControlJustPressed(0, 38) then
             if wbreakers > 0 then
               SetVehicleDoorsLocked(entering, 7)
@@ -139,6 +198,8 @@ Citizen.CreateThread(function()
 
             end
           end
+          DenySeatShuffle(thisVehicle)
+          
         end -- lockStatus
       end -- entering
     end -- thisVehicle
