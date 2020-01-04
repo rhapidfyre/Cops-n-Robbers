@@ -2,6 +2,7 @@
 -- ammu client script
 local nearStore = 0
 local inRange = false
+local cam
 
 --- EXPORT: InsideGunRange()
 -- Returns true if player is in a gun range (won't be charged with crimes)
@@ -12,12 +13,30 @@ end
 local function AmmunationMenu(toggle)
   if toggle then  
     if not menuEnabled then 
+      
       menuEnabled = true 
       SendNUIMessage({showammu = true})
       SetNuiFocus(true, true)
+      
+      if stores[nearStore].heading then
+        SetEntityHeading(PlayerPedId(), stores[nearStore].heading)
+      end
+      
+      local offset = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 2.0, -1.25, 1.075)
+      local headn = GetEntityHeading(PlayerPedId())
+      if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+      SetCamActive(cam, true)
+      RenderScriptCams(true, true, 500, true, true)
+      SetCamParams(cam, offset.x, offset.y, offset.z, 350.0, 0.0, headn + 42.0, 50.0)
+      
     end
   else
     SetNuiFocus(false)
+    if DoesCamExist(cam) then
+      SetCamActive(cam, false)
+      RenderScriptCams(false, true, 500, true, true)
+      cam = nil
+    end
     Citizen.Wait(3000)
     menuEnabled = false
   end
@@ -48,9 +67,31 @@ Citizen.CreateThread(function()
       DrawMarker(29, (v.walkup + vector3(0, 0, 1)), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.65, 0.65, 0.65, 0, 255, 0, 255, false, false, 1, true
       )
+      if not stores[nearStore].npc then 
+        print("DEBUG - NPC Doesn't exist for store #"..nearStore)
+        if stores[nearStore].clerk then 
+          local mdl = (stores[nearStore].clerk.mdl)
+          RequestModel(mdl)
+          print("DEBUG - Requesting Model")
+          local sPos = stores[nearStore].clerk.pos
+          local ped = CreatePed(
+            PED_TYPE_CIVMALE, mdl, sPos.x, sPos.y, sPos.z,
+            stores[nearStore].clerk.h, false, false
+          )
+          GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL50"), 96, true, false)
+          print("DEBUG - Created ammu clerk.")
+          stores[nearStore].npc = ped
+        end
+      end
 
       local dist = #(GetEntityCoords(PlayerPedId()) - v.walkup)
-      if dist > 100.0 then nearStore = 0
+      if dist > 100.0 then
+        nearStore = 0
+        if stores[nearStore].npc then 
+          DeletePed(stores[nearStore].npc)
+          stores[nearStore].npc = nil
+          print("DEBUG - Destroyed ammy clerk")
+        end
 
       else
         if dist < 1.25 then AmmunationMenu(true) end

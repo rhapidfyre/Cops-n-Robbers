@@ -20,18 +20,18 @@ AddEventHandler('cnr:crimefree', function(enabled, resname)
 
   if enabled then
     cfreeResources[#cfreeResources + 1] = resname
-  
+
   else
     local i = 0
-    for k,v in pairs(cfreeResources) do 
+    for k,v in pairs(cfreeResources) do
       if v == resname then i = k end
     end
     if i > 0 then table.remove(cfreeResources, i) end
   end
-    
+
   if enabled then print("DEBUG - Crime Reporting: OFF"); SendNUIMessage({crimeoff = true})
   else
-    if #cfreeResources > 0 then 
+    if #cfreeResources > 0 then
       print("DEBUG - Error: A resource is holding up the crime free zone. Unable to disable.")
     else
       print("DEBUG - Crime Reporting: ON");
