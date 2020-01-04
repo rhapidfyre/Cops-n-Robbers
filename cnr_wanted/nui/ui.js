@@ -6,7 +6,15 @@ $(function()
   
     window.addEventListener('message', function(event)
     {
+        
         var item = event.data;
+        if (item.crimeoff)  {
+          $("#crimefree").fadeIn(600); $("#crimefree").fadeOut(600);
+          $("#crimefree").fadeIn(600); $("#crimefree").fadeOut(600);
+          $("#crimefree").fadeIn(600);
+        }
+        if (item.crimeon) {$("#crimefree").fadeOut(200);}
+        
         $('#wrap').empty();
         if (item.stars) {
           wnts.show();

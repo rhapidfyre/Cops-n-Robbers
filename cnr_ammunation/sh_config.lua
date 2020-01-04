@@ -15,7 +15,7 @@ stores = {
   [1] = {
     title   = "Pillbox Hill Ammunation", icon = 313,
     walkup  = vector3(22.77, -1107.03, 28.597),
-    walkoff = vector3(19.33, -1108.32, 29.797),
+    walkoff = vector3(18.08, -1111.14, 29.810),
     range   = vector3(13.53, -1097.36, 29.8347),
     clerk   = {pos = vector3(22.8847, -1105.48, 29.797), h = 145.0}
   },

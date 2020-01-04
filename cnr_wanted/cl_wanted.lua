@@ -14,6 +14,32 @@ local crimeList = {} -- List of crimes player committed since last innocent
 local wanted    = {}
 local crimeCar  = {} -- Used to check GTA/Carjacking
 local isCop     = false
+local cfreeResources = {}
+
+AddEventHandler('cnr:crimefree', function(enabled, resname)
+
+  if enabled then
+    cfreeResources[#cfreeResources + 1] = resname
+  
+  else
+    local i = 0
+    for k,v in pairs(cfreeResources) do 
+      if v == resname then i = k end
+    end
+    if i > 0 then table.remove(cfreeResources, i) end
+  end
+    
+  if enabled then print("DEBUG - Crime Reporting: OFF"); SendNUIMessage({crimeoff = true})
+  else
+    if #cfreeResources > 0 then 
+      print("DEBUG - Error: A resource is holding up the crime free zone. Unable to disable.")
+    else
+      print("DEBUG - Crime Reporting: ON");
+      SendNUIMessage({crimeon = true})
+    end
+  end
+end)
+
 
 -- DEBUG -
 RegisterCommand('wanted', function(s, a, r)

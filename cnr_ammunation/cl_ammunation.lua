@@ -9,6 +9,20 @@ function InsideGunRange()
   return inRange
 end
 
+local function AmmunationMenu(toggle)
+  if toggle then  
+    if not menuEnabled then 
+      menuEnabled = true 
+      SendNUIMessage({showammu = true})
+      SetNuiFocus(true, true)
+    end
+  else
+    SetNuiFocus(false)
+    Citizen.Wait(3000)
+    menuEnabled = false
+  end
+end
+
 -- Build map markers
 Citizen.CreateThread(function()
 
@@ -39,9 +53,7 @@ Citizen.CreateThread(function()
       if dist > 100.0 then nearStore = 0
 
       else
-        if dist < 1.25 then
-          print("DEBUG - Open AmmuMenu!")
-        end
+        if dist < 1.25 then AmmunationMenu(true) end
       end
     else
       local cDist = math.huge
@@ -59,6 +71,13 @@ Citizen.CreateThread(function()
 
 end)
 
+RegisterNUICallback("ammuMenu", function(data, cb)
+  if data.action == "exit" then AmmunationMenu(false)
+  else
+  
+  end
+end)
+
 -- Ignore gun crimes while inside the range
 Citizen.CreateThread(function()
   while true do
@@ -71,16 +90,16 @@ Citizen.CreateThread(function()
             TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
               "You've entered an area where gun crimes will be ignored."
             }})
+            TriggerEvent('cnr:crimefree', true, GetCurrentResourceName())
           end
-          print("DEBUG - Within a gun range (Crime Safe Area)")
         else
           if inRange then
             inRange = false
             TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
               "You've re-entered the game area and gun crimes will be reported."
             }})
+            TriggerEvent('cnr:crimefree', false, GetCurrentResourceName())
           end
-          print("DEBUG - NOT in a gun range (Crime Reporting Area)")
         end
       end
     end

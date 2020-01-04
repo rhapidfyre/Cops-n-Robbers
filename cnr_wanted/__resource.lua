@@ -27,6 +27,7 @@ files {
   "nui/stars/9.png",  "nui/stars/10.png",
   "nui/stars/11.png", "nui/stars/a.png",
   "nui/stars/b.png",  "nui/stars/c.png",
+  "nui/crimefree.png"
 }
 
 client_scripts {

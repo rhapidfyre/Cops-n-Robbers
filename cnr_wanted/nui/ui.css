@@ -4,3 +4,23 @@
     width:    256px;
     margin:   8px auto 0 auto;
   }
+  
+  #crimefree {
+    position: relative;
+    width:    256px;
+    margin:   96px auto 0 auto;
+  }
+  
+  #crimefree table th {
+    color: rgb(40,40,40);
+    text-shadow: 1px 1px 2px white;
+    font-size: 1.7em;
+  }
+  
+  #crimefree table td {
+    color: rgb(40,40,40);
+    text-shadow: 1px 1px 2px white;
+    font-size: 1.35em;
+    text-align: center;
+    font-weight: bold;
+  }
