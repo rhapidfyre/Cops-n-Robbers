@@ -10,13 +10,39 @@ function InsideGunRange()
   return inRange
 end
 
+AddEventHandler('cnr:close_all_nui', function()
+  SendNUIMessage({closemenus = true})
+  SetNuiFocus(false)
+end)
+
+RegisterCommand('givegun', function(s,a,r)
+  GiveWeaponToPed(PlayerPedId(), GetHashKey(a[1]), 24, false, true)
+end)
+
 local function AmmunationMenu(toggle)
   if toggle then  
     if not menuEnabled then 
       
       menuEnabled = true 
-      SendNUIMessage({showammu = true})
       SetNuiFocus(true, true)
+      
+      local htmlTable = {}
+      for k,v in pairs (weaponsList) do 
+        table.insert(htmlTable,
+          '<div class="weapon">'..
+          '<img src="img/'..(v.mdl)..'.png"><br/><table>'..
+          '<tr><th colspan="3">'..(v.title)..'</th></tr>'..
+          '<tr><th colspan="2">$'..(v.price)..'</th>'..
+          '<td><button onclick="BuyWeapon('..(k)..')">PURCHASE</button></td></tr>'..
+          '<tr><th colspan="2">+ '..(v.ammo)..' AMMO</th>'..
+          '<td><button onclick="BuyAmmo('..(k)..')">$'..(v.ammo * v.aprice)..'</button></td></tr>'..
+          '<tr><td><button>LESS</button></td><td><button>MORE</button></td><td></td></tr></table></div>'
+        )
+      end
+      SendNUIMessage({
+        showammu = true,
+        weapons = table.concat(htmlTable)
+      })
       
       if stores[nearStore].heading then
         SetEntityHeading(PlayerPedId(), stores[nearStore].heading)
@@ -37,7 +63,7 @@ local function AmmunationMenu(toggle)
       RenderScriptCams(false, true, 500, true, true)
       cam = nil
     end
-    Citizen.Wait(3000)
+    Citizen.Wait(5000)
     menuEnabled = false
   end
 end
@@ -81,6 +107,12 @@ Citizen.CreateThread(function()
           GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL50"), 96, true, false)
           print("DEBUG - Created ammu clerk.")
           stores[nearStore].npc = ped
+          Citizen.CreateThread(function()
+            while DoesEntityExist(stores[nearStore].npc) do 
+              SetEntityInvincible(stores[nearStore].npc)
+              Citizen.Wait(1)
+            end
+          end)
         end
       end
 
@@ -143,6 +175,11 @@ Citizen.CreateThread(function()
           end
         end
       end
+    end
+    if menuEnabled then 
+      if IsPauseMenuActive() then AmmunationMenu(false) end
+      if IsPedDeadOrDying(PlayerPedId()) then AmmunationMenu(false) end
+      
     end
     Citizen.Wait(1000)
   end

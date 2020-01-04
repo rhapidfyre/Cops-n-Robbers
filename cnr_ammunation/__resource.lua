@@ -18,9 +18,13 @@ ui_page "nui/ui.html"
 dependency 'cnrobbers'
 
 files {
-	"nui/ui.html",
-  "nui/ui.js",
-  "nui/ui.css"
+  "nui/img/WEAPON_PISTOL50.png", "nui/img/WEAPON_SAWNOFFSHOTGUN.png",
+  "nui/img/WEAPON_PISTOL.png", "nui/img/WEAPON_KNUCKLE.png",
+  "nui/img/WEAPON_ASSAULTRIFLE.png", "nui/img/WEAPON_CARBINERIFLE.png",
+  "nui/img/WEAPON_PETROLCAN.png", "nui/img/WEAPON_PUMPSHOTGUN.png",
+  "nui/img/WEAPON_SMG.png", "nui/img/WEAPON_REVOLVER.png",
+  "nui/img/WEAPON_KNIFE.png",
+  "nui/ui.html", "nui/ui.js", "nui/ui.css"
 }
 
 client_scripts {
