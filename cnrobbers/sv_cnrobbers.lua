@@ -97,7 +97,6 @@ function GetPlayerInformation(ply)
   end
 
   infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
-  print("DEBUG - User Values:\n"..json.encode(infoTable))
   return infoTable
 end
 
