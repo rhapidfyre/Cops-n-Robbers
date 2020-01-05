@@ -28,9 +28,52 @@ stores = {
   },
   [2] = {
     title   = "East L.S. Ammunation", icon = 110,
-    walkup  = vector3(841.72, -1033.92, 27.701),
+    walkup  = vector3(841.72, -1033.92, 26.988),
+    vest    = vector3(844.78, -1029.94, 26.988),
+    heading = 172.0,
     clerk   = {
       pos = vector3(842.615, -1035.64, 28.194), h = 350.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [3] = {
+    title   = "Vinewood Ammunation", icon = 110,
+    walkup  = vector3(252.276, -50.7127, 68.841),
+    vest    = vector3(249.683, -46.511, 68.841),
+    heading = 240.0,
+    clerk   = {
+      pos = vector3(254.033, -51.0108, 69.941), h = 65.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [4] = {
+    title   = "Little Seoul Ammunation", icon = 110,
+    walkup  = vector3(-661.587, -934.926, 20.745),
+    vest    = vector3(-664.74, -938.915, 20.745),
+    heading = 0.0,
+    clerk   = {
+      pos = vector3(-662.018, -933.084, 21.8292), h = 180.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [5] = {
+    title   = "Morningwood Ammunation", icon = 110,
+    walkup  = vector3(-1305.57, -394.967, 35.545),
+    vest    = vector3(-1308.83, -391.008, 35.545),
+    heading = 260.0,
+    clerk   = {
+      pos = vector3(-1303.97, -395.149, 36.6958), h = 80.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [6] = {
+    title   = "Cypress Flats Ammunation", icon = 313,
+    walkup  = vector3(809.502, -2157.73, 28.588),
+    vest    = vector3(812.581, -2153.64, 28.588),
+    range   = vector3(821.486, -2163.72, 29.619),
+    heading = 174.0,
+    clerk   = {
+      pos = vector3(809.855, -2159.08, 29.619), h = 352.0,
       mdl = GetHashKey("s_m_y_ammucity_01")
     }
   },

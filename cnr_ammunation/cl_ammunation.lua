@@ -17,10 +17,11 @@ RegisterCommand('testsource', function()
   TriggerEvent('cnr:ammu_authorize')
 end)
 AddEventHandler('cnr:ammu_authorize', function(i, ct)
-  if source == "" then print("DEBUG - Rejected Event.") end
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authenticate the weapon purchase.")
+    return 0
+  end
   if waitForServer then
-  
-    print("DEBUG - cnr:ammu_authorize")
   
     -- If no count was given, it was a weapon purchase
     if not ct then 
@@ -132,13 +133,13 @@ Citizen.CreateThread(function()
         0.45, 0.45, 0.45, 0, 255, 0, 255, false, false, 1, true
       )
       
-      -- Draw Armor Sales Point
+      --[[ Draw Armor Sales Point
       DrawMarker(1, v.vest, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.92, 0.92, 0.35, 255, 190, 40, 90, false, false, 1, false
       )
       DrawMarker(29, (v.vest + vector3(0, 0, 1.33)), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
         0.45, 0.45, 0.45, 0, 190, 255, 255, false, false, 1, true
-      )
+      )]]
       
       -- Create NPC Clerk if not exists
       if not stores[nearStore].npc then 
@@ -153,6 +154,11 @@ Citizen.CreateThread(function()
             stores[nearStore].clerk.h, false, false
           )
           GiveWeaponToPed(ped, GetHashKey("WEAPON_PISTOL50"), 96, true, false)
+          if not DoesRelationshipGroupExist(GetHashKey("AMMUNATION")) then
+            AddRelationshipGroup(GetHashKey("AMMUNATION"))
+          end
+          SetRelationshipBetweenGroups(GetHashKey("AMMUNATION"), GetHashKey("PLAYER"), 3)
+          SetRelationshipBetweenGroups(GetHashKey("PLAYER"), GetHashKey("AMMUNATION"), 3)
           print("DEBUG - Created ammu clerk.")
           stores[nearStore].npc = ped
           Citizen.CreateThread(function()
@@ -166,12 +172,12 @@ Citizen.CreateThread(function()
 
       local dist = #(GetEntityCoords(PlayerPedId()) - v.walkup)
       if dist > 100.0 then
-        nearStore = 0
         if stores[nearStore].npc then 
           DeletePed(stores[nearStore].npc)
           stores[nearStore].npc = nil
           print("DEBUG - Destroyed ammy clerk")
         end
+        nearStore = 0
 
       else
         if dist < 1.25 then AmmunationMenu(true) end
@@ -238,36 +244,68 @@ RegisterNUICallback("ammuMenu", function(data, cb)
   end
 end)
 
+local function ClerkHate(toggle)
+  if toggle then 
+    print("DEBUG - Clerk will no longer attack the player.")
+    if nearStore > 0 then 
+      if stores[nearStore].npc then
+        local ped = stores[nearStore].npc
+        TaskSetBlockingOfNonTemporaryEvents(ped, true)
+      end
+    end
+
+  else
+    print("DEBUG - Clerk will once again engage the player.")
+    if nearStore > 0 then 
+      if stores[nearStore].npc then
+        local ped = stores[nearStore].npc
+        TaskSetBlockingOfNonTemporaryEvents(ped, false)
+      end
+    end
+    
+    
+  end
+end
+
 -- Ignore gun crimes while inside the range
 Citizen.CreateThread(function()
   while true do
+  
+    local cDist = math.huge
     for k,v in pairs (stores) do
       if v.range then
         local myPos = GetEntityCoords(PlayerPedId())
-        if #(myPos - v.range) < 9.0 then
-          if not inRange then
-            inRange = true
-            TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-              "You've entered an area where gun crimes will be ignored."
-            }})
-            TriggerEvent('cnr:crimefree', true, GetCurrentResourceName())
-          end
-        else
-          if inRange then
-            inRange = false
-            TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-              "You've re-entered the game area and gun crimes will be reported."
-            }})
-            TriggerEvent('cnr:crimefree', false, GetCurrentResourceName())
-          end
-        end
+        local dist = #(myPos - v.range)
+        if dist < cDist then cDist = dist end
       end
     end
+    
+    if cDist < 8.25 then 
+      if not inRange then
+        inRange = true
+        --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+          "You've entered an area where gun crimes will be ignored."
+        }})]]
+        TriggerEvent('cnr:crimefree', true, GetCurrentResourceName())
+      end
+      ClerkHate(true)
+    else
+      if inRange then
+        inRange = false
+        --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+          "You've re-entered the game area and gun crimes will be reported."
+        }})]]
+        TriggerEvent('cnr:crimefree', false, GetCurrentResourceName())
+        ClerkHate(false)
+      end
+    end
+    
     if menuEnabled then 
       if IsPauseMenuActive() then AmmunationMenu(false)
       elseif IsPedDeadOrDying(PlayerPedId()) then AmmunationMenu(false)
       end
     end
+    
     Citizen.Wait(1000)
   end
 end)

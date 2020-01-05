@@ -41,10 +41,12 @@ $(function() {
   });
 });
 
+
 function doExit() {
   $.post('http://cnr_ammunation/ammuMenu', JSON.stringify({action: "exit"}));
   $("#ammu-main").fadeOut(1000);
 }
+
 
 function AmmoCount(dir, idx) {
   $.post('http://cnr_ammunation/ammuMenu', JSON.stringify({
@@ -54,6 +56,7 @@ function AmmoCount(dir, idx) {
   }));
 }
 
+
 function BuyWeapon(idx) {
   $.post('http://cnr_ammunation/ammuMenu', JSON.stringify({
     action:"buyWeapon",
@@ -61,9 +64,11 @@ function BuyWeapon(idx) {
   }));
 }
 
+
 function BuyAmmo(idx) {
   $.post('http://cnr_ammunation/ammuMenu', JSON.stringify({
     action:"buyAmmo",
     weapon:idx
   }));
 }
+
