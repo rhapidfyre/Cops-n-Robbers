@@ -1,7 +1,10 @@
 
 -- ammu client script
+RegisterNetEvent('cnr:ammu_authorize')
+
 local nearStore = 0
 local inRange = false
+local waitForServer = false
 local cam
 
 --- EXPORT: InsideGunRange()
@@ -9,6 +12,33 @@ local cam
 function InsideGunRange()
   return inRange
 end
+
+RegisterCommand('testsource', function()
+  TriggerEvent('cnr:ammu_authorize')
+end)
+AddEventHandler('cnr:ammu_authorize', function(i, ct)
+  if source == "" then print("DEBUG - Rejected Event.") end
+  if waitForServer then
+  
+    print("DEBUG - cnr:ammu_authorize")
+  
+    -- If no count was given, it was a weapon purchase
+    if not ct then 
+      GiveWeaponToPed(PlayerPedId(),
+        GetHashKey(weaponsList[i].mdl), weaponsList[i].ammo, false, true
+      )
+    
+    -- Otherwise they bought ammunition
+    else
+      AddAmmoToPed(PlayerPedId(),
+        GetHashKey(weaponsList[i].mdl),
+        weaponsList[i].ammo * ct
+      )
+    
+    end
+    waitForServer = false
+  end
+end)
 
 AddEventHandler('cnr:close_all_nui', function()
   SendNUIMessage({closemenus = true})
@@ -21,22 +51,27 @@ end)
 
 local function AmmunationMenu(toggle)
   if toggle then  
-    if not menuEnabled then 
+    if not menuEnabled and not exports['chat']:IsTyping() then 
       
       menuEnabled = true 
       SetNuiFocus(true, true)
       
       local htmlTable = {}
-      for k,v in pairs (weaponsList) do 
+      for k,v in pairs (weaponsList) do
+        local isDisabled = ""
+        if v.ammo < 2 then isDisabled = 'disabled' end
         table.insert(htmlTable,
-          '<div class="weapon">'..
+          '<div class="weapon" id="w'..(k)..'">'..
           '<img src="img/'..(v.mdl)..'.png"><br/><table>'..
           '<tr><th colspan="3">'..(v.title)..'</th></tr>'..
           '<tr><th colspan="2">$'..(v.price)..'</th>'..
           '<td><button onclick="BuyWeapon('..(k)..')">PURCHASE</button></td></tr>'..
-          '<tr><th colspan="2">+ '..(v.ammo)..' AMMO</th>'..
-          '<td><button onclick="BuyAmmo('..(k)..')">$'..(v.ammo * v.aprice)..'</button></td></tr>'..
-          '<tr><td><button>LESS</button></td><td><button>MORE</button></td><td></td></tr></table></div>'
+          '<tr><th colspan="2" id="a'..(k)..'">+ '..(v.ammo)..' AMMO</th>'..
+          '<td><button id="b'..(k)..'" onclick="BuyAmmo('..(k)..')" '..
+          isDisabled..
+          '>$'..(v.ammo * v.aprice)..'</button></td></tr>'..
+          '<tr><td><button '..isDisabled..' onclick="AmmoCount(0, '..(k)..')">LESS</button></td>'..
+          '<td><button '..isDisabled..' onclick="AmmoCount(1, '..(k)..')">MORE</button></td><td></td></tr></table></div>'
         )
       end
       SendNUIMessage({
@@ -57,12 +92,13 @@ local function AmmunationMenu(toggle)
       
     end
   else
-    SetNuiFocus(false)
     if DoesCamExist(cam) then
       SetCamActive(cam, false)
       RenderScriptCams(false, true, 500, true, true)
       cam = nil
     end
+    SetNuiFocus(false)
+    waitForServer = false
     Citizen.Wait(5000)
     menuEnabled = false
   end
@@ -87,12 +123,24 @@ Citizen.CreateThread(function()
     if nearStore > 0 then
 
       local v = stores[nearStore]
+      
+      -- Draw Weapon Sales Point
       DrawMarker(1, v.walkup, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.85, 0.85, 0.35, 255, 190, 40, 90, false, false, 1, false
+        0.92, 0.92, 0.35, 255, 190, 40, 90, false, false, 1, false
       )
-      DrawMarker(29, (v.walkup + vector3(0, 0, 1)), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.65, 0.65, 0.65, 0, 255, 0, 255, false, false, 1, true
+      DrawMarker(29, (v.walkup + vector3(0, 0, 1.33)), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.45, 0.45, 0.45, 0, 255, 0, 255, false, false, 1, true
       )
+      
+      -- Draw Armor Sales Point
+      DrawMarker(1, v.vest, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.92, 0.92, 0.35, 255, 190, 40, 90, false, false, 1, false
+      )
+      DrawMarker(29, (v.vest + vector3(0, 0, 1.33)), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.45, 0.45, 0.45, 0, 190, 255, 255, false, false, 1, true
+      )
+      
+      -- Create NPC Clerk if not exists
       if not stores[nearStore].npc then 
         print("DEBUG - NPC Doesn't exist for store #"..nearStore)
         if stores[nearStore].clerk then 
@@ -144,10 +192,49 @@ Citizen.CreateThread(function()
 
 end)
 
-RegisterNUICallback("ammuMenu", function(data, cb)
-  if data.action == "exit" then AmmunationMenu(false)
-  else
+local function ChangeAmmo(idx, addOne)
+
+  if addOne then weaponsList[idx].qty = weaponsList[idx].qty + 1
+  else weaponsList[idx].qty = weaponsList[idx].qty - 1
+  end
   
+  if weaponsList[idx].qty > 6 then
+    weaponsList[idx].qty = 6
+  elseif weaponsList[idx].qty < 1 then 
+    weaponsList[idx].qty = 1
+  end
+  
+  SendNUIMessage({
+  
+    ammoct    = weaponsList[idx].qty *
+                weaponsList[idx].ammo,
+                
+    ammoprice = weaponsList[idx].qty *
+                weaponsList[idx].ammo *
+                weaponsList[idx].aprice,
+                
+    ammoindex = idx
+    
+  })
+      
+end
+RegisterNUICallback("ammuMenu", function(data, cb)
+  if data.action == "exit" then
+    AmmunationMenu(false)
+  else
+    if data.action == "ammoCount" then 
+      ChangeAmmo(data.weapon, (data.more == 1))
+      
+    elseif data.action == "buyWeapon" then 
+      waitForServer = true
+      TriggerServerEvent('cnr:ammu_buyweapon', data.weapon)
+    
+    elseif data.action == "buyAmmo" then
+      waitForServer = true
+      TriggerServerEvent('cnr:ammu_buyammo',
+        data.weapon, weaponsList[data.weapon].qty
+      )
+    end
   end
 end)
 
@@ -177,9 +264,9 @@ Citizen.CreateThread(function()
       end
     end
     if menuEnabled then 
-      if IsPauseMenuActive() then AmmunationMenu(false) end
-      if IsPedDeadOrDying(PlayerPedId()) then AmmunationMenu(false) end
-      
+      if IsPauseMenuActive() then AmmunationMenu(false)
+      elseif IsPedDeadOrDying(PlayerPedId()) then AmmunationMenu(false)
+      end
     end
     Citizen.Wait(1000)
   end

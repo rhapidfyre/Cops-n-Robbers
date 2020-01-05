@@ -23,7 +23,8 @@ files {
   "nui/img/WEAPON_ASSAULTRIFLE.png", "nui/img/WEAPON_CARBINERIFLE.png",
   "nui/img/WEAPON_PETROLCAN.png", "nui/img/WEAPON_PUMPSHOTGUN.png",
   "nui/img/WEAPON_SMG.png", "nui/img/WEAPON_REVOLVER.png",
-  "nui/img/WEAPON_KNIFE.png",
+  "nui/img/WEAPON_BULLPUPRIFLE.png", "nui/img/WEAPON_MARKSMANRIFLE.png",
+  "nui/img/WEAPON_FLAREGUN.png", "nui/img/WEAPON_KNIFE.png",
   "nui/ui.html", "nui/ui.js", "nui/ui.css"
 }
 
