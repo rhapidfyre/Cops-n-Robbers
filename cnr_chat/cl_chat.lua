@@ -53,6 +53,32 @@ AddEventHandler('onClientResourceStart', function(rname)
   end
 end)
 
+--- EXPORT: ChatNotification()
+-- Also EVENT 'srp:chat_notification'
+-- Creates a popup blip with icon, title, sub, and msg
+-- @param icon The icon path to show
+-- @param title The title of popup
+-- @param subtitle Subtitle of popup
+-- @param message The long message to show
+function ChatNotification(icon, title, subtitle, message)
+
+  if not icon     then icon     = "CHAR_LESTER" end
+  if not title    then title    = ""            end
+  if not subtitle then subtitle = ""            end
+  if not message  then message  = ""            end
+  
+	SetNotificationTextEntry("STRING")
+	AddTextComponentString(message)
+	SetNotificationMessage(icon, icon, false, 2, title, subtitle, "")
+	DrawNotification(false, true)
+	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
+  
+  return true
+  
+end
+RegisterNetEvent('cnr:chat_notification')
+AddEventHandler('cnr:chat_notification', ChatNotification)
+
 
 --- EXPORT: PushNotification()
 -- Sends a push notification to the right of the screen

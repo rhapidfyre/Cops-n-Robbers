@@ -40,5 +40,6 @@ server_exports {
 
 exports {
   -- Goes to the custom notification NUI
-  'PushNotification' -- type(1=crime,2=law,3=general), title, message
+  'PushNotification', -- type(1=crime,2=law,3=general), title, message
+  'ChatNotification'
 }
