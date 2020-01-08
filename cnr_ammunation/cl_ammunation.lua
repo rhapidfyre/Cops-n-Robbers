@@ -1,11 +1,16 @@
 
 -- ammu client script
 RegisterNetEvent('cnr:ammu_authorize')
+RegisterNetEvent('cnr:ammu_revoke_weapon') -- Takes given weapon hashcode (nil = ALL)
 
-local nearStore = 0
-local inRange = false
-local waitForServer = false
+
+local nearStore       = 0
+local inRange         = false
+local waitForServer   = false
+local lastWeapon      = nil
+local lastAmmoCount   = 0
 local cam
+
 
 --- EXPORT: InsideGunRange()
 -- Returns true if player is in a gun range (won't be charged with crimes)
@@ -13,9 +18,11 @@ function InsideGunRange()
   return inRange
 end
 
-RegisterCommand('testsource', function()
-  TriggerEvent('cnr:ammu_authorize')
-end)
+
+-- If received by server, gives the weapon from server authorized list
+-- If provided, arg `ct` adds ammo to the transaction
+-- If not provided with arg `ct`, the weapon is given with default ammo
+-- To do both, event should be called twice. 1st for weapon, 2nd for ammo count
 AddEventHandler('cnr:ammu_authorize', function(i, ct)
   if source == "" then
     print("^1CNR ERROR: ^7Unable to authenticate the weapon purchase.")
@@ -268,42 +275,97 @@ local function ClerkHate(toggle)
 end
 
 -- Ignore gun crimes while inside the range
+local function CheckInGunRange()
+  local cDist = math.huge
+  for k,v in pairs (stores) do
+    if v.range then
+      local myPos = GetEntityCoords(PlayerPedId())
+      local dist = #(myPos - v.range)
+      if dist < cDist then cDist = dist end
+    end
+  end
+  
+  if cDist < 8.25 then 
+    if not inRange then
+      inRange = true
+      --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You've entered an area where gun crimes will be ignored."
+      }})]]
+      TriggerEvent('cnr:crimefree', true, GetCurrentResourceName())
+    end
+    ClerkHate(true)
+  else
+    if inRange then
+      inRange = false
+      --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You've re-entered the game area and gun crimes will be reported."
+      }})]]
+      TriggerEvent('cnr:crimefree', false, GetCurrentResourceName())
+      ClerkHate(false)
+    end
+  end
+end
+
+local function RevokeWeapon(hashKey, isAdmin)
+  if not hashKey then
+    RemoveAllPedWeapons(PlayerPedId(), true)
+    local rMsg = "Your weapons were confiscated!"
+    if isAdmin then rMsg = "An admin has removed all of your weapons." end
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {rMsg}})
+  else
+    local rMsg = "Your "..GetWeaponFromHash(hashKey).." was confiscated!"
+    if isAdmin then
+      rMsg = "An admin revoked your "..GetWeaponFromHash(hashKey).."!"
+    end
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {rMsg}})
+  end
+end
+
+-- if `hashKey` is rx'd nil, takes ALL weapons away
+-- if `isAdmin` is not false/nil, notifies client it was taken by an admin
+AddEventHandler('cnr:ammu_revoke_weapon', function(hashKey, isAdmin)
+  RevokeWeapon(hashKey, isAdmin)
+end)
+
+
 Citizen.CreateThread(function()
   while true do
   
-    local cDist = math.huge
-    for k,v in pairs (stores) do
-      if v.range then
-        local myPos = GetEntityCoords(PlayerPedId())
-        local dist = #(myPos - v.range)
-        if dist < cDist then cDist = dist end
-      end
-    end
+    CheckInGunRange()
     
-    if cDist < 8.25 then 
-      if not inRange then
-        inRange = true
-        --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-          "You've entered an area where gun crimes will be ignored."
-        }})]]
-        TriggerEvent('cnr:crimefree', true, GetCurrentResourceName())
-      end
-      ClerkHate(true)
-    else
-      if inRange then
-        inRange = false
-        --[[TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-          "You've re-entered the game area and gun crimes will be reported."
-        }})]]
-        TriggerEvent('cnr:crimefree', false, GetCurrentResourceName())
-        ClerkHate(false)
-      end
-    end
-    
+    -- Check for reasons to close the Ammunation Menu
     if menuEnabled then 
       if IsPauseMenuActive() then AmmunationMenu(false)
       elseif IsPedDeadOrDying(PlayerPedId()) then AmmunationMenu(false)
       end
+    end
+    
+    -- If the player has fired, update ammunition
+    local pedWeapon = GetSelectedPedWeapon(PlayerPedId())
+    if pedWeapon ~= GetHashKey("WEAPON_UNARMED") then 
+      local hasClip, magazine = GetAmmoInClip(PlayerPedId(), pedWeapon)
+      local ammoTotal = GetAmmoInPedWeapon(PlayerPedId(), pedWeapon)
+      if lastWeapon then 
+        if hasClip and lastWeapon then 
+          
+          -- If the weapon is the same previous check
+          if lastWeapon == pedWeapon then 
+          
+            -- If the ammo changed, notify the server
+            if lastAmmoCount > ammoTotal then
+              lastAmmoCount = ammoTotal
+              TriggerServerEvent('cnr:ammu_ammo_update', pedWeapon, ammoTotal)
+              
+            end
+          
+          -- If the weapon is not the same as it was before
+          else lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
+            
+          end
+        end
+      else lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
+      end
+    else lastWeapon = nil; lastAmmoCount = 0
     end
     
     Citizen.Wait(1000)
