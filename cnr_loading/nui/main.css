@@ -95,3 +95,21 @@ h4 {
 #server-rules ul {
   list-style: none;
 }
+.loadBar {
+  width: 100%;
+  background-color: #eee;
+  height: 20px;
+  margin: 5px 3px 5px 2px;
+  overflow: hidden;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  display: block;
+}
+.progressBar {
+  width: 10%;
+  background-color: #FC0349;
+  height: 20px;
+  position: absolute;
+  left: 10%;
+}
