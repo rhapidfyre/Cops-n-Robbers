@@ -66,15 +66,15 @@ function ChatNotification(icon, title, subtitle, message)
   if not title    then title    = ""            end
   if not subtitle then subtitle = ""            end
   if not message  then message  = ""            end
-  
+
 	SetNotificationTextEntry("STRING")
 	AddTextComponentString(message)
 	SetNotificationMessage(icon, icon, false, 2, title, subtitle, "")
 	DrawNotification(false, true)
 	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
-  
+
   return true
-  
+
 end
 RegisterNetEvent('cnr:chat_notification')
 AddEventHandler('cnr:chat_notification', ChatNotification)
