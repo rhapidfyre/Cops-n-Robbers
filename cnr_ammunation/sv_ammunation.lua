@@ -4,6 +4,10 @@ RegisterServerEvent('cnr:ammu_buyweapon')
 RegisterServerEvent('cnr:ammu_buyammo')
 RegisterServerEvent('cnr:client_loaded')
 
+local function UID(client)
+  return exports['cnrobbers']:UniqueId(client)
+end
+
 
 --- EXPORT: CheckWeapon()
 -- Checks if the player already owns that weapon (SQL)
@@ -13,7 +17,7 @@ function CheckWeapon(client, idx)
   local wCount = exports['ghmattimysql']:scalarSync(
     "SELECT COUNT(*) FROM weapons WHERE character_id = @c AND hash = @h",
     {
-      ['c'] = exports['cnrobbers']:UniqueId(client),
+      ['c'] = UID(client),
       ['h'] = weaponsList[idx].mdl
     }
   )
@@ -49,7 +53,7 @@ function StoreWeapon(client, idx, wAmmo)
       else
         local ammoCount = weaponsList[idx].ammo
         if wAmmo then ammoCount = wAmmo end
-        local uid = exports['cnrobbers']:UniqueId(client)
+        local uid = UID(client)
         exports['ghmattimysql']:execute(
           "INSERT INTO weapons (character_id, ammo, hash) VALUES (@c, @a, @h)",
           {['c'] = uid, ['a'] = ammoCount, ['h'] = weaponsList[idx].mdl}
@@ -69,7 +73,7 @@ function StoreWeapon(client, idx, wAmmo)
         return false
         
       else
-        local uid = exports['cnrobbers']:UniqueId(client)
+        local uid = UID(client)
         exports['ghmattimysql']:execute(
           "UPDATE weapons SET ammo = @a WHERE hash = @h AND character_id = @c",
           {['c'] = uid, ['a'] = wAmmo, ['h'] = weaponsList[idx].mdl}
@@ -86,14 +90,49 @@ end
 
 
 --- EXPORT: RevokeWeapon()
--- Revokes the weapon from SQL
-function RevokeWeapon(idx, sqlRow)
+-- Revokes the weapon from SQL, OR the specified amount of ammo
+-- @param client The player to revoke the weapon(s)/ammo from
+-- @param idx The weaponsList index to search for
+-- @param wAmmo The amount of ammo to revoke; If nil, revokes the whole weapon
+-- @return -1 on failure, 0 if not found, 1 if successful
+function RevokeWeapon(client, idx, wAmmo)
+  
+  if not idx then return (-1) end
+  local uid = UID(client)
+  local wpn = weaponsList[idx].mdl
+  
+  if CheckWeapon(client, idx) > 0 then
+    if wAmmo then 
+      
+      -- SQL: Reduce ammo by `wAmmo`
+      exports['ghmattimysql']:execute(
+        "UPDATE weapons SET ammo = ammo - @a "..
+        "WHERE character_id = @c AND hash = @h",
+        {['a'] = wAmmo, ['c'] = uid, ['h'] = wpn}
+      )
+      
+    else
+      
+      -- SQL: Delete the weapon
+      exports['ghmattimysql']:execute(
+        "DELETE FROM weapons WHERE character_id = @c AND hash = @h",
+        {['c'] = uid, ['h'] = wpn}
+      )
+      
+      -- Ensure client loses the weapon
+      TriggerClientEvent('cnr:ammu_revoke_weapon', client, weaponsList[idx].mdl)
+      
+    end
+    return 1
+  end
+  return 0
 end
+
 
 AddEventHandler('cnr:ammu_buyweapon', function(idx)
   
   local client = source
-  local uid    = exports['cnrobbers']:UniqueId(client)
+  local uid    = UID(client)
   
   if not idx then 
     TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
@@ -152,7 +191,7 @@ end)
 AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
   
   local client = source
-  local uid    = exports['cnrobbers']:UniqueId(client)
+  local uid    = UID(client)
   
   if not idx then 
     TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
@@ -216,7 +255,7 @@ function RestoreWeapons(client)
   if not client then return false end
   exports['ghmattimysql']:execute(
     "SELECT * FROM weapons WHERE character_id = @charid",
-    {['charid'] = exports['cnrobbers']:UniqueId(client)},
+    {['charid'] = UID(client)},
     function(weps)
       if weps[1] then 
         print("DEBUG - Found their weapons, restoring them.")
