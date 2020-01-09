@@ -359,7 +359,7 @@ Citizen.CreateThread(function()
       end
     end
     
-    -- If the player has fired, update ammunition
+    -- Check the player's weapon information and report changes as needed
     local pedWeapon = GetSelectedPedWeapon(PlayerPedId())
     if pedWeapon ~= GetHashKey("WEAPON_UNARMED") then 
       local hasClip, magazine = GetAmmoInClip(PlayerPedId(), pedWeapon)
@@ -367,24 +367,31 @@ Citizen.CreateThread(function()
       if lastWeapon then 
         if hasClip and lastWeapon then 
           
-          -- If the weapon is the same previous check
+          -- If the weapon is the same the previous check
           if lastWeapon == pedWeapon then 
           
-            -- If the ammo changed, notify the server
-            if lastAmmoCount > ammoTotal then
-              lastAmmoCount = ammoTotal
-              TriggerServerEvent('cnr:ammu_ammo_update', pedWeapon, ammoTotal)
-              
-            end
+            -- Then report any changes in ammo
+            if lastAmmoCount > ammoTotal then lastAmmoCount = ammoTotal end
           
           -- If the weapon is not the same as it was before
-          else lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
+          else
+          
+            -- Report the changes in ammo, and then update to the current weapon
+            TriggerServerEvent('cnr:ammu_ammo_update', lastWeapon, lastAmmoCount)
+            lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
             
           end
         end
-      else lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
+      else
+        -- Switched to armed from unarmed; No reporting necessary
+        lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
       end
-    else lastWeapon = nil; lastAmmoCount = 0
+    else
+      -- If player switched to unarmed, report changes then set to nil
+      if lastWeapon then
+        TriggerServerEvent('cnr:ammu_ammo_update', lastWeapon, lastAmmoCount)
+      end
+      lastWeapon = nil; lastAmmoCount = 0
     end
     
     Citizen.Wait(1000)

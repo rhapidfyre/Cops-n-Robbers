@@ -2,12 +2,44 @@
 -- ammu server script
 RegisterServerEvent('cnr:ammu_buyweapon')
 RegisterServerEvent('cnr:ammu_buyammo')
+RegisterServerEvent('cnr:ammu_ammo_update')
 RegisterServerEvent('cnr:client_loaded')
 
 local function UID(client)
   return exports['cnrobbers']:UniqueId(client)
 end
 
+
+-- Updates the ammo record in SQL
+-- Never trust clients; Verify they have the weapon and that
+-- wAmmo is less than it was before. This should REDUCE the ammo, never ADD.
+AddEventHandler('cnr:ammu_ammo_update', funtion(wHash, wAmmo)
+  
+  local client = source
+  local uid    = UID(client)
+  
+  local aCount = exports['ghmattimysql']:scalarSync(
+    "SELECT ammo FROM weapons WHERE character_id = @c AND hash = @h",
+    {['c'] = uid, ['h'] = wHash}
+  )
+  
+  if aCount then 
+    print("DEBUG - Old Ammo: "..aCount)
+    if aCount > wAmmo then
+      exports['ghmattimysql']:execute(
+        "UPDATE weapons SET ammo = ammo - @a WHERE character_id = @c AND hash = @h",
+        {['a'] = wAmmo, ['c'] = uid, ['h'] = wHash}
+      )
+      print("DEBUG - New Ammo: "..tostring(aCount - wAmmo))
+    else print("DEBUG - No change in ammunition. Ignoring SQL update.")
+    end
+  
+  else
+    print("DEBUG - 'cnr:ammu_ammo_update' - No record found for ["..wHash.."]")
+  
+  end
+  
+end)
 
 --- EXPORT: CheckWeapon()
 -- Checks if the player already owns that weapon (SQL)
