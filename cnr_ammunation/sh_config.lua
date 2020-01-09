@@ -1,5 +1,7 @@
 
--- ammu shared config
+local wTranslate = {}
+
+
 -- icon 110=nonrange 313=gunrange
 --[[
 
@@ -79,22 +81,46 @@ stores = {
   },
 }
 
+-- Used to ensure people only use guns the gamemode has approved
+-- (AKA the guns in this list)
 weaponsList = {
   -- Set ammo to 0 if not a firearm, 1 if throwable (grenade)
   -- qty: Multiples of ammo to purchase
   -- TEMPLATE: [] = {mdl = "WEAPON_", title = "", price = 1000, qty = 1, ammo = 0, aprice = 0},
-  [1] = {mdl = "WEAPON_KNUCKLE",        title = "Brass Knuckles",   price = 1000,  qty = 1, ammo = 0, aprice = 0},
-  [2] = {mdl = "WEAPON_KNIFE",          title = "Desert Eagle",     price = 90,    qty = 1, ammo = 0, aprice = 0},
-  [3] = {mdl = "WEAPON_PISTOL50",       title = "Desert Eagle",     price = 5000,  qty = 1, ammo = 9, aprice = 10},
-  [4] = {mdl = "WEAPON_SAWNOFFSHOTGUN", title = "Sawn-off Shotgun", price = 12500, qty = 1, ammo = 8, aprice = 25},
-  [5] = {mdl = "WEAPON_FLAREGUN",       title = "Flare Gun",        price = 5000,  qty = 1, ammo = 1, aprice = 100},
-  [6] = {mdl = "WEAPON_PISTOL",         title = "Semi-Auto Pistol", price = 5000,  qty = 1, ammo = 12, aprice = 5},
-  [7] = {mdl = "WEAPON_REVOLVER",       title = "357 Magnum",       price = 10000, qty = 1, ammo = 6, aprice = 0},
-  [8] = {mdl = "WEAPON_SMG",            title = "Submachine Gun",   price = 1300,  qty = 1, ammo = 30, aprice = 1},
-  [9] = {mdl = "WEAPON_ASSAULTRIFLE",   title = "Assault Rifle",    price = 1400,  qty = 1, ammo = 30, aprice = 5},
-  [10] = {mdl = "WEAPON_CARBINERIFLE",  title = "Carbine Rifle",    price = 1200,  qty = 1, ammo = 30, aprice = 5},
-  [11] = {mdl = "WEAPON_BULLPUPRIFLE",  title = "Bullpup Rifle",    price = 1650,  qty = 1, ammo = 30, aprice = 5},
-  [12] = {mdl = "WEAPON_MARKSMANRIFLE", title = "Marksman Rifle",   price = 9500,  qty = 1, ammo = 8, aprice = 0},
-  [13] = {mdl = "WEAPON_SNIPERRIFLE",   title = "Sniper Rifle",     price = 6000,  qty = 1, ammo = 10, aprice = 0},
-  [14] = {mdl = "WEAPON_PETROLCAN",     title = "Gas Can",          price = 100,   qty = 1, ammo = 1, aprice = 100},
+  -- Setting 'legal = false' ensures it won't be in the ammunation menu
+  [1]  = {name = "WEAPON_KNUCKLE",        title = "Brass Knuckles",    price = 1000,  qty = 1, ammo = 0,  aprice = 0},
+  [2]  = {name = "WEAPON_KNIFE",          title = "Desert Eagle",      price = 90,    qty = 1, ammo = 0,  aprice = 0},
+  [3]  = {name = "WEAPON_PISTOL50",       title = "Desert Eagle",      price = 5000,  qty = 1, ammo = 9,  aprice = 10},
+  [4]  = {name = "WEAPON_SAWNOFFSHOTGUN", title = "Sawn-off Shotgun",  price = 12500, qty = 1, ammo = 8,  aprice = 25},
+  [5]  = {name = "WEAPON_FLAREGUN",       title = "Flare Gun",         price = 5000,  qty = 1, ammo = 1,  aprice = 100},
+  [6]  = {name = "WEAPON_PISTOL",         title = "Semi-Auto Pistol",  price = 5000,  qty = 1, ammo = 12, aprice = 5},
+  [7]  = {name = "WEAPON_REVOLVER",       title = "357 Magnum",        price = 10000, qty = 1, ammo = 6,  aprice = 0},
+  [8]  = {name = "WEAPON_SMG",            title = "Submachine Gun",    price = 1300,  qty = 1, ammo = 30, aprice = 1},
+  [9]  = {name = "WEAPON_ASSAULTRIFLE",   title = "Assault Rifle",     price = 1400,  qty = 1, ammo = 30, aprice = 5},
+  [10] = {name = "WEAPON_CARBINERIFLE",   title = "Carbine Rifle",     price = 1200,  qty = 1, ammo = 30, aprice = 5},
+  [11] = {name = "WEAPON_BULLPUPRIFLE",   title = "Bullpup Rifle",     price = 1650,  qty = 1, ammo = 30, aprice = 5},
+  [12] = {name = "WEAPON_MARKSMANRIFLE",  title = "Marksman Rifle",    price = 9500,  qty = 1, ammo = 8,  aprice = 0},
+  [13] = {name = "WEAPON_SNIPERRIFLE",    title = "Sniper Rifle",      price = 6000,  qty = 1, ammo = 10, aprice = 0},
+  [14] = {name = "WEAPON_PETROLCAN",      title = "Gas Can",           price = 100,   qty = 1, ammo = 1,  aprice = 100},
 }
+
+--- EXPORT: GetWeaponNameFromHash()
+-- Attempts to translate the weapon's hash into a string name
+-- @param The hash key for the weapon
+-- @return The string name; If not found, returns "Firearm"
+function GetWeaponNameFromHash(hashCode)
+  if not hashCode then return "Firearm" end
+  if wTranslate[hashCode] then return wTranslate[hashCode] end
+  return "Firearm"
+end
+
+
+-- Builds a list of hashcodes to string name
+-- Also adds hash as `mdl` to the weaponsList table
+Citizen.CreateThread(function()
+  for k,v in pairs(weaponsList) do
+    v.mdl = GetHashKey(v.name)
+    wTranslate[v.mdl] = v.title
+  end
+end)
+

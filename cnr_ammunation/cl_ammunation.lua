@@ -33,13 +33,13 @@ AddEventHandler('cnr:ammu_authorize', function(i, ct)
     -- If no count was given, it was a weapon purchase
     if not ct then 
       GiveWeaponToPed(PlayerPedId(),
-        GetHashKey(weaponsList[i].mdl), weaponsList[i].ammo, false, true
+        weaponsList[i].mdl, weaponsList[i].ammo, false, true
       )
     
     -- Otherwise they bought ammunition
     else
       AddAmmoToPed(PlayerPedId(),
-        GetHashKey(weaponsList[i].mdl),
+        weaponsList[i].mdl,
         weaponsList[i].ammo * ct
       )
     
@@ -70,7 +70,7 @@ local function AmmunationMenu(toggle)
         if v.ammo < 2 then isDisabled = 'disabled' end
         table.insert(htmlTable,
           '<div class="weapon" id="w'..(k)..'">'..
-          '<img src="img/'..(v.mdl)..'.png"><br/><table>'..
+          '<img src="img/'..(v.name)..'.png"><br/><table>'..
           '<tr><th colspan="3">'..(v.title)..'</th></tr>'..
           '<tr><th colspan="2">$'..(v.price)..'</th>'..
           '<td><button onclick="BuyWeapon('..(k)..')">PURCHASE</button></td></tr>'..
