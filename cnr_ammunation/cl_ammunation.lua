@@ -1,6 +1,7 @@
 
 -- ammu client script
 RegisterNetEvent('cnr:ammu_authorize')
+RegisterNetEvent('cnr:ammu_restore')
 RegisterNetEvent('cnr:ammu_revoke_weapon') -- Takes given weapon hashcode (nil = ALL)
 
 
@@ -45,6 +46,14 @@ AddEventHandler('cnr:ammu_authorize', function(i, ct)
     
     end
     waitForServer = false
+  end
+end)
+
+-- Restores previously saved weapons upon login
+AddEventHandler('cnr:ammu_restore', function(weaponInfo)
+  for k,v in pairs(weaponInfo) do 
+    print("Restored Saved Weapon: "..GetWeaponNameFromHash(v['hash'])..".")
+    GiveWeaponToPed(PlayerPedId(), v['hash'], v['ammo'], true, false)
   end
 end)
 

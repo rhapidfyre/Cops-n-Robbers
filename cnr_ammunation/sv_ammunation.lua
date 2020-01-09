@@ -28,30 +28,54 @@ end
 function StoreWeapon(client, idx, wAmmo)
 
   if not client then
-    print("^1ERROR^7 - No client given to StoreWeapon()"); return false
+    print("^1ERROR^7 - No client # given to StoreWeapon()"); return false
   end
   
   if idx then
   
-    -- If player already has this weapon, reject the storage
-    if CheckWeapon(client, idx) > 0 then
-      TriggerClientEvent('chat:addMessage', client, {
-        templateId = 'sysMsg', args = {
-          "That weapon is already in your wheel. Try purchasing ammo instead!"
-        }
-      })
-      return false 
+    if not wAmmo then 
+    
+      -- If player already has this weapon, reject the storage
+      if CheckWeapon(client, idx) > 0 then
+        TriggerClientEvent('chat:addMessage', client, {
+          templateId = 'sysMsg', args = {
+            "Trying to duel wield firearms? Buy ammo, you already have this one."
+          }
+        })
+        return false 
+        
+      -- Otherwise, store it 
+      else
+        local ammoCount = weaponsList[idx].ammo
+        if wAmmo then ammoCount = wAmmo end
+        local uid = exports['cnrobbers']:UniqueId(client)
+        exports['ghmattimysql']:execute(
+          "INSERT INTO weapons (character_id, ammo, hash) VALUES (@c, @a, @h)",
+          {['c'] = uid, ['a'] = ammoCount, ['h'] = weaponsList[idx].mdl}
+        )
+        return true
+      end
       
-    -- Otherwise, store it 
     else
-      local ammoCount = weaponsList[idx].ammo
-      if wAmmo then ammoCount = wAmmo end
-      local cid = exports['cnrobbers']:UniqueId(client)
-      exports['ghmattimysql']:execute(
-        "INSERT INTO weapons (character_id, ammo, hash) VALUES (@c, @a, @h)",
-        {['c'] = cid, ['a'] = ammoCount, ['h'] = weaponsList[idx].mdl}
-      )
-      return true
+    
+      -- Does the player have this weapon?
+      if CheckWeapon(client, idx) < 1 then 
+        TriggerClientEvent('chat:addMessage', client, {
+          templateId = 'sysMsg', args = {
+            "Trying to stockpile ammo for the apocalypse? Buy the gun first."
+          }
+        })
+        return false
+        
+      else
+        local uid = exports['cnrobbers']:UniqueId(client)
+        exports['ghmattimysql']:execute(
+          "UPDATE weapons SET ammo = @a WHERE hash = @h AND character_id = @c",
+          {['c'] = uid, ['a'] = wAmmo, ['h'] = weaponsList[idx].mdl}
+        )
+        return true
+      end
+      
     end
   else
     print("^1ERROR^7 - Unable to store weapon into MySQL. [idx] was 'nil'.")
@@ -71,7 +95,7 @@ AddEventHandler('cnr:ammu_buyweapon', function(idx)
   local uid    = exports['cnrobbers']:UniqueId(client)
   
   if not idx then 
-    TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+    TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
       multiline = true, args = {
         "AMMUNATION ERROR",
         "Weapon Index [nil] was not found."
@@ -80,7 +104,7 @@ AddEventHandler('cnr:ammu_buyweapon', function(idx)
     
   else
     if not weaponsList[idx] then 
-      TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
         multiline = true, args = {
           "AMMUNATION ERROR",
           "Weapon index ["..idx.."] was not found."
@@ -96,17 +120,6 @@ AddEventHandler('cnr:ammu_buyweapon', function(idx)
           exports['cnr_cash']:CashTransaction(
             client, (0 - weaponsList[idx].price)
           )
-        else
-          TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
-            multiline = true, args = {
-              "AMMUNATION ERROR",
-              "Something went wrong with your purchase. You have not been charged."
-            }
-          })
-          exports['cnr_admin']:AdminChat("AMMUNATION",
-            GetPlayerName(client).." [ID "..client.."] tried to purchase a(n) "..
-            (weaponList[idx].name)..", but something went wrong. Please investigate."
-          )
         end
       
       else
@@ -118,17 +131,6 @@ AddEventHandler('cnr:ammu_buyweapon', function(idx)
             TriggerClientEvent('cnr:ammu_authorize', client, idx)
             exports['cnr_cash']:BankTransaction(
               client, (0 - weaponsList[idx].price)
-            )
-          else
-            TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
-              multiline = true, args = {
-                "AMMUNATION ERROR",
-                "Something went wrong with your purchase. You have not been charged."
-              }
-            })
-            exports['cnr_admin']:AdminChat("AMMUNATION",
-              GetPlayerName(client).." [ID "..client.."] tried to purchase a(n) "..
-              (weaponList[idx].name)..", but something went wrong. Please investigate."
             )
           end
         
@@ -152,7 +154,7 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
   local uid    = exports['cnrobbers']:UniqueId(client)
   
   if not idx then 
-    TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+    TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
       multiline = true, args = {
         "AMMUNATION ERROR",
         "Weapon Index [nil] was not found."
@@ -162,7 +164,7 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
   else
     if not ct then ct = 1 end
     if not weaponsList[idx] then 
-      TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
         multiline = true, args = {
           "AMMUNATION ERROR",
           "Weapon index ["..idx.."] was not found."
@@ -180,17 +182,6 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
           exports['cnr_cash']:CashTransaction(
             client, (0 - total)
           )
-        else
-          TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
-            multiline = true, args = {
-              "AMMUNATION ERROR",
-              "Something went wrong with your purchase. You have not been charged."
-            }
-          })
-          exports['cnr_admin']:AdminChat("AMMUNATION",
-            GetPlayerName(client).." [ID "..client.."] tried to purchase ammo for a(n) "..
-            (weaponList[idx].name)..", but something went wrong. Please investigate."
-          )
         end
       
       else
@@ -202,17 +193,6 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
             TriggerClientEvent('cnr:ammu_authorize', client, idx)
             exports['cnr_cash']:BankTransaction(
               client, (0 - total)
-            )
-          else
-            TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
-              multiline = true, args = {
-                "AMMUNATION ERROR",
-                "Something went wrong with your purchase. You have not been charged."
-              }
-            })
-            exports['cnr_admin']:AdminChat("AMMUNATION",
-              GetPlayerName(client).." [ID "..client.."] tried to purchase ammo for a(n) "..
-              (weaponList[idx].name)..", but something went wrong. Please investigate."
             )
           end
         
@@ -229,4 +209,19 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
     end
   end
 
+end)
+
+function RestoreWeapons(client)
+  if not client then return false end
+  local weps = exports['ghmattimysql']:execute(
+    "SELECT * FROM weapons WHERE character_id = @charid",
+    {['charid'] = exports['cnrobbers']:UniqueId(client)}
+  )
+  if weps[1] then 
+    TriggerClientEvent('cnr:ammu_restore', client, weps)
+  end
+end
+
+AddEventHandler('cnr:client_loaded', function()
+  RestoreWeapons(source)
 end)
