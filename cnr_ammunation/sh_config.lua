@@ -89,7 +89,7 @@ weaponsList = {
   -- TEMPLATE: [] = {mdl = "WEAPON_", title = "", price = 1000, qty = 1, ammo = 0, aprice = 0},
   -- Setting 'legal = false' ensures it won't be in the ammunation menu
   [1]  = {name = "WEAPON_KNUCKLE",        title = "Brass Knuckles",    price = 1000,  qty = 1, ammo = 0,  aprice = 0},
-  [2]  = {name = "WEAPON_KNIFE",          title = "Desert Eagle",      price = 90,    qty = 1, ammo = 0,  aprice = 0},
+  [2]  = {name = "WEAPON_KNIFE",          title = "Knife",             price = 90,    qty = 1, ammo = 0,  aprice = 0},
   [3]  = {name = "WEAPON_PISTOL50",       title = "Desert Eagle",      price = 5000,  qty = 1, ammo = 9,  aprice = 10},
   [4]  = {name = "WEAPON_SAWNOFFSHOTGUN", title = "Sawn-off Shotgun",  price = 12500, qty = 1, ammo = 8,  aprice = 25},
   [5]  = {name = "WEAPON_FLAREGUN",       title = "Flare Gun",         price = 5000,  qty = 1, ammo = 1,  aprice = 100},
@@ -121,6 +121,7 @@ Citizen.CreateThread(function()
   for k,v in pairs(weaponsList) do
     v.mdl = GetHashKey(v.name)
     wTranslate[v.mdl] = v.title
+    print("DEBUG - wTranslate["..v.mdl.."] = "..v.title)
   end
 end)
 

@@ -51,10 +51,20 @@ end)
 
 -- Restores previously saved weapons upon login
 AddEventHandler('cnr:ammu_restore', function(weaponInfo)
-  for k,v in pairs(weaponInfo) do 
-    print("Restored Saved Weapon: "..GetWeaponNameFromHash(v['hash'])..".")
-    GiveWeaponToPed(PlayerPedId(), v['hash'], v['ammo'], true, false)
+  print("DEBUG - Attempting to restore saved weapons.")
+  if weaponInfo[1] then 
+    print("DEBUG - Found saved weapons. Restoring.")
+    for k,v in pairs(weaponInfo) do 
+      local vhash = tonumber(v['hash'])
+      print("Restored Saved Weapon: "..
+        GetWeaponNameFromHash(vhash).." ("..v['hash']..")."
+      )
+      GiveWeaponToPed(PlayerPedId(), vhash, v['ammo'], true, false)
+    end
+  else
+    print("DEBUG - No weapons found to restore.")
   end
+  print("DEBUG - Finished restoring saved weapons.")
 end)
 
 AddEventHandler('cnr:close_all_nui', function()

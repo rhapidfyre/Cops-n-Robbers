@@ -2,6 +2,7 @@
 -- ammu server script
 RegisterServerEvent('cnr:ammu_buyweapon')
 RegisterServerEvent('cnr:ammu_buyammo')
+RegisterServerEvent('cnr:client_loaded')
 
 
 --- EXPORT: CheckWeapon()
@@ -213,15 +214,26 @@ end)
 
 function RestoreWeapons(client)
   if not client then return false end
-  local weps = exports['ghmattimysql']:execute(
+  exports['ghmattimysql']:execute(
     "SELECT * FROM weapons WHERE character_id = @charid",
-    {['charid'] = exports['cnrobbers']:UniqueId(client)}
+    {['charid'] = exports['cnrobbers']:UniqueId(client)},
+    function(weps)
+      if weps[1] then 
+        print("DEBUG - Found their weapons, restoring them.")
+        TriggerClientEvent('cnr:ammu_restore', client, weps)
+      else print("DEBUG - No weapons to restore.")
+      end
+      for k,v in pairs (weps) do 
+        print("DEBUG - Restored "..
+          GetWeaponNameFromHash(tonumber(v['hash'])).." ("..v['hash']..")"
+        )
+      end
+    end
   )
-  if weps[1] then 
-    TriggerClientEvent('cnr:ammu_restore', client, weps)
-  end
 end
 
 AddEventHandler('cnr:client_loaded', function()
-  RestoreWeapons(source)
+  local client = source
+  print("DEBUG - Client #"..client.." has loaded in and wants to restore their weapons.")
+  RestoreWeapons(client)
 end)
