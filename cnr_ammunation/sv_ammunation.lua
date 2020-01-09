@@ -11,8 +11,8 @@ end
 
 
 -- Updates the ammo record in SQL
--- Never trust clients; Verify they have the weapon and that
--- wAmmo is less than it was before. This should REDUCE the ammo, never ADD.
+-- Never trust clients; This should REDUCE the ammo, never ADD.
+-- Ensure they have the weapon and they're not trying to give it to themselves
 AddEventHandler('cnr:ammu_ammo_update', funtion(wHash, wAmmo)
   
   local client = source

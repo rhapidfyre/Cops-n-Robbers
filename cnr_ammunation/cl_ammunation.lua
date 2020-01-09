@@ -376,7 +376,7 @@ Citizen.CreateThread(function()
           -- If the weapon is not the same as it was before
           else
           
-            -- Report the changes in ammo, and then update to the current weapon
+            -- Then report the changes in ammo, and update to the new weapon
             TriggerServerEvent('cnr:ammu_ammo_update', lastWeapon, lastAmmoCount)
             lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
             
@@ -385,6 +385,7 @@ Citizen.CreateThread(function()
       else
         -- Switched to armed from unarmed; No reporting necessary
         lastWeapon = pedWeapon; lastAmmoCount = ammoTotal;
+
       end
     else
       -- If player switched to unarmed, report changes then set to nil
