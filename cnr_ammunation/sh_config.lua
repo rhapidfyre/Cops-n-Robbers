@@ -75,7 +75,57 @@ stores = {
     range   = vector3(821.486, -2163.72, 29.619),
     heading = 174.0,
     clerk   = {
-      pos = vector3(809.855, -2159.08, 29.619), h = 352.0,
+      pos = vector3(809.855, -2159.08, 29.619), h = 354.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [7] = {
+    title   = "Tataviam Ammunation", icon = 110,
+    walkup  = vector3(2567.26, 293.87, 107.635),
+    vest    = vector3(2570.41, 298.124, 107.635),
+    heading = 174.0,
+    clerk   = {
+      pos = vector3(2567.85, 292.432, 108.735), h = 354.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [8] = {
+    title   = "Chumash Ammunation", icon = 110,
+    walkup  = vector3(-3172.03, 1088.46, 19.7387),
+    vest    = vector3(-3169.53, 1084.07, 19.7387),
+    heading = 64.0,
+    clerk   = {
+      pos = vector3(-3173.59, 1088.5, 20.8387), h = 244.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [9] = {
+    title   = "Zancudo Ammunation", icon = 110,
+    walkup  = vector3(-1117.58, 2699.2, 17.45),
+    vest    = vector3(-1117.14, 2694.05, 17.45),
+    heading = 40.0,
+    clerk   = {
+      pos = vector3(-1119.33, 2700.05, 18.55), h = 220.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [10] = {
+    title   = "Sandy Shores Ammunation", icon = 110,
+    walkup  = vector3(1693.69, 3760.56, 33.605),
+    vest    = vector3(1694.58, 3755.52, 33.605),
+    heading = 45.0,
+    clerk   = {
+      pos = vector3(1692.12, 3761.5, 34.705), h = 225.0,
+      mdl = GetHashKey("s_m_y_ammucity_01")
+    }
+  },
+  [11] = {
+    title   = "Paleto Bay Ammunation", icon = 110,
+    walkup  = vector3(-330.216, 6084.51, 30.3548),
+    vest    = vector3(-329.457, 6079.46, 30.3548),
+    heading = 45.0,
+    clerk   = {
+      pos = vector3(-331.961, 6085.27, 31.4548), h = 225.0,
       mdl = GetHashKey("s_m_y_ammucity_01")
     }
   },

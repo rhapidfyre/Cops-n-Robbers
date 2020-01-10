@@ -186,11 +186,11 @@ Citizen.CreateThread(function()
           end
           SetRelationshipBetweenGroups(GetHashKey("AMMUNATION"), GetHashKey("PLAYER"), 3)
           SetRelationshipBetweenGroups(GetHashKey("PLAYER"), GetHashKey("AMMUNATION"), 3)
-          print("DEBUG - Created ammu clerk.")
+          print("DEBUG - Created ammu clerk @ Store #"..nearStore..".")
           stores[nearStore].npc = ped
           Citizen.CreateThread(function()
             while DoesEntityExist(stores[nearStore].npc) do 
-              SetEntityInvincible(stores[nearStore].npc)
+              SetEntityInvincible(stores[nearStore].npc, true)
               Citizen.Wait(1)
             end
           end)
