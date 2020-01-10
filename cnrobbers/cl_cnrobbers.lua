@@ -3,7 +3,7 @@ RegisterNetEvent('cnr:active_zone')
 RegisterNetEvent('cnr:chat_notify')
 
 local activeZone = 1      -- What zone is currently active
-local inside = false
+
 
 
 -- DEBUG -
