@@ -5,24 +5,6 @@ RegisterNetEvent('cnr:chat_notify')
 local activeZone = 1      -- What zone is currently active
 local inside = false
 
--- If player is in an interior, make them walk/invincible
--- DEBUG - Note: Change this later to disregard walking/godmode if in a bank/24-7/house/etc
-Citizen.CreateThread(function()
-  while true do
-    if GetInteriorAtCoords(GetEntityCoords(PlayerPedId())) > 0 then
-      DisableControlAction(0, 21, true) -- No sprinting
-      SetPlayerInvincible(PlayerId(), true)
-      inside = true
-    else
-      if inside then
-        inside = false
-        SetPlayerInvincible(PlayerId(), false)
-      end
-    end
-    Wait(0)
-  end
-end)
-
 
 -- DEBUG -
 local restarted = {}
@@ -39,7 +21,11 @@ AddEventHandler('onResourceStart', function(rn)
     }})
     if rn == "cnr_police" then
       TriggerEvent('chat:addMessage', {args={
-        "Any active cops must reduty to continue!"
+        "Anyone who was on law enforcement duty must re-duty!"
+      }})
+    elseif rn == "cnr_admin" then
+      TriggerEvent('chat:addMessage', {args={
+        "All server staff members must /checkadmin to regain permissions!"
       }})
     end
     restarted[rn] = nil
