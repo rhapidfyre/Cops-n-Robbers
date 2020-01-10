@@ -121,7 +121,6 @@ Citizen.CreateThread(function()
   for k,v in pairs(weaponsList) do
     v.mdl = GetHashKey(v.name)
     wTranslate[v.mdl] = v.title
-    print("DEBUG - wTranslate["..v.mdl.."] = "..v.title)
   end
 end)
 

@@ -13,7 +13,7 @@ end
 -- Updates the ammo record in SQL
 -- Never trust clients; This should REDUCE the ammo, never ADD.
 -- Ensure they have the weapon and they're not trying to give it to themselves
-AddEventHandler('cnr:ammu_ammo_update', funtion(wHash, wAmmo)
+AddEventHandler('cnr:ammu_ammo_update', function(wHash, wAmmo)
   
   local client = source
   local uid    = UID(client)
@@ -27,11 +27,12 @@ AddEventHandler('cnr:ammu_ammo_update', funtion(wHash, wAmmo)
     print("DEBUG - Old Ammo: "..aCount)
     if aCount > wAmmo then
       exports['ghmattimysql']:execute(
-        "UPDATE weapons SET ammo = ammo - @a WHERE character_id = @c AND hash = @h",
+        "UPDATE weapons SET ammo = @a WHERE character_id = @c AND hash = @h",
         {['a'] = wAmmo, ['c'] = uid, ['h'] = wHash}
       )
-      print("DEBUG - New Ammo: "..tostring(aCount - wAmmo))
-    else print("DEBUG - No change in ammunition. Ignoring SQL update.")
+      print("DEBUG - New Ammo: "..tostring(wAmmo))
+    else
+      print("DEBUG - No change in ammunition. Ignoring SQL update.")
     end
   
   else
