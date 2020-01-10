@@ -251,7 +251,7 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
       local total  = weaponsList[idx].aprice * aCount
       if cash >= total then
         if StoreWeapon(client, idx, aCount) then 
-          TriggerClientEvent('cnr:ammu_authorize', client, idx)
+          TriggerClientEvent('cnr:ammu_authorize', client, idx, aCount)
           exports['cnr_cash']:CashTransaction(
             client, (0 - total)
           )
@@ -263,7 +263,7 @@ AddEventHandler('cnr:ammu_buyammo', function(idx, ct)
         local bank = exports['cnr_cash']:GetPlayerBank(client)
         if bank >= total then
           if StoreWeapon(client, idx, aCount) then
-            TriggerClientEvent('cnr:ammu_authorize', client, idx)
+            TriggerClientEvent('cnr:ammu_authorize', client, idx, aCount)
             exports['cnr_cash']:BankTransaction(
               client, (0 - total)
             )

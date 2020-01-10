@@ -60,6 +60,7 @@ AddEventHandler('cnr:ammu_restore', function(weaponInfo)
         GetWeaponNameFromHash(vhash).." ("..v['hash']..")."
       )
       GiveWeaponToPed(PlayerPedId(), vhash, v['ammo'], true, false)
+      if v['ammo'] == 0 then SetAmmoInClip(PlayerPedId(), vhash, 0) end
     end
   else
     print("DEBUG - No weapons found to restore.")
@@ -200,6 +201,7 @@ Citizen.CreateThread(function()
       if dist > 100.0 then
         if stores[nearStore].npc then 
           DeletePed(stores[nearStore].npc)
+          Citizen.Wait(100)
           stores[nearStore].npc = nil
           print("DEBUG - Destroyed ammy clerk")
         end
@@ -230,10 +232,8 @@ local function ChangeAmmo(idx, addOne)
   else weaponsList[idx].qty = weaponsList[idx].qty - 1
   end
   
-  if weaponsList[idx].qty > 6 then
-    weaponsList[idx].qty = 6
-  elseif weaponsList[idx].qty < 1 then 
-    weaponsList[idx].qty = 1
+  if weaponsList[idx].qty > 6 then     weaponsList[idx].qty = 6
+  elseif weaponsList[idx].qty < 1 then weaponsList[idx].qty = 1
   end
   
   SendNUIMessage({
