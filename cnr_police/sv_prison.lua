@@ -106,6 +106,9 @@ function ImprisonClient(ply, cop)
         cop, (serveTime[ply]/60), prisoner[ply]
       )
 
+      -- Revoke client's weapons
+      exports['cnr_ammunation']:RevokeAllWeapons(ply)
+
       -- SQL: Insert inmate to SQL
       exports['ghmattimysql']:execute(
         "INSERT INTO inmates (idUnique, sentence, isPrison) "..

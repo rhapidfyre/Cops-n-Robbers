@@ -162,6 +162,23 @@ function RevokeWeapon(client, idx, wAmmo)
 end
 
 
+--- EXPORT: RevokeAllWeapons()
+-- Revokes ALL weapons from the given player
+-- @return True if successful; False if failed
+function RevokeAllWeapons(client)
+  if not client then return false end
+  local uid = UID(client)
+  if not uid then return false end
+  exports['ghmattimysql']:execute(
+    "DELETE FROM weapons WHERE character_id = @charid",
+    {['charid'] = uid}
+  )
+  TriggerClientEvent('cnr:ammu_revoke_weapon', client)
+  print(GetPlayerName(client).." [ID #"..client.."] has had all of their weapons revoked!")
+  return true
+end
+
+
 AddEventHandler('cnr:ammu_buyweapon', function(idx)
   
   local client = source
