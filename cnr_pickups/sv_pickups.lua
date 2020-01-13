@@ -9,6 +9,7 @@ end)
 
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
+local pickups = 0
 local tick = {timer = 0, fire = 30, mini = 300, maxi = 900} -- 5 to 15 minutes
 
 
@@ -17,11 +18,11 @@ local tick = {timer = 0, fire = 30, mini = 300, maxi = 900} -- 5 to 15 minutes
 function DestroyAllPickups()
 
   -- SQL: Remove all waiting pickups from the table
-  print("DEBUG - Removed all existing pickups!")
   exports.ghmattimysql:execute(
     "DELETE FROM pickup_waiting", {},
     function()
       TriggerClientEvent('cnr:pickups_destroyed', (-1))
+      pickups = 0
     end
   )
 
@@ -60,14 +61,15 @@ Citizen.CreateThread(function()
         if pickupInfo[1] then
           if pickupInfo[1][1]['pHash'] ~= "NA" then
             TriggerClientEvent('cnr:pickup_create', (-1), pickupInfo[1][1])
-            print("DEBUG - Created a pickup.")
+            pickups = pickups + 1
           end
         end
 
 			else
-				cprint("^3No players on the server. Any existing pickups have been cleared.")
-        DestroyAllPickups()
-
+        if pickups > 0 then 
+          cprint("^3No players on the server. Any existing pickups have been cleared.")
+          DestroyAllPickups()
+        end
 			end
 
 		end
