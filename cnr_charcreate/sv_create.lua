@@ -16,40 +16,6 @@ local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
 local unique    = {} -- Unique IDs by player server ID
 
 
---[[ DEBUG - Whitelist
--- In the near future, this needs to use more than just a Steam verification
--- so people can play from multiple sources and not just rely upon Steam.
-local function OnPlayerConnecting(name, setKickReason, deferrals)
-  local identifiers, steamIdentifier = GetPlayerIdentifiers(source)
-  deferrals.defer()
-  deferrals.update(string.format("Checking Whitelist for user %s", name))
-  for _,v in pairs(identifiers) do
-    if string.find(v, "steam") then
-      steamIdentifier = v
-      break
-    end
-  end
-  if steamIdentifier then
-    cprint("^2Success; User is logged into Steam.")
-    deferrals.done()
-
-  else
-    cprint("^1Failure; User is NOT logged into Steam.")
-    cprint(name.." Disconnected. Reason: Not using Steam.")
-    deferrals.done(
-      "The current version of this gamemode requires that you use Steam."
-    )
-    exports['cnr_chat']:DiscordMessage(
-      16711680, "Disconnect",
-      name.." is not logged into Steam.",
-      "No Steam Logon"
-    )
-  end
-
-end
-AddEventHandler("playerConnecting", OnPlayerConnecting)
-]]
-
 --- GetPlayerSteamId()
 -- Finds the player's Steam ID. We know it exists because of deferrals.
 function GetPlayerSteamId(ply)
@@ -120,7 +86,7 @@ function GetPlayerInformation(ply)
       infoTable['stm'] = id
     elseif string.sub(id, 1, string.len("license:")) == "license:" then
       infoTable['soc'] = id
-    elseif string.sub(id, 1, string.len("fivem:")) == "fivem:" then
+    elseif string.sub(id, 1, string.len("five:")) == "five:" then
       infoTable['five'] = id
     elseif string.sub(id, 1, string.len("discord:")) == "steam:" then
       infoTable['discd'] = id
@@ -173,6 +139,7 @@ AddEventHandler('cnr:create_player', function()
   local ply     = source
   local ids     = GetPlayerInformation(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
+  local name    = GetPlayerName(ply)
 
   if doJoin then
     cprint("^2"..ustring.." connected.^7")
@@ -184,36 +151,74 @@ AddEventHandler('cnr:create_player', function()
     end
 
     -- SQL: Retrieve character information
-    exports['ghmattimysql']:scalar(
+    local uid = exports['ghmattimysql']:scalarSync(
       "SELECT idUnique FROM players "..
       "WHERE idSteam = @steam OR idFiveM = @five OR idSocialClub = @soc "..
       "OR idDiscord = @disc LIMIT 1",
-      {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']},
-      function(uid)
-        if uid then
-          print("DEBUG - UID Exists.")
-          unique[ply] = uid
-          cprint("Found Unique ID "..uid.." for "..ustring)
-          exports['cnrobbers']:UniqueId(ply, uid)
-        else
-          print("DEBUG - UID Nonexistant")
-          uid = CreateUniqueId(ply)
-          if uid < 1 then
-            cprint("^1A Fatal Error has Occurred.")
-            cprint("No player ID given to CreateUniqueId() in sv_create.lua")
-          else
-            cprint(
-              "Successfully created UID ("..tostring(uid)..
-              ") for player "..GetPlayerName(ply)
-            )
-          end
+      {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']}
+    )
+    
+    if uid then
+        
+      local banInfo = exports['ghmattimysql']:executeSync(
+        "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
+        {['uid'] = uid}
+      )
+      print(json.encode(banInfo))
+      
+      if banInfo[1]["bantime"] then
+      
+        local nowDate = os.time()
+        local banRelease = banInfo[1]["bantime"]/1000
+        if nowDate >= banRelease then
+          exports['ghmattimysql']:executeSync(
+            "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
+            "WHERE idUnique = @uid", {['uid'] = uid}
+          )
+          banInfo[1]["perms"] = 1
+          print("[CNR ADMIN] "..ustring.."'s ban time is up. They've been unbanned.")
+        
         end
+      end
+      
+      -- Player is Banned
+      if banInfo[1]["perms"] < 1 then
+        cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
+        DropPlayer(ply, "Banned") --[[
+        exports['cnr_chat']:DiscordMessage(
+          16711680, "Disconnect", name.." failed to join the game.",
+          "User was banned from this server"
+        )]]
+    
+      -- Player is not banned
+      else
+        print("DEBUG - UID Exists.")
+        unique[ply] = uid
+        cprint("Found Unique ID "..uid.." for "..ustring)
+        exports['cnrobbers']:UniqueId(ply, uid)
+        
         Citizen.Wait(200)
         cprint(ustring.." is loaded in, and ready to play!")
         TriggerClientEvent('cnr:create_ready', ply)
         CreateSession(ply)
+        
       end
-    )
+    
+      
+    else
+      print("DEBUG - UID Nonexistant")
+      uid = CreateUniqueId(ply)
+      if uid < 1 then
+        cprint("^1A Fatal Error has Occurred.")
+        cprint("No player ID given to CreateUniqueId() in sv_create.lua")
+      else
+        cprint(
+          "Successfully created UID ("..tostring(uid)..
+          ") for player "..GetPlayerName(ply)
+        )
+      end
+      
+    end
 
   else
     cprint("^1"..ustring.." disconnected. ^7(No ID Validation Obtained)")
