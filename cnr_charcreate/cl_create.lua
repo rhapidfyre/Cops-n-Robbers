@@ -65,6 +65,7 @@ AddEventHandler('cnr:create_finished', function()
   Wait(400)
   if IsScreenFadedOut() then DoScreenFadeIn(1000) end
   exports['cnrobbers']:ReportPosition(true)
+  exports['cnrobbers']:ListZones()
 end)
 
 
@@ -120,6 +121,7 @@ AddEventHandler('cnr:create_reload', function(myChar)
     TriggerEvent('cnr:wallet_valet', myChar['cash'])
     TriggerEvent('cnr:bank_account', myChar['bank'])
     TriggerServerEvent('cnr:client_loaded')
+    exports['cnrobbers']:ListZones()
   end)
 end)
 

@@ -102,49 +102,40 @@ AddEventHandler('cnr:chat_notify', ChatNotification)
 
 
 -- Displays the zones, the current active zone, and what zone client is in
-RegisterCommand('zones', function()
-
-  -- Display what the current zone is
-  TriggerEvent('chat:addMessage', {
-    color = {255,140,20}, multiline = false,
-    args = {"ACTIVE ZONE", "Zone #"..activeZone}
-  })
-
-  local temp = {}
-
-  -- Build a numerical order list of zones
-  for k,v in pairs (zoneByName) do
-    local n = #(temp[v.z]) + 1
-    temp[v.z][n] = v.name
-  end
-
-  -- Display the numerical order list of zones
-  for _,i in pairs (temp) do
-    local listed = {}
-    for k,v in pairs (v) do
-      listed[#listed + 1] = v
-    end
-    TriggerEvent('chat:addMessage', {
-      color = {0,200,0},
-      multiline = false,
-      args = {"Zone #"..i..":", table.concat(listed, ", ")}
-    })
-  end
+function ListZones()
 
   -- Get player's position and determine the zone they're in
-  local myPos = GetEntityCoords(PlayerPedId())
-  local zn    = GetNameOfZone(myPos.x, myPos.y, myPos.z)
-  local zName = zoneByName[zn]
-  TriggerEvent('chat:addMessage', {
-    color = {0,200,0},
-    multiline = false,
-    args = {
-      "Your Position",
-      tostring(zName.name).." (Zone #"..tostring(zName.z)..")"
-    }
-  })
+  local myPos   = GetEntityCoords(PlayerPedId())
+  local zn      = GetNameOfZone(myPos.x, myPos.y, myPos.z)
+  local zName   = GetFullZoneName(zn)
+  local zNumber = GetZoneNumber(zn)
+  
+  if activeZone == zNumber then 
+    
+    TriggerEvent('chat:addMessage', {
+      color = {0,200,0}, multiline = false,
+      args = {"ACTIVE ZONE", "You're currently in the active zone."}
+    })
 
-end)
+  else
+    -- Display what the current zone is
+    TriggerEvent('chat:addMessage', {
+      color = {255,140,20}, multiline = false,
+      args = {"INACTIVE ZONE", "The active zone is Zone #"..activeZone}
+    })
+  
+    
+    TriggerEvent('chat:addMessage', {
+      color = {255,140,20}, multiline = false,
+      args = {
+        "INACTIVE ZONE",
+        "You're currently in "..tostring(zName)..", Zone #"..tostring(zNumber)
+      }
+    })
+  end
+  
+end
+RegisterCommand('zones', ListZones)
 
 
 

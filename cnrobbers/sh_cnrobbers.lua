@@ -101,3 +101,12 @@ function GetFullZoneName(abbrv)
   if not zoneByName[abbrv] then return "San Andreas" end
   return (zoneByName[abbrv].name)
 end
+
+function GetZoneNumber(abbrv)
+  if not zoneByName[abbrv] then return 0 end
+  return (zoneByName[abbrv].z)
+end
+
+function RetrieveAllZones()
+  return zoneByName
+end
