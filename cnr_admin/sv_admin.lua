@@ -17,12 +17,14 @@ RegisterServerEvent('cnr:admin_cmd_asay')
 RegisterServerEvent('cnr:admin_cmd_plyinfo')
 
 local admins = {}
+local warns  = {}
+local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
 
 local function AssignAdministrator(client, aLevel)
   repeat
     local gen = math.random(1000,9999)
-    if aLevel == 1 then gen = math.random(100,999) end
+    if aLevel == 2 then gen = math.random(100,999) end
     exists = false
     for k,v in pairs(admins) do
       if v == gen then exists = true end
@@ -34,7 +36,7 @@ local function AssignAdministrator(client, aLevel)
     end
     Citizen.Wait(10)
   until admins[client]
-  return admins[client]
+  return ( admins[client] )
 end
 
 
@@ -99,14 +101,14 @@ end)
 --- BlockAction()
 -- Blocks the action attempt if affected admin is equal or greater rank
 -- @return True if the action should be blocked/stopped
-local function BlockAction(offense, defense)
+local function BlockAction(offense, defense) --[[
   if admins[offense] > 9999 then return false
   elseif admins[offense] > 999 then
     if admins[defense] > 999 then return true end
   elseif admins[offense] > 99 then
     if admins[defense] > 99 then return true end
   end
-  return true
+  return true ]] return false
 end
 
 
@@ -115,7 +117,7 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
   if admins[client] then
 
     if admins[client] > 99 then
-      --[[
+    
       if BlockAction(client, target) then
         cprint("Admin Action was blocked (equal or greater rank)")
         TriggerEvent('cnr:admin_message',
@@ -124,7 +126,6 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
         )
         return 0
       end
-      ]]
 
       local banType = " permabanned "
       if minutes then banType = " tempbanned " end
@@ -160,8 +161,83 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
       end
 
       Citizen.Wait(1200)
-      print(target, "Banned by Admin: "..banReason)
-      --DropPlayer(target, msg..": "..banReason)
+      DropPlayer(target, msg..": "..banReason)
+
+    else
+      local msg = "Insufficient Permissions"
+      TriggerEvent('cnr:admin_message', msg)
+
+    end
+  else
+    print("DEBUG - Not an Admin.")
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_warn', function(target, reason)
+  local client = source
+  if admins[client] then
+
+    if admins[client] > 99 then
+      
+      if BlockAction(client, target) then
+        cprint("Admin Action was blocked (equal or greater rank)")
+        TriggerEvent('cnr:admin_message',
+          "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to warn "..
+          "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
+        )
+        return 0
+      end
+      
+      if not warns[target] then warns[target] = 0 end
+      warns[target] = warns[target] + 1
+
+      if warns[target] > 2 then
+        TriggerClientEvent('chat:addMessage', (-1), {
+          multiline = true, args = {
+            "^1Server auto-kicked "..GetPlayerName(target)..": Too many warnings. "..
+            "\nLatest Warning For: "..reason
+          }
+        })
+        Citizen.Wait(1200)
+        DropPlayer(target, "Auto-Kicked: Received 3 Warnings in One Session.")
+      else
+        TriggerClientEvent('chat:addMessage', (-1), {
+          multiline = true, args = {
+            "^1Admin #"..(admins[client])..
+            " warned "..GetPlayerName(target).." ("..warns[target].."/3)"..
+            "\nReason: ^7"..reason
+          }
+        })
+      end
+
+    else
+      local msg = "Insufficient Permissions"
+      TriggerEvent('cnr:admin_message', msg)
+
+    end
+  else
+    print("DEBUG - Not an Admin.")
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
+  local client = source
+  if admins[client] then
+
+    if admins[client] > 99 then
+      
+      if BlockAction(client, target) then
+        cprint("Admin Action was blocked (equal or greater rank)")
+        TriggerEvent('cnr:admin_message',
+          "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to freeze "..
+          "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
+        )
+        return 0
+      end
+      
+      TriggerClientEvent('cnr:admin_do_freeze', target, doFreeze, admins[client])
 
     else
       local msg = "Insufficient Permissions"

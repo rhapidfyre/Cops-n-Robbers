@@ -1,6 +1,7 @@
 
 -- cl admin
 RegisterNetEvent('cnr:admin_assigned')
+RegisterNetEvent('cnr:admin_do_freeze')
 
 local aLevel = 1
 local aid    = 0
@@ -148,18 +149,117 @@ RegisterCommand('tempban', function(s,a,r)
 end)
 
 
-RegisterCommand('warn', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('warn', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] or not a[2] or not a[3] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
+        })
+
+      else
+
+        local tgt  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+            TriggerServerEvent('cnr:admin_cmd_warn', tgt, table.concat(a, " "))
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
-RegisterCommand('freeze', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('freeze', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+        })
+
+      else
+
+        local tgt  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+            TriggerServerEvent('cnr:admin_cmd_freeze', tgt, true)
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
-RegisterCommand('unfreeze', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('unfreeze', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+        })
+
+      else
+
+        local tgt  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+            TriggerServerEvent('cnr:admin_cmd_freeze', tgt, false)
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
@@ -195,4 +295,19 @@ end)
 
 RegisterCommand('plyinfo', function()
   print("DEBUG - This is the kick command!")
+end)
+
+AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
+  local msg = "You have been frozen in place by Admin #"..aid
+  if doFreeze then
+    local offset = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0.0, 0.3)
+    SetEntityCoords(PlayerPedId(), offset.x, offset.y, offset.z)
+    FreezeEntityPosition(PlayerPedId(), true)
+  
+  else
+    FreezeEntityPosition(PlayerPedId(), false)
+    msg = "You have been unfrozen."
+    
+  end
+  TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {msg}})
 end)
