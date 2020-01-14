@@ -447,16 +447,25 @@ RegisterCommand('tpcoords', function(s,a,r)
 end)
 
 
-RegisterCommand('broadcast', function()
-end)
+RegisterCommand('announce', function(s,a,r) end)
+RegisterCommand('mole', function(s,a,r) end)
+RegisterCommand('asay', function(s,a,r) end)
+RegisterCommand('csay', function(s,a,r) end)
+RegisterCommand('plyinfo', function(s,a,r) end)
+RegisterCommand('vehinfo', function(s,a,r) end)
+RegisterCommand('svinfo', function() end)
+RegisterCommand('spawncar', function(s,a,r) end)
+RegisterCommand('spawnped', function(s,a,r) end)
+RegisterCommand('setcash', function(s,a,r) end)
+RegisterCommand('setbank', function(s,a,r) end)
+RegisterCommand('setweather', function(s,a,r) end)
+RegisterCommand('settime', function(s,a,r) end)
+RegisterCommand('giveweapon', function(s,a,r) end)
+RegisterCommand('takeweapon', function(s,a,r) end)
+RegisterCommand('stripweapons', function(s,a,r) end)
+RegisterCommand('togglelock', function(s,a,r) end)
+RegisterCommand('inmates', function() end)
 
-
-RegisterCommand('asay', function()
-end)
-
-
-RegisterCommand('plyinfo', function()
-end)
 
 AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
   local msg = "You have been frozen in place by Admin #"..aid
