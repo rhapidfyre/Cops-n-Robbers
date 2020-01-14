@@ -250,7 +250,67 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
 end)
 
 
+local function TeleportAlert(toPlayer, fromPlayer, admin, admins[client])
+  
+  -- CASE 1: Player to Player
+  if toPlayer and fromPlayer then 
+    -- CASE 1A: Player to Player 
+    if toPlayer ~= admin and fromPlayer ~= admin then 
+    
+    -- CASE 1B: Player to Admin
+    elseif toPlayer == admin then 
+    
+    -- CASE 1C: Admin to Player
+    elseif fromPlayer == admin then 
+    
+    -- CASE 1D: Admin to Admin
+    else
+    
+    end
+  
+  -- CASE 2: Player to Nobody (TP to coords)
+  elseif fromPlayer then
+  
+  -- CASE 3: Nobody to Player (Should never happen?)
+  else
+  
+  end
+  
+  
+end
 
+AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
+  local client = source
+  if admins[client] then 
+    -- Sending one player to another
+    if toPlayer and fromPlayer then 
+      TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, toPlayer, nil, admins[client])
+      TeleportAlert(toPlayer, fromPlayer, client, admins[client])
+      ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") sent "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
+    
+    -- Sending themselves to another player
+    elseif toPlayer then
+      TriggerClientEvent('cnr:admin_tp_coords', client, toPlayer, nil, admins[client])
+      TeleportAlert(toPlayer, client, client, admins[client])
+      ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
+      
+    -- Bringing another player to themselves
+    elseif fromPlayer then 
+      TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, client, nil, admins[client])
+      TeleportAlert(client, fromPlayer, client, admins[client])
+      ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") brought "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to them.")
+      
+    -- Going to a specific location
+    elseif coords then 
+      TriggerClientEvent('cnr:admin_tp_coords', client, client, coords, admins[client])
+      TeleportAlert(nil, nil, client, admins[client])
+      ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..tostring(coords))
+    
+    end
+  else
+    print("DEBUG - Not an Admin.")
+  end
+end)
 
 
 

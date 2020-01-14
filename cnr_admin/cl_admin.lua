@@ -263,38 +263,199 @@ RegisterCommand('unfreeze', function(s,a,r)
 end)
 
 
-RegisterCommand('tphere', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('tphere', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+        })
+
+      else
+
+        local tgt  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+            TriggerServerEvent('cnr:admin_cmd_teleport', nil, tgt)
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
-RegisterCommand('tpto', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('tpto', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+        })
+
+      else
+
+        local tgt  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+            TriggerServerEvent('cnr:admin_cmd_teleport', tgt)
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
-RegisterCommand('tpsend', function()
-  print("DEBUG - This is the kick command!")
+RegisterCommand('tpsend', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] or not a[2] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <send_ID> <to_ID>"}
+        })
+
+      else
+
+        local destPlayer  = tonumber( table.remove(a, 2) )
+        local sendPlayer  = tonumber( table.remove(a, 1) )
+
+        local plys = GetActivePlayers()
+        local count = 0
+        for _,i in ipairs (plys) do
+          local sid = GetPlayerServerId(i)
+          if sid == destPlayer or sid == sendPlayer then count = count + 1 end
+        end
+        if count > 1 then
+          TriggerServerEvent('cnr:admin_cmd_teleport', destPlayer, sendPlayer)
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
 RegisterCommand('tpmark', function()
-  print("DEBUG - This is the kick command!")
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      local ped   = PlayerPedId()
+      local blip  = GetFirstBlipInfoId(8) -- Retrieve GPS marker
+      local coord = nil
+      if DoesBlipExist(blip) then coord = GetBlipInfoIdCoord(blip) end
+  
+      if not coord then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"No Marker Set", "/"..cmd.." requires a set map marker"}
+        })
+
+      else TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
+      end
+      
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
+end)
+
+
+RegisterCommand('tpcoords', function(s,a,r)
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+
+      if not a[1] or not a[2] or not a[3] then
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
+        })
+
+      else
+        TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil,
+          vector3(tonumber(a[1]), tonumber(a[2]), tonumber(a[3]))
+        )
+        
+      end
+      
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+
+  end
 end)
 
 
 RegisterCommand('broadcast', function()
-  print("DEBUG - This is the kick command!")
 end)
 
 
 RegisterCommand('asay', function()
-  print("DEBUG - This is the kick command!")
 end)
 
 
 RegisterCommand('plyinfo', function()
-  print("DEBUG - This is the kick command!")
 end)
 
 AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
@@ -310,4 +471,16 @@ AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
     
   end
   TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {msg}})
+end)
+
+AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
+  
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the teleport request.")
+    return 0
+  end
+  
+  
+  
 end)
