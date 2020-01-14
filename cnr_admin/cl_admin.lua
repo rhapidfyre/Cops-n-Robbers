@@ -107,7 +107,7 @@ RegisterCommand('ban', function(s,a,r)
 end)
 
 
-RegisterCommand('tempban', function()
+RegisterCommand('tempban', function(s,a,r)
   if a[1] then
     local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
     if aLevel >= CommandLevel(cmd) then
@@ -122,12 +122,12 @@ RegisterCommand('tempban', function()
       
         local mins = tonumber( table.remove(a, 2) )
         local tgt = tonumber( table.remove(a, 1) )
-        if mins > 900 then mins = 900
-        elseif mins < 15 then mins = 15 end
+        if     mins > 900 then mins = 900
+        elseif mins <  15 then mins =  15 end
+        
         local plys = GetActivePlayers()
         for _,i in ipairs (plys) do 
-          if GetPlayerServerId(i) == tgt then 
-            
+          if GetPlayerServerId(i) == tgt then
             TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "), mins)
             break -- End the loop when we find the right person
           end

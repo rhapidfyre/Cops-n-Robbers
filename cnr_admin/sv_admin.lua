@@ -96,41 +96,56 @@ AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
 end)
 
 
+--- BlockAction()
+-- Blocks the action attempt if affected admin is equal or greater rank
+-- @return True if the action should be blocked/stopped
+local function BlockAction(offense, defense)
+  if admins[offense] > 9999 then return false
+  elseif admins[offense] > 999 then
+    if admins[defense] > 999 then return true end 
+  elseif admins[offense] > 99 then 
+    if admins[defense] > 99 then return true end
+  end
+  return true
+end
+
+
 AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
   local client = source
   if admins[client] then
   
-    if admins[client] > 99 then 
-      if admins[target] then
-        if admins[target] >= 1000 then 
-          TriggerEvent('cnr:admin_message',
-            "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to BAN "..
-            "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
-          )
-          return 0
-        end
+    if admins[client] > 99 then
+      --[[
+      if BlockAction(client, target) then
+        cprint("Admin Action was blocked (equal or greater rank)")
+        TriggerEvent('cnr:admin_message',
+          "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to BAN "..
+          "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
+        )
+        return 0
       end
-    
+      ]]
+      
+      local banType = " permabanned "
+      if minutes then banType = " tempbanned " end
       TriggerClientEvent('chat:addMessage', (-1), {
         multiline = true, args = {
           "^1Admin #"..(admins[client])..
-          " permabanned "..GetPlayerName(target)..
+          banType..GetPlayerName(target)..
           "\nReason: ^7"..tostring(banReason)
         }
       })
       
       local uid = exports['cnrobbers']:UniqueId(target)
-      local msg = "Permanently Banned by Admin"
+      local msg = "Banned by Admin"
       if minutes then
-        msg = "Banned Until ("..
-          os.date("%m/%D/%Y %H:%I", os.time() + (minutes * 1000))..
-          ") by Admin"
+        msg = "Banned "..minutes.." Minutes by Admin"
         exports['ghmattimysql']:execute(
           "UPDATE players SET perms = 0, bantime = @bt, "..
           "reason = @br WHERE idUnique = @uid",
           {
             ['br'] = banReason, ['uid'] = uid,
-            ['bt'] = "(NOW() + INTERVAL "..minutes.." MINUTE)"
+            ['bt'] = "`NOW() + INTERVAL "..minutes.." MINUTE`"
           }
         )
       else
@@ -142,7 +157,8 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
       end
       
       Citizen.Wait(1200)
-      DropPlayer(target, msg..": "..banReason)
+      print(target, msg..": "..banReason)
+      --DropPlayer(target, msg..": "..banReason)
       
     else
       local msg = "Insufficient Permissions"
