@@ -184,7 +184,7 @@ AddEventHandler('cnr:create_player', function()
       -- Player is Banned
       if banInfo[1]["perms"] < 1 then
         cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
-        DropPlayer(ply, "Banned") --[[
+        DropPlayer(ply, "You have been banned from playing on this server.") --[[
         exports['cnr_chat']:DiscordMessage(
           16711680, "Disconnect", name.." failed to join the game.",
           "User was banned from this server"

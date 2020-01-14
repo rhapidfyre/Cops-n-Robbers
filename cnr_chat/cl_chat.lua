@@ -50,6 +50,10 @@ AddEventHandler('onClientResourceStart', function(rname)
       '<b><font color="#CF6">[CB CH. {0}]</font> '..
       '<font color="#690">** {1}, over. *</font>'
     )
+    TriggerEvent('chat:addTemplate', 'cmdMsg',
+      '<b><font color="#A00">Invalid Command:</font> '..
+      '<font color="#996"> {0} </font>'
+    )
   end
 end)
 
