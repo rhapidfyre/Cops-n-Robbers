@@ -108,7 +108,43 @@ end)
 
 
 RegisterCommand('tempban', function()
-  print("DEBUG - This is the tempban command!")
+  if a[1] then
+    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+    if aLevel >= CommandLevel(cmd) then
+    
+      if not a[1] or not a[2] or not a[3] then 
+        TriggerEvent('chat:addMessage', {
+          templateId = 'errMsg', multiline = true,
+            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Minutes> <Reason>"}
+        })
+        
+      else
+      
+        local mins = tonumber( table.remove(a, 2) )
+        local tgt = tonumber( table.remove(a, 1) )
+        if mins > 900 then mins = 900
+        elseif mins < 15 then mins = 15 end
+        local plys = GetActivePlayers()
+        for _,i in ipairs (plys) do 
+          if GetPlayerServerId(i) == tgt then 
+            
+            TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "), mins)
+            break -- End the loop when we find the right person
+          end
+        end
+      end
+    else
+      TriggerEvent('chat:addMessage', {
+        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+      })
+    
+    end
+  else
+    TriggerEvent('chat:addMessage', {
+      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
+    })
+    
+  end
 end)
 
 

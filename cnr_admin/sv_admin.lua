@@ -5,6 +5,16 @@ RegisterServerEvent('cnr:admin_check')
 
 RegisterServerEvent('cnr:admin_cmd_kick')
 RegisterServerEvent('cnr:admin_cmd_ban')
+RegisterServerEvent('cnr:admin_cmd_warn')
+RegisterServerEvent('cnr:admin_cmd_freeze')
+RegisterServerEvent('cnr:admin_cmd_unfreeze')
+RegisterServerEvent('cnr:admin_cmd_tphere')
+RegisterServerEvent('cnr:admin_cmd_tpto')
+RegisterServerEvent('cnr:admin_cmd_tpsend')
+RegisterServerEvent('cnr:admin_cmd_tpmark')
+RegisterServerEvent('cnr:admin_cmd_broadcast')
+RegisterServerEvent('cnr:admin_cmd_asay')
+RegisterServerEvent('cnr:admin_cmd_plyinfo')
 
 local admins = {}
 
@@ -86,12 +96,12 @@ AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
 end)
 
 
-AddEventHandler('cnr:admin_cmd_ban', function(target, banReason)
+AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
   local client = source
   if admins[client] then
   
-    if admins[client] > 999 then 
-      --[[if admins[target] then
+    if admins[client] > 99 then 
+      if admins[target] then
         if admins[target] >= 1000 then 
           TriggerEvent('cnr:admin_message',
             "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to BAN "..
@@ -99,7 +109,7 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason)
           )
           return 0
         end
-      end]]
+      end
     
       TriggerClientEvent('chat:addMessage', (-1), {
         multiline = true, args = {
@@ -108,14 +118,31 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason)
           "\nReason: ^7"..tostring(banReason)
         }
       })
+      
       local uid = exports['cnrobbers']:UniqueId(target)
-      exports['ghmattimysql']:execute(
-        "UPDATE players SET perms = 0, bantime = NULL, "..
-        "reason = @br WHERE idUnique = @uid",
-        {['br'] = banReason, ['uid'] = uid}
-      )
+      local msg = "Permanently Banned by Admin"
+      if minutes then
+        msg = "Banned Until ("..
+          os.date("%m/%D/%Y %H:%I", os.time() + (minutes * 1000))..
+          ") by Admin"
+        exports['ghmattimysql']:execute(
+          "UPDATE players SET perms = 0, bantime = @bt, "..
+          "reason = @br WHERE idUnique = @uid",
+          {
+            ['br'] = banReason, ['uid'] = uid,
+            ['bt'] = "(NOW() + INTERVAL "..minutes.." MINUTE)"
+          }
+        )
+      else
+        exports['ghmattimysql']:execute(
+          "UPDATE players SET perms = 0, bantime = NULL, "..
+          "reason = @br WHERE idUnique = @uid",
+          {['br'] = banReason, ['uid'] = uid}
+        )
+      end
+      
       Citizen.Wait(1200)
-      DropPlayer(target, "Banned by Admin: "..banReason)
+      DropPlayer(target, msg..": "..banReason)
       
     else
       local msg = "Insufficient Permissions"

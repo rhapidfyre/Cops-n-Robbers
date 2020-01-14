@@ -139,11 +139,8 @@ AddEventHandler('cnr:create_player', function()
   local ply     = source
   local ids     = GetPlayerInformation(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
-  local name    = GetPlayerName(ply)
 
-  if doJoin then
-    cprint("^2"..ustring.." connected.^7")
-  end
+  if doJoin then cprint("^2"..ustring.." connected.^7") end
 
   if ids then
     if dMsg then
