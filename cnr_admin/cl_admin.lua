@@ -26,28 +26,28 @@ RegisterCommand('kick', function(s,a,r)
   if a[1] then
     local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
     if aLevel >= CommandLevel(cmd) then
-    
-      if not a[1] or not a[2] then 
+
+      if not a[1] or not a[2] then
         TriggerEvent('chat:addMessage', {
           templateId = 'errMsg', multiline = true,
             args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
         })
-        
+
       else
-      
+
         local tgt = tonumber( table.remove(a, 1) )
-        
+
         local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do 
-          if GetPlayerServerId(i) == tgt then 
-        
-            if tonumber(a[1]) == GetPlayerServerId(PlayerId()) then 
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+
+            if tonumber(a[1]) == GetPlayerServerId(PlayerId()) then
               TriggerEvent('chat:addMessage', {multiline = false,
                 args = { "^1Try kicking someone other than yourself."}}
               )
-            
+
             else TriggerServerEvent('cnr:admin_cmd_kick', tgt, table.concat(a, " "))
-            
+
             end
             break -- End the loop when we find the right person
           end
@@ -57,13 +57,13 @@ RegisterCommand('kick', function(s,a,r)
       TriggerEvent('chat:addMessage', {
         templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
       })
-    
+
     end
   else
     TriggerEvent('chat:addMessage', {
       templateId = 'cmdMsg', multiline = false, args = {"/"..r}
     })
-    
+
   end
 end)
 
@@ -72,21 +72,21 @@ RegisterCommand('ban', function(s,a,r)
   if a[1] then
     local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
     if aLevel >= CommandLevel(cmd) then
-    
-      if not a[1] or not a[2] then 
+
+      if not a[1] or not a[2] then
         TriggerEvent('chat:addMessage', {
           templateId = 'errMsg', multiline = true,
             args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
         })
-        
+
       else
-      
+
         local tgt = tonumber( table.remove(a, 1) )
-        
+
         local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do 
-          if GetPlayerServerId(i) == tgt then 
-            
+        for _,i in ipairs (plys) do
+          if GetPlayerServerId(i) == tgt then
+
             TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "))
             break -- End the loop when we find the right person
           end
@@ -96,13 +96,13 @@ RegisterCommand('ban', function(s,a,r)
       TriggerEvent('chat:addMessage', {
         templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
       })
-    
+
     end
   else
     TriggerEvent('chat:addMessage', {
       templateId = 'cmdMsg', multiline = false, args = {"/"..r}
     })
-    
+
   end
 end)
 
@@ -111,22 +111,22 @@ RegisterCommand('tempban', function(s,a,r)
   if a[1] then
     local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
     if aLevel >= CommandLevel(cmd) then
-    
-      if not a[1] or not a[2] or not a[3] then 
+
+      if not a[1] or not a[2] or not a[3] then
         TriggerEvent('chat:addMessage', {
           templateId = 'errMsg', multiline = true,
             args = {"Invalid Arguments", "/"..cmd.." <ID#> <Minutes> <Reason>"}
         })
-        
+
       else
-      
+
         local mins = tonumber( table.remove(a, 2) )
-        local tgt = tonumber( table.remove(a, 1) )
+        local tgt  = tonumber( table.remove(a, 1) )
         if     mins > 900 then mins = 900
         elseif mins <  15 then mins =  15 end
-        
+
         local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do 
+        for _,i in ipairs (plys) do
           if GetPlayerServerId(i) == tgt then
             TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "), mins)
             break -- End the loop when we find the right person
@@ -137,13 +137,13 @@ RegisterCommand('tempban', function(s,a,r)
       TriggerEvent('chat:addMessage', {
         templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
       })
-    
+
     end
   else
     TriggerEvent('chat:addMessage', {
       templateId = 'cmdMsg', multiline = false, args = {"/"..r}
     })
-    
+
   end
 end)
 

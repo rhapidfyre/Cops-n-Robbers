@@ -24,10 +24,10 @@ local function AssignAdministrator(client, aLevel)
     local gen = math.random(1000,9999)
     if aLevel == 1 then gen = math.random(100,999) end
     exists = false
-    for k,v in pairs(admins) do 
+    for k,v in pairs(admins) do
       if v == gen then exists = true end
     end
-    if not exists then 
+    if not exists then
       admins[client] = gen
       print("[CNR ADMIN] Assigned Admin ID "..admins[client].." to "..GetPlayerName(client))
       TriggerClientEvent('cnr:admin_assigned', client, admins[client])
@@ -44,19 +44,19 @@ local function CheckAdmin(client)
     "SELECT perms FROM players WHERE idUnique = @uid",
     {['uid'] = uid}
   )
-  if aLevel then 
+  if aLevel then
     local aid = AssignAdministrator(client, aLevel)
-    if aid > 999 then 
-      
-    
-    elseif aid > 99 then 
-      
-      
+    if aid > 999 then
+
+
+    elseif aid > 99 then
+
+
     end
-    
+
   else
     print("[CNR ADMIN] - No idUnique found for player #"..client)
-    
+
   end
 end
 AddEventHandler('cnr:client_loaded', function() CheckAdmin(source) end)
@@ -72,8 +72,8 @@ end)
 AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
   local client = source
   if admins[client] then
-    if admins[target] then 
-      if admins[target] >= 1000 and admins[client] < 1000 then 
+    if admins[target] then
+      if admins[target] >= 1000 and admins[client] < 1000 then
         TriggerEvent('cnr:admin_message',
           "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to kick "..
           "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
@@ -102,8 +102,8 @@ end)
 local function BlockAction(offense, defense)
   if admins[offense] > 9999 then return false
   elseif admins[offense] > 999 then
-    if admins[defense] > 999 then return true end 
-  elseif admins[offense] > 99 then 
+    if admins[defense] > 999 then return true end
+  elseif admins[offense] > 99 then
     if admins[defense] > 99 then return true end
   end
   return true
@@ -113,7 +113,7 @@ end
 AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
   local client = source
   if admins[client] then
-  
+
     if admins[client] > 99 then
       --[[
       if BlockAction(client, target) then
@@ -125,7 +125,7 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
         return 0
       end
       ]]
-      
+
       local banType = " permabanned "
       if minutes then banType = " tempbanned " end
       TriggerClientEvent('chat:addMessage', (-1), {
@@ -135,35 +135,38 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
           "\nReason: ^7"..tostring(banReason)
         }
       })
-      
+
       local uid = exports['cnrobbers']:UniqueId(target)
-      local msg = "Banned by Admin"
       if minutes then
-        msg = "Banned "..minutes.." Minutes by Admin"
+        local bTime = os.time() + (minutes * 1000)
+        banReason = banReason.." (Ban lifts: "..(os.date("%I:%M%p", bTime))..")"
+        local bTimeModified = os.date("%Y-%m-%d %I:%M:%S", bTime)
         exports['ghmattimysql']:execute(
           "UPDATE players SET perms = 0, bantime = @bt, "..
           "reason = @br WHERE idUnique = @uid",
           {
             ['br'] = banReason, ['uid'] = uid,
-            ['bt'] = "`NOW() + INTERVAL "..minutes.." MINUTE`"
+            ['bt'] = bTimeModified
           }
         )
+        
       else
         exports['ghmattimysql']:execute(
           "UPDATE players SET perms = 0, bantime = NULL, "..
           "reason = @br WHERE idUnique = @uid",
           {['br'] = banReason, ['uid'] = uid}
         )
+        
       end
-      
+
       Citizen.Wait(1200)
-      print(target, msg..": "..banReason)
+      print(target, "Banned by Admin: "..banReason)
       --DropPlayer(target, msg..": "..banReason)
-      
+
     else
       local msg = "Insufficient Permissions"
       TriggerEvent('cnr:admin_message', msg)
-      
+
     end
   else
     print("DEBUG - Not an Admin.")
