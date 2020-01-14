@@ -66,7 +66,7 @@ Citizen.CreateThread(function()
         end
 
 			else
-        if pickups > 0 then 
+        if pickups > 0 then
           cprint("^3No players on the server. Any existing pickups have been cleared.")
           DestroyAllPickups()
         end

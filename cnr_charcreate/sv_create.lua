@@ -157,17 +157,17 @@ AddEventHandler('cnr:create_player', function()
       "OR idDiscord = @disc LIMIT 1",
       {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']}
     )
-    
+
     if uid then
-        
+
       local banInfo = exports['ghmattimysql']:executeSync(
         "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
         {['uid'] = uid}
       )
       print(json.encode(banInfo))
-      
+
       if banInfo[1]["bantime"] then
-      
+
         local nowDate = os.time()
         local banRelease = banInfo[1]["bantime"]/1000
         if nowDate >= banRelease then
@@ -177,10 +177,10 @@ AddEventHandler('cnr:create_player', function()
           )
           banInfo[1]["perms"] = 1
           print("[CNR ADMIN] "..ustring.."'s ban time is up. They've been unbanned.")
-        
+
         end
       end
-      
+
       -- Player is Banned
       if banInfo[1]["perms"] < 1 then
         cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
@@ -189,22 +189,22 @@ AddEventHandler('cnr:create_player', function()
           16711680, "Disconnect", name.." failed to join the game.",
           "User was banned from this server"
         )]]
-    
+
       -- Player is not banned
       else
         print("DEBUG - UID Exists.")
         unique[ply] = uid
         cprint("Found Unique ID "..uid.." for "..ustring)
         exports['cnrobbers']:UniqueId(ply, uid)
-        
+
         Citizen.Wait(200)
         cprint(ustring.." is loaded in, and ready to play!")
         TriggerClientEvent('cnr:create_ready', ply)
         CreateSession(ply)
-        
+
       end
-    
-      
+
+
     else
       print("DEBUG - UID Nonexistant")
       uid = CreateUniqueId(ply)
@@ -217,7 +217,7 @@ AddEventHandler('cnr:create_player', function()
           ") for player "..GetPlayerName(ply)
         )
       end
-      
+
     end
 
   else
