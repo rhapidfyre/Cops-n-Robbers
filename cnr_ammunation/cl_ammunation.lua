@@ -325,12 +325,14 @@ local function CheckInGunRange()
   end
 end
 
-local function RevokeWeapon(hashKey, isAdmin)
+local function RevokeWeapon(hashKey, isAdmin, isDead)
   if not hashKey then
     RemoveAllPedWeapons(PlayerPedId(), true)
-    local rMsg = "Your weapons were confiscated!"
-    if isAdmin then rMsg = "An admin has removed all of your weapons." end
-    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {rMsg}})
+    if not isDead then
+      local rMsg = "Your weapons were confiscated!"
+      if isAdmin then rMsg = "An admin has removed all of your weapons." end
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {rMsg}})
+    end
   else
     local rMsg = "Your "..GetWeaponFromHash(hashKey).." was confiscated!"
     if isAdmin then

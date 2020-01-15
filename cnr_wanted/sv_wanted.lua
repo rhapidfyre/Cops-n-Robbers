@@ -182,6 +182,10 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
   end
 end)
 
+RegisterServerEvent('cnr:player_death')
+AddEventHandler('cnr:player_death', function()
+  WantedPoints(source, 'jailed')
+end)
 
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
