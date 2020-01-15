@@ -32,6 +32,7 @@ server_scripts {
 
 server_exports {
   'AdminLevel',     -- Returns the clan tag for the player
+  'AdminMessage',   -- Allows external use of asay for server (message)
 }
 
 exports {

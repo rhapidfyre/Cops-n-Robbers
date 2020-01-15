@@ -7,6 +7,29 @@ local aLevel = 1
 local aid    = 0
 
 
+AddEventHandler('onClientResourceStart', function(rname)
+  if rname == GetCurrentResourceName() then
+    TriggerEvent('chat:addTemplate', 'asay',
+      '<b><font color="#F00">[STAFF ONLY]</font> '..
+      '<font color="#DDD">{0}: {1}</font>'
+    )
+  end
+end)
+
+
+local function CommandValid(cmd)
+  if cmd then
+    if aLevel >= CommandLevel(cmd) then 
+      return true
+    end
+  end
+  TriggerEvent('chat:addMessage', {
+    templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+  })
+  return false
+end
+
+  
 RegisterCommand('checkadmin', function()
   TriggerServerEvent('cnr:admin_check')
 end)
@@ -24,432 +47,366 @@ end)
 
 
 RegisterCommand('kick', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
 
-      if not a[1] or not a[2] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
-        })
-
-      else
-
-        local tgt = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-
-            if tonumber(a[1]) == GetPlayerServerId(PlayerId()) then
-              TriggerEvent('chat:addMessage', {multiline = false,
-                args = { "^1Try kicking someone other than yourself."}}
-              )
-
-            else TriggerServerEvent('cnr:admin_cmd_kick', tgt, table.concat(a, " "))
-
-            end
-            break -- End the loop when we find the right person
+    if not a[1] or not a[2] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
+      })
+    
+    else
+    
+      local tgt = tonumber( table.remove(a, 1) )
+      local plys = GetActivePlayers()
+      
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+    
+          if tonumber(a[1]) == GetPlayerServerId(PlayerId()) then
+            TriggerEvent('chat:addMessage', {multiline = false,
+              args = { "^1Try kicking someone other than yourself."}}
+            )
+    
+          else TriggerServerEvent('cnr:admin_cmd_kick', tgt, table.concat(a, " "))
+    
           end
+          break -- End the loop when we find the right person
         end
       end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
+      
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('ban', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
 
-      if not a[1] or not a[2] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
-        })
-
-      else
-
-        local tgt = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-
-            TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "))
-            break -- End the loop when we find the right person
-          end
-        end
-      end
-    else
+    if not a[1] or not a[2] then
       TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
       })
 
-    end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
+    else
 
+      local tgt = tonumber( table.remove(a, 1) )
+
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+
+          TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "))
+          break -- End the loop when we find the right person
+        end
+      end
+    end
   end
 end)
 
 
 RegisterCommand('tempban', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
 
-      if not a[1] or not a[2] or not a[3] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Minutes> <Reason>"}
-        })
-
-      else
-
-        local mins = tonumber( table.remove(a, 2) )
-        local tgt  = tonumber( table.remove(a, 1) )
-        if     mins > 900 then mins = 900
-        elseif mins <  15 then mins =  15 end
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "), mins)
-            break -- End the loop when we find the right person
-          end
-        end
-      end
-    else
+    if not a[1] or not a[2] or not a[3] then
       TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <Minutes> <Reason>"}
       })
 
-    end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
+    else
 
+      local mins = tonumber( table.remove(a, 2) )
+      local tgt  = tonumber( table.remove(a, 1) )
+      if     mins > 900 then mins = 900
+      elseif mins <  15 then mins =  15 end
+
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_ban', tgt, table.concat(a, " "), mins)
+          break -- End the loop when we find the right person
+        end
+      end
+    end
   end
 end)
 
 
 RegisterCommand('warn', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      if not a[1] or not a[2] or not a[3] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
-        })
-
-      else
-
-        local tgt  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_warn', tgt, table.concat(a, " "))
-            break -- End the loop when we find the right person
-          end
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] or not a[2] or not a[3] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
+      })
+    
+    else
+    
+      local tgt  = tonumber( table.remove(a, 1) )
+    
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_warn', tgt, table.concat(a, " "))
+          break -- End the loop when we find the right person
         end
       end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('freeze', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
 
-      if not a[1] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
-        })
-
-      else
-
-        local tgt  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_freeze', tgt, true)
-            break -- End the loop when we find the right person
-          end
+    if not a[1] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+      })
+    
+    else
+    
+      local tgt  = tonumber( table.remove(a, 1) )
+    
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_freeze', tgt, true)
+          break -- End the loop when we find the right person
         end
       end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('unfreeze', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      if not a[1] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
-        })
-
-      else
-
-        local tgt  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_freeze', tgt, false)
-            break -- End the loop when we find the right person
-          end
-        end
-      end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
-    end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+   
+   if not a[1] then
+     TriggerEvent('chat:addMessage', {
+       templateId = 'errMsg', multiline = true,
+         args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+     })
+   
+   else
+   
+     local tgt  = tonumber( table.remove(a, 1) )
+   
+     local plys = GetActivePlayers()
+     for _,i in ipairs (plys) do
+       if GetPlayerServerId(i) == tgt then
+         TriggerServerEvent('cnr:admin_cmd_freeze', tgt, false)
+         break -- End the loop when we find the right person
+       end
+     end
+   end
   end
 end)
 
 
 RegisterCommand('tphere', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
 
-      if not a[1] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
-        })
-
-      else
-
-        local tgt  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_teleport', nil, tgt)
-            break -- End the loop when we find the right person
-          end
+    if not a[1] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+      })
+    
+    else
+    
+      local tgt  = tonumber( table.remove(a, 1) )
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_teleport', nil, tgt)
+          break -- End the loop when we find the right person
         end
       end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
 
   end
 end)
 
 
 RegisterCommand('tpto', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      if not a[1] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
-        })
-
-      else
-
-        local tgt  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        for _,i in ipairs (plys) do
-          if GetPlayerServerId(i) == tgt then
-            TriggerServerEvent('cnr:admin_cmd_teleport', tgt)
-            break -- End the loop when we find the right person
-          end
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+      })
+    
+    else
+    
+      local tgt  = tonumber( table.remove(a, 1) )
+    
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_teleport', tgt)
+          break -- End the loop when we find the right person
         end
       end
-    else
-      TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
-      })
-
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('tpsend', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      if not a[1] or not a[2] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <send_ID> <to_ID>"}
-        })
-
-      else
-
-        local destPlayer  = tonumber( table.remove(a, 2) )
-        local sendPlayer  = tonumber( table.remove(a, 1) )
-
-        local plys = GetActivePlayers()
-        local count = 0
-        for _,i in ipairs (plys) do
-          local sid = GetPlayerServerId(i)
-          if sid == destPlayer or sid == sendPlayer then count = count + 1 end
-        end
-        if count > 1 then
-          TriggerServerEvent('cnr:admin_cmd_teleport', destPlayer, sendPlayer)
-        end
-      end
-    else
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] or not a[2] then
       TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <send_ID> <to_ID>"}
       })
-
+    
+    else
+    
+      local destPlayer  = tonumber( table.remove(a, 2) )
+      local sendPlayer  = tonumber( table.remove(a, 1) )
+    
+      local plys = GetActivePlayers()
+      local count = 0
+      for _,i in ipairs (plys) do
+        local sid = GetPlayerServerId(i)
+        if sid == destPlayer or sid == sendPlayer then count = count + 1 end
+      end
+      if count > 1 then
+        TriggerServerEvent('cnr:admin_cmd_teleport', destPlayer, sendPlayer)
+      end
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('tpmark', function()
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      local ped   = PlayerPedId()
-      local blip  = GetFirstBlipInfoId(8) -- Retrieve GPS marker
-      local coord = nil
-      if DoesBlipExist(blip) then coord = GetBlipInfoIdCoord(blip) end
-  
-      if not coord then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"No Marker Set", "/"..cmd.." requires a set map marker"}
-        })
-
-      else TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
-      end
-      
-    else
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    local ped   = PlayerPedId()
+    local blip  = GetFirstBlipInfoId(8) -- Retrieve GPS marker
+    local coord = nil
+    if DoesBlipExist(blip) then coord = GetBlipInfoIdCoord(blip) end
+    
+    if not coord then
       TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+        templateId = 'errMsg', multiline = true,
+          args = {"No Marker Set", "/"..cmd.." requires a set map marker"}
       })
-
+    
+    else TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
 RegisterCommand('tpcoords', function(s,a,r)
-  if a[1] then
-    local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-    if aLevel >= CommandLevel(cmd) then
-
-      if not a[1] or not a[2] or not a[3] then
-        TriggerEvent('chat:addMessage', {
-          templateId = 'errMsg', multiline = true,
-            args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
-        })
-
-      else
-        TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil,
-          vector3(tonumber(a[1]), tonumber(a[2]), tonumber(a[3]))
-        )
-        
-      end
-      
-    else
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+  
+    --      x           y           z
+    if not a[1] or not a[2] or not a[3] then
       TriggerEvent('chat:addMessage', {
-        templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
       })
-
+    
+    else
+      TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil,
+        vector3(tonumber(a[1]), tonumber(a[2]), tonumber(a[3]))
+      )
+      
     end
-  else
-    TriggerEvent('chat:addMessage', {
-      templateId = 'cmdMsg', multiline = false, args = {"/"..r}
-    })
-
   end
 end)
 
 
-RegisterCommand('announce', function(s,a,r) end)
-RegisterCommand('mole', function(s,a,r) end)
-RegisterCommand('asay', function(s,a,r) end)
+RegisterCommand('announce', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_announce', table.concat(a, " "))
+    end
+  end
+end)
+
+
+RegisterCommand('mole', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_mole', table.concat(a, " "))
+    end
+  end
+end)
+
+
+RegisterCommand('asay', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <message>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_asay', table.concat(a, " "))
+    end
+  end
+end)
+
+
 RegisterCommand('csay', function(s,a,r) end)
 RegisterCommand('plyinfo', function(s,a,r) end)
 RegisterCommand('vehinfo', function(s,a,r) end)

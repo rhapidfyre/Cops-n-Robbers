@@ -13,9 +13,24 @@ RegisterServerEvent('cnr:admin_cmd_tphere')
 RegisterServerEvent('cnr:admin_cmd_tpto')
 RegisterServerEvent('cnr:admin_cmd_tpsend')
 RegisterServerEvent('cnr:admin_cmd_tpmark')
-RegisterServerEvent('cnr:admin_cmd_broadcast')
+RegisterServerEvent('cnr:admin_cmd_announce')
+RegisterServerEvent('cnr:admin_cmd_mole')
 RegisterServerEvent('cnr:admin_cmd_asay')
+RegisterServerEvent('cnr:admin_cmd_csay')
 RegisterServerEvent('cnr:admin_cmd_plyinfo')
+RegisterServerEvent('cnr:admin_cmd_vehinfo')
+RegisterServerEvent('cnr:admin_cmd_svinfo')
+RegisterServerEvent('cnr:admin_cmd_spawncar')
+RegisterServerEvent('cnr:admin_cmd_spawnped')
+RegisterServerEvent('cnr:admin_cmd_setcash')
+RegisterServerEvent('cnr:admin_cmd_setbank')
+RegisterServerEvent('cnr:admin_cmd_setweather')
+RegisterServerEvent('cnr:admin_cmd_settime')
+RegisterServerEvent('cnr:admin_cmd_giveweapon')
+RegisterServerEvent('cnr:admin_cmd_takeweapon')
+RegisterServerEvent('cnr:admin_cmd_stripweapons')
+RegisterServerEvent('cnr:admin_cmd_togglelock')
+RegisterServerEvent('cnr:admin_cmd_inmates')
 
 local admins = {}
 local warns  = {}
@@ -251,6 +266,7 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
 end)
 
 
+-- DEBUG - Come back and finish this after asay works
 local function TeleportAlert(toPlayer, fromPlayer, admin, aid)
 
   -- CASE 1: Player to Player
@@ -314,6 +330,136 @@ AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
 end)
 
 
+AddEventHandler('cnr:admin_cmd_announce', function(message)
+  local client = source
+  if admins[client] then
+    if admins[client] > 999 then 
+      TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
+        args = { "Admin #"..admins[client]..": "..message }
+      })
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+        args = { "Insufficient Permissions." }
+      })
+    end
+  else print("DEBUG - Not an Admin.")
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_mole', function(message)
+  local client = source
+  if admins[client] then
+    if admins[client] > 999 then 
+      TriggerClientEvent('cnr:chat_notification', (-1), "CHAR_LESTER",
+        "MOLE", "555-1234", message
+      )
+    else
+      TriggerClientEvent('cnr:chat_notification', (-1), "CHAR_LESTER",
+        "5M CNR", "Server Notice", "Insufficient Permissions"
+      )
+    end
+  else print("DEBUG - Not an Admin.")
+  end
+end)
+
+
+--- EXPORT: AdminMessage()
+-- Sends an admin message to all admins on the server
+-- @param message A message sent to all admins
+-- @param client  Player Server ID; If nil, comes from "server"
+function AdminMessage(message, aid)
+  
+  if not aid then aid = "CNR SERVER" end
+  for k,v in pairs (admins) do 
+    TriggerClientEvent('chat:addMessage', k, {templateId = 'asay',
+      args = {admins[client], message}
+    })
+  end
+  
+end
+
+
+AddEventHandler('cnr:admin_cmd_asay', function(message)
+  local client = source
+  if admins[client] then AdminMessage(message, client)
+  else print("DEBUG - Not an Admin")
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_csay', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_plyinfo', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_vehinfo', function()
+
+end)
+
+AddEventHandler('cnr:admin_cmd_svinfo', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_spawncar', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_spawnped', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_setcash', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_setbank', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_setweather', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_settime', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_giveweapon', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_takeweapon', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_stripweapons', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_togglelock', function()
+
+end)
+
+
+AddEventHandler('cnr:admin_cmd_inmates', function()
+
+end)
 
 
 
