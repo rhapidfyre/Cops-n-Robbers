@@ -39,37 +39,38 @@ local hospitals = {
 
 Citizen.CreateThread(function()
    while true do
-       Citizen.Wait(0)      
-       if IsPlayerDead(PlayerId()) then 
+       Citizen.Wait(0)
+       if IsPlayerDead(PlayerId()) then
          StartScreenEffect("DeathFailOut", 0, 0)
          if not locksound then
            PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
            locksound = true
          end
          ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
-         
+
          local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
-  
+
          if HasScaleformMovieLoaded(scaleform) then
            Citizen.Wait(0)
-  
+
            PushScaleformMovieFunction(scaleform, "SHOW_SHARD_WASTED_MP_MESSAGE")
            BeginTextComponent("STRING")
            AddTextComponentString("~r~wasted")
            EndTextComponent()
            PopScaleformMovieFunctionVoid()
-  
+
            Citizen.Wait(500)
-  
+
            PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
            Citizen.CreateThread(RevivePlayer)
-           TriggerEvent('cnr:client_death')
+           TriggerEvent('cnr:player_died')
+           TriggerServerEvent('cnr:player_death')
            while IsPlayerDead(PlayerId()) do
              DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
              HideHudAndRadarThisFrame(true)
              Citizen.Wait(0)
            end
-         
+
            StopScreenEffect("DeathFailOut")
            locksound = false
           end
@@ -79,17 +80,17 @@ end)
 
 function RevivePlayer()
   Citizen.Wait(8000)
-  if IsPlayerDead(PlayerId()) then 
+  if IsPlayerDead(PlayerId()) then
     DoScreenFadeOut(1200)
     while not IsScreenFadedOut() do Wait(100) end
     local myPos   = GetEntityCoords(PlayerPedId())
     local nearest = 1
     local cDist   = math.huge
-    for k,v in pairs (hospitals) do 
+    for k,v in pairs (hospitals) do
       local dist = #(myPos - v.coords)
       if dist < cDist then nearest = k; cDist = dist end
     end
-    
+
     if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
     SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
     RenderScriptCams(true, true, 500, true, true)
@@ -107,6 +108,6 @@ function RevivePlayer()
     Citizen.Wait(520)
     FreezeEntityPosition(PlayerPedId(), false)
     SetCamActive(cam, false)
-    
+
   end
 end
