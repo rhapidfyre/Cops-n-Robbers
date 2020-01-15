@@ -7,6 +7,7 @@ RegisterServerEvent('cnr:admin_cmd_kick')
 RegisterServerEvent('cnr:admin_cmd_ban')
 RegisterServerEvent('cnr:admin_cmd_warn')
 RegisterServerEvent('cnr:admin_cmd_freeze')
+RegisterServerEvent('cnr:admin_cmd_teleport')
 RegisterServerEvent('cnr:admin_cmd_unfreeze')
 RegisterServerEvent('cnr:admin_cmd_tphere')
 RegisterServerEvent('cnr:admin_cmd_tpto')
@@ -101,14 +102,14 @@ end)
 --- BlockAction()
 -- Blocks the action attempt if affected admin is equal or greater rank
 -- @return True if the action should be blocked/stopped
-local function BlockAction(offense, defense) --[[
+local function BlockAction(offense, defense)
   if admins[offense] > 9999 then return false
   elseif admins[offense] > 999 then
     if admins[defense] > 999 then return true end
   elseif admins[offense] > 99 then
     if admins[defense] > 99 then return true end
   end
-  return true ]] return false
+  return true
 end
 
 
@@ -161,7 +162,7 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
       end
 
       Citizen.Wait(1200)
-      DropPlayer(target, msg..": "..banReason)
+      DropPlayer(target, "Banned by Admin: "..banReason)
 
     else
       local msg = "Insufficient Permissions"
@@ -250,8 +251,8 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
 end)
 
 
-local function TeleportAlert(toPlayer, fromPlayer, admin, admins[client])
-  
+local function TeleportAlert(toPlayer, fromPlayer, admin, aid)
+
   -- CASE 1: Player to Player
   if toPlayer and fromPlayer then 
     -- CASE 1A: Player to Player 
