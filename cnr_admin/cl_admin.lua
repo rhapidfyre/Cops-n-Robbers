@@ -5,6 +5,7 @@ RegisterNetEvent('cnr:admin_do_freeze')
 RegisterNetEvent('cnr:admin_do_spawncar')
 RegisterNetEvent('cnr:admin_do_delveh')
 RegisterNetEvent('cnr:admin_do_togglelock')
+RegisterNetEvent('cnr:admin_tp_coords')
 
 local aLevel = 1
 local aid    = 0
@@ -252,7 +253,7 @@ RegisterCommand('tphere', function(s,a,r)
       local plys = GetActivePlayers()
       for _,i in ipairs (plys) do
         if GetPlayerServerId(i) == tgt then
-          TriggerServerEvent('cnr:admin_cmd_teleport', nil, tgt)
+          TriggerServerEvent('cnr:admin_cmd_teleport', 0, tgt)
           break -- End the loop when we find the right person
         end
       end
@@ -280,7 +281,7 @@ RegisterCommand('tpto', function(s,a,r)
       local plys = GetActivePlayers()
       for _,i in ipairs (plys) do
         if GetPlayerServerId(i) == tgt then
-          TriggerServerEvent('cnr:admin_cmd_teleport', tgt)
+          TriggerServerEvent('cnr:admin_cmd_teleport', tgt, 0)
           break -- End the loop when we find the right person
         end
       end
@@ -332,12 +333,13 @@ RegisterCommand('tpmark', function()
     if not coords then
       TriggerEvent('chat:addMessage', {
         templateId = 'errMsg', multiline = true,
-          args = {"No Marker Set", "/"..cmd.." requires a map marker to be set"}
+          args = {"No Marker Set", "/tpmark requires a map marker to be set"}
       })
     
     else
-      print("DEBUG - Requesting TP to Coords: "..tostring(coords))
-      TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
+      local coord = vector3(coords.x, coords.y, 1.05)
+      TriggerServerEvent('cnr:admin_cmd_teleport', 0, 0, coord)
+      
     end
   else CommandInvalid('tpmark')
   end
@@ -351,13 +353,14 @@ RegisterCommand('tpcoords', function(s,a,r)
   if CommandValid(cmd) then
   
     --      x           y           z
-    if not a[1] or not a[2] or not a[3] then
+    if not a[1] or not a[2] then
       TriggerEvent('chat:addMessage', {
         templateId = 'errMsg', multiline = true,
-          args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z>"}
+          args = {"Invalid Arguments", "/"..cmd.." <x> <y> <z(optional)>"}
       })
     
     else
+      if not a[3] then a[3] = 1.05 end
       TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil,
         vector3(tonumber(a[1]), tonumber(a[2]), tonumber(a[3]))
       )
@@ -541,14 +544,22 @@ RegisterCommand('togglelock', function(s,a,r)
 end)
 
 
+RegisterCommand('giveweapon', function(s,a,r)
+
+end)
+RegisterCommand('takeweapon', function(s,a,r)
+
+end)
+RegisterCommand('stripweapons', function(s,a,r)
+
+end)
+
+
 RegisterCommand('spawnped', function(s,a,r) end)
 RegisterCommand('setcash', function(s,a,r) end)
 RegisterCommand('setbank', function(s,a,r) end)
 RegisterCommand('setweather', function(s,a,r) end)
 RegisterCommand('settime', function(s,a,r) end)
-RegisterCommand('giveweapon', function(s,a,r) end)
-RegisterCommand('takeweapon', function(s,a,r) end)
-RegisterCommand('stripweapons', function(s,a,r) end)
 RegisterCommand('inmates', function() end)
 
 
@@ -681,6 +692,20 @@ AddEventHandler('cnr:admin_do_togglelock', function(veh)
 end)
 
 
+local function FindZCoord(coord)
+  local zFound, zCoord = GetGroundZFor_3dCoord(coord.x, coord.y, coord.z)
+  local ht = 1000.0
+  while not zFound do
+    Wait(10)
+    ht = ht - 10.0
+    SetEntityCoords(PlayerPedId(), coord.x, coord.y, ht)
+    zFound, zCoord = GetGroundZFor_3dCoord(coord.x, coord.y, ht)
+    if ht < 1.5 then break end
+  end
+  if zFound then return zCoord end
+  return 0.0
+end
+
 AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
   
   -- Only allow if the event comes from the server, not the client
@@ -691,7 +716,16 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
   
   if coords then
     local lastPosition = GetEntityCoords(PlayerPedId())
-    SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z)
+    local zCoord = coords.z
+    if zCoord == 1.05 then zCoord = FindZCoord(coords) end
+    if zCoord > 0.0 then 
+      SetEntityCoords(PlayerPedId(), coords.x, coords.y, zCoord)
+    else
+      SetEntityCoords(PlayerPedId(), lastPosition)
+      TriggerEvent('cnr:chatMessage', {templateId = 'sysMsg',
+        args = {"Teleport destination was unsafe for arrival. Returned."}
+      })
+    end
     FreezeEntityPosition(PlayerPedId(), true)
     Citizen.Wait(3000)
     FreezeEntityPosition(PlayerPedId(), false)

@@ -310,33 +310,32 @@ AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
   print("DEBUG", toPlayer, fromPlayer, coords)
   if admins[client] then 
     -- Sending one player to another
-    if toPlayer and fromPlayer then 
+    if toPlayer > 0 and fromPlayer > 0 then 
       print("DEBUG - Sending Player 1 to Player 2")
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") sent "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
     
     -- Sending themselves to another player
-    elseif toPlayer then
+    elseif toPlayer > 0 then
     print("DEBUG - Sending admin to Player")
       TriggerClientEvent('cnr:admin_tp_coords', client, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, client, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
       
     -- Bringing another player to themselves
-    elseif fromPlayer then 
+    elseif fromPlayer > 0 then 
       print("DEBUG - Sending player to Admin")
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, client, nil, admins[client])
       TeleportAlert(client, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") brought "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to them.")
       
     -- Going to a specific location
-    elseif coords then 
+    else
       print("DEBUG - Sending admin to coords")
       TriggerClientEvent('cnr:admin_tp_coords', client, client, coords, admins[client])
       TeleportAlert(nil, nil, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..tostring(coords))
-    else print("DEBUG - All arguments were nil.")
     end
   else
     print("DEBUG - Not an Admin.")
