@@ -11,6 +11,18 @@ local aLevel = 1
 local aid    = 0
 
 
+
+--[[
+      UNFINISHED COMMANDS 
+]]
+RegisterCommand('spawnped', function(s,a,r) end)
+RegisterCommand('setcash', function(s,a,r) end)
+RegisterCommand('setbank', function(s,a,r) end)
+RegisterCommand('setweather', function(s,a,r) end)
+RegisterCommand('settime', function(s,a,r) end)
+RegisterCommand('inmates', function() end)
+----------------------------------------------------
+
 AddEventHandler('onClientResourceStart', function(rname)
   if rname == GetCurrentResourceName() then
     TriggerEvent('chat:addTemplate', 'asay',
@@ -592,14 +604,6 @@ RegisterCommand('stripweapons', function(s,a,r)
   else CommandInvalid(cmd)
   end
 end)
-
-
-RegisterCommand('spawnped', function(s,a,r) end)
-RegisterCommand('setcash', function(s,a,r) end)
-RegisterCommand('setbank', function(s,a,r) end)
-RegisterCommand('setweather', function(s,a,r) end)
-RegisterCommand('settime', function(s,a,r) end)
-RegisterCommand('inmates', function() end)
 
 
 AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
