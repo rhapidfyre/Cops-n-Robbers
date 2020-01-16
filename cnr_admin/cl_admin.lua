@@ -2,6 +2,9 @@
 -- cl admin
 RegisterNetEvent('cnr:admin_assigned')
 RegisterNetEvent('cnr:admin_do_freeze')
+RegisterNetEvent('cnr:admin_do_spawncar')
+RegisterNetEvent('cnr:admin_do_delveh')
+RegisterNetEvent('cnr:admin_do_togglelock')
 
 local aLevel = 1
 local aid    = 0
@@ -10,8 +13,8 @@ local aid    = 0
 AddEventHandler('onClientResourceStart', function(rname)
   if rname == GetCurrentResourceName() then
     TriggerEvent('chat:addTemplate', 'asay',
-      '<b><font color="#F00">[STAFF ONLY]</font> '..
-      '<font color="#DDD">{0}: {1}</font>'
+      '<b><font color="#F00">[STAFF CHAT]</font> '..
+      '{0}</b><font color="#DDD">: {1}</font>'
     )
   end
 end)
@@ -49,7 +52,7 @@ end)
 RegisterCommand('kick', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
 
     if not a[1] or not a[2] then
@@ -77,8 +80,8 @@ RegisterCommand('kick', function(s,a,r)
           break -- End the loop when we find the right person
         end
       end
-      
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -86,7 +89,7 @@ end)
 RegisterCommand('ban', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
 
     if not a[1] or not a[2] then
@@ -108,6 +111,7 @@ RegisterCommand('ban', function(s,a,r)
         end
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -115,7 +119,7 @@ end)
 RegisterCommand('tempban', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
 
     if not a[1] or not a[2] or not a[3] then
@@ -139,6 +143,7 @@ RegisterCommand('tempban', function(s,a,r)
         end
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -146,7 +151,7 @@ end)
 RegisterCommand('warn', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] or not a[2] or not a[3] then
       TriggerEvent('chat:addMessage', {
@@ -166,6 +171,7 @@ RegisterCommand('warn', function(s,a,r)
         end
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -173,7 +179,7 @@ end)
 RegisterCommand('freeze', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
 
     if not a[1] then
@@ -194,6 +200,7 @@ RegisterCommand('freeze', function(s,a,r)
         end
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -201,7 +208,7 @@ end)
 RegisterCommand('unfreeze', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
    
    if not a[1] then
@@ -222,6 +229,7 @@ RegisterCommand('unfreeze', function(s,a,r)
        end
      end
    end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -229,7 +237,7 @@ end)
 RegisterCommand('tphere', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
 
     if not a[1] then
@@ -249,7 +257,7 @@ RegisterCommand('tphere', function(s,a,r)
         end
       end
     end
-
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -257,7 +265,7 @@ end)
 RegisterCommand('tpto', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] then
       TriggerEvent('chat:addMessage', {
@@ -277,6 +285,7 @@ RegisterCommand('tpto', function(s,a,r)
         end
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -284,7 +293,7 @@ end)
 RegisterCommand('tpsend', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] or not a[2] then
       TriggerEvent('chat:addMessage', {
@@ -307,28 +316,30 @@ RegisterCommand('tpsend', function(s,a,r)
         TriggerServerEvent('cnr:admin_cmd_teleport', destPlayer, sendPlayer)
       end
     end
+  else CommandInvalid(cmd)
   end
 end)
 
 
 RegisterCommand('tpmark', function()
-  local sp  = string.find(r, ' ')
-  if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
-  if CommandValid(cmd) then
-    local ped   = PlayerPedId()
-    local blip  = GetFirstBlipInfoId(8) -- Retrieve GPS marker
-    local coord = nil
-    if DoesBlipExist(blip) then coord = GetBlipInfoIdCoord(blip) end
+  if CommandLevel('tpmark') then
+    local ped    = PlayerPedId()
+    local blip   = GetFirstBlipInfoId(8) -- Retrieve GPS marker
+    local coords = nil
+    if DoesBlipExist(blip) then coords = GetBlipInfoIdCoord(blip)
+    else print("DEBUG - Blip does not exist.") end
     
-    if not coord then
+    if not coords then
       TriggerEvent('chat:addMessage', {
         templateId = 'errMsg', multiline = true,
-          args = {"No Marker Set", "/"..cmd.." requires a set map marker"}
+          args = {"No Marker Set", "/"..cmd.." requires a map marker to be set"}
       })
     
-    else TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
+    else
+      print("DEBUG - Requesting TP to Coords: "..tostring(coords))
+      TriggerServerEvent('cnr:admin_cmd_teleport', nil, nil, coords)
     end
+  else CommandInvalid('tpmark')
   end
 end)
 
@@ -336,7 +347,7 @@ end)
 RegisterCommand('tpcoords', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
   
     --      x           y           z
@@ -352,6 +363,7 @@ RegisterCommand('tpcoords', function(s,a,r)
       )
       
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -359,7 +371,7 @@ end)
 RegisterCommand('announce', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] then 
       TriggerEvent('chat:addMessage', {
@@ -369,6 +381,7 @@ RegisterCommand('announce', function(s,a,r)
     else
       TriggerServerEvent('cnr:admin_cmd_announce', table.concat(a, " "))
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -376,7 +389,7 @@ end)
 RegisterCommand('mole', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] then 
       TriggerEvent('chat:addMessage', {
@@ -386,6 +399,7 @@ RegisterCommand('mole', function(s,a,r)
     else
       TriggerServerEvent('cnr:admin_cmd_mole', table.concat(a, " "))
     end
+  else CommandInvalid(cmd)
   end
 end)
 
@@ -393,7 +407,7 @@ end)
 RegisterCommand('asay', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
-  local cmd = string.sub(r, 1, string.find(r, ' ') - 1)
+  local cmd = string.sub(r, 1, sp)
   if CommandValid(cmd) then
     if not a[1] then 
       TriggerEvent('chat:addMessage', {
@@ -403,15 +417,130 @@ RegisterCommand('asay', function(s,a,r)
     else
       TriggerServerEvent('cnr:admin_cmd_asay', table.concat(a, " "))
     end
+  else CommandInvalid(cmd)
   end
 end)
 
 
-RegisterCommand('csay', function(s,a,r) end)
-RegisterCommand('plyinfo', function(s,a,r) end)
-RegisterCommand('vehinfo', function(s,a,r) end)
-RegisterCommand('svinfo', function() end)
-RegisterCommand('spawncar', function(s,a,r) end)
+RegisterCommand('csay', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <message>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_csay', table.concat(a, " "))
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+RegisterCommand('plyinfo', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <message>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_plyinfo', table.concat(a, " "))
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+RegisterCommand('vehinfo', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <message>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_vehinfo', table.concat(a, " "))
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+RegisterCommand('svinfo', function()
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <message>"}
+      })
+    else
+      TriggerServerEvent('cnr:admin_cmd_svinfo', table.concat(a, " "))
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+RegisterCommand('spawncar', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <model>"}
+      })
+    else TriggerServerEvent('cnr:admin_cmd_spawncar', a[1])
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+RegisterCommand('delveh', function()
+  if aLevel > 1 then
+    local veh = GetVehiclePedIsIn(PlayerPedId())
+    if veh > 0 then TriggerServerEvent('cnr:admin_cmd_delveh')
+    else
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+        args = { "You must be sitting in the vehicle you want to delete." }
+      })
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+
+RegisterCommand('togglelock', function(s,a,r)
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    local cVeh, cDist, myPed = 0, math.huge, PlayerPedId()
+    for vehs in exports['cnrobbers']:EnumerateVehicles() do 
+      local dist = #(GetEntityCoords(vehs) - GetEntityCoords(myPed))
+      if dist < cDist then cVeh = vehs; cDist = dist end
+    end
+  
+    if cVeh < 1 or cDist > 8.25 then 
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+          args = {"Too far away from the nearest vehicle to toggle it's lock."}
+      })
+    else TriggerServerEvent('cnr:admin_cmd_togglelock', cVeh)
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+
 RegisterCommand('spawnped', function(s,a,r) end)
 RegisterCommand('setcash', function(s,a,r) end)
 RegisterCommand('setbank', function(s,a,r) end)
@@ -420,7 +549,6 @@ RegisterCommand('settime', function(s,a,r) end)
 RegisterCommand('giveweapon', function(s,a,r) end)
 RegisterCommand('takeweapon', function(s,a,r) end)
 RegisterCommand('stripweapons', function(s,a,r) end)
-RegisterCommand('togglelock', function(s,a,r) end)
 RegisterCommand('inmates', function() end)
 
 
@@ -439,6 +567,120 @@ AddEventHandler('cnr:admin_do_freeze', function(doFreeze, aid)
   TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {msg}})
 end)
 
+AddEventHandler('cnr:admin_do_spawncar', function(vModel)
+  
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the teleport request.")
+    return 0
+  end
+  
+  local mdl = GetHashKey(vModel)
+  if IsModelValid(mdl) then
+    RequestModel(mdl)
+    while not HasModelLoaded(mdl) do Wait(10) end
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+      args = { "Spawning: "..vModel }
+    })
+    local myPos = GetEntityCoords(PlayerPedId())
+    local myHeading = GetEntityHeading(PlayerPedId())
+    local veh = CreateVehicle(mdl,
+      myPos.x, myPos.y, myPos.z + 0.125, myHeading, true, false
+    )
+    
+    while not DoesEntityExist(veh) do Wait(10) end
+    Citizen.Wait(100)
+    --TaskEnterVehicle(PlayerPedId(), veh, 10000, (-1), 8.0, 16, 1)
+    SetVehicleEngineOn(veh, true, true, true)
+    SetVehicleDoorsLocked(veh, 1)
+    SetPedIntoVehicle(PlayerPedId(), veh, (-1))
+    
+  else
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+      args = { "Couldn't find Vehicle Model: "..vModel }
+    })
+    
+  end
+  
+  
+  
+  
+  
+  
+end)
+
+
+AddEventHandler('cnr:admin_do_delveh', function(toPlayer, coords, aid)
+  
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the vehicle deletion.")
+    return 0
+  end
+  
+  local veh = GetVehiclePedIsIn(PlayerPedId())
+  if veh > 0 then 
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+      args = { "Deleted occupied vehicle." }
+    })
+    SetEntityAsMissionEntity(veh, true, true)
+    DeleteVehicle(veh)
+  end
+  
+end)
+
+
+AddEventHandler('cnr:admin_do_togglelock', function(veh)
+
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the vehicle deletion.")
+    return 0
+  end
+  
+  if veh then 
+    if veh > 0 then 
+      if DoesEntityExist(veh) then 
+        local lockStatus = GetVehicleDoorLockStatus(veh)
+        if lockStatus > 1 then 
+          TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+            args = {GetDisplayNameFromVehicleModel(GetEntityModel(veh)).." ^2unlocked^7."}
+          })
+          SetVehicleDoorsLocked(veh, 1)
+          Citizen.CreateThread(function()
+            local sec = GetGameTimer() + 100
+            while sec > GetGameTimer() do 
+              SoundVehicleHornThisFrame(veh); Wait(0)
+            end
+            Citizen.Wait(100)
+            sec = GetGameTimer() + 100
+            while sec > GetGameTimer() do 
+              SoundVehicleHornThisFrame(veh); Wait(0)
+            end
+          end)
+        else
+          TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+            args = {GetDisplayNameFromVehicleModel(GetEntityModel(veh)).." ^1locked^7."}
+          })
+          SetVehicleDoorsLocked(veh, 2)
+          Citizen.CreateThread(function()
+            local sec = GetGameTimer() + 100
+            while sec > GetGameTimer() do 
+              SoundVehicleHornThisFrame(veh); Wait(0)
+            end
+          end)
+        end
+      else
+        TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"TOGGLELOCK", "Vehicle ID didn't return a Vehicle Entity"}
+        })
+      end
+    end
+  end
+  
+end)
+
+
 AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
   
   -- Only allow if the event comes from the server, not the client
@@ -447,6 +689,20 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
     return 0
   end
   
+  if coords then
+    local lastPosition = GetEntityCoords(PlayerPedId())
+    SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z)
+    FreezeEntityPosition(PlayerPedId(), true)
+    Citizen.Wait(3000)
+    FreezeEntityPosition(PlayerPedId(), false)
   
+  else
+    local pedPos = GetEntityCoords(GetPlayerFromServerId(toPlayer))
+    SetEntityCoords(PlayerPedId(), pedPos.x, pedPos.y, pedPos.z)
+    FreezeEntityPosition(PlayerPedId(), true)
+    Citizen.Wait(3000)
+    FreezeEntityPosition(PlayerPedId(), false)
+  
+  end
   
 end)

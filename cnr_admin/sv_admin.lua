@@ -21,6 +21,7 @@ RegisterServerEvent('cnr:admin_cmd_plyinfo')
 RegisterServerEvent('cnr:admin_cmd_vehinfo')
 RegisterServerEvent('cnr:admin_cmd_svinfo')
 RegisterServerEvent('cnr:admin_cmd_spawncar')
+RegisterServerEvent('cnr:admin_cmd_delveh')
 RegisterServerEvent('cnr:admin_cmd_spawnped')
 RegisterServerEvent('cnr:admin_cmd_setcash')
 RegisterServerEvent('cnr:admin_cmd_setbank')
@@ -39,20 +40,28 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
 local function AssignAdministrator(client, aLevel)
   repeat
+    
     local gen = math.random(1000,9999)
-    if aLevel == 2 then gen = math.random(100,999) end
-    exists = false
+    if aLevel == 2 then gen = math.random(100,999)
+    elseif aLevel == 4 then gen = math.random(10000, 99999)
+    end
+    
+    local exists = false
     for k,v in pairs(admins) do
       if v == gen then exists = true end
     end
+    
     if not exists then
       admins[client] = gen
       print("[CNR ADMIN] Assigned Admin ID "..admins[client].." to "..GetPlayerName(client))
       TriggerClientEvent('cnr:admin_assigned', client, admins[client])
+    
     end
     Citizen.Wait(10)
+  
   until admins[client]
   return ( admins[client] )
+
 end
 
 
@@ -298,31 +307,36 @@ end
 
 AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
   local client = source
+  print("DEBUG", toPlayer, fromPlayer, coords)
   if admins[client] then 
     -- Sending one player to another
     if toPlayer and fromPlayer then 
+      print("DEBUG - Sending Player 1 to Player 2")
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") sent "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
     
     -- Sending themselves to another player
     elseif toPlayer then
+    print("DEBUG - Sending admin to Player")
       TriggerClientEvent('cnr:admin_tp_coords', client, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, client, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
       
     -- Bringing another player to themselves
     elseif fromPlayer then 
+      print("DEBUG - Sending player to Admin")
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, client, nil, admins[client])
       TeleportAlert(client, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") brought "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to them.")
       
     -- Going to a specific location
     elseif coords then 
+      print("DEBUG - Sending admin to coords")
       TriggerClientEvent('cnr:admin_tp_coords', client, client, coords, admins[client])
       TeleportAlert(nil, nil, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..tostring(coords))
-    
+    else print("DEBUG - All arguments were nil.")
     end
   else
     print("DEBUG - Not an Admin.")
@@ -373,7 +387,7 @@ function AdminMessage(message, aid)
   if not aid then aid = "CNR SERVER" end
   for k,v in pairs (admins) do 
     TriggerClientEvent('chat:addMessage', k, {templateId = 'asay',
-      args = {admins[client], message}
+      args = {aid, message}
     })
   end
   
@@ -388,27 +402,58 @@ AddEventHandler('cnr:admin_cmd_asay', function(message)
 end)
 
 
-AddEventHandler('cnr:admin_cmd_csay', function()
-
+AddEventHandler('cnr:admin_cmd_csay', function(message)
+  local client = source
+  TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+    args = { "( Not Implemented )" }
+  })
 end)
 
 
 AddEventHandler('cnr:admin_cmd_plyinfo', function()
-
+  local client = source
+  TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+    args = { "( Not Implemented )" }
+  })
 end)
 
 
 AddEventHandler('cnr:admin_cmd_vehinfo', function()
-
+  local client = source
+  TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+    args = { "( Not Implemented )" }
+  })
 end)
 
 AddEventHandler('cnr:admin_cmd_svinfo', function()
-
+  local client = source
+  TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+    args = { "( Not Implemented )" }
+  })
 end)
 
 
-AddEventHandler('cnr:admin_cmd_spawncar', function()
+AddEventHandler('cnr:admin_cmd_spawncar', function(vModel)
+  local client = source
+  if admins[client] then
+    if admins[client] > 999 then 
+      TriggerClientEvent('cnr:admin_do_spawncar', client, vModel)
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+        args = { "Insufficient Permissions" }
+      })
+    end
+  else print("DEBUG - Not an Admin")
+  end
+end)
 
+
+AddEventHandler('cnr:admin_cmd_delveh', function()
+  local client = source
+  if admins[client] then
+    TriggerClientEvent('cnr:admin_do_delveh', client)
+  else print("DEBUG - Not an Admin")
+  end
 end)
 
 
@@ -452,8 +497,12 @@ AddEventHandler('cnr:admin_cmd_stripweapons', function()
 end)
 
 
-AddEventHandler('cnr:admin_cmd_togglelock', function()
-
+AddEventHandler('cnr:admin_cmd_togglelock', function(vehNumber)
+  local client = source
+  if admins[client] then 
+    TriggerClientEvent('cnr:admin_do_togglelock', client, vehNumber)
+  else print("DEBUG - Not an Admin.")
+  end
 end)
 
 

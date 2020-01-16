@@ -21,11 +21,13 @@ files {
 }
 
 client_scripts {
+  "sh_config.lua",
   "cl_config.lua",
   "cl_admin.lua"
 }
 
 server_scripts {
+  "sh_config.lua",
   "sv_config.lua",
   "sv_admin.lua"
 }
