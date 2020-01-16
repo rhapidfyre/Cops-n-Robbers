@@ -545,13 +545,52 @@ end)
 
 
 RegisterCommand('giveweapon', function(s,a,r)
-
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] or not a[2] or not a[3] then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <weapon> <ammo>"}
+      })
+    else TriggerServerEvent('cnr:admin_cmd_giveweapon', a[1], a[2], a[3])
+    end
+    
+  else CommandInvalid(cmd)
+  end
 end)
 RegisterCommand('takeweapon', function(s,a,r)
-
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] or not a[2] or not a[3] then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <weapon> <ammo(optional)>"}
+      })
+    else TriggerServerEvent('cnr:admin_cmd_takeweapon', a[1], a[2], a[3])
+    end
+    
+  else CommandInvalid(cmd)
+  end
 end)
 RegisterCommand('stripweapons', function(s,a,r)
-
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+      })
+    else TriggerServerEvent('cnr:admin_cmd_stripweapons', a[1])
+    end
+    
+  else CommandInvalid(cmd)
+  end
 end)
 
 
