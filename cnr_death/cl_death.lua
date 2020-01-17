@@ -10,32 +10,52 @@ local locksound = false
 
 local hospitals = {
   [1] = {
-    coords = vector3(-454.50, -340.47, 33.00),
-    title = "Mount Zonah Medical Center"
+    coords      = vector3(-497.55, -335.841, 34.51),
+    deathcam    = vector3(-465.31, -373.534, 39.05),
+    pedHeading  = 266.0, camHeading = 20.0,
+    title       = "Mount Zonah Medical Center"
   },
   [2] = {
-    deathcam = vector3(273.746, -1395.03, 34.5),
-    coords = vector3(295.424, -1447.42, 29.97),
-    pedHeading = 320.0, camHeading = 190.0,
-    title = "UC Los Santos"
+    coords      = vector3(295.424, -1447.42, 29.97),
+    deathcam    = vector3(273.746, -1395.03, 34.51),
+    pedHeading  = 320.0, camHeading = 190.0,
+    title       = "UC Los Santos"
   },
   [3] = {
-    title = "26th Medical Group",
-    coords = vector3(-2078.28, 2811.46, 31.28)
+    coords      = vector3(-247.909, 6332.7, 32.4262),
+    deathcam    = vector3(-217.081, 6317.74, 35.891),
+    pedHeading  = 222.0, camHeading = 86.0,
+    title       = "Paleto Bay Medical Center"
   },
   [4] = {
-    title = "Paleto Bay Medical Center",
-    coords = vector3(-227.53, 6322.26, 30.15)
+    coords      = vector3(1839.26, 3672.99, 34.276),
+    deathcam    = vector3(1841.92, 3646.32, 37.151),
+    pedHeading  = 210.0, camHeading = 0.0,
+    title       = "Sandy Shores Care Facility"
   },
   [5] = {
-    title = "Sandy Shores Care Facility",
-    coords = vector3(1827.15, 3693.88, 31.90)
-  },
-  [6] = {
-    title = "Pillbox Medical Center",
-    coords = vector3(360.7, -597.94, 27.10)
+    coords      = vector3(359.99, -585.134, 28.82),
+    deathcam    = vector3(391.35, -571.819, 31.5),
+    pedHeading  = 230.0, camHeading = 125.0,
+    title       = "Pillbox Medical Center"
   },
 }
+
+-- Add Hospital Blips
+Citizen.CreateThread(function()
+  for _,v in pairs(hospitals) do
+    local blip = AddBlipForCoord(v.coords)
+    SetBlipSprite(blip, 61)
+    SetBlipDisplay(blip, 2)
+    SetBlipScale(blip, 1.0)
+    SetBlipColour(blip, 0)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Hospital")
+    EndTextCommandSetBlipName(blip)
+    Citizen.Wait(1)
+  end
+end)
 
 local function DeathNotification()
   --[[
@@ -169,7 +189,7 @@ Citizen.CreateThread(function()
 end)
 
 function RevivePlayer()
-  Citizen.Wait(8000)
+  Citizen.Wait(5800)
   if IsPlayerDead(PlayerId()) then
     DoScreenFadeOut(1200)
     while not IsScreenFadedOut() do Wait(100) end
@@ -213,7 +233,7 @@ AddEventHandler('cnr:death_notify', function(v, k)
   local victim = GetPlayerFromServerId(v)
   local killer = GetPlayerFromServerId(k)
   
-  print(vic, killer, victim, killer) 
+  print(v, k, victim, killer) 
   
   if not killer then 
     drawNotification(GetPlayerName(victim).." died")

@@ -777,17 +777,17 @@ end)
 
 
 local function FindZCoord(coord)
-  local zFound, zCoord = GetGroundZFor_3dCoord(coord.x, coord.y, coord.z)
+  local zFound, zCoord
   local ht = 1000.0
-  while not zFound do
+  repeat
     Wait(10)
     ht = ht - 10.0
     SetEntityCoords(PlayerPedId(), coord.x, coord.y, ht)
     zFound, zCoord = GetGroundZFor_3dCoord(coord.x, coord.y, ht)
     if ht < 1.5 then break end
-  end
-  if zFound then return zCoord end
-  return 0.0
+  until zFound
+  if not zCoord then return 0.0 end
+  return zCoord
 end
 
 AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
