@@ -41,22 +41,6 @@ AddEventHandler('cnr:crimefree', function(enabled, resname)
 end)
 
 
--- DEBUG -
-RegisterCommand('wanted', function(s, a, r)
-  if a[1] then
-    Wait(800)
-    if tonumber(a[1]) ~= 0 then
-      TriggerServerEvent('cnr:wanted_points', 'carjack', true)
-    else
-      TriggerServerEvent('cnr:wanted_points', 'jailed', true)
-    end
-  else
-    local ply = GetPlayerServerId(PlayerId())
-    TriggerEvent('chatMessage', "^1Wanted Level: ^7"..(wanted[ply]))
-  end
-end)
-
-
 -- Networking
 RegisterNetEvent('cnr:wanted_list') -- Updates 'wanted' table with server table
 RegisterNetEvent('cnr:wanted_client')
