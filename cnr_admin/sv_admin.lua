@@ -8,6 +8,7 @@ RegisterServerEvent('cnr:admin_cmd_ban')
 RegisterServerEvent('cnr:admin_cmd_warn')
 RegisterServerEvent('cnr:admin_cmd_freeze')
 RegisterServerEvent('cnr:admin_cmd_teleport')
+RegisterServerEvent('cnr:admin_cmd_tp_sendback')
 RegisterServerEvent('cnr:admin_cmd_unfreeze')
 RegisterServerEvent('cnr:admin_cmd_tphere')
 RegisterServerEvent('cnr:admin_cmd_tpto')
@@ -343,6 +344,14 @@ AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
 end)
 
 
+AddEventHandler('cnr:admin_cmd_teleport', function(teleportee)
+  local client = source
+  if admins[client] then 
+    TriggerClientEvent('cnr:admin_do_sendback', teleportee, admins[client])
+  else print("DEBUG - Not an Admin.")
+  end
+end)
+
 AddEventHandler('cnr:admin_cmd_announce', function(message)
   local client = source
   if admins[client] then
@@ -481,8 +490,18 @@ AddEventHandler('cnr:admin_cmd_settime', function()
 end)
 
 
-AddEventHandler('cnr:admin_cmd_giveweapon', function()
-
+AddEventHandler('cnr:admin_cmd_giveweapon', function(target, wHash, wAmmo)
+  local client = source
+  if admins[client] then 
+    if admins[client] > 999 then 
+      TriggerClientEvent('cnr:admin_do_giveweapon', target, admins[client], wHash, wAmmo)
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+        args = { "Insufficient Permissions" }
+      })
+    end
+  else print("DEBUG - Not an Admin.")
+  end
 end)
 
 

@@ -7,6 +7,8 @@
   Handles all death events, and life saving/resurrection type scripting.
 --]]
 
+
+-- Check if the death was a crime, and then notify the players
 RegisterServerEvent('cnr:death_check')
 AddEventHandler('cnr:death_check', function(killer)
 
@@ -30,6 +32,7 @@ AddEventHandler('cnr:death_check', function(killer)
   
 end)
 
+-- Just note the death and notify the players
 RegisterServerEvent('cnr:death_noted')
 AddEventHandler('cnr:death_noted', function(killer)
   TriggerClientEvent('cnr:death_notify', (-1), source, killer)

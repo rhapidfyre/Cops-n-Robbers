@@ -6,6 +6,8 @@ RegisterNetEvent('cnr:admin_do_spawncar')
 RegisterNetEvent('cnr:admin_do_delveh')
 RegisterNetEvent('cnr:admin_do_togglelock')
 RegisterNetEvent('cnr:admin_tp_coords')
+RegisterNetEvent('cnr:admin_do_giveweapon')
+RegisterNetEvent('cnr:admin_do_sendback')
 
 local aLevel = 1
 local aid    = 0
@@ -383,6 +385,28 @@ RegisterCommand('tpcoords', function(s,a,r)
 end)
 
 
+RegisterCommand('tpback', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
+      })
+    
+    else
+    
+      TriggerServerEvent('cnr:admin_cmd_tp_sendback', tonumber(a[1]))
+      
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+
 RegisterCommand('announce', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
@@ -684,6 +708,23 @@ AddEventHandler('cnr:admin_do_delveh', function(toPlayer, coords, aid)
 end)
 
 
+AddEventHandler('cnr:admin_do_giveweapon', function(aid, wHash, wAmmo)
+  
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the vehicle deletion.")
+    return 0
+  end
+  
+  if not wAmmo then wAmmo = 1000 end
+  TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+    args = {"Admin #"..aid.." gave you "..wHash..". It will NOT save when you log off."}
+  })
+  GiveWeaponToPed(PlayerPedId(), GetHashKey(wHash), wAmmo, false, false)
+  
+end)
+
+
 AddEventHandler('cnr:admin_do_togglelock', function(veh)
 
   -- Only allow if the event comes from the server, not the client
@@ -782,4 +823,20 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
   
   end
   
+end)
+
+AddEventHandler('cnr:admin_do_sendback', function(aid)
+  
+  -- Only allow if the event comes from the server, not the client
+  if source == "" then
+    print("^1CNR ERROR: ^7Unable to authorize the teleport request.")
+    return 0
+  end
+  
+  if lastPosition then 
+    SetEntityCoords(PlayerPedId(), lastPosition)
+    TriggerEvent('cnr:chatMessage', {templateId = 'sysMsg',
+      args = {"Admin #"..aid.." sent you back to your previous position."}
+    })
+  end
 end)
