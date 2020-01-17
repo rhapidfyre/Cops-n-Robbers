@@ -37,10 +37,97 @@ local hospitals = {
   },
 }
 
+local function DeathNotification()
+  --[[
+  local killer, killerweapon = NetworkGetEntityKillerOfPlayer(PlayerId())
+  local killerentitytype     = GetEntityType(killer)
+  local killerinvehicle      = false
+  local killervehiclename    = ''
+  local killervehicleseat    = 0
+  
+  local killerid             = GetPlayerServerId(killer)
+  
+  print("DEBUG - killer ("..tostring(killer)..")")
+  print("DEBUG - killerid ("..tostring(killerid)..")")
+  print("DEBUG - killerentitytype ("..tostring(killerentitytype)..")")
+  print("DEBUG - GetPedCauseOfDeath("..tostring(GetPedCauseOfDeath(PlayerPedId()))..")")
+  
+  local kInfo = {
+    weapon    = killerweapon,
+    idKiller  = killerid,
+    entType   = killerentitytype,
+    causation = GetPedCauseOfDeath(PlayerPedId())
+  }
+  
+  -- Is this client a cop? If so, modify the 911 call
+  if exports['cnr_police']:DutyStatus() then
+  
+  -- If this client isn't a cop
+  else
+    if killerid then
+      if killerid > 0 then
+        TriggerServerEvent('cnr:death_check', killerid)
+      end
+    end
+  end]]
+  local cause  = GetPedCauseOfDeath(PlayerPedId())
+  local killer = GetPedSourceOfDeath(PlayerPedId())
+  print(cause, killer) 
+  if DoesEntityExist(killer) then
+    if IsEntityAPed(killer) then
+      if IsPedAPlayer(killer) then 
+        if PlayerPedId() == killer then
+          print("DEBUG - You killed yourself!")
+          TriggerServerEvent('cnr:death_noted', GetPlayerServerId(PlayerId()))
+        else
+          print("DEBUG - Killed by Player!")
+          local plys = GetActivePlayers()
+          for _,i in ipairs (plys) do 
+            if GetPlayerPed(i) == killer then 
+              print("DEBUG - Killed by player #"..GetPlayerServerId(i))
+              TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
+            end
+          end
+        end
+      else print("DEBUG - Killed by an NPC!")
+      end
+    elseif IsEntityAVehicle(killer) then
+      local driver = GetPedInVehicleSeat(killer, (-1))
+      if DoesEntityExist(driver) then 
+        if IsEntityAPed(driver) then 
+          if IsPedAPlayer(driver) then 
+            print("DEBUG - Killed by Player!")
+            local plys = GetActivePlayers()
+            for _,i in ipairs (plys) do 
+              if GetPlayerPed(i) == driver then 
+                print("DEBUG - Ran over by player #"..GetPlayerServerId(i))
+                TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
+              end
+            end
+          else
+            print("DEBUG - Ran down by an aggressive NPC driver!")
+            TriggerServerEvent('cnr:death_noted', nil)
+          end
+        else
+          print("DEBUG - Ran down by a vehicle with no ped driving!")
+          TriggerServerEvent('cnr:death_noted', nil)
+        end
+      else
+        print("DEBUG - Ran down by a vehicle with no driver!")
+        TriggerServerEvent('cnr:death_noted', nil)
+      end
+    else
+      print("DEBUG - Killed by something else!")
+      TriggerServerEvent('cnr:death_noted', nil)
+    end
+  end
+end
+
 Citizen.CreateThread(function()
    while true do
        Citizen.Wait(0)
        if IsPlayerDead(PlayerId()) then
+       
          StartScreenEffect("DeathFailOut", 0, 0)
          if not locksound then
            PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
@@ -49,6 +136,8 @@ Citizen.CreateThread(function()
          ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
 
          local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
+         
+         DeathNotification()
 
          if HasScaleformMovieLoaded(scaleform) then
            Citizen.Wait(0)
@@ -73,7 +162,8 @@ Citizen.CreateThread(function()
 
            StopScreenEffect("DeathFailOut")
            locksound = false
-          end
+         end
+          
        end
     end
 end)
@@ -111,3 +201,51 @@ function RevivePlayer()
 
   end
 end
+
+
+
+
+
+
+RegisterNetEvent('cnr:death_notify')
+AddEventHandler('cnr:death_notify', function(v, k)
+  local myid = PlayerId()
+  local victim = GetPlayerFromServerId(v)
+  local killer = GetPlayerFromServerId(k)
+  
+  print(vic, killer, victim, killer) 
+  
+  if not killer then 
+    drawNotification(GetPlayerName(victim).." died")
+    return 0
+  end
+  
+  -- This client DIED
+  if myid == victim then 
+    if victim == killer then 
+      drawNotification("You committed suicide")
+    else
+      drawNotification(GetPlayerName(killer).." killed you")
+    end
+  
+  -- This client KILLED
+  elseif myid == killer then
+    drawNotification("You killed "..GetPlayerName(victim))
+  
+  -- Someone killed somebody
+  else
+    drawNotification(GetPlayerName(killer).." killed "..GetPlayerName(victim))
+  
+  end
+  
+end)
+
+function drawNotification(Notification)
+	SetNotificationTextEntry('STRING')
+	AddTextComponentString(Notification)
+	DrawNotification(false, false)
+end
+
+
+
+
