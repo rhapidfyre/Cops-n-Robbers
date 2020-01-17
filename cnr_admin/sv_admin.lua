@@ -385,20 +385,36 @@ end)
 -- Sends an admin message to all admins on the server
 -- @param message A message sent to all admins
 -- @param client  Player Server ID; If nil, comes from "server"
-function AdminMessage(message, aid)
+function AdminMessage(message, client)
   
-  if not aid then aid = "CNR SERVER" end
-  exports['cnr_chat']:DiscordMessage(3840,
-    "", message, "Admin #"..aid.. "("..GetPlayerName(client)..")", 5
+  local aid  = 0
+  local ply  = "SERVER"
+  local name = "SERVER CONSOLE"
+  if client then
+    ply  = client
+    aid  = admins[client]
+    name = GetPlayerName(client)
+  end
+  PerformHttpRequest(
+    "https://discordapp.com/api/webhooks/667800489534160925/ws7iwSoeIBjRrcX5vV7nJoyDFoAEXXAXoJx6onGgZyKqa3fLWBAJzf12fGzWUuA5gTqT",
+    function(err, text, headers) end, 'POST',
+    json.encode({
+      username = "5M:CNR Monitor",
+      content  = "**"..name.." (# "..aid..")**: "..message
+    }),
+    { ['Content-Type'] = 'application/json' }
   )
-  for k,v in pairs (admins) do 
+  for k,_ in pairs (admins) do 
     TriggerClientEvent('chat:addMessage', k, {templateId = 'asay',
-      args = {aid, message}
+      args = {name.." ("..aid..")", message}
     })
   end
   
 end
 
+RegisterCommand('asay', function(s,a,r)
+  AdminMessage(table.concat(a, " "))
+end, true)
 
 AddEventHandler('cnr:admin_cmd_asay', function(message)
   local client = source
