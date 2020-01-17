@@ -18,8 +18,6 @@ local aid    = 0
       UNFINISHED COMMANDS 
 ]]
 RegisterCommand('spawnped', function(s,a,r) end)
-RegisterCommand('setcash', function(s,a,r) end)
-RegisterCommand('setbank', function(s,a,r) end)
 RegisterCommand('setweather', function(s,a,r) end)
 RegisterCommand('settime', function(s,a,r) end)
 RegisterCommand('inmates', function() end)
@@ -612,6 +610,8 @@ RegisterCommand('takeweapon', function(s,a,r)
   else CommandInvalid(cmd)
   end
 end)
+
+
 RegisterCommand('stripweapons', function(s,a,r)
   local sp = string.find(r, ' ')
   if sp then sp = sp - 1 end
@@ -623,6 +623,50 @@ RegisterCommand('stripweapons', function(s,a,r)
           args = {"Invalid Arguments", "/"..cmd.." <ID#>"}
       })
     else TriggerServerEvent('cnr:admin_cmd_stripweapons', a[1])
+    end
+    
+  else CommandInvalid(cmd)
+  end
+end)
+
+
+RegisterCommand('setcash', function(s,a,r)
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] or not a[2] then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <+/->"}
+      })
+    else
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+        args = { "Modifying ID #"..a[1].."'s WALLET CASH by $"..a[2] }
+      })
+      TriggerServerEvent('cnr:admin_cmd_setcash', tonumber(a[1]), tonumber(a[2]))
+    end
+    
+  else CommandInvalid(cmd)
+  end
+end)
+
+
+RegisterCommand('setbank', function(s,a,r)
+  local sp = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+  
+    if not a[1] or not a[2] then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg',
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <+/->"}
+      })
+    else
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+        args = { "Modifying ID #"..a[1].."'s BANK BALANCE by $"..a[2] }
+      })
+      TriggerServerEvent('cnr:admin_cmd_setbank', tonumber(a[1]), tonumber(a[2]))
     end
     
   else CommandInvalid(cmd)
@@ -840,3 +884,4 @@ AddEventHandler('cnr:admin_do_sendback', function(aid)
     })
   end
 end)
+

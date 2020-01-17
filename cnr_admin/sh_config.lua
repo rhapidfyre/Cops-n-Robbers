@@ -7,7 +7,7 @@ local cmds = {
   ['tpmark']     = 3, ['announce']     = 3, ['mole']       = 2,
   ['asay']       = 2, ['csay']         = 4, ['plyinfo']    = 3,
   ['vehinfo']    = 2, ['svinfo']       = 2, ['spawncar']   = 2,
-  ['spawnped']   = 2, ['setcash']      = 4, ['setbank']    = 4,
+  ['spawnped']   = 2, ['setcash']      = 2, ['setbank']    = 2,
   ['setweather'] = 3, ['settime']      = 3, ['giveweapon'] = 3,
   ['takeweapon'] = 3, ['stripweapons'] = 3, ['togglelock'] = 3,
   ['inmates']    = 2

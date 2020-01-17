@@ -40,29 +40,31 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
 
 local function AssignAdministrator(client, aLevel)
-  repeat
+  if not type(aLevel) == "number" then aLevel = tonumber(aLevel) end
+  if aLevel > 1 then
+    repeat
+      
+      local gen = math.random(1000,9999)
+      if aLevel == 2 then gen = math.random(100,999)
+      elseif aLevel == 4 then gen = math.random(10000, 99999)
+      end
+      
+      local exists = false
+      for k,v in pairs(admins) do
+        if v == gen then exists = true end
+      end
+      
+      if not exists then
+        admins[client] = gen
+        print("[CNR ADMIN] Assigned Admin ID "..admins[client].." to "..GetPlayerName(client))
+        TriggerClientEvent('cnr:admin_assigned', client, admins[client])
+      
+      end
+      Citizen.Wait(10)
     
-    local gen = math.random(1000,9999)
-    if aLevel == 2 then gen = math.random(100,999)
-    elseif aLevel == 4 then gen = math.random(10000, 99999)
-    end
-    
-    local exists = false
-    for k,v in pairs(admins) do
-      if v == gen then exists = true end
-    end
-    
-    if not exists then
-      admins[client] = gen
-      print("[CNR ADMIN] Assigned Admin ID "..admins[client].." to "..GetPlayerName(client))
-      TriggerClientEvent('cnr:admin_assigned', client, admins[client])
-    
-    end
-    Citizen.Wait(10)
-  
-  until admins[client]
+    until admins[client]
+  end
   return ( admins[client] )
-
 end
 
 
@@ -73,14 +75,7 @@ local function CheckAdmin(client)
     {['uid'] = uid}
   )
   if aLevel then
-    local aid = AssignAdministrator(client, aLevel)
-    if aid > 999 then
-
-
-    elseif aid > 99 then
-
-
-    end
+    AssignAdministrator(client, aLevel)
 
   else
     print("[CNR ADMIN] - No idUnique found for player #"..client)
@@ -473,13 +468,101 @@ AddEventHandler('cnr:admin_cmd_spawnped', function()
 end)
 
 
-AddEventHandler('cnr:admin_cmd_setcash', function()
-
+AddEventHandler('cnr:admin_cmd_setcash', function(target, amount)
+  
+  local client = source
+  if admins[client] then
+  
+    -- If amount is positive
+    if amount > 0 then
+      TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+        args = { "Admin #"..admins[client].." added $"..amount.." to your wallet." }
+      })
+      exports['cnr_cash']:CashTransaction(target, amount)
+    
+    -- If amount is negative
+    elseif amount < 0 then
+      if admins[target] then
+        -- Admin is higher ranking OR a Superadmin
+        if admins[client] > admins[target] or admins[client] > 9999 then
+          TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+            args = { "Admin #"..admins[client].." took away $"..amount.." from your wallet." }
+          })
+          exports['cnr_cash']:CashTransaction(target, amount)
+          
+        -- Admin isn't a Superadmin, and is equal or lower ranking than target
+        else
+          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+            args = { "Can't take money away from a higher/equal ranking admin" }
+          })
+        
+        end
+      
+      else
+        TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+          args = { "Admin #"..admins[client].." took away $"..amount.." from your wallet." }
+        })
+        exports['cnr_cash']:CashTransaction(target, amount)
+      
+      end
+    
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+        args = { "Enter an amount other than 0. (Negative takes away money)" }
+      })
+    
+    end
+  else print("DEBUG - Not an Admin")
+  end
 end)
 
 
-AddEventHandler('cnr:admin_cmd_setbank', function()
-
+AddEventHandler('cnr:admin_cmd_setbank', function(target, amount)
+  
+  local client = source
+  if admins[client] then
+  
+    -- If amount is positive
+    if amount > 0 then
+      TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+        args = { "Admin #"..admins[client].." added $"..amount.." to your bank balance." }
+      })
+      exports['cnr_cash']:BankTransaction(target, amount)
+    
+    -- If amount is negative
+    elseif amount < 0 then
+      if admins[target] then
+        -- Admin is higher ranking OR a Superadmin
+        if admins[client] > admins[target] or admins[client] > 9999 then
+          TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+            args = { "Admin #"..admins[client].." took away $"..amount.." from your bank balance." }
+          })
+          exports['cnr_cash']:BankTransaction(target, amount)
+          
+        -- Admin isn't a Superadmin, and is equal or lower ranking than target
+        else
+          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+            args = { "Can't take money away from a higher/equal ranking admin" }
+          })
+        
+        end
+      
+      else
+        TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
+          args = { "Admin #"..admins[client].." took away $"..amount.." from your bank balance." }
+        })
+        exports['cnr_cash']:BankTransaction(target, amount)
+      
+      end
+    
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+        args = { "Enter an amount other than 0. (Negative takes away money)" }
+      })
+    
+    end
+  else print("DEBUG - Not an Admin")
+  end
 end)
 
 
