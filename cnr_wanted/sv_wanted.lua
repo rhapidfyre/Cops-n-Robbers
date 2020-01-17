@@ -182,11 +182,6 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
   end
 end)
 
-RegisterServerEvent('cnr:player_death')
-AddEventHandler('cnr:player_death', function()
-  WantedPoints(source, 'jailed')
-end)
-
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
 -- @param ply Server ID, if provided
@@ -313,40 +308,6 @@ AddEventHandler('baseevents:enteredVehicle', function(veh, seat)
     print("DEBUG - Check for carjacking")
     TriggerClientEvent('cnr:wanted_enter_vehicle', ply, veh, seat)
   end
-end)
-
-
---[[
-  (From: `baseevents`)
-
-  deathData: An array containing the following things:
-    (int) killerType: The pedType of the ped who killed the player. (see screenshot below for the possible pedType values.)
-    (hash) weaponHash: The hash of the weapon which was used to kill the player.
-    (bool) killerInVeh: A boolean indicating if the killer was in a vehicle.
-    (int) killerVehSeat: The seat number in which the killer is sitting.
-    (string) killerVehName: The display name of the vehicle the killer is in (eg: ‘Adder’).
-    (array) deathCoords: An array containing the x, y, z coordinates of where the player died.
-]]
-AddEventHandler('baseevents:onPlayerKilled', function(idKiller, deathData)
-
-  local victim = source
-
-  -- Was the killer a passenger in a vehicle?
-  if deathData.killerInVeh then
-    if deathData.killerVehSeat ~= (-1) then
-      return 0
-    end
-  end
-
-  -- Killer is NOT a police officer
-  if not exports['cnr_police']:DutyStatus(idKiller) then
-    cprint(
-      "^1MURDER: ^3"..GetPlayerName(idKiller)..
-      " killed "..GetPlayerName(victim).."^7!"
-    )
-    WantedPoints(idKiller, 'murder', "Murder")
-  end
-
 end)
 
 
