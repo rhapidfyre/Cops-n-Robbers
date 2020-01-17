@@ -11,10 +11,10 @@ local myJobPoint		    = 1
 local drops             = {}
 
 local jobStart = {
-	[1] = {v = vector3(-3147.12, 1121.18, 20.86), h = 59.9, veh = "boxville2"},
-	[2] = {v = vector3(78.81, 111.89, 81.16), h = 64.33, veh = "boxville2"},
-	[3] = {v = vector3(-421.2, 6136.79, 31.87), h = 181.67, veh = "boxville4"},
-	[4] = {v = vector3(-424.23, -2789.84, 6.52), h = 134.05, veh = "boxville4"}
+	[1] = {v = vector3(-3147.12, 1121.18, 20.86), h = 59.9,   veh = "boxville2"},
+	[2] = {v = vector3(78.81, 111.89, 81.16),     h = 64.33,  veh = "boxville2"},
+	[3] = {v = vector3(-421.2, 6136.79, 31.87),   h = 181.67, veh = "boxville4"},
+	[4] = {v = vector3(-424.23, -2789.84, 6.52),  h = 134.05, veh = "boxville4"}
 }
 
 local jobSpawns = {
@@ -27,15 +27,15 @@ local jobSpawns = {
 
 -- Add Police Blips
 Citizen.CreateThread(function()
-  for _,v in pairs(depts) do
-    local blip = AddBlipForCoord(v.duty)
-    SetBlipSprite(blip, 526)
+  for _,b in pairs(jobStart) do
+    local blip = AddBlipForCoord(b.v)
+    SetBlipSprite(blip, 351)
     SetBlipDisplay(blip, 2)
     SetBlipScale(blip, 1.0)
-    SetBlipColour(blip, 62)
+    SetBlipColour(blip, 0)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("")
+    AddTextComponentString("JOB: Delivery")
     EndTextCommandSetBlipName(blip)
     Citizen.Wait(1)
   end
@@ -65,8 +65,8 @@ function SetDestination(d)
 	SetBlipSprite(destBlip, 66)
 	SetBlipDisplay(destBlip, 2)
 	SetBlipScale(destBlip, 1.0)
-	SetBlipColour(destBlip, 69)
-	SetBlipAsShortRange(destBlip, false)
+	SetBlipColour(destBlip, 10)
+	SetBlipAsShortRange(destBlip, true)
 	BeginTextCommandSetBlipName("STRING")
 	AddTextComponentString("Delivery")
 	EndTextCommandSetBlipName(destBlip)

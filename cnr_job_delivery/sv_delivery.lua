@@ -2,11 +2,11 @@
 -- Server
 local drivers = {}
 local payouts = {
-  [1] = function() return (math.random(50, 75)   end,
-  [2] = function() return (math.random(80, 120)  end,
-  [3] = function() return (math.random(80, 200)  end,
-  [4] = function() return (math.random(120, 200) end,
-  [2] = function() return (math.random(200, 500) end
+  [1] = function() return (math.random(50, 75))   end,
+  [2] = function() return (math.random(80, 120))  end,
+  [3] = function() return (math.random(80, 200))  end,
+  [4] = function() return (math.random(120, 200)) end,
+  [2] = function() return (math.random(200, 500)) end
 }
 
 RegisterServerEvent('cnr:delivery_duty')
@@ -25,7 +25,7 @@ AddEventHandler('cnr:delivery_complete', function()
       print("DEBUG - Paying for delivery.")
       drivers[client] = GetGameTimer() + 5000
       exports['cnr_cash']:CashTransaction(
-        client, payouts[math.random(#payouts)]
+        client, payouts[math.random(#payouts)]()
       )
     else print("DEBUG - Was recently paid out. Can't pay.")
     end
