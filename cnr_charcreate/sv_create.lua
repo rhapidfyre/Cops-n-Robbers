@@ -161,9 +161,8 @@ AddEventHandler('cnr:create_player', function()
         "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
         {['uid'] = uid}
       )
-      print(json.encode(banInfo))
 
-      if banInfo[1]["bantime"] then
+      if banInfo[1]["bantime"] > 0 then
 
         local nowDate = os.time()
         local banRelease = banInfo[1]["bantime"]/1000
