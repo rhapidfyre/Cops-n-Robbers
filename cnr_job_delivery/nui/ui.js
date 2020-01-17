@@ -1,26 +1,34 @@
 
 $(function() {
-  
-  var my_menu = $("#menu-main");
-  
-  window.addEventListener('message', function(event)
-  {
-    var item = event.data;
-      
-    if (item.showmy_menu) {my_menu.show();}
-    if (item.hidemy_menu) {my_menu.hide();}
-    
+	
+	var myVar 	= $("#");
+	
+	window.addEventListener('message', function(event)
+	{
+		var item = event.data;
+		if (item.showmenu) {
+			myVar.show();
+		}
+		if (item.hidemenu) {
+			myVar.hide();
+		}
+	});
+
     // Pressing the ESC key with the menu open closes it 
-    // If they're viewing member info, it'll close that instead
-    document.onkeyup = function (data) {
-      if (data.which == 27) {
-        if (my_menu.is(":visible")) {doExit();}
-      }
+    document.onkeyup = function ( data )
+	{
+        if (data.which == 27) {
+			if (myVar.is(':visible'))
+			{
+				$.post('http://srp_job_delivery/deliveryMenu', JSON.stringify("exit"));
+			}
+		}
     };
-  });
 });
 
-function doExit() {
-  $("#menu-main").hide();
-  $.post('http://cnr_resource/thisMenu', JSON.stringify({action:"exit"}));
+function ResetMenu() {
+    $( "div" ).each( function( i, obj ) {
+        var element = $( this );
+        element.hide();
+    });
 }
