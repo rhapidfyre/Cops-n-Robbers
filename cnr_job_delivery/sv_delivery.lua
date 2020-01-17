@@ -36,7 +36,7 @@ end)
 RegisterServerEvent('cnr:delivery_getroutes')
 AddEventHandler('cnr:delivery_getroutes', function()
 	local ply   = source
-	exports['GHMattiMySQL']:execute(
+	exports['ghmattimysql']:execute(
     "SELECT position FROM houses", {}, function(places)
       TriggerClientEvent('cnr:delivery_routes', ply, places)
     end

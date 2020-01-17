@@ -172,11 +172,15 @@ function StartDeliveryJob(ped, sNum)
 	
 	dTruck = CreateVehicle(veh, jobSpawns[sNum].x, jobSpawns[sNum].y, jobSpawns[sNum].z, jobSpawns[sNum].h, true, false)
 	
+  Citizen.Wait(100)
+  DecorRegister("OwnerId", 3)
+  DecorSetInt(dTruck, "OwnerId", GetPlayerServerId(PlayerId()))
 	SetVehicleOnGroundProperly(dTruck)
 	SetVehicleColours(dTruck, 112, 83)
 	SetModelAsNoLongerNeeded(veh)
   SetEntityAsMissionEntity(dTruck, true, true)
 	SetPedIntoVehicle(ped, dTruck, -1)
+  SetVehicleDoorsLocked(dTruck, 1)
 	
 	isOnDeliveryDuty = true 
 	
@@ -220,6 +224,7 @@ function StartDeliveryJob(ped, sNum)
   ]]
 	
 	-- Drops the package if player is doing something with their hands or getting into a vehicle
+  local warned = false
 	Citizen.CreateThread(function()
 		while isOnDeliveryDuty do
 			Citizen.Wait(0)
@@ -238,10 +243,43 @@ function StartDeliveryJob(ped, sNum)
 				elseif IsPedInAnyVehicle(ped, true) then
 					DropPackage()
 				end
+      else
+        if not warned then 
+          if not IsPedInAnyVehicle(PlayerPedId()) then
+            warned = true
+            TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+              args = {
+                "If you go too far away from the truck without a package, "..
+                "your truck will be deleted and you'll be marked off duty. "
+              }
+            })
+          end
+        end
+        if not DoesEntityExist(dTruck) then 
+            DelTruckGoOffDuty()
+            TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+              args = { "The delivery truck was destroyed! "..
+                "You are now off delivery duty "
+              }
+            })
+        
+        else 
+          if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(dTruck)) > 80.0 then 
+            DelTruckGoOffDuty()
+            TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+              args = { "You went too far from the truck without a package. "..
+                "You're now off delivery duty. "
+              }
+            })
+          end
+        end
 			end
 		end
 	end)
-
+  
+  TriggerServerEvent('cnr:delivery_duty', true)
+  myJobPoint = sNum
+  
 	DoScreenFadeIn(1000)
 	Citizen.Wait(400)
 		
@@ -250,8 +288,8 @@ end
 function DelTruckGoOffDuty()
 
 	isOnDeliveryDuty = false
-	DoScreenFadeOut(500)
-	Citizen.Wait(6000)
+	--DoScreenFadeOut(500)
+	--Citizen.Wait(6000)
 	
 	if dTruck then
 		if IsPedInAnyVehicle(PlayerPedId()) then
@@ -276,9 +314,10 @@ function DelTruckGoOffDuty()
 	
 	--TriggerServerEvent('cnr:clothing_recall', false)
   
-	SetEntityCoords(PlayerPedId(), jobStart[myJobPoint].v)
-	SetEntityHeading(PlayerPedId(), jobStart[myJobPoint].h + 180.0)
-	DoScreenFadeIn(1000)
+  TriggerServerEvent('cnr:delivery_duty', false)
+	--SetEntityCoords(PlayerPedId(), jobStart[myJobPoint].v)
+	--SetEntityHeading(PlayerPedId(), jobStart[myJobPoint].h + 180.0)
+	--DoScreenFadeIn(1000)
 	
 end
 

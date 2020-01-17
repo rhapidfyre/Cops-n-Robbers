@@ -710,9 +710,10 @@ AddEventHandler('cnr:admin_do_spawncar', function(vModel)
       myPos.x, myPos.y, myPos.z + 0.125, myHeading, true, false
     )
     
-    while not DoesEntityExist(veh) do Wait(10) end
     Citizen.Wait(100)
     --TaskEnterVehicle(PlayerPedId(), veh, 10000, (-1), 8.0, 16, 1)
+    DecorRegister("OwnerId", 3)
+    DecorSetInt(veh, "OwnerId", GetPlayerServerId(PlayerId()))
     SetVehicleEngineOn(veh, true, true, true)
     SetVehicleDoorsLocked(veh, 1)
     SetPedIntoVehicle(PlayerPedId(), veh, (-1))
@@ -820,13 +821,13 @@ AddEventHandler('cnr:admin_do_togglelock', function(veh)
 end)
 
 
-local function FindZCoord(coord)
+local function FindZCoord(coord, ent)
   local zFound, zCoord
   local ht = 1000.0
   repeat
     Wait(10)
     ht = ht - 10.0
-    SetEntityCoords(PlayerPedId(), coord.x, coord.y, ht)
+    SetEntityCoords(ent, coord.x, coord.y, ht)
     zFound, zCoord = GetGroundZFor_3dCoord(coord.x, coord.y, ht)
     if ht < 1.5 then break end
   until zFound
@@ -843,27 +844,31 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
   end
   
   if coords then
-    local lastPosition = GetEntityCoords(PlayerPedId())
+  
+    local ent = GetVehiclePedIsIn(PlayerPedId())
+    if not DoesEntityExist(ent) then ent = PlayerPedId() end
+  
+    local lastPosition = GetEntityCoords(ent)
     local zCoord = coords.z
-    if zCoord == 1.05 then zCoord = FindZCoord(coords) end
+    if zCoord > 1.0 and zCoord < 2.0 then zCoord = FindZCoord(coords, ent) end
     if zCoord > 0.0 then 
-      SetEntityCoords(PlayerPedId(), coords.x, coords.y, zCoord)
+      SetEntityCoords(ent, coords.x, coords.y, zCoord)
     else
-      SetEntityCoords(PlayerPedId(), lastPosition)
+      SetEntityCoords(ent, lastPosition)
       TriggerEvent('cnr:chatMessage', {templateId = 'sysMsg',
         args = {"Teleport destination was unsafe for arrival. Returned."}
       })
     end
-    FreezeEntityPosition(PlayerPedId(), true)
-    Citizen.Wait(3000)
-    FreezeEntityPosition(PlayerPedId(), false)
+    FreezeEntityPosition(ent, true)
+    Citizen.Wait(2000)
+    FreezeEntityPosition(ent, false)
   
   else
     local pedPos = GetEntityCoords(GetPlayerPed(GetPlayerFromServerId(toPlayer)))
-    SetEntityCoords(PlayerPedId(), pedPos.x, pedPos.y, pedPos.z)
-    FreezeEntityPosition(PlayerPedId(), true)
-    Citizen.Wait(3000)
-    FreezeEntityPosition(PlayerPedId(), false)
+    SetEntityCoords(ent, pedPos.x, pedPos.y, pedPos.z + 1.0)
+    FreezeEntityPosition(ent, true)
+    Citizen.Wait(2000)
+    FreezeEntityPosition(ent, false)
   
   end
   
