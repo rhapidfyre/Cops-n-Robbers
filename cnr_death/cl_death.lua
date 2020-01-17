@@ -221,7 +221,8 @@ function RevivePlayer()
         "Wanted Person",
         hospitals[nearest].title,
         GetEntityCoords(PlayerPedId()),
-        "Security reported a Level "..wl.." Wanted Person was just released from their care."
+        hospitals[nearest].title.."Security reported a Level "..wl..
+        " Wanted Person was just released from their care."
       )
     end
     
