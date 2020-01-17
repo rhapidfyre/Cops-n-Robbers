@@ -12,6 +12,14 @@ AddEventHandler('onResourceStop', function(rn)
   restarted[rn] = true
 end)
 
+-- Enable PVP
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+		SetCanAttackFriendly(GetPlayerPed(-1), true, false)
+		NetworkSetFriendlyFireOption(true)
+	end
+end)
 
 -- DEBUG -
 AddEventHandler('onResourceStart', function(rn)
