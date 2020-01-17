@@ -774,7 +774,7 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
     FreezeEntityPosition(PlayerPedId(), false)
   
   else
-    local pedPos = GetEntityCoords(GetPlayerFromServerId(toPlayer))
+    local pedPos = GetEntityCoords(GetPlayerPed(GetPlayerFromServerId(toPlayer)))
     SetEntityCoords(PlayerPedId(), pedPos.x, pedPos.y, pedPos.z)
     FreezeEntityPosition(PlayerPedId(), true)
     Citizen.Wait(3000)
