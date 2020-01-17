@@ -181,11 +181,11 @@ AddEventHandler('cnr:create_player', function()
       -- Player is Banned
       if banInfo[1]["perms"] < 1 then
         cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
-        DropPlayer(ply, "You have been banned from playing on this server.") --[[
+        DropPlayer(ply, "You have been banned from playing on this server.")
         exports['cnr_chat']:DiscordMessage(
           16711680, "Disconnect", name.." failed to join the game.",
-          "User was banned from this server"
-        )]]
+          "User was previously banned from this server"
+        )
 
       -- Player is not banned
       else
@@ -251,10 +251,10 @@ function CreateSession(ply)
     Citizen.Wait(1000)
     cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
     Citizen.CreateThread(function()
-      --exports['cnr_chat']:DiscordMessage(
-      --  7864575, "New Player",
-      --  "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
-      --)
+      exports['cnr_chat']:DiscordMessage(
+        7864575, "New Player",
+        "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
+      )
     end)
     TriggerClientEvent('cnr:create_character', ply)
   end

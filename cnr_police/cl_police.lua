@@ -25,12 +25,21 @@ end
 local forcedutyEnabled = true
 
 
-function DispatchMessage(title, msg)
-  TriggerEvent('chat:addMessage', {
-    color = {0,180,255}, multiline = true, args = {
-      "DISPATCH", "^3"..title.."\n^5"..msg
-    }
-  })
+--- EXPORT: DispatchMessage()
+function DispatchMessage(title, msg, customMessage)
+  if not customMessage then 
+    TriggerEvent('chat:addMessage', {
+      color = {0,180,255}, multiline = true, args = {
+        "DISPATCH", "^3"..title.."\n^5"..msg
+      }
+    })
+  else
+    TriggerEvent('chat:addMessage', {
+      color = {0,180,255}, multiline = true, args = {
+        "DISPATCH", "^3New Incident Reported\n^5"..customMessage
+      }
+    })
+  end
 end
 
 function DispatchNotification(title, msg)
@@ -60,17 +69,15 @@ function DispatchBlip(x,y,z,title)
   end)
 end
 
-
---- EXPORT: DispatchMessage()
 -- Sends a message to on duty cop as dispatch
-function SendDispatch(title, place, pos, y, z)
+function SendDispatch(title, place, pos, y, z, message)
   if isCop then
     if type(pos) ~= "vector3" then pos = vector3(x, y, z) end
     if pos then
       if not title then title = "9-1-1" end
       if not place then place = "Cell Phone 911" end
       if not area then area   = "Unknown Area" end
-      DispatchMessage(title, place)
+      DispatchMessage(title, place, message)
       DispatchNotification(title, place)
       DispatchBlip(pos.x, pos.y, pos.z, title)
     end

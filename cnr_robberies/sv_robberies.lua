@@ -103,7 +103,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
       exports['cnr_chat']:DiscordMessage(
         16753920, "Robbery",
         (mission.title).." in "..(mission.area).." just got robbed!", "",
-        true
+        1
       )
     end)
 

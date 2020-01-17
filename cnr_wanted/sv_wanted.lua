@@ -126,31 +126,28 @@ function WantedPoints(ply, crime, msg)
       if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then
         if wants > 10 then
           exports['cnr_chat']:DiscordMessage(
-            16732160, "San Andreas' Most Wanted",
+            11027200, "San Andreas' Most Wanted",
             GetPlayerName(ply).." is now on the Most Wanted list!",
-            "San Andreas Most Wanted"
+            "", 6
           )
         else
           exports['cnr_chat']:DiscordMessage(
-            16747520, "",
-            GetPlayerName(ply).." is now Wanted Level "..(wants).."!",
-            ""
+            15105570, GetPlayerName(ply).." had their Wanted Level increased!",
+            "WANTED LEVEL "..wants, "", 6
           )
         end
       -- Player's wanted level reduced
       elseif (lastWanted > wanted[ply] - 10) and (lastWanted >= 10) and lastWanted < 101 and wanted[ply] > 0 then
         exports['cnr_chat']:DiscordMessage(
-          16762880, "",
-          GetPlayerName(ply).." is now Wanted Level "..(wants)..".",
-          ""
+          15105570, GetPlayerName(ply).." had their Wanted Level reduced.",
+          "WANTED LEVEL "..wants, "", 6
         )
 
       -- Player is no longer wanted
       elseif lastWanted > 0 and wanted[ply] <= 0 then
         exports['cnr_chat']:DiscordMessage(
-          13158600 , "",
-          GetPlayerName(ply).." is no longer wanted by police.",
-          ""
+          8359053, GetPlayerName(ply).." is no longer wanted.",
+          "NOW INNOCENT", "", 6
         )
 
       end

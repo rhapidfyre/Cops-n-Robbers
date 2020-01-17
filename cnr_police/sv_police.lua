@@ -1,6 +1,7 @@
 
 
 RegisterServerEvent('cnr:police_dispatch')
+RegisterServerEvent('cnr:police_dispatch_report')
 RegisterServerEvent('cnr:police_backup')
 RegisterServerEvent('cnr:police_status')
 RegisterServerEvent('cnr:client_loaded')
@@ -19,15 +20,19 @@ function CountCops()
 end
 
 
-function DispatchPolice(title, zName, position)
+function DispatchPolice(title, zName, position, message)
   if not zName then zName = "San Andreas" end
-  TriggerClientEvent('cnr:dispatch', (-1), title, zName, position)
+  if not message then message = "A(n) "..title.." was reported in "..zName end
+  TriggerClientEvent('cnr:dispatch', (-1), title, zName, position, message)
   exports['cnr_chat']:DiscordMessage(
-    35578, "Crime Reported", "A(n) "..title.." was reported in "..zName, title, true
+    35578, "Crime Reported", message, title, 1
   )
 end
 AddEventHandler('cnr:police_dispatch', function(title, zName, position)
   DispatchPolice(title, zName, position)
+end)
+AddEventHandler('cnr:police_dispatch_report', function(title, zName, position, message)
+  DispatchPolice(title, zName, position, message)
 end)
 
 
@@ -43,11 +48,19 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
       function(cLevel)
         if not cLevel then cLevel = 1 end
         cops[ply] = cLevel
+        exports['cnr_chat']:DiscordMessage(2067276,
+          GetPlayerName(ply).." is now on Law Enforcement duty",
+          "There are now "..CountCops().." on duty.", ""
+        )
         TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
       end
     )
   else
     cops[ply] = nil
+    exports['cnr_chat']:DiscordMessage(10038562,
+      GetPlayerName(ply).." is no longer a cop",
+      "There are now "..CountCops().." on duty.", ""
+    )
     TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
   end
 

@@ -1,5 +1,5 @@
 
-function DiscordMessage(color, name, message, footer, copMessage)
+function DiscordMessage(color, name, message, footer, classification)
 
   local embed = {
     {
@@ -12,20 +12,30 @@ function DiscordMessage(color, name, message, footer, copMessage)
     }
   }
 
-  if name == "" then embed["title"] = "" end
-  local discordApp = urls.feed
-  if copMessage then discordApp = urls.emg end
-
+  if name == "" then embed[1]["title"] = "" end
+  if not classification then classification = 1 end
+  
   -- Sends the message to the Discord API for dispatch
-  PerformHttpRequest(discordApp,
+  PerformHttpRequest(urls[classification],
     function(err, text, headers) end, 'POST',
-    json.encode({username = "Server Monitor", embeds = embed}),
+    json.encode({username = "5M:CNR Monitor", embeds = embed}),
     {['Content-Type'] = 'application/json' }
   )
 
 end
 RegisterServerEvent('_chat:messageEntered')
 RegisterServerEvent('cnr:radio_message')
+
+AddEventHandler('chatMessage', function(msgClient, name, message)
+  PerformHttpRequest(urls[4],
+    function(err, text, headers) end, 'POST',
+    json.encode({
+      username = "5M:CNR Monitor",
+      content  = "**"..name.."**: "..message
+    }),
+    { ['Content-Type'] = 'application/json' }
+  )
+end)
 
 -- From base chat resource
 AddEventHandler('_chat:messageEntered', function(author, color, message)

@@ -393,6 +393,9 @@ end)
 function AdminMessage(message, aid)
   
   if not aid then aid = "CNR SERVER" end
+  exports['cnr_chat']:DiscordMessage(3840,
+    "", message, "Admin #"..aid.. "("..GetPlayerName(client)..")", 5
+  )
   for k,v in pairs (admins) do 
     TriggerClientEvent('chat:addMessage', k, {templateId = 'asay',
       args = {aid, message}

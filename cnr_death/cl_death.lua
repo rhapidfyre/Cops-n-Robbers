@@ -98,7 +98,7 @@ local function DeathNotification()
       if IsPedAPlayer(killer) then 
         if PlayerPedId() == killer then
           print("DEBUG - You killed yourself!")
-          TriggerServerEvent('cnr:death_noted', GetPlayerServerId(PlayerId()))
+          TriggerServerEvent('cnr:death_check', GetPlayerServerId(PlayerId()))
         else
           print("DEBUG - Killed by Player!")
           local plys = GetActivePlayers()
@@ -126,28 +126,31 @@ local function DeathNotification()
             end
           else
             print("DEBUG - Ran down by an aggressive NPC driver!")
-            TriggerServerEvent('cnr:death_noted', nil)
+            TriggerServerEvent('cnr:death_check', nil)
           end
         else
           print("DEBUG - Ran down by a vehicle with no ped driving!")
-          TriggerServerEvent('cnr:death_noted', nil)
+          TriggerServerEvent('cnr:death_check', nil)
         end
       else
         print("DEBUG - Ran down by a vehicle with no driver!")
-        TriggerServerEvent('cnr:death_noted', nil)
+        TriggerServerEvent('cnr:death_check', nil)
       end
     else
       print("DEBUG - Killed by something else!")
-      TriggerServerEvent('cnr:death_noted', nil)
+      TriggerServerEvent('cnr:death_check', nil)
     end
   end
 end
 
+local plyDead = false
 Citizen.CreateThread(function()
    while true do
        Citizen.Wait(0)
-       if IsPlayerDead(PlayerId()) then
-       
+       if IsPlayerDead(PlayerId()) and not plyDead then
+         plyDead = true
+         Citizen.CreateThread(RevivePlayer)
+         Citizen.CreateThread(DeathNotification)
          StartScreenEffect("DeathFailOut", 0, 0)
          if not locksound then
            PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
@@ -157,7 +160,6 @@ Citizen.CreateThread(function()
 
          local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
          
-         DeathNotification()
 
          if HasScaleformMovieLoaded(scaleform) then
            Citizen.Wait(0)
@@ -171,15 +173,16 @@ Citizen.CreateThread(function()
            Citizen.Wait(500)
 
            PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
-           Citizen.CreateThread(RevivePlayer)
            TriggerEvent('cnr:player_died')
            TriggerServerEvent('cnr:player_death')
-           while IsPlayerDead(PlayerId()) do
-             DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-             HideHudAndRadarThisFrame(true)
-             Citizen.Wait(0)
-           end
-
+           Citizen.CreateThread(function()
+            while IsPlayerDead(PlayerId()) do
+              DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
+              HideHudAndRadarThisFrame(true)
+              Citizen.Wait(0)
+            end
+            plyDead = false
+           end)
            StopScreenEffect("DeathFailOut")
            locksound = false
          end
@@ -191,7 +194,9 @@ end)
 function RevivePlayer()
   Citizen.Wait(5800)
   if IsPlayerDead(PlayerId()) then
+  
     DoScreenFadeOut(1200)
+    
     while not IsScreenFadedOut() do Wait(100) end
     local myPos   = GetEntityCoords(PlayerPedId())
     local nearest = 1
@@ -209,6 +214,17 @@ function RevivePlayer()
     NetworkResurrectLocalPlayer(
      hospitals[nearest].coords, 0.0, false, false
     )
+    
+    local wl = exports['cnr_wanted']:WantedLevel()
+    if wl > 0 then 
+      TriggerServerEvent('cnr:police_dispatch_report',
+        "Wanted Person",
+        hospitals[nearest].title,
+        GetEntityCoords(PlayerPedId()),
+        "Security reported a Level "..wl.." Wanted Person was just released from their care."
+      )
+    end
+    
     SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
     FreezeEntityPosition(PlayerPedId(), true)
     Citizen.Wait(1000)

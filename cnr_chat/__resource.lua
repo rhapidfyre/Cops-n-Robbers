@@ -25,12 +25,11 @@ files {
 
 
 client_scripts {
-  "sh_chat.lua",
   "cl_chat.lua"
 }
 
 server_scripts {
-  "sh_chat.lua",
+  "sv_config.lua",
   "sv_chat.lua"
 }
 
