@@ -134,21 +134,26 @@ AddEventHandler('cnr:create_character', function()
   SendNUIMessage({hidewelcome = true})
   SetNuiFocus(true, true)
 
-  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-  SetEntityCoords(PlayerPedId(), -1702.72, -1085.94, 13.1523)
-  SetEntityHeading(PlayerPedId(), 40.0)
-  SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
-  RenderScriptCams(true, true, 500, true, true)
-  SetCamActive(cam, true)
-
-  if IsScreenFadedOut() then DoScreenFadeIn(1000) end
-
-  Citizen.Wait(600)
-  SendNUIMessage({showpedpick = true})
-
   -- Default model spawn
-  ModelChoice("random")
+  
+  local mdl = ModelChoice("random")
+	exports.spawnmanager:spawnPlayer({
+		x     = -1702.72,
+		y     = -1085.94,
+		z     = 13.1523,
+		model = mdl
+	}, function()
 
+    if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+    SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
+    RenderScriptCams(true, true, 500, true, true)
+    SetCamActive(cam, true)
+  
+    if IsScreenFadedOut() then DoScreenFadeIn(1000) end
+    SendNUIMessage({showpedpick = true})
+    
+  end)
+  
 end)
 
 
