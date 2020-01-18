@@ -13,7 +13,7 @@ RegisterServerEvent('cnr:prison_break')
 
 
 local inmates   = {}
-local prisoner  = {}    -- Used if player is in big boy jail
+local prisoners = {}    -- Used if player is in big boy jail
 local serveTime = {}
 local tickets   = {}
 local cprint    = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
@@ -43,34 +43,41 @@ end
 -- @param isBreakout True if the player broke out of prison
 function ReleaseFugitive(ply, isBreakout)
 
-  local uid = exports['cnrobbers']:UniqueId(ply)
-
-  for k,v in pairs (inmates) do
-    if v == ply then table.remove(inmates, k) end
-  end
-
-  if not isBreakout then
-    TriggerClientEvent('cnr:prison_release', ply, prisoner[ply])
-    cprint(
-      GetPlayerName(k).." has served their debt to society, "..
-      "and has been ^2released^7."
+  if inmates[ply] or prisoners[ply] then
+  
+    local uid = exports['cnrobbers']:UniqueId(ply)
+    local title = "jail"
+    if prisoners[ply] then title = "prison" end
+    
+    if not isBreakout then
+      TriggerClientEvent('cnr:prison_release', ply, prisoners[ply])
+      exports['cnr_chat']:DiscordMessage(1752220, "RELEASED",
+        GetPlayerName(ply).." has paid their debt to society.", ""
+      )
+      cprint(
+        GetPlayerName(ply).." has served their debt to society, "..
+        "and has been ^2released^7 from "..title.."."
+      )
+    else
+      cprint("^3"..GetPlayerName(ply).." has broken out of "..title.."!.")
+    end
+  
+    if serveTime[ply] then serveTime[ply]  = nil end
+    if inmates[ply]   then inmates[ply]    = nil end
+    if prisoners[ply] then prisoners[ply]  = nil end
+  
+    -- SQL: Remove inmate record
+    exports['ghmattimysql']:execute(
+      "DELETE FROM inmates WHERE idUnique = @uid",
+      {['uid'] = uid},
+      function() end
     )
+    
   else
-    cprint(
-      "^3"..GetPlayerName(k).." has broken out of jail/prison!."
-    )
+    if isBreakout then 
+      print("DEBUG - "..GetPlayerName(ply).." (ID "..ply..") reported prisonbreak, but they're not imprisoned.")
+    end
   end
-
-  if serveTime[ply] then serveTime[ply] = 0   end
-  if prisoner[k]    then prisoner[k]    = nil end
-
-  -- SQL: Remove inmate record
-  exports['ghmattimysql']:execute(
-    "DELETE FROM inmates WHERE idUnique = @uid",
-    {['uid'] = uid},
-    function() end
-  )
-
 end
 
 
@@ -87,11 +94,11 @@ function ImprisonClient(ply, cop)
     -- Jail / Prison
     if wantedLevel > 3 then
 
-      serveTime[ply]        = CalculateTime(ply) * 60
-      inmates[#inmates + 1] = ply
+      serveTime[ply]  = CalculateTime(ply) * 60
+      inmates[ply]    = true
 
       if wantedLevel > 5 then
-        prisoner[ply] = true
+        prisoners[ply] = true
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to prison for "..(serveTime[ply]/60).." minutes!"
         )
@@ -111,7 +118,7 @@ function ImprisonClient(ply, cop)
 
       -- Tell client to go to prison
       TriggerClientEvent('cnr:police_imprison', ply,
-        cop, (serveTime[ply]/60), prisoner[ply]
+        cop, serveTime[ply], prisoners[ply]
       )
 
       -- Fire off relevant server scripts
@@ -121,7 +128,7 @@ function ImprisonClient(ply, cop)
       exports['ghmattimysql']:execute(
         "INSERT INTO inmates (idUnique, sentence, isPrison) "..
         "VALUES (@uid, @jt, @p)",
-        {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = prisoner[ply]}
+        {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = prisoners[ply]}
       )
 
     -- Ticket
@@ -151,7 +158,7 @@ function ImprisonClient(ply, cop)
           "for ^7$"..tickets[ply].."^2.\nWait to see if they pay the fine..."
         }})
 
-        -- Create ticketTime timer to
+        -- Create ticketTime timer
         Citizen.CreateThread(function()
           local cl = ply
           Citizen.Wait(ticketTime * 1000)
@@ -222,33 +229,29 @@ end)
 
 
 AddEventHandler('playerDropped', function(reason)
-  local ply      = source
-  local pName    = GetPlayerName(ply)
-  local isInmate = false
-  for k,v in pairs(inmates) do
-    if v == ply then
-      isInmate = true
-      table.remove(inmates, k) -- Perform list cleanup
-      break
-      end
-  end
-  if isInmate then
+
+  local ply        = source
+  local pName      = GetPlayerName(ply)
+  local isInmate   = inmates[ply]
+  local isPrisoner = 0
+  if prisoners[ply] then isPrisoner = 1 end
+  
+  if isInmate or isPrisoner == 1 then
     local uid = exports['cnrobbers']:UniqueId(ply)
     local jTime = serveTime[ply]
     if not pName then pName = "Unknown" end
     if not jTime then jTime = 5;cprint("^1WARNING:^7 serveTime not found!") end
-    exports['ghmattimysql']:execute(
+    exports['ghmattimysql']:executeSync(
       "CALL offline_inmate(@uid, @jTime, @bigJail)",
-      {['uid'] = uid, ['jTime'] = serveTime[ply], ['bigJail'] = prisoner[ply]},
-      function()
-        exports['cnrobbers']:ConsolePrint(
-          tostring(pName).." logged off with "..tostring(jTime)..
-          " seconds left to serve. Their time has been added to SQL."
-        )
-        prisoner[ply]  = false
-        serveTime[ply] = 0
-      end
+      {['uid'] = uid, ['jTime'] = jTime, ['bigJail'] = isPrisoner}
     )
+    exports['cnrobbers']:ConsolePrint(
+      tostring(pName).." logged off with "..tostring(jTime)..
+      " seconds left to serve. Their time has been added to SQL."
+    )
+    serveTime[ply] = 0
+    prisoners[ply] = nil
+    inmates[ply]   = nil
   end
 end)
 
@@ -274,10 +277,10 @@ AddEventHandler('cnr:client_loaded', function()
         if jailInfo[1] then
           cprint(pName.." last logged off with time to serve.")
           if jailInfo[1]["sentence"] > 0 then
-            inmates[#inmates + 1] = ply
+            inmates[ply]   = true
             serveTime[ply] = jailInfo[1]["sentence"]
-            if jailInfo[1]["isPrisoner"] then
-              prisoner[ply] = true
+            if jailInfo[1]["isPrisoner"] == 1 then
+              prisoners[ply] = true
               cprint(pName.." has been sent back to prison.")
             else
               cprint(pName.." has been sent back to jail.")
@@ -287,6 +290,8 @@ AddEventHandler('cnr:client_loaded', function()
               math.floor(jailInfo[1]["sentence"]/60).." minutes & "..
               math.floor(jailInfo[1]["sentence"]%60).." seconds."
             )
+            print(jailInfo[1]["sentence"], jailInfo[1]["isPrison"])
+            TriggerEvent('cnr:imprisoned', ply)
             TriggerClientEvent('cnr:prison_rejail', ply,
               jailInfo[1]["sentence"], jailInfo[1]["isPrison"]
             )
@@ -310,15 +315,14 @@ Citizen.CreateThread(function()
     for k,v in pairs (serveTime) do
       if v then
         if v < 1 then
-          print(GetPlayerName(k).." has served their time and has been released!")
-          ReleaseFugitive(k)
+          if GetPlayerName(k) then
+            print(GetPlayerName(k).." has served their time and has been released!")
+            ReleaseFugitive(k)
+          end
         end
-        serveTime[k] = v - 1
-      else print("DEBUG - Bad V["..tostring(v).."] for Player "..GetPlayerName(k))
+        if v then serveTime[k] = v - 1 end
       end
     end
-    -- Slow this loop down if there's no inmates
-    if #inmates < 1 then Citizen.Wait(9000) end
     Citizen.Wait(1000)
   end
 end)
@@ -334,11 +338,9 @@ end)
 ]]
 AddEventHandler('cnr:prison_time_served', function()
   local ply       = source
-  local isJailed  = false
-  for k,v in pairs (inmates) do
-    if v == ply then isJailed = true end
-  end
-  if isJailed then
+  local isJailed  = inmates[ply]
+  local isPrison  = prisoners[ply]
+  if isJailed or isPrison then
     if serveTime[ply] then
       -- If less than 1 minute remaining
       if serveTime[ply] < 61 then

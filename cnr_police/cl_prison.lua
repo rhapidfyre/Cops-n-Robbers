@@ -17,13 +17,17 @@ function IsPrisoner()
   Citizen.CreateThread(function()
     while isPrisoner do
       if #(GetEntityCoords(PlayerPedId()) - prison.center) > prison.limit then
+        print("DEBUG - Reporting prison break!")
         isPrisoner = false
-        TriggerServerEvent('cnr:wanted_points', 'prisonbreak')
+        TriggerServerEvent('cnr:wanted_points', 'prisonbreak',
+          "Bolingbrook Penitentary", GetEntityCoords(PlayerPedId())
+        )
         TriggerServerEvent('cnr:prison_break')
         break
       end
-      Wait(100)
+      Wait(3000)
     end
+    print("DEBUG - IsPrisoner() Finished.")
   end)
 end
 
@@ -34,22 +38,35 @@ function IsInmate()
   Citizen.CreateThread(function()
     while isInmate do
       if #(GetEntityCoords(PlayerPedId()) - jails[3].pos) > 100.0 then
+        print("DEBUG - Reporting jail break!")
         isInmate = false
-        TriggerServerEvent('cnr:wanted_points', 'jailbreak')
+        TriggerServerEvent('cnr:wanted_points', 'jailbreak',
+          "Mission Row Detention Facility", GetEntityCoords(PlayerPedId())
+        )
         TriggerServerEvent('cnr:prison_break')
         break
       end
-      Wait(100)
+      Wait(3000)
     end
+    print("DEBUG - IsInmate() Finished.")
   end)
 end
 
 
 function BeginSentence(secondz)
-  local jailTime = (secondz * 60)
+
+  local jailTime = math.floor(secondz) --(secondz * 60)
   SendNUIMessage({showjail = true})
 
   -- While serving time and is in jail or prison
+  TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
+    args = {
+      "You've been imprisoned for "..math.floor(jailTime/60)..
+      " minutes and "..math.floor(jailTime%60).." seconds.\n"..
+      "You can either wait out your time, try to escape, or /bribe a nearby cop."
+    }
+  })
+  
   while jailTime > 0 and (isInmate or isPrisoner) do
     local secs = math.floor(jailTime%60)
     if secs < 10 then secs = "0"..secs end
@@ -69,6 +86,7 @@ function BeginSentence(secondz)
   if isPrisoner or isInmate then
     TriggerServerEvent('cnr:prison_time_served')
   end
+  
 end
 
 
@@ -93,11 +111,13 @@ AddEventHandler('cnr:police_imprison', Imprison)
 -- Similar to Imprison() but doesn't have any calculations or notifications
 function Reimprison(jt, jp)
   local spawn = jails[math.random(#jails)]
-  if jp == 2 then spawn = prisons[math.random(#prisons)] end
+  if jp then spawn = prisons[math.random(#prisons)] end
   SetEntityCoords(PlayerPedId(), spawn.pos)
   SetEntityHeading(PlayerPedId(), spawn.h)
   Citizen.CreateThread(function()
     BeginSentence(jt)
+    if jp then IsPrisoner()
+    else IsInmate() end
   end)
 end
 AddEventHandler('cnr:prison_rejail', Reimprison)
@@ -211,7 +231,7 @@ Citizen.CreateThread(function()
 end)
 
 
--- Solely for operating the Bolingbroke Penitentary gates
+-- Solely for operating the Bolingbrook Penitentary gates
 -- Also contains the door points for going in/out of the prison
 local prisonDoors = {
   enter  = vector3(1847.03, 2585.94, 45.672),
