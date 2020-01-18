@@ -118,11 +118,10 @@ function UniqueId(ply, uid)
       local ids = GetPlayerInformation(ply)
 
       local idNumber = exports['ghmattimysql']:scalarSync(
-        "SELECT idUnique FROM players "..
-        "WHERE idSteam = @steam OR idFiveM = @five "..
-        "OR idSocialClub = @soc OR idDiscord = @disc LIMIT 1",
+        "SELECT new_player(@steam, @soc, @five, @disc, @ep, @un)",
         {['steam'] = ids['stm'], ['five'] = ids['five'],
-        ['soc'] = ids['soc'], ['disc'] = ids['discd']}
+        ['soc'] = ids['soc'], ['disc'] = ids['discd'],
+        ['ep'] = GetPlayerEndpoint(ply), GetPlayerName(ply)}
       )
 
       unique[ply] = idNumber
