@@ -44,11 +44,11 @@ end
 function ReleaseFugitive(ply, isBreakout)
 
   if inmates[ply] or prisoners[ply] then
-  
+
     local uid = exports['cnrobbers']:UniqueId(ply)
     local title = "jail"
     if prisoners[ply] then title = "prison" end
-    
+
     if not isBreakout then
       TriggerClientEvent('cnr:prison_release', ply, prisoners[ply])
       exports['cnr_chat']:DiscordMessage(1752220, "RELEASED",
@@ -61,20 +61,20 @@ function ReleaseFugitive(ply, isBreakout)
     else
       cprint("^3"..GetPlayerName(ply).." has broken out of "..title.."!.")
     end
-  
+
     if serveTime[ply] then serveTime[ply]  = nil end
     if inmates[ply]   then inmates[ply]    = nil end
     if prisoners[ply] then prisoners[ply]  = nil end
-  
+
     -- SQL: Remove inmate record
     exports['ghmattimysql']:execute(
       "DELETE FROM inmates WHERE idUnique = @uid",
       {['uid'] = uid},
       function() end
     )
-    
+
   else
-    if isBreakout then 
+    if isBreakout then
       print("DEBUG - "..GetPlayerName(ply).." (ID "..ply..") reported prisonbreak, but they're not imprisoned.")
     end
   end
@@ -235,7 +235,7 @@ AddEventHandler('playerDropped', function(reason)
   local isInmate   = inmates[ply]
   local isPrisoner = 0
   if prisoners[ply] then isPrisoner = 1 end
-  
+
   if isInmate or isPrisoner == 1 then
     local uid = exports['cnrobbers']:UniqueId(ply)
     local jTime = serveTime[ply]

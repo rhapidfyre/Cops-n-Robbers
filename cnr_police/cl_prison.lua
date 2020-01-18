@@ -66,7 +66,7 @@ function BeginSentence(secondz)
       "You can either wait out your time, try to escape, or /bribe a nearby cop."
     }
   })
-  
+
   while jailTime > 0 and (isInmate or isPrisoner) do
     local secs = math.floor(jailTime%60)
     if secs < 10 then secs = "0"..secs end
@@ -86,7 +86,7 @@ function BeginSentence(secondz)
   if isPrisoner or isInmate then
     TriggerServerEvent('cnr:prison_time_served')
   end
-  
+
 end
 
 

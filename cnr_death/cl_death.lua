@@ -61,6 +61,8 @@ local notified = false
 local function DeathNotification()
   if not notified then
     notified = true
+    TriggerEvent('cnr:player_died')
+    TriggerServerEvent('cnr:player_death')
   --[[
   local killer, killerweapon = NetworkGetEntityKillerOfPlayer(PlayerId())
   local killerentitytype     = GetEntityType(killer)
@@ -176,8 +178,6 @@ Citizen.CreateThread(function()
            Citizen.Wait(500)
 
            PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
-           TriggerEvent('cnr:player_died')
-           TriggerServerEvent('cnr:player_death')
            while IsPlayerDead(PlayerId()) do
              DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
              HideHudAndRadarThisFrame(true)
@@ -192,50 +192,52 @@ Citizen.CreateThread(function()
 end)
 
 function RevivePlayer()
-  Citizen.Wait(5400)
-  if IsPlayerDead(PlayerId()) then
-
-    DoScreenFadeOut(1200)
-
-    while not IsScreenFadedOut() do Wait(100) end
-    local myPos   = GetEntityCoords(PlayerPedId())
-    local nearest = 1
-    local cDist   = math.huge
-    for k,v in pairs (hospitals) do
-      local dist = #(myPos - v.coords)
-      if dist < cDist then nearest = k; cDist = dist end
-    end
-
-    if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-    SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
-    RenderScriptCams(true, true, 500, true, true)
-    SetCamActive(cam, true)
-
-    NetworkResurrectLocalPlayer(
-     hospitals[nearest].coords, 0.0, false, false
-    )
-
-    local wl = exports['cnr_wanted']:WantedLevel()
-    if wl > 0 then
-      TriggerServerEvent('cnr:police_dispatch_report',
-        "Wanted Person",
-        hospitals[nearest].title,
-        GetEntityCoords(PlayerPedId()),
-        hospitals[nearest].title.."Security reported a Level "..wl..
-        " Wanted Person was just released from their care."
+  if not notified then
+    Citizen.Wait(5400)
+    if IsPlayerDead(PlayerId()) then
+  
+      DoScreenFadeOut(1200)
+  
+      while not IsScreenFadedOut() do Wait(100) end
+      local myPos   = GetEntityCoords(PlayerPedId())
+      local nearest = 1
+      local cDist   = math.huge
+      for k,v in pairs (hospitals) do
+        local dist = #(myPos - v.coords)
+        if dist < cDist then nearest = k; cDist = dist end
+      end
+  
+      if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+      SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
+      RenderScriptCams(true, true, 500, true, true)
+      SetCamActive(cam, true)
+  
+      NetworkResurrectLocalPlayer(
+      hospitals[nearest].coords, 0.0, false, false
       )
+  
+      local wl = exports['cnr_wanted']:WantedLevel()
+      if wl > 3 then
+        TriggerServerEvent('cnr:police_dispatch_report',
+          "Wanted Person",
+          hospitals[nearest].title,
+          GetEntityCoords(PlayerPedId()),
+          hospitals[nearest].title.." Security reported a Level "..wl..
+          " Wanted Person was just released from their care."
+        )
+      end
+  
+      SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
+      FreezeEntityPosition(PlayerPedId(), true)
+      Citizen.Wait(1000)
+      DoScreenFadeIn(3000)
+      Citizen.Wait(2000)
+      RenderScriptCams(false, true, 500, false, false)
+      Citizen.Wait(520)
+      FreezeEntityPosition(PlayerPedId(), false)
+      SetCamActive(cam, false)
+  
     end
-
-    SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
-    FreezeEntityPosition(PlayerPedId(), true)
-    Citizen.Wait(1000)
-    DoScreenFadeIn(3000)
-    Citizen.Wait(2000)
-    RenderScriptCams(false, true, 500, false, false)
-    Citizen.Wait(520)
-    FreezeEntityPosition(PlayerPedId(), false)
-    SetCamActive(cam, false)
-
   end
 end
 

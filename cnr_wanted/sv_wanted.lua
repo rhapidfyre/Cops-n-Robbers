@@ -122,8 +122,9 @@ function WantedPoints(ply, crime, msg)
     -- Check for broadcast
     if lastWanted ~= wanted[ply] then
       local wants = WantedLevel(ply)
+
       -- Wanted level went up by at least 10 (1 level)
-      if lastWanted < wanted[ply] - 10 and lastWanted >= 0 then
+      if lastWanted < wanted[ply] - 10 then
         if wants > 10 then
           exports['cnr_chat']:DiscordMessage(
             11027200, "San Andreas' Most Wanted",
@@ -136,12 +137,6 @@ function WantedPoints(ply, crime, msg)
             "WANTED LEVEL "..wants, "", 6
           )
         end
-      -- Player's wanted level reduced
-      elseif (lastWanted > wanted[ply] - 10) and (lastWanted >= 10) and lastWanted < 101 and wanted[ply] > 0 then
-        exports['cnr_chat']:DiscordMessage(
-          15105570, GetPlayerName(ply).." had their Wanted Level reduced.",
-          "WANTED LEVEL "..wants, "", 6
-        )
 
       -- Player is no longer wanted
       elseif lastWanted > 0 and wanted[ply] <= 0 then
