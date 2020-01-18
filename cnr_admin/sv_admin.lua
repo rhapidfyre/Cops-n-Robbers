@@ -329,14 +329,14 @@ AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
       TeleportAlert(toPlayer, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") sent "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
     
-    -- Sending themselves to another player
+    -- Sending Admin to player
     elseif toPlayer > 0 then
     print("DEBUG - Sending admin to Player")
       TriggerClientEvent('cnr:admin_tp_coords', client, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, client, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
       
-    -- Bringing another player to themselves
+    -- Bringing another player to Admin
     elseif fromPlayer > 0 then 
       print("DEBUG - Sending player to Admin")
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, client, nil, admins[client])

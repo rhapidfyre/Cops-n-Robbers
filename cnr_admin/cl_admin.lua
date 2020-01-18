@@ -864,6 +864,7 @@ AddEventHandler('cnr:admin_tp_coords', function(toPlayer, coords, aid)
     FreezeEntityPosition(ent, false)
   
   else
+    local ent = PlayerPedId()
     local pedPos = GetEntityCoords(GetPlayerPed(GetPlayerFromServerId(toPlayer)))
     SetEntityCoords(ent, pedPos.x, pedPos.y, pedPos.z + 1.0)
     FreezeEntityPosition(ent, true)
