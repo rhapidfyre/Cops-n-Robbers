@@ -179,6 +179,11 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
   end
 end)
 
+AddEventHandler('cnr:imprisoned', function(client)
+  wanted[client] = 0
+  TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
+end)
+
 --- EXPORT WantedLevel()
 -- Returns the wanted level of the player for easier calculation
 -- @param ply Server ID, if provided
