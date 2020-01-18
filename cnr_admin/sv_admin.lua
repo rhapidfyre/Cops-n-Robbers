@@ -38,6 +38,23 @@ local admins = {}
 local warns  = {}
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
+--- EXPORT: AdminLevel()
+-- Checks if the player is an admin
+-- @param client The server ID
+-- @return table 1:Admin Level, 2:Admin ID Number
+function AdminLevel(client)
+
+  if not client then return {[1] = 0, [2] = 0} end 
+  if not admins[client] then return {[1] = 0, [2] = 0} end 
+  
+  if admins[client] > 9999 then
+    return {[1] = 4, [2] = admins[client]}
+  elseif admins[client] > 999 then
+    return {[1] = 3, [2] = admins[client]}
+  end
+  
+  return {[1] = 2, [2] = admins[client]}
+end
 
 local function AssignAdministrator(client, aLevel)
   if not type(aLevel) == "number" then aLevel = tonumber(aLevel) end
