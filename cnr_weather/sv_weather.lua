@@ -241,7 +241,7 @@ end)
 Citizen.CreateThread(function()
   while true do
     Citizen.Wait(300000)
-    TriggerClientEvent('cnr:weather_time', -1, wxCurrent)
+    TriggerClientEvent('cnr:weather_update', -1, wxCurrent)
   end
 end)
 
