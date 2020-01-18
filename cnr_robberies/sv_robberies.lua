@@ -69,7 +69,7 @@ AddEventHandler('cnr:robbery_dropped', function()
         if take then
           local pInfo = GetPlayerName(ply).."("..ply..")"
           local dt    = os.date("%H:%M.%I", os.time())
-          exports['cnr_cash']:BankTransaction(ply, take)
+          Laundered(ply, take)
           exports['ghmattimysql']:execute(
             "DELETE FROM robberies WHERE idUnique = @u",
             {['u'] = uid}
@@ -102,8 +102,8 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
       )
       exports['cnr_chat']:DiscordMessage(
         16753920, "Robbery",
-        (mission.title).." in "..(mission.area).." just got robbed!", "",
-        1
+        (mission.title).." in "..(mission.area).." has reported a Robbery!", "",
+        2
       )
     end)
 
@@ -141,4 +141,34 @@ AddEventHandler('cnr:client_loaded', function()
       end
     end
   )
+end)
+
+AddEventHandler('playerDisconnected', function(reason)
+  local client = source
+  if laundry[client] then
+    if laundry[client] > 0 then
+      exports['cnr_cash']:BankTransaction(client, laundry[client])
+      laundry[client] = nil
+    end
+  end
+end)
+
+function Laundered(ply, take)
+  if not laundry[ply] then laundry[ply] = 0 end
+  laundry[ply] = laundry[ply] + take
+end
+
+Citizen.CreateThread(function()
+  Citizen.Wait(30000)
+  while true do 
+    for k,v in pairs(laundry) do 
+      if v then
+        print("DEBUG - Laundering "..GetPlayerName(k).."'s cash ($"..v..")")
+        exports['cnr_cash']:BankTransaction(k, v)
+      end
+      laundry[k] = nil
+      Citizen.Wait(1000)
+    end
+    Citizen.Wait(900000)
+  end
 end)

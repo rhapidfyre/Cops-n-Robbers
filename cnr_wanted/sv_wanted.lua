@@ -147,7 +147,7 @@ function WantedPoints(ply, crime, msg)
       elseif lastWanted > 0 and wanted[ply] <= 0 then
         exports['cnr_chat']:DiscordMessage(
           8359053, GetPlayerName(ply).." is no longer wanted.",
-          "NOW INNOCENT", "", 6
+          "WANTED LEVEL 0", "", 6
         )
 
       end

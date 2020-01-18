@@ -51,11 +51,12 @@ Citizen.CreateThread(function()
   local minute = 0
   while true do
     Citizen.Wait(0)
-    local newbTime = bTime
+    local newtime = bTime
     if GetGameTimer() - 500  > timer then
-      newbTime = newbTime + 0.25; timer = GetGameTimer()
+      newtime = newtime + 0.25
+      timer = GetGameTimer()
     end
-    bTime  = newbTime
+    bTime  = newtime
     hour   = math.floor(((bTime+timeOffset)/60)%24)
     minute = math.floor((bTime+timeOffset)%60)
     NetworkOverrideClockTime(hour, minute, 0)

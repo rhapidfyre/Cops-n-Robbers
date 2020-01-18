@@ -8,12 +8,6 @@ local isRobbing = false
 local takeDrops = {}
 local bagDraw   = 45
 
-
-RegisterCommand('.stopanim', function()
-  ClearPedTasksImmediately(PlayerPedId())
-  ClearPedSecondaryTask(PlayerPedId())
-end)
-
 function SpawnStoreClerk(n)
   if n then
   if rob[n] then
@@ -250,6 +244,10 @@ function CreateRobberyClerks()
       if takeDrops[1] then
         for k,v in pairs (takeDrops) do
           if #(v.pos - myPos) < 2.25 then
+            exports['cnr_chat']:ChatNotification("CHAR_LESTER",
+              "Anonymous", "Money Received",
+              "It'll take some time to clean the cash. Check the bank soon."
+            )
             TriggerServerEvent('cnr:robbery_dropped')
             SetPedComponentVariation(PlayerPedId(), 5, 0, 0, 0)
             DestroyDropSpots()
@@ -296,7 +294,10 @@ function OfferDropSpots(giveBag)
   DestroyDropSpots()
 
   -- If bool passed, spawn bag
-  if giveBag then SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0) end
+  if giveBag then
+    print("DEBUG - Giving player a money bag")
+    SetPedComponentVariation(PlayerPedId(), 5, bagDraw, 0, 0)
+  end
 
   local zn       = exports['cnrobbers']:GetActiveZone()
   local eligible = dropSpots[zn]
