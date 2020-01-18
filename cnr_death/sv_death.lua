@@ -21,6 +21,13 @@ AddEventHandler('cnr:death_check', function(killer)
         print("DEBUG - cnr:death_check determined MURDER.")
         dMessage = GetPlayerName(killer).." killed "..GetPlayerName(victim)
         exports['cnr_wanted']:WantedPoints(killer, 'murder', true)
+        local uid = exports['cnrobbers']:UniqueId(killer)
+        if killer then
+          exports['ghmattimysql']:execute(
+            "UPDATE characters SET kills = kills + 1 WHERE idUnique = @uid",
+            {['uid'] = uid}
+          )
+        end
       else
         dMessage = GetPlayerName(killer).." neutralized "..GetPlayerName(victim)
         print("DEBUG - cnr:death_check determined JUSTIFIED.")
@@ -42,4 +49,14 @@ AddEventHandler('cnr:death_noted', function(killer)
   exports['cnrobbers']:ConsolePrint(dMessage)
   exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
   TriggerClientEvent('cnr:death_notify', (-1), source, killer)
+end)
+
+RegisterServerEvent('cnr:player_death')
+AddEventHandler('cnr:player_death', function()
+  local client = source
+  local uid    = exports['cnrobbers']:UniqueId(client)
+  exports['ghmattimysql']:execute(
+    "UPDATE characters SET deaths = deaths + 1 WHERE idUnique = @uid",
+    {['uid'] = uid}
+  )
 end)
