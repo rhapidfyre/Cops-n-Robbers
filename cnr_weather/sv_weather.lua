@@ -21,8 +21,8 @@ AddEventHandler('cnr:weather_sync', function()
 end)
 
 function IsAdmin(client)
-  local aLevel, aid = exports['cnr_admin']:AdminLevel(client)
-  return aid
+  local aInfo = exports['cnr_admin']:AdminLevel(client)
+  return aInfo[2]
 end
 
 --- EXPORT: GetWeather()
@@ -31,8 +31,8 @@ function GetWeather()
   return wxCurrent
 end
 
-RegisterCommand('weather', function(source, args)
-  local client = source
+RegisterCommand('weather', function(s, args)
+  local client = s
   if client == 0 then
     local wxValid = false
     if args[1] == nil then
@@ -51,12 +51,13 @@ RegisterCommand('weather', function(source, args)
         TriggerEvent('cnr:weather_sync')
       else
         local wxs = ""
-        for _,i in ipairs (wxTypes) do wxs = wxs..v.." " end
+        for _,i in ipairs (wxTypes) do wxs = wxs..i.." " end
         print("CNR WEATHER: Improper weather type. Please use one of these:\n "..wxs)
       end
     end
   else
-    if IsAdmin(client) then
+    local aid = IsAdmin(client)
+    if aid > 0 then
       local wxValid = false
       if args[1] == nil then
         TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
@@ -69,13 +70,16 @@ RegisterCommand('weather', function(source, args)
           end
         end
         if wxValid then
-          TriggerClientEvent('cnr:notify', client, 'Weather will change to: ~y~' .. string.lower(args[1]) .. "~s~.")
+          print("CNR WEATHER: Admin #"..aid.." changed the WEATHER to "..args[1])
+          TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
+            args = {"Admin #"..aid.." changed the weather to ^3"..args[1].."^7"}
+          })
           wxCurrent = string.upper(args[1])
           wxNewTimer = 10
           TriggerEvent('cnr:weather_sync')
         else
           local wxs = ""
-          for _,i in ipairs (wxTypes) do wxs = wxs..v.." " end
+          for _,i in ipairs (wxTypes) do wxs = wxs..i.." " end
           TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
             args = {"Invalid Arguments", "Valid weather types: "..wxs}
           })
@@ -90,63 +94,71 @@ RegisterCommand('weather', function(source, args)
   end
 end)
 
-RegisterCommand('morning', function(source)
-  if source == 0 then
+RegisterCommand('morning', function(s)
+  local client = s
+  if client == 0 then
     print("For console, use the \"/time <hh> <mm>\" command instead!")
     return
   end
   local aid = IsAdmin(client)
   if aid > 0 then
-    ShiftMinute(0)
-    ShiftHour(9)
+    print("CNR WEATHER: Admin #"..aid.." changed the time to 09:00")
     TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
       args = {"Admin #"..aid.." changed the time to ^3MORNING^7 (09:00)"}
     })
+    ShiftMinute(0)
+    ShiftHour(9)
     TriggerEvent('cnr:weather_sync')
   end
 end)
-RegisterCommand('noon', function(source)
-  if source == 0 then
+RegisterCommand('noon', function(s)
+  local client = s
+  if client == 0 then
     print("For console, use the \"/time <hh> <mm>\" command instead!")
     return
   end
   local aid = IsAdmin(client)
   if aid > 0 then
-    ShiftMinute(0)
-    ShiftHour(12)
+    print("CNR WEATHER: Admin #"..aid.." changed the time to 12:00")
     TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
       args = {"Admin #"..aid.." changed the time to ^3NOON^7 (12:00)"}
     })
+    ShiftMinute(0)
+    ShiftHour(12)
     TriggerEvent('cnr:weather_sync')
   end
 end)
-RegisterCommand('evening', function(source)
-  if source == 0 then
+RegisterCommand('evening', function(s)
+  local client = s
+  if client == 0 then
     print("For console, use the \"/time <hh> <mm>\" command instead!")
     return
   end
   local aid = IsAdmin(client)
   if aid > 0 then
-    ShiftMinute(0)
-    ShiftHour(19)
+    print("CNR WEATHER: Admin #"..aid.." changed the time to 19:00")
     TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
       args = {"Admin #"..aid.." changed the time to ^3NIGHT^7 (19:00)"}
     })
+    ShiftMinute(0)
+    ShiftHour(19)
     TriggerEvent('cnr:weather_sync')
   end
 end)
-RegisterCommand('night', function(source)
-  if source == 0 then
+RegisterCommand('night', function(s)
+  local client = s
+  if client == 0 then
     print("For console, use the \"/time <hh> <mm>\" command instead!")
     return
   end
   local aid = IsAdmin(client)
   if aid > 0 then
-    ShiftMinute(0)
-    ShiftHour(23)
+    print("CNR WEATHER: Admin #"..aid.." changed the time to 23:00")
     TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
       args = {"Admin #"..aid.." changed the time to ^3NIGHT^7 (23:00)"}
     })
+    ShiftMinute(0)
+    ShiftHour(23)
     TriggerEvent('cnr:weather_sync')
   end
 end)
@@ -171,7 +183,7 @@ RegisterCommand('time', function(s, args, rawCommand)
       if min_ < 60 then ShiftMinute(min_)
       else              ShiftMinute(0)
       end
-      print("CNR WEATHER: Time has changed to " .. hr_ .. ":" .. min_ .. ".")
+      print("CNR WEATHER: Time has been changed to " .. hr_ .. ":" .. min_ .. ".")
       TriggerEvent('cnr:weather_sync')
     else
       print("CNR WEATHER: Invalid syntax, correct syntax is: time <hour> <minute> !")
@@ -180,7 +192,7 @@ RegisterCommand('time', function(s, args, rawCommand)
     local aid = IsAdmin(client)
     if aid > 0 then
       if tonumber(args[1]) and tonumber(args[2]) then
-        local hr_ = tonumber(args[1])
+        local hr_  = tonumber(args[1])
         local min_ = tonumber(args[2])
         if hr_ < 24 then ShiftHour(hr_)
         else              ShiftHour(0)
@@ -193,8 +205,9 @@ RegisterCommand('time', function(s, args, rawCommand)
         if minute < 10 then newtime = newtime .. "0" .. minute
         else                newtime = newtime .. minute
         end
+        print("CNR WEATHER: Admin #"..aid.." changed the TIME to "..newtime)
         TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
-          args = {"Admin #"..aid.." changed the time to "..newtime}
+          args = {"Admin #"..aid.." changed the time to ^3"..newtime.."^7"}
         })
         TriggerEvent('cnr:weather_sync')
       else

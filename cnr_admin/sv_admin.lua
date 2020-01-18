@@ -44,8 +44,8 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 -- @return table 1:Admin Level, 2:Admin ID Number
 function AdminLevel(client)
 
-  if not client then return {[1] = 0, [2] = 0} end 
-  if not admins[client] then return {[1] = 0, [2] = 0} end 
+  if not client then          return {[1] = 0, [2] = 0}  end 
+  if not admins[client] then  return {[1] = 0, [2] = 0}  end 
   
   if admins[client] > 9999 then
     return {[1] = 4, [2] = admins[client]}
