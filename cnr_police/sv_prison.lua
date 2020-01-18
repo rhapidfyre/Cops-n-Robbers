@@ -302,10 +302,8 @@ Citizen.CreateThread(function()
     for k,v in pairs (serveTime) do
       if v then
         if v < 1 then
-          print("DEBUG - Time is up for "..GetPlayerName(k).."!")
+          print(GetPlayerName(k).." has served their time and has been released!")
           ReleaseFugitive(k)
-        else
-          print("DEBUG - Player has "..v.." seconds remaining.")
         end
         serveTime[k] = v - 1
       else print("DEBUG - Bad V["..tostring(v).."] for Player "..GetPlayerName(k))
