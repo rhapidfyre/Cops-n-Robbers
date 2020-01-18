@@ -114,11 +114,11 @@ function CreateUniqueId(ply)
   local uid = exports['ghmattimysql']:scalarSync(
     "SELECT new_player (@stm, @soc, @five, @disc, @ip, @user)",
     {
-      ['stm'] = ids['stm'], ['soc'] = ids['soc'], ['five'] = ids['five'],
-      ['disc'] = ids['discd'], ['ip'] = ids['ip'], ['user'] = ids['user']
+      ['stm']  = ids['stm'],   ['soc'] = ids['soc'], ['five'] = ids['five'],
+      ['disc'] = ids['discd'], ['ip']  = ids['ip'],  ['user'] = ids['user']
     }
   )
-  if uid > 0 then
+  if uid then
     unique[ply] = uid
     exports['cnrobbers']:UniqueId(ply, tonumber(uid)) -- Set UID for session
     cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
@@ -137,23 +137,23 @@ end
 AddEventHandler('cnr:create_player', function()
 
   local ply     = source
-  local ids     = GetPlayerInformation(ply)
+  --local ids     = GetPlayerInformation(ply)
   local ustring = GetPlayerName(ply).." ("..ply..")"
 
   if doJoin then cprint("^2"..ustring.." connected.^7") end
 
-  if ids then
+  --[[if ids then
     if dMsg then
       cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
-    end
+    end]]
 
     -- SQL: Retrieve character information
-    local uid = exports['ghmattimysql']:scalarSync(
+    local uid = CreateUniqueId(ply) --[[ exports['ghmattimysql']:scalarSync(
       "SELECT idUnique FROM players "..
       "WHERE idSteam = @steam OR idFiveM = @five OR idSocialClub = @soc "..
       "OR idDiscord = @disc LIMIT 1",
       {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']}
-    )
+    )]]
 
     if uid then
 
@@ -188,7 +188,6 @@ AddEventHandler('cnr:create_player', function()
 
       -- Player is not banned
       else
-        print("DEBUG - UID Exists.")
         unique[ply] = uid
         cprint("Found Unique ID "..uid.." for "..ustring)
         exports['cnrobbers']:UniqueId(ply, uid)
@@ -200,9 +199,12 @@ AddEventHandler('cnr:create_player', function()
 
       end
 
-
     else
-      print("DEBUG - UID Nonexistant")
+      DropPlayer(ply,
+        "You must use a Steam, Social Club, FiveM, or Discord license key "..
+        "to play on this server, so that we can track your stats!"
+      )
+--[[
       uid = CreateUniqueId(ply)
       if uid < 1 then
         cprint("^1A Fatal Error has Occurred.")
@@ -213,16 +215,16 @@ AddEventHandler('cnr:create_player', function()
           ") for player "..GetPlayerName(ply)
         )
       end
-
+]]
     end
-
+--[[
   else
     cprint("^1"..ustring.." disconnected. ^7(No ID Validation Obtained)")
     DropPlayer(ply,
       "Your FiveM License was invalid, and you are not using Steam. "..
       "Please relaunch FiveM, or log into Steam to play on this server."
     )
-  end
+  end]]
 end)
 
 
