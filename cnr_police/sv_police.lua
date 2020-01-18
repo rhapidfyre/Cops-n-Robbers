@@ -50,7 +50,7 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
         cops[ply] = cLevel
         exports['cnr_chat']:DiscordMessage(2067276,
           GetPlayerName(ply).." is now on Law Enforcement duty",
-          "There are now "..CountCops().." on duty.", ""
+          "There is now "..CountCops().." cop(s) on duty.", ""
         )
         TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
       end
@@ -59,7 +59,7 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
     cops[ply] = nil
     exports['cnr_chat']:DiscordMessage(10038562,
       GetPlayerName(ply).." is no longer a cop",
-      "There are now "..CountCops().." on duty.", ""
+      "There is now "..CountCops().." cop(s) on duty.", ""
     )
     TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
   end
