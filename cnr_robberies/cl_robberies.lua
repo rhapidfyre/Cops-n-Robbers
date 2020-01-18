@@ -346,7 +346,7 @@ Citizen.CreateThread(function()
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Quick Stop")
     EndTextCommandSetBlipName(blip)
-    rob[i].blip
+    rob[i].blip = blip
     Citizen.Wait(1)
   end
 end)

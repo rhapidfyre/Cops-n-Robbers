@@ -138,7 +138,6 @@ AddEventHandler('cnr:client_loaded', function()
     function(takes)
       if takes[1] then
         TriggerClientEvent('cnr:robbery_drops')
-      end
     end
   )
 end)
