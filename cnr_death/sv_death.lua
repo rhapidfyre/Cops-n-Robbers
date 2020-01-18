@@ -14,10 +14,10 @@ AddEventHandler('cnr:death_check', function(killer)
 
   local victim = source
   local dMessage = GetPlayerName(victim).." died"
-  if killer then 
+  if killer then
     if killer ~= victim then
       local isCop = exports['cnr_police']:DutyStatus(killer)
-      if not isCop then 
+      if not isCop then
         print("DEBUG - cnr:death_check determined MURDER.")
         dMessage = GetPlayerName(killer).." killed "..GetPlayerName(victim)
         exports['cnr_wanted']:WantedPoints(killer, 'murder', true)

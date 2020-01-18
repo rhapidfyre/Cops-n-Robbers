@@ -67,24 +67,24 @@ local function DeathNotification()
   local killerinvehicle      = false
   local killervehiclename    = ''
   local killervehicleseat    = 0
-  
+
   local killerid             = GetPlayerServerId(killer)
-  
+
   print("DEBUG - killer ("..tostring(killer)..")")
   print("DEBUG - killerid ("..tostring(killerid)..")")
   print("DEBUG - killerentitytype ("..tostring(killerentitytype)..")")
   print("DEBUG - GetPedCauseOfDeath("..tostring(GetPedCauseOfDeath(PlayerPedId()))..")")
-  
+
   local kInfo = {
     weapon    = killerweapon,
     idKiller  = killerid,
     entType   = killerentitytype,
     causation = GetPedCauseOfDeath(PlayerPedId())
   }
-  
+
   -- Is this client a cop? If so, modify the 911 call
   if exports['cnr_police']:DutyStatus() then
-  
+
   -- If this client isn't a cop
   else
     if killerid then
@@ -95,18 +95,18 @@ local function DeathNotification()
   end]]
   local cause  = GetPedCauseOfDeath(PlayerPedId())
   local killer = GetPedSourceOfDeath(PlayerPedId())
-  print(cause, killer) 
+  print(cause, killer)
   if DoesEntityExist(killer) then
     if IsEntityAPed(killer) then
-      if IsPedAPlayer(killer) then 
+      if IsPedAPlayer(killer) then
         if PlayerPedId() == killer then
           print("DEBUG - You killed yourself!")
           TriggerServerEvent('cnr:death_check', GetPlayerServerId(PlayerId()))
         else
           print("DEBUG - Killed by Player!")
           local plys = GetActivePlayers()
-          for _,i in ipairs (plys) do 
-            if GetPlayerPed(i) == killer then 
+          for _,i in ipairs (plys) do
+            if GetPlayerPed(i) == killer then
               print("DEBUG - Killed by player #"..GetPlayerServerId(i))
               TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
             end
@@ -116,13 +116,13 @@ local function DeathNotification()
       end
     elseif IsEntityAVehicle(killer) then
       local driver = GetPedInVehicleSeat(killer, (-1))
-      if DoesEntityExist(driver) then 
-        if IsEntityAPed(driver) then 
-          if IsPedAPlayer(driver) then 
+      if DoesEntityExist(driver) then
+        if IsEntityAPed(driver) then
+          if IsPedAPlayer(driver) then
             print("DEBUG - Killed by Player!")
             local plys = GetActivePlayers()
-            for _,i in ipairs (plys) do 
-              if GetPlayerPed(i) == driver then 
+            for _,i in ipairs (plys) do
+              if GetPlayerPed(i) == driver then
                 print("DEBUG - Ran over by player #"..GetPlayerServerId(i))
                 TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
               end
@@ -162,7 +162,7 @@ Citizen.CreateThread(function()
          ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
 
          local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
-         
+
 
          if HasScaleformMovieLoaded(scaleform) then
            Citizen.Wait(0)
@@ -186,7 +186,7 @@ Citizen.CreateThread(function()
            StopScreenEffect("DeathFailOut")
            locksound = false
          end
-          
+
        end
     end
 end)
@@ -194,9 +194,9 @@ end)
 function RevivePlayer()
   Citizen.Wait(5400)
   if IsPlayerDead(PlayerId()) then
-  
+
     DoScreenFadeOut(1200)
-    
+
     while not IsScreenFadedOut() do Wait(100) end
     local myPos   = GetEntityCoords(PlayerPedId())
     local nearest = 1
@@ -214,9 +214,9 @@ function RevivePlayer()
     NetworkResurrectLocalPlayer(
      hospitals[nearest].coords, 0.0, false, false
     )
-    
+
     local wl = exports['cnr_wanted']:WantedLevel()
-    if wl > 0 then 
+    if wl > 0 then
       TriggerServerEvent('cnr:police_dispatch_report',
         "Wanted Person",
         hospitals[nearest].title,
@@ -225,7 +225,7 @@ function RevivePlayer()
         " Wanted Person was just released from their care."
       )
     end
-    
+
     SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
     FreezeEntityPosition(PlayerPedId(), true)
     Citizen.Wait(1000)
@@ -249,32 +249,32 @@ AddEventHandler('cnr:death_notify', function(v, k)
   local myid = PlayerId()
   local victim = GetPlayerFromServerId(v)
   local killer = GetPlayerFromServerId(k)
-  
-  print(v, k, victim, killer) 
-  
-  if not killer then 
+
+  print(v, k, victim, killer)
+
+  if not killer then
     drawNotification(GetPlayerName(victim).." died")
     return 0
   end
-  
+
   -- This client DIED
-  if myid == victim then 
-    if victim == killer then 
+  if myid == victim then
+    if victim == killer then
       drawNotification("You committed suicide")
     else
       drawNotification(GetPlayerName(killer).." killed you")
     end
-  
+
   -- This client KILLED
   elseif myid == killer then
     drawNotification("You killed "..GetPlayerName(victim))
-  
+
   -- Someone killed somebody
   else
     drawNotification(GetPlayerName(killer).." killed "..GetPlayerName(victim))
-  
+
   end
-  
+
 end)
 
 function drawNotification(Notification)

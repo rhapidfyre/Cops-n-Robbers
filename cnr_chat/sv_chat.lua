@@ -14,7 +14,7 @@ function DiscordMessage(color, name, message, footer, classification)
 
   if name == "" then embed[1]["title"] = "" end
   if not classification then classification = 1 end
-  
+
   -- Sends the message to the Discord API for dispatch
   PerformHttpRequest(urls[classification],
     function(err, text, headers) end, 'POST',

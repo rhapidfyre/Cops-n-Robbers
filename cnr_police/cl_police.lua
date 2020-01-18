@@ -27,7 +27,7 @@ local forcedutyEnabled = true
 
 --- EXPORT: DispatchMessage()
 function DispatchMessage(title, msg, customMessage)
-  if not customMessage then 
+  if not customMessage then
     TriggerEvent('chat:addMessage', {
       color = {0,180,255}, multiline = true, args = {
         "DISPATCH", "^3"..title.."\n^5"..msg

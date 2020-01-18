@@ -265,7 +265,7 @@ RegisterCommand('dbugrob', CreateRobberyClerks)
 -- Tells the client that a lock status for store (n) has changed
 AddEventHandler('cnr:robbery_lock_status', function(n, lockStatus)
   rob[n].lockout = lockStatus
-  if DoesBlipExist(rob[n].blip) then 
+  if DoesBlipExist(rob[n].blip) then
     if lockStatus then  SetBlipColour(rob[n].blip, 1)
     else                SetBlipColour(rob[n].blip, 0)
     end

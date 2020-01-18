@@ -132,14 +132,14 @@ AddEventHandler('cnr:client_loaded', function()
     lockouts[k] = v.lockout
   end
   TriggerClientEvent('cnr:robbery_locks', ply, lockouts)
+
   -- Check for robbery takes and offer drop offs
-  exports['ghmattimysql']:execute(
-    "SELECT * FROM robberies WHERE idUnique = @u",
-    {['u'] = uid},
-    function(takes)
-      if takes[1] then TriggerClientEvent('cnr:robbery_drops') end
-    end
+  local takes = exports['ghmattimysql']:scalarSync(
+    "SELECT COUNT(*) FROM robberies WHERE idUnique = @u",
+    {['u'] = uid}
   )
+  if takes > 0 then TriggerClientEvent('cnr:robbery_drops') end
+
 end)
 
 AddEventHandler('playerDropped', function(reason)
@@ -159,8 +159,8 @@ end
 
 Citizen.CreateThread(function()
   Citizen.Wait(30000)
-  while true do 
-    for k,v in pairs(laundry) do 
+  while true do
+    for k,v in pairs(laundry) do
       if v then
         print("DEBUG - Laundering "..GetPlayerName(k).."'s cash ($"..v..")")
         exports['cnr_cash']:BankTransaction(k, v)

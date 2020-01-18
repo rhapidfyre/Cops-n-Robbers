@@ -135,7 +135,7 @@ AddEventHandler('cnr:create_character', function()
   SetNuiFocus(true, true)
 
   -- Default model spawn
-  
+
   local mdl = ModelChoice("random")
 	exports.spawnmanager:spawnPlayer({
 		x     = -1702.72,
@@ -148,12 +148,12 @@ AddEventHandler('cnr:create_character', function()
     SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
     RenderScriptCams(true, true, 500, true, true)
     SetCamActive(cam, true)
-  
+
     if IsScreenFadedOut() then DoScreenFadeIn(1000) end
     SendNUIMessage({showpedpick = true})
-    
+
   end)
-  
+
 end)
 
 
