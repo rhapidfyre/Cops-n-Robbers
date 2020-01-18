@@ -91,6 +91,7 @@ local function CheckAdmin(client)
     "SELECT perms FROM players WHERE idUnique = @uid",
     {['uid'] = uid}
   )
+  print(GetPlayerName(client).." (ID #"..client..") [UID "..uid.."] has permission level "..aLevel)
   if aLevel then
     AssignAdministrator(client, aLevel)
 

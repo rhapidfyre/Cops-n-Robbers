@@ -761,11 +761,11 @@ AddEventHandler('cnr:admin_do_giveweapon', function(aid, wHash, wAmmo)
     return 0
   end
   
-  if not wAmmo then wAmmo = 1000 end
+  if not wAmmo then wAmmo = 24 end
   TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
     args = {"Admin #"..aid.." gave you "..wHash..". It will NOT save when you log off."}
   })
-  GiveWeaponToPed(PlayerPedId(), GetHashKey(wHash), wAmmo, false, false)
+  GiveWeaponToPed(PlayerPedId(), GetHashKey(wHash), wAmmo, false, true)
   
 end)
 
