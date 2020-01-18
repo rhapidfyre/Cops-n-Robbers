@@ -265,6 +265,11 @@ RegisterCommand('dbugrob', CreateRobberyClerks)
 -- Tells the client that a lock status for store (n) has changed
 AddEventHandler('cnr:robbery_lock_status', function(n, lockStatus)
   rob[n].lockout = lockStatus
+  if DoesBlipExist(rob[n].blip) then 
+    if lockStatus then  SetBlipColour(rob[n].blip, 1)
+    else                SetBlipColour(rob[n].blip, 0)
+    end
+  end
 end)
 
 --- EVENT cnr:robbery_locks
@@ -336,11 +341,12 @@ Citizen.CreateThread(function()
     SetBlipSprite(blip, 59)
     SetBlipDisplay(blip, 2)
     SetBlipScale(blip, 0.75)
-    SetBlipColour(blip, 25)
+    SetBlipColour(blip, 0)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Quick Stop")
     EndTextCommandSetBlipName(blip)
+    rob[i].blip
     Citizen.Wait(1)
   end
 end)
