@@ -7,6 +7,7 @@ RegisterServerEvent('cnr:robbery_alarm')      -- Rx's and dispatches an alarm
 RegisterServerEvent('cnr:robbery_atm')
 
 local atmRobbed = {}
+local laundry   = {}
 
 AddEventHandler('cnr:robbery_atm', function(zoneName, position)
   local client = source
@@ -68,7 +69,7 @@ AddEventHandler('cnr:robbery_dropped', function()
       function(take)
         if take then
           local pInfo = GetPlayerName(ply).."("..ply..")"
-          local dt    = os.date("%H:%M.%I", os.time())
+          local dt    = os.date("%H:%M", os.time())
           Laundered(ply, take)
           exports['ghmattimysql']:execute(
             "DELETE FROM robberies WHERE idUnique = @u",
@@ -87,7 +88,7 @@ end)
 
 AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
   rob[storeNumber].lockout = lockStatus
-  local dt  = os.date("%H:%M.%I", os.time())
+  local dt  = os.date("%H:%M", os.time())
   local msg = "Store #"..storeNumber.." has been unlocked and can be robbed."
   if lockStatus then
     msg = "Store #"..storeNumber.." was just robbed, and has been locked."
@@ -136,13 +137,12 @@ AddEventHandler('cnr:client_loaded', function()
     "SELECT * FROM robberies WHERE idUnique = @u",
     {['u'] = uid},
     function(takes)
-      if takes[1] then
-        TriggerClientEvent('cnr:robbery_drops')
+      if takes[1] then TriggerClientEvent('cnr:robbery_drops') end
     end
   )
 end)
 
-AddEventHandler('playerDisconnected', function(reason)
+AddEventHandler('playerDropped', function(reason)
   local client = source
   if laundry[client] then
     if laundry[client] > 0 then

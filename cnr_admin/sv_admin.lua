@@ -104,7 +104,7 @@ AddEventHandler('cnr:client_loaded', function() CheckAdmin(source) end)
 AddEventHandler('cnr:admin_check',   function() CheckAdmin(source) end)
 
 
-AddEventHandler('playerDisconnected', function(reason)
+AddEventHandler('playerDropped', function(reason)
   local client = source
   if admins[client] then admins[client] = nil end
 end)
