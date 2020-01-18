@@ -46,6 +46,8 @@ Citizen.CreateThread(function()
 				for _,i in ipairs(plys) do
 					local uname = GetPlayerName(i)
 					local svid  = GetPlayerServerId(i)
+          local myself = ""
+          if i == PlayerId() then myself = ' class="myself"' end
           print("wantedPlayers["..svid.."] = "..tostring(wantedPlayers[svid]))
           if wantedPlayers[svid] then
             print("DEBUG - has WP value.")
@@ -55,7 +57,7 @@ Citizen.CreateThread(function()
               if wantedPlayers[svid] > 10 then -- Most Wanted
                 print("DEBUG - is most wanted.")
                 table.insert(players, '<div class="ply_info">'..
-                  '<h3>'..(uname)..'</h3><h5>'..(svid)..
+                  '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
                   '</h5><table class="wanted10">'..
                   '<tr><thead><th colspan="2">Most Wanted</th></thead></tr>'..
                   '<tr><th>Cop Level</th><td>1</td></tr>'..
@@ -65,7 +67,7 @@ Citizen.CreateThread(function()
               else -- Wanted
                 print("DEBUG - is basic wanted.")
                 table.insert(players, '<div class="ply_info">'..
-                  '<h3>'..(uname)..'</h3><h5>'..(svid)..
+                  '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
                   '</h5><table class="wanted'..(wantedPlayers[svid])..'">'..
                   '<tr><thead><th colspan="2">Wanted Level '..
                   (wantedPlayers[svid])..
@@ -78,7 +80,7 @@ Citizen.CreateThread(function()
             else -- Is Not Wanted
               print("DEBUG - is not wanted.")
               table.insert(players, '<div class="ply_info">'..
-                '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table>'..
+                '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
                 '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
                 '<tr><th>Cop Level</th><td>1</td></tr>'..
                 '<tr><th>Civ Level</th><td>1</td></tr>'..
@@ -92,7 +94,7 @@ Citizen.CreateThread(function()
             elseif cLev > 10 then cLev = 10 end
             print("DEBUG - is a cop.")
             table.insert(players, '<div class="ply_info">'..
-              '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5>'..
+              '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5>'..
               '<table class="police'..(cLev)..'">'..
               '<tr><thead><th colspan="2">Law Enforcement</th></thead></tr>'..
               '<tr><th>Cop Level</th><td>1</td></tr>'..
@@ -104,7 +106,7 @@ Citizen.CreateThread(function()
           else
             print("DEBUG - no WP value found; Not wanted.")
             table.insert(players, '<div class="ply_info">'..
-              '<h3>'..(uname)..'</h3><h5>'..(svid)..'</h5><table>'..
+              '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
               '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
               '<tr><th>Cop Level</th><td>1</td></tr>'..
               '<tr><th>Civ Level</th><td>1</td></tr>'..
