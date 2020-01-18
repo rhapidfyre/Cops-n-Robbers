@@ -57,7 +57,10 @@ Citizen.CreateThread(function()
   end
 end)
 
+local notified = false
 local function DeathNotification()
+  if not notified then
+    notified = true
   --[[
   local killer, killerweapon = NetworkGetEntityKillerOfPlayer(PlayerId())
   local killerentitytype     = GetEntityType(killer)
@@ -141,14 +144,14 @@ local function DeathNotification()
       TriggerServerEvent('cnr:death_check', nil)
     end
   end
+    Citizen.Wait(5000)
+    notified = false
+  end
 end
-
-local plyDead = false
 Citizen.CreateThread(function()
    while true do
        Citizen.Wait(0)
-       if IsPlayerDead(PlayerId()) and not plyDead then
-         plyDead = true
+       if IsPlayerDead(PlayerId()) then
          Citizen.CreateThread(RevivePlayer)
          Citizen.CreateThread(DeathNotification)
          StartScreenEffect("DeathFailOut", 0, 0)
@@ -175,14 +178,11 @@ Citizen.CreateThread(function()
            PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
            TriggerEvent('cnr:player_died')
            TriggerServerEvent('cnr:player_death')
-           Citizen.CreateThread(function()
-            while IsPlayerDead(PlayerId()) do
-              DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-              HideHudAndRadarThisFrame(true)
-              Citizen.Wait(0)
-            end
-            plyDead = false
-           end)
+           while IsPlayerDead(PlayerId()) do
+             DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
+             HideHudAndRadarThisFrame(true)
+             Citizen.Wait(0)
+           end
            StopScreenEffect("DeathFailOut")
            locksound = false
          end
@@ -192,7 +192,7 @@ Citizen.CreateThread(function()
 end)
 
 function RevivePlayer()
-  Citizen.Wait(5800)
+  Citizen.Wait(5400)
   if IsPlayerDead(PlayerId()) then
   
     DoScreenFadeOut(1200)
