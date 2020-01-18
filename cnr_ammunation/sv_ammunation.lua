@@ -24,19 +24,12 @@ AddEventHandler('cnr:ammu_ammo_update', function(wHash, wAmmo)
   )
   
   if aCount then 
-    print("DEBUG - Old Ammo: "..aCount)
     if aCount > wAmmo then
       exports['ghmattimysql']:execute(
         "UPDATE weapons SET ammo = @a WHERE character_id = @c AND hash = @h",
         {['a'] = wAmmo, ['c'] = uid, ['h'] = wHash}
       )
-      print("DEBUG - New Ammo: "..tostring(wAmmo))
-    else
-      print("DEBUG - No change in ammunition. Ignoring SQL update.")
     end
-  
-  else
-    print("DEBUG - 'cnr:ammu_ammo_update' - No record found for ["..wHash.."]")
   
   end
   
@@ -181,7 +174,11 @@ end
 RegisterServerEvent('cnr:player_death')
 AddEventHandler('cnr:player_death', function()
   local died = source
-  RevokeAllWeapons(died, true)
+  RevokeAllWeapons(died, false, true)
+end)
+
+AddEventHandler('cnr:imprisoned', function(ply)
+  RevokeAllWeapons(ply, false, true)
 end)
 
 

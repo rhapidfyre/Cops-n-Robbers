@@ -40,7 +40,7 @@ server_scripts {
   "sv_ammunation.lua"
 }
 
-server_exports {}
+server_exports {'RevokeAllWeapons'}
 
 exports {
   'InsideGunRange' -- Checks if player is in a no-crime reporting area (gun range)

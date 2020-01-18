@@ -325,10 +325,10 @@ local function CheckInGunRange()
   end
 end
 
-local function RevokeWeapon(hashKey, isAdmin, isDead)
+local function RevokeWeapon(hashKey, isAdmin, isScript)
   if not hashKey then
     RemoveAllPedWeapons(PlayerPedId(), true)
-    if not isDead then
+    if not isScript or isAdmin then
       local rMsg = "Your weapons were confiscated!"
       if isAdmin then rMsg = "An admin has removed all of your weapons." end
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {rMsg}})
@@ -344,8 +344,8 @@ end
 
 -- if `hashKey` is rx'd nil, takes ALL weapons away
 -- if `isAdmin` is not false/nil, notifies client it was taken by an admin
-AddEventHandler('cnr:ammu_revoke_weapon', function(hashKey, isAdmin)
-  RevokeWeapon(hashKey, isAdmin)
+AddEventHandler('cnr:ammu_revoke_weapon', function(hashKey, isAdmin, isScript)
+  RevokeWeapon(hashKey, isAdmin, isScript)
 end)
 
 

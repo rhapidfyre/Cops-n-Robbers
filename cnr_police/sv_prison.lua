@@ -95,9 +95,17 @@ function ImprisonClient(ply, cop)
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to prison for "..(serveTime[ply]/60).." minutes!"
         )
+        exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
+          GetPlayerName(ply).." has been caught and was sent to prison!",
+          "Arrested by "..GetPlayerName(cop)
+        )
       else
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to jail for "..(serveTime[ply]/60).." minutes!"
+        )
+        exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
+          GetPlayerName(ply).." has been caught and was sent to jail!",
+          "Arrested by "..GetPlayerName(cop)
         )
       end
 
@@ -106,8 +114,8 @@ function ImprisonClient(ply, cop)
         cop, (serveTime[ply]/60), prisoner[ply]
       )
 
-      -- Revoke client's weapons
-      exports['cnr_ammunation']:RevokeAllWeapons(ply)
+      -- Fire off relevant server scripts
+      TriggerEvent('cnr:imprisoned', ply, cop)
 
       -- SQL: Insert inmate to SQL
       exports['ghmattimysql']:execute(
