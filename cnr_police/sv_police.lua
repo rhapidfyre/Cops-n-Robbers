@@ -5,6 +5,7 @@ RegisterServerEvent('cnr:police_dispatch_report')
 RegisterServerEvent('cnr:police_backup')
 RegisterServerEvent('cnr:police_status')
 RegisterServerEvent('cnr:client_loaded')
+RegisterServerEvent('cnr:police_stations_req') -- Client requests stations info
 
 
 local cops      = {}

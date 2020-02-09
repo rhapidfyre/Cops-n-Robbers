@@ -3,15 +3,18 @@ RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
 RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
 RegisterNetEvent('cnr:police_reduty')
 RegisterNetEvent('cnr:police_officer_duty')
+RegisterNetEvent('cnr:police_stations') -- Receives info about stations
 
 
-local isCop          = false  -- True if player is on cop duty
-local ignoreDuty     = false  -- Disables cop duty point
-local cam            = nil
-local transition     = false
-local myAgency       = 0
-local activeCops     = {}
-local myCopRank      = 1
+local isCop       = false  -- True if player is on cop duty
+local ignoreDuty  = false  -- Disables cop duty point
+local cam         = nil
+local transition  = false
+local myAgency    = 0
+local activeCops  = {}
+local myCopRank   = 1
+
+local forcedutyEnabled = true -- DEBUG - /forceduty
 
 
 --- EXPORT: CopRank()
@@ -19,10 +22,6 @@ local myCopRank      = 1
 function CopRank()
   return myCopRank
 end
-
-
--- DEBUG - /forceduty
-local forcedutyEnabled = true
 
 
 --- EXPORT: DispatchMessage()
@@ -206,13 +205,9 @@ function BeginCopDuty(st)
   local ply = GetPlayerServerId(PlayerId())
   if not wanted[ply] then wanted[ply] = 0 end
   if wanted[ply] < 1 then
-    print("DEBUG - Starting duty assignments.")
     transition = true
-    print("DEBUG - Doing camera.")
     PoliceCamera(c)
-    print("DEBUG - Setting duty variables")
     isCop = true
-    print("DEBUG - Setting clothes.")
     --[[
     prevClothes = {
       [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
@@ -238,22 +233,15 @@ function BeginCopDuty(st)
     while not HasModelLoaded(newModel) do Wait(1) end
     SetPlayerModel(PlayerId(), newModel)
     SetModelAsNoLongerNeeded(newModel)
-
-    print("DEBUG - Clothes set.")
     TriggerServerEvent('cnr:police_status', true)
     TriggerEvent('cnr:police_duty', true)
-    print("DEBUG - Event(s) Triggered.")
     TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
-    print("DEBUG - Walking to exit.")
     PoliceLoadout(true)
-    print("DEBUG - Loadout Given.")
     Citizen.Wait(4800)
-    print("DEBUG - ChatNotification().")
     exports['cnrobbers']:ChatNotification(
       "CHAR_CALL911", "Police Duty", "~g~Start of Watch",
       "You are now on Law Enforcement duty."
     )
-    print("DEBUG - myAgency["..tostring(c.agency).."]")
     myAgency = c.agency
     PoliceDutyLoops()
   else
@@ -418,7 +406,10 @@ RegisterCommand('ticket', ImprisonClient)
 -- I need to find a better way to implement this later.
 local lastRequest = 0
 function PoliceDutyLoops()
-  print("DEBUG - PoliceDutyLoops()")
+
+  -- Ask server for police station info (vehicle spawns, etc)
+  TriggerServerEvent('cnr:police_stations_req')
+
   Citizen.CreateThread(function()
     while isCop do
       if IsControlJustPressed(0, 75) then UnlockPoliceCarDoor() -- F
