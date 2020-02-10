@@ -6,15 +6,42 @@ RegisterNetEvent('cnr:police_officer_duty')
 RegisterNetEvent('cnr:police_stations') -- Receives info about stations
 
 
-local isCop       = false  -- True if player is on cop duty
-local ignoreDuty  = false  -- Disables cop duty point
+local isCop       = false   -- True if player is on cop duty
+local ignoreDuty  = false   -- Disables cop duty point
 local cam         = nil
 local transition  = false
 local myAgency    = 0
-local activeCops  = {}
 local myCopRank   = 1
+local activeCops  = {}
+local parking     = {}      -- Holds the parking spots that are occupied/station
 
-local forcedutyEnabled = true -- DEBUG - /forceduty
+local forcedutyEnabled = false -- DEBUG - /forceduty
+
+
+-- Sets parking spots as occupied/unoccupied
+-- If occupied, "isOccupied" will be the Server ID of the player 
+RegisterNetEvent('cnr:police_parking')
+AddEventHandler('cnr:police_parking', function(nStation, nPos, isOccupied)
+
+  if not parking[nStation] then parking[nStation] = {} end
+  
+  if isOccupied then 
+  
+    -- Relinquish all other spots held by that player
+    -- This prevents hackers from mass-locking all spots
+    for st,spots in pairs (parking) do 
+      for _,spot in pairs (spots) do 
+        -- If spot is occupied by given player, relinquish it
+        if spot == isOccupied then spot = nil end
+      end
+    end
+    
+  end
+  
+  -- Set new position status
+  parking[nStation][nPosn] = isOccupied
+  
+end)
 
 
 --- EXPORT: CopRank()
