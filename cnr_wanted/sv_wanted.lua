@@ -149,6 +149,7 @@ function WantedPoints(ply, crime, msg)
     end
 
     -- Tell other scripts about the change
+    TriggerEvent('cnr:points_wanted', ply, lastWanted, wanted[ply], crime)
     TriggerClientEvent('cnr:wanted_client', (-1), ply, wanted[ply])
   else
     cprint("^1Police Officer committed a crime!")

@@ -4,6 +4,8 @@ local ignorePlayerNameDistance = false
 local wantedPlayers = {}
 local copPlayers    = {}
 
+local levels = { cop = {}, civ = {} }
+
 local copColors = {
   [1]  = {190,200,255}, [2]  = {185,185,255},
   [3]  = {160,160,255}, [4]  = {140,140,255},
@@ -32,6 +34,34 @@ function sanitize(txt)
         :gsub('[&<>\n]', replacements)
         :gsub(' +', function(s) return ' '..('&nbsp;'):rep(#s-1) end)
 end
+
+local function GetPlayerScore(ply, copScore)
+  if not ply then return 0 end
+  if copScore then 
+    if not levels.cop[ply] then
+      levels.cop[ply] = 0
+    end
+    return levels.cop[ply]
+  else
+    if not levels.civ[ply] then
+      levels.civ[ply] = 0
+    end
+    return levels.civ[ply]
+  end
+  return 0
+end
+
+RegisterNetEvent('cnr:scores_receive')
+AddEventHandler('cnr:scores_receive', function(client, scores)
+  if not levels.civ[client] then levels.civ[client] = 0 end
+  if not levels.cop[client] then levels.cop[client] = 0 end
+  levels.civ[client] = scores['civ']
+  levels.cop[client] = scores['cop']
+  print("DEBUG - Received new score for Player #"..client..": CIV("..
+    levels.civ[client]..") & COP("..
+    levels.cop[client]..")"
+  )
+end)
 
 
 -- Scoreboard
@@ -72,8 +102,8 @@ Citizen.CreateThread(function()
                   '<tr><thead><th colspan="2">Wanted Level '..
                   (wantedPlayers[svid])..
                   '</th></thead></tr>'..
-                  '<tr><th>Cop Level</th><td>1</td></tr>'..
-                  '<tr><th>Civ Level</th><td>1</td></tr>'..
+                  '<tr><th>Cop Level</th><td>'....'</td></tr>'..
+                  '<tr><th>Civ Level</th><td>'....'</td></tr>'..
                   '</table></div>'
                 )
               end
