@@ -128,7 +128,8 @@ AddEventHandler('cnr:points_wanted', function(client, oldPts, newPts, crime)
 end)
 
 AddEventHandler('playerDropped', function(reason)
-  print(GetPlayerName(source).." quit. Removing their scoreboard values.")
+  local client = source
+  print(GetPlayerName(client).." quit. Removing their scoreboard values.")
   levels[client] = nil
 end)
 
