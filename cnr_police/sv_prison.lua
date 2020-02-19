@@ -122,7 +122,7 @@ function ImprisonClient(ply, cop)
       )
 
       -- Fire off relevant server scripts
-      TriggerEvent('cnr:imprisoned', ply, cop)
+      TriggerEvent('cnr:imprisoned', ply, cop, wantedLevel)
 
       -- SQL: Insert inmate to SQL
       exports['ghmattimysql']:execute(
