@@ -1,10 +1,13 @@
 
+RegisterNetEvent('cnr:score_receive')
+
+
 local disIdentifier = 128
 local ignorePlayerNameDistance = false
 local wantedPlayers = {}
 local copPlayers    = {}
 
-local levels = { cop = {}, civ = {} }
+local levels = {}
 
 local copColors = {
   [1]  = {190,200,255}, [2]  = {185,185,255},
@@ -35,32 +38,43 @@ function sanitize(txt)
         :gsub(' +', function(s) return ' '..('&nbsp;'):rep(#s-1) end)
 end
 
-local function GetPlayerScore(ply, copScore)
-  if not ply then return 0 end
-  if copScore then 
-    if not levels.cop[ply] then
-      levels.cop[ply] = 0
-    end
-    return levels.cop[ply]
-  else
-    if not levels.civ[ply] then
-      levels.civ[ply] = 0
-    end
-    return levels.civ[ply]
-  end
-  return 0
+function GetPlayerWantedScore(client)
+  if not client then return 0 end
+  if not wantedPlayers[client] then wantedPlayers[client] = 0 end
+  return wantedPlayers[client]
 end
 
-RegisterNetEvent('cnr:scores_receive')
-AddEventHandler('cnr:scores_receive', function(client, scores)
-  if not levels.civ[client] then levels.civ[client] = 0 end
-  if not levels.cop[client] then levels.cop[client] = 0 end
-  levels.civ[client] = scores['civ']
-  levels.cop[client] = scores['cop']
-  print("DEBUG - Received new score for Player #"..client..": CIV("..
-    levels.civ[client]..") & COP("..
-    levels.cop[client]..")"
-  )
+function GetClientScore(client, copScore)
+
+  if not client then return 0 end
+  if type(client) ~= "nunmber" then tonumber(client) end
+  if not levels[client] then SetClientScore(client) end
+  
+  if copScore then  return (levels[client].cop)
+  else              return (levels[client].civ)
+  end
+  
+  return (-1) -- Error, return -1
+end
+
+function SetClientScore(client, scores)
+  if not client then return 0 end
+  if type(client) ~= "number" then client = tonumber(client) end
+  if not scores then 
+    levels[client] = {cop = 1, civ = 1}
+    return {cop = 1, civ = 1}
+  else
+    if not levels[client] then
+      levels[client] = {cop = 0, civ = 0}
+    end
+    
+    levels[client] = {civ = scores['civ'], cop = scores['cop']}
+    return {cop = levels[client].cop, civ = levels[client].civ}
+    
+  end
+end
+AddEventHandler('cnr:score_receive', function(client, scores)
+  SetClientScore(client, scores)
 end)
 
 
@@ -72,48 +86,52 @@ Citizen.CreateThread(function()
 		if IsControlJustPressed(0, 27) then -- INPUT_PHONE
 			if not showList then
 				local players = {}
-				local plys = GetActivePlayers()
-				for _,i in ipairs(plys) do
-					local uname = GetPlayerName(i)
-					local svid  = GetPlayerServerId(i)
+				local clients = GetActivePlayers()
+				for _,i in ipairs(clients) do
+        
+					local uname  = GetPlayerName(i)
+					local svid   = GetPlayerServerId(i)
           local myself = ""
+          local svwp   = GetPlayerWantedScore(client)
+          local copScore = GetClientScore(svid, true)
+          local civScore = GetClientScore(svid, false)
+  
           if i == PlayerId() then myself = ' class="myself"' end
-          print("wantedPlayers["..svid.."] = "..tostring(wantedPlayers[svid]))
-          if wantedPlayers[svid] then
-            print("DEBUG - has WP value.")
+          
+          if svwp then
+          
             -- Is Wanted
-            if wantedPlayers[svid] > 0 then
-              print("DEBUG - is wanted.")
-              if wantedPlayers[svid] > 10 then -- Most Wanted
-                print("DEBUG - is most wanted.")
+            if svwp > 0 then
+            
+              if svwp > 10 then -- Most Wanted
+              
                 table.insert(players, '<div class="ply_info">'..
                   '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
                   '</h5><table class="wanted10">'..
                   '<tr><thead><th colspan="2">Most Wanted</th></thead></tr>'..
-                  '<tr><th>Cop Level</th><td>1</td></tr>'..
-                  '<tr><th>Civ Level</th><td>1</td></tr>'..
+                  '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
+                  '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
                   '</table></div>'
                 )
               else -- Wanted
-                print("DEBUG - is basic wanted.")
+              
                 table.insert(players, '<div class="ply_info">'..
                   '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
-                  '</h5><table class="wanted'..(wantedPlayers[svid])..'">'..
+                  '</h5><table class="wanted'..(svwp)..'">'..
                   '<tr><thead><th colspan="2">Wanted Level '..
-                  (wantedPlayers[svid])..
-                  '</th></thead></tr>'..
-                  '<tr><th>Cop Level</th><td>'....'</td></tr>'..
-                  '<tr><th>Civ Level</th><td>'....'</td></tr>'..
+                  (svwp)..'</th></thead></tr>'..
+                  '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
+                  '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
                   '</table></div>'
                 )
               end
             else -- Is Not Wanted
-              print("DEBUG - is not wanted.")
+            
               table.insert(players, '<div class="ply_info">'..
                 '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
                 '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
-                '<tr><th>Cop Level</th><td>1</td></tr>'..
-                '<tr><th>Civ Level</th><td>1</td></tr>'..
+                '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
+                '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
                 '</table></div>'
               )
             end
@@ -122,30 +140,30 @@ Citizen.CreateThread(function()
             local cLev = math.floor(copPlayers[svid]/10)
             if cLev <= 0 then cLev = 1
             elseif cLev > 10 then cLev = 10 end
-            print("DEBUG - is a cop.")
+            
             table.insert(players, '<div class="ply_info">'..
               '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5>'..
               '<table class="police'..(cLev)..'">'..
               '<tr><thead><th colspan="2">Law Enforcement</th></thead></tr>'..
-              '<tr><th>Cop Level</th><td>1</td></tr>'..
-              '<tr><th>Civ Level</th><td>1</td></tr>'..
+              '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
+              '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
               '</table></div>'
             )
 
           -- Is Not Wanted
           else
-            print("DEBUG - no WP value found; Not wanted.")
+          
             table.insert(players, '<div class="ply_info">'..
               '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
               '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
-              '<tr><th>Cop Level</th><td>1</td></tr>'..
-              '<tr><th>Civ Level</th><td>1</td></tr>'..
+              '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
+              '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
               '</table></div>'
             )
           end
 
 				end
-        print("DEBUG - dispatching to jquery.")
+        
 				SendNUIMessage({ text = table.concat(players) })
 				showList = true
 				while showList do
@@ -164,8 +182,8 @@ end)
 
 Citizen.CreateThread(function()
   while true do
-    local plyTable = GetActivePlayers()
-    for _,i in ipairs (plyTable) do
+    local clientTable = GetActivePlayers()
+    for _,i in ipairs (clientTable) do
       local ped = GetPlayerPed(i)
       if ped ~= PlayerPedId() then
         blip = GetBlipFromEntity(ped)
@@ -235,8 +253,8 @@ end
 -- Detects players and prepares to draw text above their head
 Citizen.CreateThread(function()
   while true do
-    local plyTable = GetActivePlayers()
-    for _,i in ipairs (plyTable) do
+    local clientTable = GetActivePlayers()
+    for _,i in ipairs (clientTable) do
       local ped = GetPlayerPed(i)
       if ped ~= PlayerPedId() then
 
@@ -272,20 +290,20 @@ end)
 -- Updates the client's entire table with the current server wanted list
 -- @param wanteds The list (table) of wanted players (K: Server ID, V: Points)
 RegisterNetEvent('cnr:wanted_client')
-AddEventHandler('cnr:wanted_client', function(ply, wp)
-  -- If ply not given, return 0
-  if not ply      then return 0 end
-  if not wp       then wantedPlayers[ply] =  0 end -- Create entry if not exists
-  if     wp <   1 then wantedPlayers[ply] =  0
-  elseif wp > 100 then wantedPlayers[ply] = 11
-  else wantedPlayers[ply] = (math.floor((wp/10)) + 1)
+AddEventHandler('cnr:wanted_client', function(client, wp)
+  -- If client not given, return 0
+  if not client      then return 0 end
+  if not wp       then wantedPlayers[client] =  0 end -- Create entry if not exists
+  if     wp <   1 then wantedPlayers[client] =  0
+  elseif wp > 100 then wantedPlayers[client] = 11
+  else wantedPlayers[client] = (math.floor((wp/10)) + 1)
   end
 end)
 
 
 RegisterNetEvent('cnr:police_officer_duty')
-AddEventHandler('cnr:police_officer_duty', function(ply, isDuty, cLevel)
-  if isDuty then copPlayers[ply] = cLevel
-  else copPlayers[ply] = nil end
+AddEventHandler('cnr:police_officer_duty', function(client, isDuty, cLevel)
+  if isDuty then copPlayers[client] = cLevel
+  else copPlayers[client] = nil end
 end)
 
