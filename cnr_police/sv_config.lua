@@ -1,6 +1,6 @@
 
 -- Config (Server)
-
+RegisterServerEvent('cnr:police_stations_req')
 
 --- LoadPoliceStations()
 -- Sends list of valid police stations to player (if given) or all players
@@ -8,19 +8,13 @@
 local function LoadPoliceStations(client)
   
   -- SQL: Return list of all stations that are law enforcement related
-  local stations = exports['ghmattimysql']:execute(
-    "SELECT st.id,st.agency_id,st.x,st.y,st.z,a.blip_color,a.blip_sprite "..
+  exports['ghmattimysql']:execute(
+    "SELECT st.cams,st.zone,st.id,st.agency_id,st.x,st.y,st.z,st.duty_point,a.blip_color,a.blip_sprite "..
     "FROM stations st LEFT JOIN agencies a ON a.id = st.agency_id WHERE a.perms & 1",
     {}, function(stationList)
       local src = client
-      if src then 
-        TriggerClientEvent('cnr:police_stations', (-1), stationList)
-      else
-        local clients = GetPlayers()
-        for _,client in ipairs (clients) do 
-          TriggerClientEvent('cnr:police_stations', client, stationList)
-        end
-      end
+      if not src then src = (-1) end
+      TriggerClientEvent('cnr:police_stations', src, stationList)
     end
   )
   
@@ -38,4 +32,23 @@ end)
 Citizen.CreateThread(function()
   Citizen.Wait(5000)
   LoadPoliceStations()
+end)
+
+AddEventHandler('cnr:police_stations_req', function(stNumber)
+  local client = source
+  if stNumber then
+    if stNumber > 0 then
+    
+      -- SQL: Return station information (armory, vehicles, etc)
+      exports['ghmattimysql']:execute(
+        "SELECT * FROM stations WHERE id = @n", {['n'] = stNumber},
+        function(stationInfo)
+          if not stationInfo then stationInfo = {}    end
+          if not client      then client      = (-1)  end
+          TriggerClientEvent('cnr:police_station_info', client, stationInfo[1])
+        end
+      )
+    
+    end -- stNumber > 0
+  end -- stNumber
 end)

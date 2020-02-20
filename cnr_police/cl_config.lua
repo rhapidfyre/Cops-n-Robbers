@@ -25,6 +25,9 @@ function IsUsingPoliceVehicle()
   return false -- Base case
 end
 
+
+-- Builds a basic table of police stations
+-- Does NOT build blips except for station position & duty location
 AddEventHandler('cnr:police_stations', function(stations)
 
   depts = {} -- Reset / Resize 'depts'
@@ -32,7 +35,8 @@ AddEventHandler('cnr:police_stations', function(stations)
   
     -- Temp var for settings.
     -- The garbage collector will dispose of it. This blip won't change.
-    local temp = AddBlipForCoord(pos)
+    local newVector = vector3(v['x'], v['y'], v['z'])
+    local temp = AddBlipForCoord(newVector)
     SetBlipSprite(temp, v['blip_sprite'])
     SetBlipColour(temp, v['blip_color'])
     SetBlipAsShortRange(temp, true)
@@ -42,10 +46,43 @@ AddEventHandler('cnr:police_stations', function(stations)
     AddTextComponentString("Police Station")
     EndTextCommandSetBlipName(temp)
     
+    -- Do it again, but for the duty position
+    -- As before, dispose. It won't change.
+    local dty        = json.decode(v['duty_point'])
+    local dutyVector = vector3(dty['x'], dty['y'], dty['z'])
+    local dutyBlip   = AddBlipForCoord(dutyVector)
+    SetBlipSprite(dutyBlip, 466)
+    SetBlipColour(dutyBlip, 42)
+    SetBlipScale(dutyBlip, 1.12)
+    SetBlipAsShortRange(dutyBlip, true)
+    SetBlipDisplay(dutyBlip, 5)
+    
+    
+    if DoesBlipExist(temp) then print("DEBUG - Blip: Successful.")
+    else print("DEBUG - Blip: Failed") end
+    
+    local camInfo = json.decode(v['cams'])
+    local camView = {
+      pos = vector3(camInfo['view']['x'],camInfo['view']['y'],camInfo['view']['z']),
+      rot = camInfo['view']['h']
+    }
+    local camExit = {
+      pos = vector3(camInfo['exit']['x'],camInfo['exit']['y'],camInfo['exit']['z']),
+      rot = camInfo['exit']['h']
+    }
+    local walkoff = {
+      pos = vector3(camInfo['walk']['x'],camInfo['walk']['y'],camInfo['walk']['z']),
+      rot = camInfo['walk']['h']
+    }
+    
     -- Build K->V table
     depts[ v['id'] ] = {
       agency  = v['agency_id'],
-      pos     = vector3(v['x'], v['y'], v['z'])
+      pos     = newVector,
+      duty    = dutyVector,
+      cams    = {
+        view = camView, leave = camExit, walk = walkoff
+      }
     }
     
   end -- for

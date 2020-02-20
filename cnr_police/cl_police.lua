@@ -4,6 +4,7 @@ RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup re
 RegisterNetEvent('cnr:police_reduty')
 RegisterNetEvent('cnr:police_officer_duty')
 
+
 local isCop       = false   -- True if player is on cop duty
 local ignoreDuty  = false   -- Disables cop duty point
 local cam         = nil
@@ -12,35 +13,9 @@ local myAgency    = 0
 local myCopRank   = 1
 local activeCops  = {}
 local parking     = {}      -- Holds the parking spots that are occupied/station
-local depts       = {}
+local stationInfo = {}      -- Current duty station information
 
 local forcedutyEnabled = false -- DEBUG - /forceduty
-
-
--- Sets parking spots as occupied/unoccupied
--- If occupied, "isOccupied" will be the Server ID of the player 
-RegisterNetEvent('cnr:police_parking')
-AddEventHandler('cnr:police_parking', function(nStation, nPos, isOccupied)
-
-  if not parking[nStation] then parking[nStation] = {} end
-  
-  if isOccupied then 
-  
-    -- Relinquish all other spots held by that player
-    -- This prevents hackers from mass-locking all spots
-    for st,spots in pairs (parking) do 
-      for _,spot in pairs (spots) do 
-        -- If spot is occupied by given player, relinquish it
-        if spot == isOccupied then spot = nil end
-      end
-    end
-    
-  end
-  
-  -- Set new position status
-  parking[nStation][nPosn] = isOccupied
-  
-end)
 
 
 --- EXPORT: CopRank()
@@ -188,26 +163,18 @@ function PoliceCamera(c)
   end
   SetCamActive(cam, true)
   RenderScriptCams(true, true, 500, true, true)
-  SetCamParams(cam,
-    c.camview.x, c.camview.y, c.camview.z,
-    c.caminfo.rotx, c.caminfo.roty, c.caminfo.rotz,
-    c.caminfo.fov
-  )
+  local cInfo = c.cams
+  SetCamParams(cam, cInfo.view.pos, 0.0, 0.0, cInfo.view.rot, 60.0)
   Citizen.CreateThread(function()
     while transition do
       HideHudAndRadarThisFrame()
       Citizen.Wait(0)
     end
   end)
-  if c.leave then
-    SetEntityCoords(PlayerPedId(), c.leave)
-  end
   Citizen.Wait(3000)
   DoScreenFadeOut(400)
   Citizen.Wait(600)
-  SetCamParams(cam, c.exitcam.x, c.exitcam.y, c.exitcam.z,
-    c.caminfo.erotx, c.caminfo.eroty, c.caminfo.erotz, c.caminfo.efov
-  )
+  SetCamParams(cam, cInfo.leave.pos, 0.0, 0.0, cInfo.leave.rot, 60.0)
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
   Citizen.Wait(200)
@@ -225,12 +192,13 @@ end
 -- Checks if player is wanted before going on duty
 local oldModel = 0 -- DEBUG - Remove this when going back to MP models
 function BeginCopDuty(st)
-  print("DEBUG - Beginning cop duty @ station #"..st)
+
   local c  = depts[st]
   local wanted = exports['cnr_wanted']:GetWanteds()
   local ply = GetPlayerServerId(PlayerId())
   if not wanted[ply] then wanted[ply] = 0 end
   if wanted[ply] < 1 then
+  
     transition = true
     PoliceCamera(c)
     isCop = true
@@ -245,7 +213,7 @@ function BeginCopDuty(st)
     SetModelAsNoLongerNeeded(newModel)
     TriggerServerEvent('cnr:police_status', true)
     TriggerEvent('cnr:police_duty', true)
-    TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
+    TaskGoToCoordAnyMeans(PlayerPedId(), depts[st].cams.walk.pos, 1.0, 0, 0, 786603, 0)
     PoliceLoadout(true)
     Citizen.Wait(4800)
     exports['cnrobbers']:ChatNotification(
@@ -296,6 +264,40 @@ function Reduty()
   )
 end
 
+-- Rx station info about current duty station
+AddEventHandler('cnr:police_reduty', function(stInfo)
+  if not stInfo then print("DEBUG - No station information received.")
+  else
+    
+    local decoded = {}
+    if stInfo['armory']      then decoded['ar'] = json.decode(stInfo['armory'])      end
+    if stInfo['garage']      then decoded['gg'] = json.decode(stInfo['garage'])      end
+    if stInfo['garages']     then decoded['gs'] = json.decode(stInfo['garages'])     end
+    if stInfo['vehicles']    then decoded['vh'] = json.decode(stInfo['vehicles'])    end
+    if stInfo['spawn_heli']  then decoded['he'] = json.decode(stInfo['spawn_heli'])  end
+    if stInfo['spawn_cycle'] then decoded['cy'] = json.decode(stInfo['spawn_cycle']) end
+    
+    -- Restructure stationInfo with new blips and stuff!
+    for k,v in pairs (stationInfo) do
+      if DoesBlipExist(v) then RemoveBlip(v) end
+    end
+    
+    stationInfo = {}
+    for k,v in pairs (decoded) do 
+      if k == 'ar' or k == 'gg' then
+      
+        local temp = AddBlipForCoord(v['x'], v['y'], v['z'])
+        SetBlipColour(temp, 0)
+        if     k == 'ar' then SetBlipSprite(temp, 487)
+        else                  SetBlipSprite(temp, 524)
+        end
+        
+      end -- k != gs
+    end -- for
+    
+  end
+end)
+
 AddEventHandler('cnr:police_reduty', Reduty)
 -- DEBUG - /forceduty
 RegisterCommand('forceduty', function()
@@ -331,7 +333,7 @@ function EndCopDuty(st)
 
   TriggerServerEvent('cnr:police_status', false)
   TriggerEvent('cnr:police_duty', false)
-  TaskGoToCoordAnyMeans(PlayerPedId(), c.walkTo, 1.0, 0, 0, 786603, 0)
+  TaskGoToCoordAnyMeans(PlayerPedId(), c.cams.walk.pos, 1.0, 0, 0, 786603, 0)
   Citizen.Wait(4800)
   exports['cnrobbers']:ChatNotification(
     "CHAR_CALL911", "Police Duty", "~r~End of Watch",
@@ -401,9 +403,6 @@ RegisterCommand('ticket', ImprisonClient)
 local lastRequest = 0
 function PoliceDutyLoops()
 
-  -- Ask server for police station info (vehicle spawns, etc)
-  TriggerServerEvent('cnr:police_stations_req')
-
   Citizen.CreateThread(function()
     while isCop do
       if IsControlJustPressed(0, 75) then UnlockPoliceCarDoor() -- F
@@ -433,7 +432,10 @@ Citizen.CreateThread(function()
         if #(myPos - (depts[i].duty)) < 2.1 then
           ignoreDuty = true
           if isCop then EndCopDuty(i)
-          else BeginCopDuty(i)
+          else
+            -- Ask server for police station info (vehicle spawns, etc)
+            TriggerServerEvent('cnr:police_stations_req', i)
+            BeginCopDuty(i) -- Trigger duty start
           end
         end
         Citizen.Wait(100)
