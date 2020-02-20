@@ -283,8 +283,8 @@ AddEventHandler('cnr:police_station_info', function(stInfo)
       if DoesBlipExist(v) then RemoveBlip(v) end
     end
     
-    stationInfo = {}
-    for k,v in pairs (decoded) do 
+    stationInfo = { blips = {} }
+    for k,v in pairs (decoded) do
       if k == 'ar' or k == 'gg' then
       
         local temp = AddBlipForCoord(v['x'], v['y'], v['z'])
@@ -298,9 +298,12 @@ AddEventHandler('cnr:police_station_info', function(stInfo)
           SetBlipScale(temp, 0.85)
         end
         
-        table.insert(stationInfo, temp)
+        table.insert(stationInfo.blips, temp)
         
       end -- k != gs
+      
+      stationInfo[k] = decoded[k]
+      
     end -- for
     
   end
@@ -331,8 +334,10 @@ function EndCopDuty(st)
   PoliceCamera(c)
   
   -- Reset 'stationInfo'
-  for k,v in pairs (stationInfo) do 
-    if DoesBlipExist(v) then RemoveBlip(v) end
+  if stationInfo.blips then
+    for k,v in pairs (stationInfo.blips) do 
+      if DoesBlipExist(v) then RemoveBlip(v) end
+    end
   end
   stationInfo = {}
 
