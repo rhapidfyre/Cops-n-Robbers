@@ -3,6 +3,7 @@ RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
 RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
 RegisterNetEvent('cnr:police_reduty')
 RegisterNetEvent('cnr:police_officer_duty')
+RegisterNetEvent('cnr:police_station_info')
 
 
 local isCop       = false   -- True if player is on cop duty
@@ -265,7 +266,7 @@ function Reduty()
 end
 
 -- Rx station info about current duty station
-AddEventHandler('cnr:police_reduty', function(stInfo)
+AddEventHandler('cnr:police_station_info', function(stInfo)
   if not stInfo then print("DEBUG - No station information received.")
   else
     
@@ -287,10 +288,17 @@ AddEventHandler('cnr:police_reduty', function(stInfo)
       if k == 'ar' or k == 'gg' then
       
         local temp = AddBlipForCoord(v['x'], v['y'], v['z'])
-        SetBlipColour(temp, 0)
-        if     k == 'ar' then SetBlipSprite(temp, 487)
-        else                  SetBlipSprite(temp, 524)
+        SetBlipColour(temp, 42)
+        
+        if     k == 'ar' then
+          SetBlipSprite(temp, 487)
+          SetBlipScale(temp, 1.1)
+        else
+          SetBlipSprite(temp, 524)
+          SetBlipScale(temp, 0.85)
         end
+        
+        table.insert(stationInfo, temp)
         
       end -- k != gs
     end -- for
@@ -316,14 +324,17 @@ end)
 -- Sets a civilian to be a police officer
 -- Checks if player is wanted before going on duty
 function EndCopDuty(st)
+
   local c = depts[st]
   transition = true
   myAgency   = 0
   PoliceCamera(c)
-  --[[
-  for k,v in pairs (prevClothes) do
-    SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-  end]]
+  
+  -- Reset 'stationInfo'
+  for k,v in pairs (stationInfo) do 
+    if DoesBlipExist(v) then RemoveBlip(v) end
+  end
+  stationInfo = {}
 
   -- DEBUG - Using Ped Model System
   RequestModel(oldModel)

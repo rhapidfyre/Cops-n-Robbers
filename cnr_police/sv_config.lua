@@ -36,6 +36,7 @@ end)
 
 AddEventHandler('cnr:police_stations_req', function(stNumber)
   local client = source
+  print("DEBUG - Player #"..client.." requesting Station #"..stNumber.." information.")
   if stNumber then
     if stNumber > 0 then
     
@@ -46,6 +47,7 @@ AddEventHandler('cnr:police_stations_req', function(stNumber)
           if not stationInfo then stationInfo = {}    end
           if not client      then client      = (-1)  end
           TriggerClientEvent('cnr:police_station_info', client, stationInfo[1])
+          print("DEBUG - Sent player station info: "..json.encode(stationInfo[1]))
         end
       )
     
