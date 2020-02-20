@@ -3,8 +3,6 @@ RegisterNetEvent('cnr:dispatch') -- Receives a dispatch broadcast from Server
 RegisterNetEvent('cnr:police_blip_backup') -- Changes blip settings on backup request
 RegisterNetEvent('cnr:police_reduty')
 RegisterNetEvent('cnr:police_officer_duty')
-RegisterNetEvent('cnr:police_stations') -- Receives info about stations
-
 
 local isCop       = false   -- True if player is on cop duty
 local ignoreDuty  = false   -- Disables cop duty point
@@ -14,6 +12,7 @@ local myAgency    = 0
 local myCopRank   = 1
 local activeCops  = {}
 local parking     = {}      -- Holds the parking spots that are occupied/station
+local depts       = {}
 
 local forcedutyEnabled = false -- DEBUG - /forceduty
 
@@ -235,23 +234,7 @@ function BeginCopDuty(st)
     transition = true
     PoliceCamera(c)
     isCop = true
-    --[[
-    prevClothes = {
-      [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
-              text = GetPedTextureVariation(PlayerPedId(), 3)},
-      [4]  = {draw = GetPedDrawableVariation(PlayerPedId(), 4),
-              text = GetPedTextureVariation(PlayerPedId(), 4)},
-      [6]  = {draw = GetPedDrawableVariation(PlayerPedId(), 6),
-              text = GetPedTextureVariation(PlayerPedId(), 6)},
-      [8]  = {draw = GetPedDrawableVariation(PlayerPedId(), 8),
-              text = GetPedTextureVariation(PlayerPedId(), 8)},
-      [11] = {draw = GetPedDrawableVariation(PlayerPedId(), 11),
-              text = GetPedTextureVariation(PlayerPedId(), 11)},
-    }
-    for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
-      SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-    end]]
-
+    
     -- DEBUG - Using Ped Model System
     oldModel = GetEntityModel(PlayerPedId())
     print(oldModel)
@@ -291,22 +274,6 @@ end
 function Reduty()
   transition = true
   isCop      = true
-  --[[
-  prevClothes = {
-    [3]  = {draw = GetPedDrawableVariation(PlayerPedId(), 3),
-            text = GetPedTextureVariation(PlayerPedId(), 3)},
-    [4]  = {draw = GetPedDrawableVariation(PlayerPedId(), 4),
-            text = GetPedTextureVariation(PlayerPedId(), 4)},
-    [6]  = {draw = GetPedDrawableVariation(PlayerPedId(), 6),
-            text = GetPedTextureVariation(PlayerPedId(), 6)},
-    [8]  = {draw = GetPedDrawableVariation(PlayerPedId(), 8),
-            text = GetPedTextureVariation(PlayerPedId(), 8)},
-    [11] = {draw = GetPedDrawableVariation(PlayerPedId(), 11),
-            text = GetPedTextureVariation(PlayerPedId(), 11)},
-  }
-  for k,v in pairs (copUniform[GetEntityModel(PlayerPedId())]) do
-    SetPedComponentVariation(PlayerPedId(),k, v.draw, v.text, 2)
-  end]]
 
   -- DEBUG - Using Ped Model System
   oldModel = GetEntityModel(PlayerPedId())
