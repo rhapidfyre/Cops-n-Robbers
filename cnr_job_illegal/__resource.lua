@@ -23,11 +23,15 @@ files {
 client_scripts {
   "sh_config.lua",
   "cl_config.lua",
+  "cl_car_crimes.lua",
+  "cl_trafficking.lua"
 }
 
 server_scripts {
   "sh_config.lua",
   "sv_config.lua",
+  "sv_car_crimes.lua",
+  "sv_trafficking.lua"
 }
 
 server_exports {
