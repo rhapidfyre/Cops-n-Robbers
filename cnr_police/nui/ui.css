@@ -40,3 +40,46 @@
   }
   
   #is-jailed img { position: relative; margin: -8px 0 0 0; }
+  
+
+
+
+
+
+  #pveh-select {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 256px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 0 8px 8px 0;
+    border: 2px ridge silver;
+    margin-left: 4px;
+  }
+  #pveh-select h3,
+  #pveh-select p {
+    margin: 4px 0; padding: 0;
+    text-align: center;
+    color: white;
+    text-shadow: 1px 1px 0 black;
+  }
+  #pveh-select table {
+    width: 100%;
+  }
+  #pveh-select th,
+  #pveh-select td {
+    width: 25%; 
+    text-align: center;
+  }
+  #pveh-select th {
+    color: white;
+    text-shadow: 1px 1px 0 black;
+  }
+  #pveh-select button {
+    min-width: 50%;
+    font-size: 18px;
+  }
+  #pveh-table {
+    max-height: 256px;
+    overflow-y: auto;
+  }

@@ -5,6 +5,7 @@ RegisterServerEvent('cnr:police_dispatch_report')
 RegisterServerEvent('cnr:police_backup')
 RegisterServerEvent('cnr:police_status')
 RegisterServerEvent('cnr:client_loaded')
+RegisterServerEvent('cnr:police_stations_req') -- Client requests stations info
 
 
 local cops      = {}
@@ -35,6 +36,12 @@ AddEventHandler('cnr:police_dispatch_report', function(title, zName, position, m
   DispatchPolice(title, zName, position, message)
 end)
 
+-- Sends parking updates (police garage)
+RegisterServerEvent('cnr:police_setparking')
+AddEventHandler('cnr:police_setparking', function(nStation, nPos, isOccupied)
+  if isOccupied then isOccupied = source end
+  TriggerClientEvent('cnr:police_parking', (-1), nStation, nPos, isOccupied)
+end)
 
 AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
 
