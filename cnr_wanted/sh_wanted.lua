@@ -145,6 +145,31 @@ local crimes = {
     weight = 120, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(5000, 8000)) end
   },
+  ['traffic_drug'] = {
+    title = "Drug Trafficking",
+    weight = 30, minTime = 12, maxTime = 20, isFelony = true,
+    fine = function() return (math.random(100, 500)) end
+  },
+  ['traffic_guns'] = {
+    title = "Weapons Trafficking",
+    weight = 30, minTime = 12, maxTime = 20, isFelony = true,
+    fine = function() return (math.random(100, 500)) end
+  },
+  ['traffic_chop'] = {
+    title = "Possession of Chopshop Parts",
+    weight = 30, minTime = 5, maxTime = 12, isFelony = true,
+    fine = function() return (math.random(100, 500)) end
+  },
+  ['trafficking'] = {
+    title = "Human Trafficking",
+    weight = 180, minTime = 15, maxTime = 40, isFelony = true,
+    fine = function() return (math.random(6000, 9000)) end
+  },
+  ['kidnapping-npc'] = {
+    title = "Kidnapping",
+    weight = 90, minTime = 5, maxTime = 10, isFelony = true,
+    fine = function() return (math.random(100, 500)) end
+  },
   ['jailed'] = {
     title = "Jailed/Clear",
     weight = 0, minTime = 0, maxTime = 0, isFelony = true,
