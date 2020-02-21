@@ -24,9 +24,6 @@ AddEventHandler('cnr:tr_crate_pickup', function(cHash, k)
     )
     TriggerClientEvent('cnr:tr_crate_delete', (-1), k)
     
-  else
-    print("DEBUG - Incorrect Crate Hash for Crate #"..tostring(k).."! Cannot handle.")
-    
   end
 end)
 
@@ -59,7 +56,6 @@ Citizen.CreateThread(function()
 
   Citizen.Wait(3000)
   local add  = 10 --math.random((tick.mini), (tick.maxi)) * 60
-  print("DEBUG - Adding "..math.floor(add/60).." minutes to timer.")
   tick.timer = GetGameTimer() + (add * 1000)
   
   -- Get time to next crate in seconds
@@ -75,7 +71,6 @@ Citizen.CreateThread(function()
     
 			local plyCount = #GetPlayers()
       add        = math.random((tick.mini), (tick.maxi)) * 60
-      print("DEBUG - Adding "..math.floor(add/60).." minutes to timer.")
 			tick.timer = GetGameTimer() + (add * 1000)
       
 			if plyCount > 0 then

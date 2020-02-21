@@ -65,7 +65,6 @@ function CrateCollection()
   if not collectorRunning then
     Citizen.CreateThread(function()
       collectorRunning = true
-      print("DEBUG - Crate (E) Press loop initiated. Waiting for E press.")
       while #crateList > 0 do -- While crates exist
         if not pauseCrates then 
         
@@ -114,7 +113,6 @@ function CrateCollection()
         Citizen.Wait(0)
       end
       collectorRunning = false
-      print("DEBUG - Crate (E) Press loop has been terminated.")
     end)
   end
 end
@@ -123,7 +121,6 @@ end
 -- Handles removing crates
 AddEventHandler('cnr:tr_crate_delete', function(serverKey)
   
-  print("DEBUG - Server is telling us to remove crate #"..serverKey)
   -- 'pauseCrates' allows the script to pause the handling of creating,
   -- deleting, or otherwise altering crates while crateList is being modified.
   -- This prevents, but doesn't stop, various errors from occuring.
@@ -148,7 +145,6 @@ AddEventHandler('cnr:tr_crate_delete', function(serverKey)
     end
     
     -- Must make sure the crate is removed before allowing the loop to continue
-    print("DEBUG - Crate removed!")
     table.remove(crateList, i)
 
   end -- if i<0
@@ -166,16 +162,13 @@ function CrateHandler()
     --              it to complete to continue. (avoids nil bug)
     if not pauseCrates then
       if #crateList > 0 then
-        print("DEBUG - Crates exist!")
         for k,v in pairs(crateList) do
           local dist = #(GetEntityCoords(PlayerPedId()) - v.pos)
           
           -- Only render the crate if it's reasonably nearby
           if dist < 100.0 then 
-            print("DEBUG - Crate is close by.")
             -- Create the crate object
             if not DoesEntityExist(v.obj) then
-              print("DEBUG - Crate doesn't exist; Creating.")
               local mdlHash = GetHashKey(v.mdl)
               RequestModel(mdlHash)
               while not HasModelLoaded(mdlHash) do Wait(10) end
@@ -184,14 +177,12 @@ function CrateHandler()
                 v.pos.x, v.pos.y, v.pos.z,
                 false, false, true
               )
-              print("DEBUG - Create Object spawned. Initializing settings...")
               -- Set Options on the Crate
               SetDisableBreaking(v.obj, true)     -- Invincible
               ActivatePhysics(v.obj)              -- Allow physics
               FreezeEntityPosition(v.obj, false)  -- Unfreeze
               Citizen.Wait(100)
               
-              print("DEBUG - Crate object finished!")
             end
           end -- dist < 100
           
@@ -218,11 +209,9 @@ end
 -- @param cInfo Table: {hash, position, key, model}
 AddEventHandler('cnr:tr_crate_create', function(cHash, cPos, cKey, cModel)
   
-  print("DEBUG - Received new crate from server.")
   pauseCrates = true -- Stop crate rendering
   
   -- Create table entry
-  print("DEBUG - Adding crate to list.")
   local n = #crateList + 1
   crateList[n] = {
     hash = cHash, pos  = cPos,
@@ -244,14 +233,12 @@ AddEventHandler('cnr:tr_crate_create', function(cHash, cPos, cKey, cModel)
     Citizen.Wait(0)
   end
   
-  print("AddBlipForRadius("..pX..", "..pY..", 0.0, "..dist..")")
   local tempBlip = AddBlipForRadius(pX, pY, 0.0, dist)
   SetBlipSprite(tempBlip, 9)
   SetBlipColour(tempBlip, 1)
   SetBlipAlpha(tempBlip, 40)
   crateList[n].blip = tempBlip
   
-  print("DEBUG - Now tracking "..n.." crates")
   
 	SetNotificationTextEntry("STRING")
 	AddTextComponentString("A supply drop has become available. Check your map.")
