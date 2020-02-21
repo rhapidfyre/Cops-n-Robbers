@@ -492,7 +492,6 @@ function PoliceGarage(openMenu)
 
   -- Closes the menu
   if not openMenu then
-
     print("DEBUG - PoliceGarage(false)")
     SetNuiFocus(false)
     SendNUIMessage({hidevehs = true})
@@ -687,6 +686,8 @@ function CalculateExtras(veh)
   
 end
 
+
+-- DEBUG - Needs to take into account rank authorization
 function LawVehicle(actionName, value)
 
   -- Initial Vehicle Spawn
