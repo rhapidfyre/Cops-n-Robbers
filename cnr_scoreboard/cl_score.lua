@@ -46,8 +46,8 @@ end
 
 function GetClientScore(client, copScore)
 
-  if not client then return 0 end
-  if type(client) ~= "nunmber" then tonumber(client) end
+  if not client then client = GetPlayerServerId(PlayerId()) end
+  if type(client) ~= "number" then tonumber(client) end
   if not levels[client] then SetClientScore(client) end
   
   if copScore then  return (levels[client].cop)
@@ -58,17 +58,18 @@ function GetClientScore(client, copScore)
 end
 
 function SetClientScore(client, scores)
-  if not client then return 0 end
+  if not client then client = GetPlayerServerId(PlayerId()) end
   if type(client) ~= "number" then client = tonumber(client) end
   if not scores then 
     levels[client] = {cop = 1, civ = 1}
     return {cop = 1, civ = 1}
+    
   else
     if not levels[client] then
       levels[client] = {cop = 0, civ = 0}
     end
     
-    levels[client] = {civ = scores['civ'], cop = scores['cop']}
+    levels[client] = {civ = scores.civ, cop = scores.cop}
     return {cop = levels[client].cop, civ = levels[client].civ}
     
   end

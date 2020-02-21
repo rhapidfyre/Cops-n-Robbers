@@ -162,9 +162,3 @@ Citizen.CreateThread(function()
     )
   end
 end)
-
-RegisterCommand('levels_test', function(s,a,r)
-  local n = tonumber(a[1])
-  local calc = ((n * (n+1) )/2) * 100
-  print(n .. " = " .. calc)
-end)

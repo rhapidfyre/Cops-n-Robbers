@@ -37,5 +37,5 @@ server_exports {
 }
 
 exports {
-
+  "GetClientScore"
 }
