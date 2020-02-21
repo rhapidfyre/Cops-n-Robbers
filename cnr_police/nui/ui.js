@@ -14,7 +14,13 @@ $(function() {
       
     if (item.showvehs) {vehsel.show();}
     if (item.hidevehs) {vehsel.hide();}
-      
+    if (item.vehextras) {
+      $("#pveh-table").find('tbody').html(item.vehextras);
+    }
+    if (item.togextra) {
+      $("#te" + item.togextra).html(item.flipname);
+    }
+    
     if (item.showticket) {ticket.show();}
     if (item.hideticket) {ticket.hide();}
     

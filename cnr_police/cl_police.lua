@@ -656,6 +656,37 @@ AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
   end
 end)
 
+
+function CalculateExtras(veh)
+  
+  local extras = {}
+  local hasExtras = false
+  for i = 1, 14 do 
+    if DoesExtraExist(veh, i) then
+      if IsVehicleExtraTurnedOn(veh, i) then
+        table.insert(extras,
+        '<tr><th colspan="3">Extra '..(i)..'</th><td><button id="te'..(i)..'" onclick="ToggleExtra('..(i)..')">OFF</button></td></tr>'
+        )
+      else
+        table.insert(extras,
+        '<tr><th colspan="3">Extra '..(i)..'</th><td><button id="te'..(i)..'" onclick="ToggleExtra('..(i)..')">ON</button></td></tr>'
+        )
+      end
+      print("DEBUG - Vehicle has extra @ Slot #"..i)
+      hasExtras = true
+    end
+  end
+  if hasExtras then
+    SendNUIMessage({vehextras = table.concat(extras)})
+  else
+    print("DEBUG - Vehicle has no extras.")
+    SendNUIMessage({
+      vehextras = '<tr><td colspan="4"><button disabled>NO EXTRAS</button></td></tr>'
+    })
+  end
+  
+end
+
 function LawVehicle(actionName, value)
 
   -- Initial Vehicle Spawn
@@ -695,6 +726,7 @@ function LawVehicle(actionName, value)
 		SetVehicleMod(veh, 13, 2, false) -- Performance Transmission
 		
 		SetModelAsNoLongerNeeded(gHash)
+    CalculateExtras(veh)
     
     Citizen.Wait(1000)
     if not DoesCamExist(cam) then
@@ -709,6 +741,16 @@ function LawVehicle(actionName, value)
     
   -- Change the extra(s)
   elseif actionName == "extra" then 
+
+    local veh = GetVehiclePedIsIn(PlayerPedId())
+    local i = value
+    if IsVehicleExtraTurnedOn(veh, i) then
+      SendNUIMessage({togextra = i, flipname = "ON"})
+      SetVehicleExtra(veh, i, 1)
+    else
+      SendNUIMessage({togextra = i, flipname = "OFF"})
+      SetVehicleExtra(veh, i, 0)
+    end
     
   -- Change the vehicle selected
   elseif actionName == "change" then
@@ -783,6 +825,7 @@ function LawVehicle(actionName, value)
 		SetVehicleMod(veh, 13, 2, false) -- Performance Transmission
 		
 		SetModelAsNoLongerNeeded(veh)
+    CalculateExtras(veh)
     
   
   end
