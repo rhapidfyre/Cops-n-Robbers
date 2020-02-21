@@ -93,7 +93,7 @@ Citizen.CreateThread(function()
 					local uname  = GetPlayerName(i)
 					local svid   = GetPlayerServerId(i)
           local myself = ""
-          local svwp   = GetPlayerWantedScore(client)
+          local svwp   = GetPlayerWantedScore(svid)
           local copScore = GetClientScore(svid, true)
           local civScore = GetClientScore(svid, false)
   
