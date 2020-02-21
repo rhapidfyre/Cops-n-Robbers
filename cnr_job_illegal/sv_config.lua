@@ -1,8 +1,5 @@
 
 -- config (server)
-local SUPPLY_CTRL = 1
-local SUPPLY_GUNS = 2
-local SUPPLY_CHOP = 3
 
 local crates = {
 	{cont = SUPPLY_CTRL, mdl = "prop_boxpile_06b"},  -- Controlled Substances

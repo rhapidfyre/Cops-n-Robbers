@@ -1,2 +1,5 @@
 
 -- shared config
+SUPPLY_CTRL = 1
+SUPPLY_GUNS = 2
+SUPPLY_CHOP = 3

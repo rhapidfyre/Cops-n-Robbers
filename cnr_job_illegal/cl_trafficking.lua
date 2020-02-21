@@ -35,7 +35,11 @@ function PickupCrate(k)
       TriggerServerEvent('cnr:tr_crate_pickup', cInfo.hash, cInfo.key)
       
       local myPos = GetEntityCoords(PlayerPedId())
-      TriggerServerEvent('cnr:wanted_points', '664-carjack', true,
+      local crime = 'traffic_drug'
+      if     cInfo.cont == SUPPLY_GUNS then crime = 'traffic_guns'
+      elseif cInfo.cont == SUPPLY_CHOP then crime = 'traffic_chop'
+      end
+      TriggerServerEvent('cnr:wanted_points', crime, true,
         exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
         myPos, true
       )
