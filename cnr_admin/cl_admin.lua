@@ -11,8 +11,32 @@ RegisterNetEvent('cnr:admin_do_sendback')
 
 local aLevel = 1
 local aid    = 0
+local showHelp = true
+local helpNum = 1
 
+local helpMessages = {
+  [1] = {"~r~Red circles~w~ on the map? A ~r~crate is waiting for you!"},
+  [2] = {"Help with a job, controls or jobs? Type ~y~/help~w~ for info."},
+  [3] = {"Go on/off police duty at anytime at any station in the active zone."},
+  [4] = {"Not sure what to do? Rob a 24/7 by pointing a gun at the clerk!"},
+  [5] = {"Rob an ATM by smashing it with a melee weapon!"},
+  [6] = {"Need extra cash, legally? Try fishing or hunting!"}
+}
 
+Citizen.CreateThread(function()
+  local helpNum = math.random(#helpMessages)
+  while true do 
+    Citizen.Wait(300000)
+    exports['cnr_chat']:ChatNotification("CHAR_SOCIAL_CLUB", "~y~System Help",
+    "/togglehelp", helpMessages[helpNum])
+    helpNum = helpNum + 1
+    if helpNum > #helpMessage then helpNum = 1 end
+  end
+end)
+
+RegisterCommand('togglehelp', function()
+  showHelp = not showHelp
+end)
 
 --[[
       UNFINISHED COMMANDS 
