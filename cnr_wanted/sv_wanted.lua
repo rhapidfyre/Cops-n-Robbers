@@ -157,16 +157,19 @@ function WantedPoints(ply, crime, msg)
   end
 end
 local tracking = {}
-AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn)
+AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911)
   local ply = source
   if crime then
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
       if not tracking[ply] then
         tracking[ply] = GetGameTimer() + 30000
-        exports['cnr_police']:DispatchPolice(
-          GetCrimeName(crime), zName, posn
-        )
+        if not ignore911 then
+          exports['cnr_police']:DispatchPolice(
+            GetCrimeName(crime), zName, posn
+          )
+        else print("DEBUG - Ignoring 911 callout for this crime.")
+        end
       end
       WantedPoints(ply, crime, msg)
     else
