@@ -36,6 +36,15 @@ end)
 
 RegisterCommand('togglehelp', function()
   showHelp = not showHelp
+  if showHelp then 
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+      "Server help messages are now ^1hidden^7 and will no longer appear."
+    }})
+  else
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+      "Server help messages are now being ^2displayed^7."
+    }})
+  end
 end)
 
 --[[
