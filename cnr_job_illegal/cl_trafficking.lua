@@ -26,6 +26,12 @@ local collectorRunning = false  -- Is "KEY_CRATE"-press loop running already
 -- Allows the player to pick up a crate, remove it, and notify the server.
 -- Func must check that it still exists, that nobody else got it @ same time
 function PickupCrate(k)
+  if exports['cnr_police']:DutyStatus() then 
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+      "You can't pick this up when on law enforcement duty!"
+    }})
+    return
+  end
   if crateList[k] then 
     if crateList[k].obj then 
     
