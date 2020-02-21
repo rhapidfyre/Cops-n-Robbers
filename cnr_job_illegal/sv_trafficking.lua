@@ -22,11 +22,6 @@ AddEventHandler('cnr:tr_crate_pickup', function(cHash, k)
       "^3[TRAFFICKING] ^7"..GetPlayerName(client)..
       " (#"..client..") has collected a ^2trafficking crate^7!"
     )
-    
-    -- DEBUG - TEMPORARY
-    -- Give the player $1000 until the inventory system is in place
-    exports['cnr_cash']:CashTransaction(client, 1000)
-    
     TriggerClientEvent('cnr:tr_crate_delete', (-1), k)
     
   end
