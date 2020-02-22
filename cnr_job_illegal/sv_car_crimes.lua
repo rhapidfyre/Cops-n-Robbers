@@ -62,3 +62,32 @@ local vehDrops = {
 -- Currently chosen vehicle(s) for exporting
 local vehRequest = {}
 local ticker     = 0 -- For reselecting export vehicles
+
+
+-- This loop handles the exports event
+--[[
+  - Sets the timer of when the crate will spawn
+  - If there are no players on the server, reset timer and wipe existing crates
+  - If there are players,
+    - Choose an available crate (GetCrateSpawn())
+    - Generate a Hash for Validation (GenerateCrateCode())
+    - Send it to all clients for rendering
+]]
+Citizen.CreateThread(function()
+
+  Citizen.Wait(3000)
+  
+	while true do
+		Citizen.Wait(1000)
+		ticker = ticker + 1
+		if ticker > 3600 then
+      
+      -- Get time to next crate in seconds
+      print(
+        "^3[AUTO EXPORTS] ^7Vehicle list will regenerate at "..
+        (os.date("%H:%M", os.time() + 3600)).." local time."
+      )
+      
+		end
+	end
+end)
