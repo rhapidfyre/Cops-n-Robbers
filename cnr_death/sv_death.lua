@@ -53,10 +53,16 @@ end)
 
 RegisterServerEvent('cnr:player_death')
 AddEventHandler('cnr:player_death', function()
+
   local client = source
   local uid    = exports['cnrobbers']:UniqueId(client)
-  exports['ghmattimysql']:execute(
-    "UPDATE characters SET deaths = deaths + 1 WHERE idUnique = @uid",
-    {['uid'] = uid}
+  
+  exports['ghmattimysql']:scalar(
+    "SELECT PlayerDeath(@uid)",
+    {['uid'] = uid},
+    function(retValue)
+      TriggerClientEvent('cnr:death_insurance', client, retValue)
+    end
   )
+  
 end)

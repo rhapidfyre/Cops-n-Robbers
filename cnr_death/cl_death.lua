@@ -6,6 +6,8 @@
 
   Handles all death events, and life saving/resurrection type scripting.
 --]]
+RegisterNetEvent('cnr:death_insurance')
+
 local locksound = false
 
 local hospitals = {
@@ -215,18 +217,7 @@ function RevivePlayer()
       NetworkResurrectLocalPlayer(
       hospitals[nearest].coords, 0.0, false, false
       )
-  
-      local wl = exports['cnr_wanted']:WantedLevel()
-      if wl > 3 then
-        TriggerServerEvent('cnr:police_dispatch_report',
-          "Wanted Person",
-          hospitals[nearest].title,
-          GetEntityCoords(PlayerPedId()),
-          hospitals[nearest].title.." Security reported a Level "..wl..
-          " Wanted Person was just released from their care."
-        )
-      end
-  
+      
       SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
       FreezeEntityPosition(PlayerPedId(), true)
       Citizen.Wait(1000)
@@ -243,7 +234,50 @@ end
 
 
 
+AddEventHandler('cnr:death_insurance', function(insuranceValue)
 
+  local wl = exports['cnr_wanted']:WantedLevel()
+  if not insuranceValue then insuranceValue = 0 end
+  if insuranceValue > 0 then 
+  
+    if insuranceValue == 2 then
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "Since you died in police custody, your personal items have been saved."
+      }})
+      
+    else
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "Your insurance prevented you from losing your personal items!\n"..
+        "You will have to renew your health insurance before dying again."
+      }})
+        
+      if wl > 3 then
+        TriggerServerEvent('cnr:police_dispatch_report',
+          "Wanted Person",
+          hospitals[nearest].title,
+          GetEntityCoords(PlayerPedId()),
+          hospitals[nearest].title.." Security reported a Level "..wl..
+          " Wanted Person was just released from their care."
+        )
+      end
+    end
+  
+  else
+  
+    RemoveAllPedWeapons(PlayerPedId(), true)
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+      "You died without health insurance! Your personal items were taken!"
+    }})
+    if wl > 0 then
+      TriggerServerEvent('cnr:wanted_points', "jailed")
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "Your wanted level has been reset."
+      }})
+    end
+  
+  end
+  
+end)
 
 
 RegisterNetEvent('cnr:death_notify')
