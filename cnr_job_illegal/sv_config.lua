@@ -95,7 +95,7 @@ function GetCrateSpawn()
       Wait(10)
       i = math.random(#cratedrops)
       if waitTime < GetGameTimer() then 
-        print("[SRP ILLICIT] All eligible crates have been spawned.")
+        print("[TRAFFICKING] All eligible crates have been spawned.")
         stopSpawn = true -- Stop this process; No crates eligible
         break
       end

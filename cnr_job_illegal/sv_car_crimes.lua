@@ -1,5 +1,7 @@
 
 -- car theft, boosting, chopshops
+RegisterServerEvent('baseevents:enteringVehicle')
+RegisterServerEvent('baseevents:enteredVehicle')
 RegisterServerEvent('cnr:client_loaded')
 
 -- List of vehicles eligible for exporting
@@ -48,27 +50,6 @@ local vehExports = {
 }
 
 
--- Where vehicles can be dropped, depending on the active zone
-local vehDrops = {
-  [1] = { -- Zone 1 Drops
-    vector3(947.317, -1697.63, 29.96), -- Garage in East LS Alleyway
-    vector3(-594.872, -1586.06, 25.89), -- Near trash yard back door
-    vector3(-1604.1, -826.382, 8.28), -- Big yellow garage at beach parking
-  },
-  [2] = { -- Zone 2
-    vector3(3832.17, 4463.89, 1.86), -- Hidden Dock
-    vector3(1321.06, 4228.92, 32.16), -- Grapeseed Dock
-    vector3(2348.1, 3131.99, 46.45), -- East Joshua Wasteyard
-  },
-  [3] = {
-    vector3(3832.17, 4463.89, 1.86), -- Paleto Bay Garage
-  },
-  [4] = {
-    vector3(-1803.56, 2992.16, 31.05), -- Fort Zancudo Hangar
-  }
-}
-
-
 -- Currently chosen vehicle(s) for exporting
 local vehRequest = {}
 local ticker     = 0 -- For reselecting export vehicles
@@ -80,33 +61,36 @@ local ticker     = 0 -- For reselecting export vehicles
   -- A list of 3 vehicles will be chosen
   -- Those 3 vehicles will be sent to all players
 ]]
+local function GenerateVehicleList()
+    
+  -- Get time to next mission list in seconds
+  print(
+    "^3[AUTO EXPORTS] ^7Vehicle list will regenerate at "..
+    (os.date("%H:%M", os.time() + 3600)).." local time."
+  )
+  
+  -- Build the list
+  local psuedotable = vehExports
+  vehRequest = {} -- Wipe the current list
+  for i = 1, 3 do 
+    local n = math.random(#psuedotable)
+    local vChoice = table.remove(psuedotable, n)
+    table.insert(vehRequest, vChoice)
+    print("DEBUG - Added "..(vChoice.mdl).." to the exports list.")
+  end
+  
+  -- Send it to everyone connected
+  TriggerClientEvent('cnr:exports_list', (-1), vehRequest)
+      
+end
 Citizen.CreateThread(function()
-
   Citizen.Wait(3000)
-  
+  GenerateVehicleList()
 	while true do
-  
 		Citizen.Wait(1000)
 		ticker = ticker + 1
 		if ticker > 3600 then
-      
-      -- Get time to next mission list in seconds
-      print(
-        "^3[AUTO EXPORTS] ^7Vehicle list will regenerate at "..
-        (os.date("%H:%M", os.time() + 3600)).." local time."
-      )
-      
-      -- Build the list
-      local psuedotable = vehExports
-      vehRequest = {} -- Wipe the current list
-      for i = 1, 3 do 
-        local n = math.random(#psuedotable)
-        table.insert(vehRequest, table.remove(psuedotable, n))
-      end
-      
-      -- Send it to everyone connected
-      TriggerClientEvent('cnr:exports_list', (-1), vehRequest)
-      
+      GenerateVehicleList()
 		end
 	end
 end)
@@ -117,3 +101,31 @@ AddEventHandler('cnr:client_loaded', function()
   local client = source
   TriggerClientEvent('cnr:exports_list', client, vehRequest)
 end)
+
+
+AddEventHandler('baseevents:enteredVehicle', function(veh, seat, vehModel)
+  local client = source
+  for k,v in pairs (vehRequest) do 
+    if GetHashKey(v.mdl) == GetHashKey(vehModel) then
+      TriggerClientEvent('cnr:exports_mission_vehicle', client, v.price)
+      break
+    end
+  end
+end)
+
+
+AddEventHandler('cnr:exports_arrived', function(vehModel)
+  local client = source
+  local misnVehicle = 0
+  for k,v in pairs (vehRequest) do 
+    if GetHashKey(v.mdl) == vehModel then 
+      misnVehicle = k 
+    end
+  end
+  if misnVehicle > 0 then 
+    exports['cnr_wanted']:WantedPoints(client, "auto-export", true)
+    exports['cnr_cash']:BankTransaction(client, vehRequest[k].price)
+    TriggerClientEvent('cnr:exports_delivered', client)
+  end
+end)
+
