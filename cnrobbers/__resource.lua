@@ -35,7 +35,8 @@ server_exports {
   'ConsolePrint',         -- Print to the console with "[CNR timestamp]"
   'CurrentZone',          -- Returns the currently active zone
   'UniqueId',             -- See function for more info (sv_cnrobbers.lua)
-  'GetFullZoneName'       -- Returns the name as specified in sh_cnrobbers.lua
+  'GetFullZoneName',      -- Returns the name as specified in sh_cnrobbers.lua
+  'GetZoneNumber',
 }
 
 exports {
@@ -49,6 +50,8 @@ exports {
   'GetClosestPlayer',     -- Gets the local client reference of the nearest player
   'ReportPosition',       -- Tells script whether or not to report loc to SQL
   'GetFullZoneName',      -- Returns the name as specified in sh_cnrobbers.lua
-  'ListZones'
+  'GetZoneNumber',
+  'ListZones',
+  'InActiveZone'
 }
 

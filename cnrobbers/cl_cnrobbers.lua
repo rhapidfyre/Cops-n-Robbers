@@ -146,6 +146,18 @@ end
 RegisterCommand('zones', ListZones)
 
 
+--- EXPORT: InActiveZone()
+-- Returns true if the player is in the active zone
+function InActiveZone()
+  local myPos   = GetEntityCoords(PlayerPedId())
+  local zn      = GetNameOfZone(myPos.x, myPos.y, myPos.z)
+  local zName   = GetFullZoneName(zn)
+  local zNumber = GetZoneNumber(zn)
+
+  if activeZone == zNumber then return true end
+  return false
+end
+
 
 -- Start saving the player's location
 function ReportPosition(truth)
