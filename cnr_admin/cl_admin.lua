@@ -29,7 +29,7 @@ Citizen.CreateThread(function()
     exports['cnr_chat']:ChatNotification("CHAR_SOCIAL_CLUB", "~y~System Help",
     "/togglehelp", helpMessages[helpNum])
     helpNum = helpNum + 1
-    if helpNum > #helpMessage then helpNum = 1 end
+    if helpNum > #helpMessages then helpNum = 1 end
     Citizen.Wait(300000)
   end
 end)
