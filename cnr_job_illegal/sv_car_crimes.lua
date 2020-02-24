@@ -91,6 +91,7 @@ Citizen.CreateThread(function()
 		Citizen.Wait(1000)
 		ticker = ticker + 1
 		if ticker > 3600 then
+      ticker = 0
       GenerateVehicleList()
 		end
 	end
