@@ -51,20 +51,20 @@ local vehExports = {
 -- Where vehicles can be dropped, depending on the active zone
 local vehDrops = {
   [1] = { -- Zone 1 Drops
-    vector3 = (947.317, -1697.63, 29.96), -- Garage in East LS Alleyway
-    vector3 = (-594.872, -1586.06, 25.89), -- Near trash yard back door
-    vector3 = (-1604.1, -826.382, 8.28), -- Big yellow garage at beach parking
+    vector3(947.317, -1697.63, 29.96), -- Garage in East LS Alleyway
+    vector3(-594.872, -1586.06, 25.89), -- Near trash yard back door
+    vector3(-1604.1, -826.382, 8.28), -- Big yellow garage at beach parking
   },
   [2] = { -- Zone 2
-    vector3 = (3832.17, 4463.89, 1.86), -- Hidden Dock
-    vector3 = (1321.06, 4228.92, 32.16), -- Grapeseed Dock
-    vector3 = (2348.1, 3131.99, 46.45), -- East Joshua Wasteyard
+    vector3(3832.17, 4463.89, 1.86), -- Hidden Dock
+    vector3(1321.06, 4228.92, 32.16), -- Grapeseed Dock
+    vector3(2348.1, 3131.99, 46.45), -- East Joshua Wasteyard
   },
   [3] = {
-    vector3 = (3832.17, 4463.89, 1.86), -- Paleto Bay Garage
+    vector3(3832.17, 4463.89, 1.86), -- Paleto Bay Garage
   },
   [4] = {
-    vector3 = (-1803.56, 2992.16, 31.05), -- Fort Zancudo Hangar
+    vector3(-1803.56, 2992.16, 31.05), -- Fort Zancudo Hangar
   }
 }
 
