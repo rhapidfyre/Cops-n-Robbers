@@ -2,6 +2,7 @@
 -- car theft, boosting, chopshops
 RegisterServerEvent('baseevents:enteringVehicle')
 RegisterServerEvent('baseevents:enteredVehicle')
+RegisterServerEvent('cnr:exports_arrived')
 RegisterServerEvent('cnr:client_loaded')
 
 -- List of vehicles eligible for exporting
@@ -107,7 +108,7 @@ AddEventHandler('baseevents:enteredVehicle', function(veh, seat, vehModel)
   local client = source
   for k,v in pairs (vehRequest) do 
     if GetHashKey(v.mdl) == GetHashKey(vehModel) then
-      TriggerClientEvent('cnr:exports_mission_vehicle', client, v.price)
+      TriggerClientEvent('cnr:exports_mission_vehicle', client, v.price, veh)
       break
     end
   end
@@ -123,9 +124,9 @@ AddEventHandler('cnr:exports_arrived', function(vehModel)
     end
   end
   if misnVehicle > 0 then 
-    exports['cnr_wanted']:WantedPoints(client, "auto-export", true)
-    exports['cnr_cash']:BankTransaction(client, vehRequest[k].price)
     TriggerClientEvent('cnr:exports_delivered', client)
+    exports['cnr_wanted']:WantedPoints(client, "auto-export", true)
+    exports['cnr_cash']:BankTransaction(client, vehRequest[misnVehicle].price)
   end
 end)
 

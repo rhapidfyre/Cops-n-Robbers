@@ -65,14 +65,14 @@ AddEventHandler('cnr:exports_delivered', function()
 end)
 
 
-AddEventHandler('cnr:exports_mission_vehicle', function(price)
+AddEventHandler('cnr:exports_mission_vehicle', function(price, veh)
 
   TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
       "This vehicle is currently export list for ^2$"..price.."^7!"
   }})
     
   Citizen.Wait(2000)
-  while IsPedInVehicle(PlayerPedId()) do
+  while IsPedInVehicle(PlayerPedId(), veh) do
     local nearest = 0
     local cDist = math.huge
     local myPos = GetEntityCoords(PlayerPedId())
@@ -82,11 +82,19 @@ AddEventHandler('cnr:exports_mission_vehicle', function(price)
     end
     if nearest > 0 then
       if exports['cnrobbers']:InActiveZone() then
-        if dist < 4.0 then
+        if cDist < 1.2 then
           TriggerServerEvent('cnr:exports_arrived', 
             GetEntityModel(GetVehiclePedIsIn(PlayerPedId()))
           )
+          DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
           Citizen.Wait(12000)
+        elseif cDist < 100.0 then 
+          local vPos = vehDrops[nearest].pos
+          DrawMarker(1, vPos.x, vPos.y, vPos.z - 1.2,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            4.25, 4.25, 0.85, 255, 180, 0, 90
+          )
+        else print("DEBUG - Too Far! cDist = "..cDist)
         end
       else
         TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
@@ -94,8 +102,9 @@ AddEventHandler('cnr:exports_mission_vehicle', function(price)
         }})
         Citizen.Wait(12000)
       end
+    else print("DEBUG - No auto exporters nearby.")
     end
-    Citizen.Wait(1000)
+    Citizen.Wait(0)
   end
 end)
 
