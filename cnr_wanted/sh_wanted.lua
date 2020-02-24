@@ -170,6 +170,11 @@ local crimes = {
     weight = 90, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(100, 500)) end
   },
+  ['auto-export'] = {
+    title = "Illegal Vehicle Sale",
+    weight = 60, minTime = 5, maxTime = 10, isFelony = true,
+    fine = function() return (math.random(2400, 8000)) end
+  },
   ['jailed'] = {
     title = "Jailed/Clear",
     weight = 0, minTime = 0, maxTime = 0, isFelony = true,
