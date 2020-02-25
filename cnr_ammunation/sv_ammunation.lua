@@ -171,12 +171,6 @@ function RevokeAllWeapons(client, isDead)
   return true
 end
 
-RegisterServerEvent('cnr:player_death')
-AddEventHandler('cnr:player_death', function()
-  local died = source
-  RevokeAllWeapons(died, false, true)
-end)
-
 AddEventHandler('cnr:imprisoned', function(ply)
   RevokeAllWeapons(ply, false, true)
 end)
