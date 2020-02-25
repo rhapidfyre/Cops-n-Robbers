@@ -61,6 +61,7 @@ AddEventHandler('cnr:player_death', function()
     "SELECT PlayerDeath(@uid)",
     {['uid'] = uid},
     function(retValue)
+      TriggerEvent('cnr:death_insured', client, retValue)
       TriggerClientEvent('cnr:death_insurance', client, retValue)
     end
   )
