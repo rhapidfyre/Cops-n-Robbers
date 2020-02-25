@@ -19,6 +19,7 @@ Official Test Server: **www.rhapidfyre.com:30120**
 Please keep in mind this gamemode is fluid and controls can change at any time.
 PLEASE review the control list every time the master is updated!
 
+* (F1): **NEW** Open/Close Inventory
 * (F2): Issue a ticket (For now, it also arrests the nearby player)
 * (E): Interaction Key (For all interactive functions in the game)
 * Rob Store: Point a gun
