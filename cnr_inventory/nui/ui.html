@@ -10,6 +10,53 @@
   <body>
     
     
+  <!-- Main Inventory -->
+  <div id="inv-main" style="display: none;">
+  
+    <!-- Items List -->
+    <div id="inv-items">
+      <div class="item" id="i1">
+        <img src="missing.png">
+        <span class="icount">126</span>
+        <span class="iname">Pickle Jar</span>
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <div id="inv-ctrl">
+      <table>
+        
+        <thead>
+          <tr><th colspan="4">MY INVENTORY</th></tr>
+        </thead>
+        
+        <tbody>
+          <tr>
+            <td></td><td></td>
+            <td></td><td></td>
+          </tr>
+          <tr>
+            <td colspan="2"><button onclick="ItemAction(1)">USE</button></td>
+            <td><button onclick="ItemAction(0)">DROP</button></td>
+            <td><button onclick="ItemAction(2)">DESTROY</button></td>
+          </tr>
+          <tr>
+            <th rowspan="2" colspan="3">
+              <span id="qty">5</span>
+            </th>
+            <td>
+              <button onclick="QuantityChange(1)">&uArr;</button>
+            </td>
+          </tr>
+          <tr><td>
+            <button onclick="QuantityChange(0)">&dArr;</button>
+          </td></tr>
+        </tbody>
+        
+      </table>
+    </div>
+    
+  </div>
     
 	</body>
 </html>
