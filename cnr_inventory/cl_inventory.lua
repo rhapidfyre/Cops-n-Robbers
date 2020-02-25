@@ -1,15 +1,13 @@
 
---[[
-  Cops and Robbers: Inventory Script - Client Primary Script
-  Created by Michael Harris ( mike@harrisonline.us )
-  02/24/2020
+RegisterNetEvent('cnr:inventory_receive') -- Update entire inventory
+RegisterNetEvent('cnr:inventory_add')     -- Add a single item stack
+RegisterNetEvent('cnr:inventory_remove')  -- Remove single item stack
+RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
 
-  This file contains all inventory related information as well as
-  interfaces. Adding, removing, manipulating items as well as 24/7 purchasing
---]]
 
 local menuEnabled = false
 local toggle_inv = 288 -- F1
+
 
 -- Returns truth value of whether the player should be 
 -- allowed/able to use the inventory menu
