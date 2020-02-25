@@ -71,8 +71,11 @@ local function GenerateVehicleList()
   )
   
   -- Build the list
-  local psuedotable = vehExports
   vehRequest = {} -- Wipe the current list
+  local psuedotable = {}
+  for k,v in pairs (vehExports) do
+    table.insert(psuedotable, v)
+  end
   for i = 1, 3 do 
     local n = math.random(#psuedotable)
     local vChoice = table.remove(psuedotable, n)
