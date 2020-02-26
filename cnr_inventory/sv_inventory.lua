@@ -1,5 +1,6 @@
 
 RegisterServerEvent('cnr:inventory_update')
+RegisterServerEvent('cnr:client_loaded')
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
@@ -15,18 +16,18 @@ function ItemAdd(client, itemInfo, quantity)
     cprint("^1[INVENTORY] ^7No Server ID given to ItemAdd() in sv_inventory.lua")
     return 0
   end
-  
+
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemAdd() in sv_inventory.lua")
     return (-1)
   end
-  
+
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemAdd() in sv_inventory.lua")
     return (-1)
   end
-  
+
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   local response = exports['ghmattimysql']:executeSync(
@@ -37,9 +38,8 @@ function ItemAdd(client, itemInfo, quantity)
       ['eat']    = itemInfo['consume']
     }
   )
-  
-  UpdateInventory(client)
-  if response < 1 then 
+
+  if response < 1 then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemAdd() in sv_inventory.lua"
@@ -61,18 +61,18 @@ function ItemRemove(client, itemInfo, quantity)
     cprint("^1[INVENTORY] ^7No Server ID given to ItemRemove() in sv_inventory.lua")
     return 0
   end
-  
+
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemRemove() in sv_inventory.lua")
     return (-1)
   end
-  
+
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemRemove() in sv_inventory.lua")
     return (-1)
   end
-  
+
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not itemInfo['id'] then itemInfo['id'] = 0 end
@@ -85,9 +85,8 @@ function ItemRemove(client, itemInfo, quantity)
       ['eat']    = itemInfo['consume']
     }
   )
-  
-  UpdateInventory(client)
-  if response < 1 then 
+
+  if response < 1 then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemRemove() in sv_inventory.lua"
@@ -109,18 +108,18 @@ function ItemModify(client, itemInfo, quantity)
     cprint("^1[INVENTORY] ^7No Server ID given to ItemModify() in sv_inventory.lua")
     return 0
   end
-  
+
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemModify() in sv_inventory.lua")
     return (-1)
   end
-  
+
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemModify() in sv_inventory.lua")
     return (-1)
   end
-  
+
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not itemInfo['id'] then itemInfo['id'] = 0 end
@@ -133,8 +132,8 @@ function ItemModify(client, itemInfo, quantity)
       ['eat']    = itemInfo['consume']
     }
   )
-  
-  if response < 1 then 
+
+  if response < 1 then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemModify() in sv_inventory.lua"
@@ -155,18 +154,18 @@ function ItemCount(client, itemInfo)
     cprint("^1[INVENTORY] ^7No Server ID given to ItemCount() in sv_inventory.lua")
     return 0
   end
-  
+
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemCount() in sv_inventory.lua")
     return (-1)
   end
-  
+
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemCount() in sv_inventory.lua")
     return (-1)
   end
-  
+
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not itemInfo['id'] then itemInfo['id'] = 0 end
@@ -179,8 +178,8 @@ function ItemCount(client, itemInfo)
       ['eat']    = itemInfo['consume']
     }
   )
-  
-  if response < 1 then 
+
+  if response < 1 then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemCount() in sv_inventory.lua"
@@ -201,18 +200,18 @@ function GetInventory(client)
 
   if not client then return {} end
   local uid = exports['cnrobbers']:UniqueId(client)
-  
-  if uid > 0 then 
+
+  if uid > 0 then
     return (
       exports['ghmattimysql']:executeSync(
         "SELECT * FROM inventories WHERE character_id = @u",
         {['u'] = uid}
       )
     )
-            
+
   else return {}
   end
-  
+
 end
 
 --- EXPORT: GetWeight()
@@ -223,7 +222,7 @@ function GetWeight(client)
 
   if not client then return 0 end
   local uid = exports['cnrobbers']:UniqueId(client)
-  
+
   local weight = exports['ghmattimysql']:scalarSync(
     "SELECT SUM(weight * quantity) FROM inventories WHERE character_id = @u",
     {['u'] = uid}
@@ -246,3 +245,15 @@ function UpdateInventory(client)
     end
   )
 end
+AddEventHandler('cnr:client_loaded', function()
+  local client = source
+  Citizen.Wait(3000)
+  UpdateInventory(client)
+end)
+Citizen.CreateThread(function()
+  Citizen.Wait(1000)
+  local plys = GetPlayers()
+  for _,i in ipairs(plys) do 
+    UpdateInventory(i)
+  end
+end)
