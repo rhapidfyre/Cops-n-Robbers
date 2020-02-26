@@ -10,6 +10,7 @@ local menuEnabled  = false
 local pauseDropped = false -- Stop the drop loop from processing
 
 local toggle_inv   = 288 -- F1
+local pickup_key   = 38
 local inv          = {}
 local dropped      = {}
 
@@ -101,18 +102,6 @@ local function CreateDropPackage(coords, givenModel, iName, qty)
       0.0, 0.1, 0.0, 0, 0, 1, 1, 0, 1
     )
     
-    Citizen.CreateThread(function()
-      while DoesEntityExist(temp) do 
-        local objPos = GetEntityCoords(temp)
-        if #(GetEntityCoords(PlayerPedId()) - objPos) < 12.0 then 
-          DrawText3D(objPos.x, objPos.y, objPos.z,
-            "[~g~E~w~] Pick up: ~y~"..(iName).." ~w~("..(qty)..")"
-          )
-        end
-        Citizen.Wait(1)
-      end
-    end)
-    
     return temp
     
   else
@@ -120,6 +109,23 @@ local function CreateDropPackage(coords, givenModel, iName, qty)
     return nil
   end
 end
+
+    
+Citizen.CreateThread(function()
+  while true do 
+    for k,v in pairs (dropped) do
+      if DoesEntityExist(v.obj) then
+        local objPos = GetEntityCoords(v.obj)
+        if #(GetEntityCoords(PlayerPedId()) - objPos) < 12.0 then 
+          DrawText3D(objPos.x, objPos.y, objPos.z,
+            "[HOLD ~g~E~w~] Pick up: ~y~"..(v.item['title']).." x"..(v.count)
+          )
+        end
+      end
+    end
+    Citizen.Wait(1)
+  end
+end)
 
 
 -- Draws text on screen as positional
@@ -142,6 +148,19 @@ function DrawText3D(x, y, z, text)
 end
 
 
+--- PickupPackage()
+-- Called when the player collects a package on the ground
+local function PickupPackage(num)
+  pauseDropped = true
+  TriggerServerEvent('cnr:inventory_pickup', dropped[num].item, dropped[num].count)
+  Citizen.Wait(100)
+  if DoesEntityExist(dropped[num].obj) then DeleteObject(dropped[num].obj) end
+  table.remove(dropped, num)
+  Citizen.Wait(900)
+  pauseDropped = false
+end
+
+
 -- Tracks items dropped on the ground
 Citizen.CreateThread(function()
   while true do 
@@ -161,14 +180,24 @@ Citizen.CreateThread(function()
             
           -- Object exists
           else
+          
             -- Remove the object if we get too far away
             if dist > 120.0 then 
               if v.obj and not pauseDropped then 
                 DeleteObject(v.obj)
                 print("DEBUG - Removing item package from ground (too far)")
               end
+              
+            elseif dist < 4.0 then
+            
+              -- Pick it up if we're holding E
+              if IsControlPressed(0, pickup_key) then
+                PickupPackage(k)
+              
+              end
             
             end
+            
           end
           
         end -- if pos

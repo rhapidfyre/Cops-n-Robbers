@@ -1,6 +1,7 @@
 
 RegisterServerEvent('cnr:inventory_update')
 RegisterServerEvent('cnr:inventory_action')
+RegisterServerEvent('cnr:inventory_pickup')
 RegisterServerEvent('cnr:client_loaded')
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
@@ -246,6 +247,27 @@ function UpdateInventory(client)
   )
   
 end
+
+
+AddEventHandler('cnr:inventory_pickup', function(itemInfo, quantity)
+  local client = source
+  local uid = exports['cnrobbers']:UniqueId(client)
+  
+  if not quantity then quantity = 1 end
+  if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
+  if not itemInfo['consume'] then itemInfo['consume'] = 0
+  else itemInfo['consume'] = 1 end
+  exports['ghmattimysql']:execute(
+    "CALL InvAdd(@uid, @iname, @ititle, @eat, @qty)",
+    {
+      ['uid'] = uid, ['iname'] = itemInfo['name'],
+      ['eat'] = itemInfo['consume'], ['qty'] = quantity
+    }, function()
+      UpdateInventory(client)
+    end
+  )
+  
+end)
 
 
 AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coords)
