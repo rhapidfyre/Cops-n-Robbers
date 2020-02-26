@@ -32,12 +32,15 @@ function ItemAdd(client, itemInfo, quantity)
 
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
+  if not quantity then quantity = 1 end
   local response = exports['ghmattimysql']:executeSync(
-    "SELECT InventoryModify(1, 0, @iname, @ititle, @eat)",
+    "SELECT InvAdd(@uid, @iname, @ititle, @eat, @qty)",
     {
+      ['uid']    = exports['cnrobbers']:UniqueId(client),
       ['iname']  = itemInfo['name'],
       ['ititle'] = itemInfo['title'],
-      ['eat']    = itemInfo['consume']
+      ['eat']    = itemInfo['consume'],
+      ['qty']    = quantity
     }
   )
 
@@ -257,6 +260,10 @@ AddEventHandler('cnr:inventory_pickup', function(itemInfo, quantity)
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not itemInfo['consume'] then itemInfo['consume'] = 0
   else itemInfo['consume'] = 1 end
+  
+  ItemAdd(client, itemInfo, quantity)
+  
+  --[[
   exports['ghmattimysql']:execute(
     "CALL InvAdd(@uid, @iname, @ititle, @eat, @qty)",
     {
@@ -266,6 +273,7 @@ AddEventHandler('cnr:inventory_pickup', function(itemInfo, quantity)
       UpdateInventory(client)
     end
   )
+  ]]
   
 end)
 
@@ -290,10 +298,10 @@ AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coo
             function(didPass)
             
               if not didPass then 
-                TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+                TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
                   args = {
                     "Item Action Failed",
-                    "Database encountered an error while running your request."..
+                    "The database encountered an error while running your request."..
                     "\nContact Administration."
                   }
                 });
@@ -310,7 +318,31 @@ AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coo
           )
         
         else -- default case: Assume they're trying to use it
-        
+          if itemInfo[1]['consume'] then
+            exports['ghmattimysql']:execute(
+              "SELECT InvDelete(@uid, @iid, 1)",
+              {['uid'] = uid, ['iid'] = idNumber},
+              function(didPass)
+                if not didPass then
+                  TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
+                    args = {
+                      "Consume Item Failed",
+                      "The database encountered an error while running your request."..
+                      "\nContact Administration."
+                    }
+                  });
+                else
+                  UpdateInventory(client)
+                  TriggerEvent('cnr:consume_sv', client, itemInfo[1]['name'])
+                  TriggerClientEvent('cnr:consume', client, itemInfo[1]['name'])
+                end
+              end
+            )
+          else
+            TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
+              args = {"That item cannot be used from the inventory."}
+            });
+          end
         end
         
       end

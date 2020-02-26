@@ -4,6 +4,7 @@ RegisterNetEvent('cnr:inventory_add')     -- Add a single item stack
 RegisterNetEvent('cnr:inventory_remove')  -- Remove single item stack
 RegisterNetEvent('cnr:inventory_drop')    -- Tracks items dropped on the ground
 RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
+RegisterNetEvent('cnr:consume')
 
 
 local menuEnabled  = false
@@ -230,6 +231,11 @@ AddEventHandler('cnr:close_all_nui', function()
 end)
 
 
+AddEventHandler('cnr:consume', function(iName)
+  print("DEBUG - Item Consumed: "..iName)
+end)
+
+
 --- BuildInventory()
 -- Builds the inventory from scratch and dispatches it to JavaScript
 function BuildInventory()
@@ -253,21 +259,8 @@ function BuildInventory()
 end
 
 AddEventHandler('cnr:inventory_receive', function(myInventory)
-
   inv = myInventory
-  
-  -- If menu is open, close it, refresh it, and reopen it
-  if menuEnabled then 
-    CloseInventory()
-    Wait(1)
-    BuildInventory()
-    Wait(100)
-    OpenInventory()
-    
-  -- If menu isn't open, just rebuild the inventory silently
-  else BuildInventory()
-  
-  end
+  BuildInventory()
 end)
 
 
