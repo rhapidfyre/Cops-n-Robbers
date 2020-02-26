@@ -1,11 +1,12 @@
 
 --[[
-  Cops and Robbers: Inventory Resource
+  Cops and Robbers: Stores Resource
   Created by Michael Harris ( mike@harrisonline.us )
-  02/24/2020
+  02/26/2020
 
-  This file contains all inventory related information as well as
-  interfaces. Adding, removing, manipulating items as well as 24/7 purchasing
+  This file contains all store information such as 24/7 convenience stores,
+  and any other generic shops that do nothing but provide purchasable items
+
 --]]
 
 
@@ -16,41 +17,26 @@ dependencies  {'cnrobbers','ghmattimysql'}
 
 files {
 	"nui/ui.html",  "nui/ui.js",  "nui/ui.css",
-  "nui/stars/1.png",  "nui/stars/2.png",
-  "nui/stars/3.png",  "nui/stars/4.png",
-  "nui/stars/5.png",  "nui/stars/6.png",
-  "nui/stars/7.png",  "nui/stars/8.png",
-  "nui/stars/9.png",  "nui/stars/10.png",
-  "nui/stars/11.png", "nui/stars/a.png",
-  "nui/stars/b.png",  "nui/stars/c.png",
-  "nui/crimefree.png"
 }
 
 client_scripts {
   "sh_config.lua",
   "cl_config.lua",
-  "sh_inventory.lua",
-  "cl_inventory.lua"
+  "sh_stores.lua",
+  "cl_stores.lua"
 }
 
 server_scripts {
   "sh_config.lua",
   "sv_config.lua",
-  "sh_inventory.lua",
-  "sv_inventory.lua"
+  "sh_stores.lua",
+  "sv_stores.lua"
 }
 
 server_exports {
-  "UpdateInventory",      -- Called anytime a script modifies the inventory
-  "ItemAdd",              -- See notes below
-  "ItemRemove",           -- See notes below
-  "GetInventory",
-  "GetWeight"
 }
 
 exports {
-  "GetInventory",
-  "GetWeight"
 }
 
 --[[

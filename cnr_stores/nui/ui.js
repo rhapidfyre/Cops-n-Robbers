@@ -1,36 +1,14 @@
 
-var iSelected = 0;
-var iAction   = "i";
-
-$(function()
-{
+$(function() {
   
-    var exitListen = false;
-    var inv   = $("#inv-main");
-    var items = $("#inv-items");
+    var a = $("#a");
     
     window.addEventListener('message', function(event)
     {
         
         var item = event.data;
-        
-        if (item.showinv) {
-          inv.show();setTimeout(function() {
-            exitListen = true;
-          }, 400);
-        }
-        if (item.hideinv) {
-          inv.hide();
-          exitListen = false;
-        }
-        if (item.invupdate) {
-          items.empty();
-          items.html(item.invupdate);
-          // On update, reset item selector
-          $("#inv-items").find("*").removeClass("highlight");
-          iSelected = 0;
-          iAction   = "i";
-        }
+        if (item.showinv) {inv.show();}
+        if (item.hideinv) {inv.hide();}
         
     });
         
@@ -38,54 +16,16 @@ $(function()
     // If they're viewing member info, it'll close that instead
     document.onkeyup = function (data) {
       if (data.which == 27) {
-        if (inv.is(":visible")) {CloseMenu();}
-      }
-      else if (data.which == 112) {
-        if (exitListen) {CloseMenu();}
+        if (a.is(":visible")) {CloseMenu();}
       }
     };
-    
-    // Handle item highlighting
-    $(document).on('click', '.item', function() {
-      let ele = $(this).attr('id');
-      let val = ele.substring(1, ele.length);
-      let act = ele.substring(0, 1);
-      $("#inv-items").find("*").removeClass("highlight");
-      $(this).addClass("highlight");
-      iSelected = parseInt(val);
-      iAction   = act;
-    });
         
 });
 
 
 function CloseMenu() {
-  $.post('http://cnr_inventory/inventoryActions', JSON.stringify({
+  $.post('http://cnr_stores/storeMenu', JSON.stringify({
     action:"exit"
   }));
-}
-
-
-function ItemAction(val) {
-  $.post('http://cnr_inventory/inventoryActions', JSON.stringify({
-    action:"doAction",
-    item:iSelected,
-    actn:iAction,
-    quantity:$("#qty").html(),
-    trigger:val
-  }));
-}
-
-
-function QuantityChange(dir) {
-  let temp = parseInt( $("#qty").html() );
-  console.log(temp);
-  if (dir == 1) { temp = temp + 1; }
-  else { temp = temp - 1; }
-  console.log(temp);
-  if (temp > 10) temp = 10;
-  else if (temp < 1) temp = 1;
-  console.log(temp);
-  $("#qty").html(temp);
 }
 
