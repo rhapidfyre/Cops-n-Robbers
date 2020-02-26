@@ -1,14 +1,24 @@
 
+var iSelected = 0;
+
 $(function() {
   
-    var a = $("#a");
+    var store = $("#store-main");
+    var buybtn = $("#store-buy");
     
     window.addEventListener('message', function(event)
     {
         
         var item = event.data;
-        if (item.showinv) {inv.show();}
-        if (item.hideinv) {inv.hide();}
+        if (item.showstore) {inv.show();}
+        if (item.hidestore) {
+          inv.hide();
+          buybtn.prop('disabled', true);
+          iSelected = 0;
+        }
+        
+        if (item.buyenable)  {buybtn.prop('disabled', false);}
+        if (item.buydisable) {buybtn.prop('disabled', true);}
         
     });
         
@@ -29,3 +39,6 @@ function CloseMenu() {
   }));
 }
 
+function Quantity(val) {
+  
+}

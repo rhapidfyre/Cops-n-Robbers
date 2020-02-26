@@ -1,42 +1,89 @@
 <style>
-
-  #inv-main {
-    position: absolute;
-    width: 330px;
-    height: 80%;
-    top: 10%;
-    background: rgba(40,40,40,0.25);
-    right: 4px;
-    border-radius: 8px 0 0 8px;
+  
+  #store-main {
+    width: 60%;
+    height: 50%;
+    background: rgb(160, 160, 160);
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0 auto;
   }
   
-  #inv-items {
-    margin: 4px;
+  #store-main h3 {
+    width: 80%;
+    height: 24px;
+    text-align: center;
+    margin: 4px auto;
     padding: 2px;
-    height: calc(80% - 8px);
-    overflow-y: scroll;
-    border: 2px inset silver;
-    background: grey;
-    border-radius: 6px 0 0 0;
+    background: rgb(120,120,120);
+    border-radius: 8px;
+    border: 1px outset #AAA;
+    font-size: 1.2em;
+    font-style: italic;
+    text-shadow: 1px 1px 0 black;
+    color: #DDD;
   }
   
-  #inv-ctrl {
-    height: calc(20% - 8px);
+  #store-items {
+    height: calc(100% - 40px);
+    overflow-y: scroll;
+  }
+  
+  #store-cont {
+    float: left;
+    border: 2px inset silver;
+    background: rgb(40, 40, 40);
+    width: calc(70% - 12px);
+    height: calc(100% - 12px);
     margin: 4px;
   }
-
+  
+  #store-ctrl {
+    position: relative;
+    float: right;
+    border: 2px outset silver;
+    background: #CCC;
+    width: calc(30% - 12px);
+    height: calc(100% - 12px);
+    margin: 4px;
+  }
+  
+  #store-ctrl input {
+    width: 100%;
+    text-align: center;
+    height: 32px;
+    background: #333;
+    color: #0BF;
+    font-weight: bold;
+  }
+  
+  #store-btns {
+    position: absolute;
+    bottom: 4px;
+    background: red;
+    width: calc(100% - 8px);
+    left: 4px;
+  }
+  
+  #store-btns button {
+    width: 100%;
+  }
+  
   .item {
     position: relative;
     width: 96px;
     height: 96px;
     float: left;
     margin: 2px;
+    padding: 0;
+    border: 2px ridge silver;
   }
   
   .item img {
-    width: 100%;
-    height: 100%;
-    background: black;
+    width: 100%; height: 100%;
+    background: rgba(140,140,140,0.6);
+    margin: 0; padding: 0;
   }
   
   .icount {
@@ -60,35 +107,45 @@
     color: rgb(220,220,220);
     right: 0;
   }
-
+  
 </style>
 
-<div id="inv-main">
-
-  <div id="inv-items">
-    <div class="item" id="i1">
-      <img src="missing.png">
-      <span class="icount">126</span>
-      <span class="iname">Pickle Jar</span>
-    </div>
-    <div class="item" id="i1">
-      <img src="missing.png">
-      <span class="icount">126</span>
-      <span class="iname">Pickle Jar</span>
-    </div>
-    <div class="item" id="i1">
-      <img src="missing.png">
-      <span class="icount">126</span>
-      <span class="iname">Pickle Jar</span>
-    </div>
-    <div class="item" id="i1">
-      <img src="missing.png">
-      <span class="icount">126</span>
-      <span class="iname">Pickle Jar</span>
-    </div>
-  </div>
+<div id="store-main">
   
-  <div id="inv-ctrl">
+  <div id="store-cont">
+  
+    <h3>Vinewood 24/7</h3>
+    <div id="store-items">
+      
+      
+      <div class="item" id="i1">
+        <img src="missing.png">
+        <span class="icount">126</span>
+        <span class="iname">Pickle Jar</span>
+      </div>
+      
+      
+    </div>
+  
+  </div>
+    
+  <div id="store-ctrl">
+  
+    <table>
+      <tr><td colspan="3"><input id="store-iname" type="text" value="item name" readonly></td></tr>
+      <tr><td colspan="3"><input id="store-price" type="text" value="$1,000" readonly></td></tr>
+      <tr>
+        <td><button>-</button></td>
+        <td><input id="store-qty" type="text" value="1"></td>
+        <td><button>+</button></td>
+      </tr>
+    </table>
+    
+    <div id="store-btns">
+      <button id="store-buy" disabled>PURCHASE</button>
+      <br/>
+      <button id="store-cancel">EXIT STORE</button>
+    </div>
     
   </div>
   
