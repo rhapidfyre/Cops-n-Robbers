@@ -58,15 +58,10 @@ exports {
 --[[
 
   NOTES
-  ItemAdd() Table:
     itemInfo:
+      ['id']      = Database ID # of the item (not an option for 'ADD')
       ['name']    = The game name of the item ('drink_beer')
       ['title']   = The proper name of them item ('Beer')
       ['consume'] = True if useable, false if not
-  
-  ItemRemove() Table:
-    itemInfo:
-      ['id']   = Database ID # of the item
-      ['name'] = The game name of the item ('food_hamburger')
       
 ]]
