@@ -5,7 +5,7 @@
   02/24/2020
 
   This file contains all inventory related information as well as
-  interfaces. Adding, removing, manipulating items as well as 24/7 purchasing
+  interfaces. Adding, removing, manipulating items
 --]]
 
 
@@ -16,14 +16,6 @@ dependencies  {'cnrobbers','ghmattimysql'}
 
 files {
 	"nui/ui.html",  "nui/ui.js",  "nui/ui.css",
-  "nui/stars/1.png",  "nui/stars/2.png",
-  "nui/stars/3.png",  "nui/stars/4.png",
-  "nui/stars/5.png",  "nui/stars/6.png",
-  "nui/stars/7.png",  "nui/stars/8.png",
-  "nui/stars/9.png",  "nui/stars/10.png",
-  "nui/stars/11.png", "nui/stars/a.png",
-  "nui/stars/b.png",  "nui/stars/c.png",
-  "nui/crimefree.png"
 }
 
 client_scripts {
