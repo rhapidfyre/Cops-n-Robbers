@@ -44,7 +44,7 @@ function ItemAdd(client, itemInfo, quantity)
     }
   )
 
-  if response < 1 then
+  if not response then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemAdd() in sv_inventory.lua"
@@ -78,116 +78,20 @@ function ItemRemove(client, itemInfo, quantity)
     return (-1)
   end
 
-  if not itemInfo['consume'] then itemInfo['consume'] = 0 end
-  if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not itemInfo['id'] then itemInfo['id'] = 0 end
-  local response = exports['ghmattimysql']:executeSync(
-    "SELECT InventoryModify(0, @iid, @iname, @ititle, @eat)",
+  local response = exports['ghmattimysql']:scalarSync(
+    "SELECT InvDelete(@uid, @iid, @qty)",
     {
-      ['iid']    = itemInfo['id'],
-      ['iname']  = itemInfo['name'],
-      ['ititle'] = itemInfo['title'],
-      ['eat']    = itemInfo['consume']
+      ['uid'] = exports['cnrobbers']:UniqueId(client),
+      ['iid'] = itemInfo['id'],
+      ['qty'] = quantity
     }
   )
 
-  if response < 1 then
+  if not response then
     cprint(
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemRemove() in sv_inventory.lua"
-    )
-  else UpdateInventory(client)
-  end
-  return response
-end
-
-
---- EXPORT: ItemModify()
--- Changes the amount of an item a player has
--- @param client The server ID of the client to affect
--- @param itemInfo Table with the terms to search for (see `__resource.lua`)
--- @param quantity The amount to change by. If nil, ignores entirely
--- @return Returns 1 if function was successful, 0 on fail, -1 on error
-function ItemModify(client, itemInfo, quantity)
-  if not client then
-    cprint("^1[INVENTORY] ^7No Server ID given to ItemModify() in sv_inventory.lua")
-    return 0
-  end
-
-  if not itemInfo then
-    cprint("^1[INVENTORY] ^7No item table given to ItemModify() in sv_inventory.lua")
-    return (-1)
-  end
-
-  -- Minimum itemInfo requirement
-  if not itemInfo['name'] then
-    cprint("^1[INVENTORY] ^7No item game name given to ItemModify() in sv_inventory.lua")
-    return (-1)
-  end
-
-  if not itemInfo['consume'] then itemInfo['consume'] = 0 end
-  if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
-  if not itemInfo['id'] then itemInfo['id'] = 0 end
-  local response = exports['ghmattimysql']:executeSync(
-    "SELECT InventoryModify(2, @iid, @iname, @ititle, @eat)",
-    {
-      ['iid']    = itemInfo['id'],
-      ['iname']  = itemInfo['name'],
-      ['ititle'] = itemInfo['title'],
-      ['eat']    = itemInfo['consume']
-    }
-  )
-
-  if response < 1 then
-    cprint(
-      "^1[INVENTORY] "..
-      "^7MySQL indicated an error when running ItemModify() in sv_inventory.lua"
-    )
-  else UpdateInventory(client)
-  end
-  return response
-end
-
-
---- EXPORT: ItemCount()
--- Returns how much of an item the player has
--- @param client The server ID of the client to affect. If nil, returns 0
--- @param itemInfo Table with the terms to search for (see `__resource.lua`)
--- @return Returns number of items, or 0 if not found
-function ItemCount(client, itemInfo)
-  if not client then
-    cprint("^1[INVENTORY] ^7No Server ID given to ItemCount() in sv_inventory.lua")
-    return 0
-  end
-
-  if not itemInfo then
-    cprint("^1[INVENTORY] ^7No item table given to ItemCount() in sv_inventory.lua")
-    return (-1)
-  end
-
-  -- Minimum itemInfo requirement
-  if not itemInfo['name'] then
-    cprint("^1[INVENTORY] ^7No item game name given to ItemCount() in sv_inventory.lua")
-    return (-1)
-  end
-
-  if not itemInfo['consume'] then itemInfo['consume'] = 0 end
-  if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
-  if not itemInfo['id'] then itemInfo['id'] = 0 end
-  local response = exports['ghmattimysql']:executeSync(
-    "SELECT InventoryModify(3, @iid, @iname, @ititle, @eat)",
-    {
-      ['iid']    = itemInfo['id'],
-      ['iname']  = itemInfo['name'],
-      ['ititle'] = itemInfo['title'],
-      ['eat']    = itemInfo['consume']
-    }
-  )
-
-  if response < 1 then
-    cprint(
-      "^1[INVENTORY] "..
-      "^7MySQL indicated an error when running ItemCount() in sv_inventory.lua"
     )
   else UpdateInventory(client)
   end
@@ -219,6 +123,7 @@ function GetInventory(client)
 
 end
 
+
 --- EXPORT: GetWeight()
 -- Returns the total weight of the player's inventory
 -- @param client The server ID of the client to affect. If nil, returns 0.
@@ -238,6 +143,7 @@ end
 -- Forces an inventory update to the given client
 -- @param client The server ID of whose inventory to send the update to
 function UpdateInventory(client)
+
   if not client then return 0 end
   local uid = exports['cnrobbers']:UniqueId(client)
   
@@ -263,18 +169,6 @@ AddEventHandler('cnr:inventory_pickup', function(itemInfo, quantity)
   
   ItemAdd(client, itemInfo, quantity)
   
-  --[[
-  exports['ghmattimysql']:execute(
-    "CALL InvAdd(@uid, @iname, @ititle, @eat, @qty)",
-    {
-      ['uid'] = uid, ['iname'] = itemInfo['name'],
-      ['eat'] = itemInfo['consume'], ['qty'] = quantity
-    }, function()
-      UpdateInventory(client)
-    end
-  )
-  ]]
-  
 end)
 
 
@@ -291,63 +185,42 @@ AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coo
     if itemInfo[1] then
       if itemInfo[1]['name'] then 
         
-        if action == 2 or action == 0 then -- Drop/Destroy the item entirely
-          exports['ghmattimysql']:execute(
-            "SELECT InvDelete(@uid, @iid, @qty)",
-            {['uid'] = uid, ['iid'] = idNumber, ['qty'] = quantity},
-            function(didPass)
-            
-              if not didPass then 
-                TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
-                  args = {
-                    "Item Action Failed",
-                    "The database encountered an error while running your request."..
-                    "\nContact Administration."
-                  }
-                });
-              else
-                if action == 0 then -- drop item
-                  TriggerClientEvent('cnr:inventory_drop', (-1),
-                    itemInfo[1], quantity, coords
-                  )
-                end
-                UpdateInventory(client)
-              end
-            
-            end
-          )
         
-        else -- default case: Assume they're trying to use it
+        if action == 1 then
           if itemInfo[1]['consume'] then
-            exports['ghmattimysql']:execute(
-              "SELECT InvDelete(@uid, @iid, 1)",
-              {['uid'] = uid, ['iid'] = idNumber},
-              function(didPass)
-                if not didPass then
-                  TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
-                    args = {
-                      "Consume Item Failed",
-                      "The database encountered an error while running your request."..
-                      "\nContact Administration."
-                    }
-                  });
-                else
-                  UpdateInventory(client)
-                  TriggerEvent('cnr:consume_sv', client, itemInfo[1]['name'])
-                  TriggerClientEvent('cnr:consume', client, itemInfo[1]['name'])
-                end
-              end
-            )
+            quantity = 1
+            TriggerEvent('cnr:consume_sv', client, itemInfo[1]['name'])
+            TriggerClientEvent('cnr:consume', client, itemInfo[1]['name'])
           else
             TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
               args = {"That item cannot be used from the inventory."}
             });
+            return 0 -- stop on failure
           end
         end
         
-      end
-    end
-  end
+        local didPass = ItemRemove(client, itemInfo[1], quantity)
+        if not didPass then 
+          TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg',
+            args = {
+              "Item Action Failed",
+              "The database encountered an error while running your request."..
+              "\nContact Administration."
+            }
+          });
+        else
+          if action == 0 then -- drop item
+            TriggerClientEvent('cnr:inventory_drop', (-1),
+              itemInfo[1], quantity, coords
+            )
+          end
+          -- Update player's inventory on success
+          UpdateInventory(client)
+        end
+        
+      end -- iteminfo name
+    end -- iteminfo 1
+  end -- iteminfo
   
 end)
 

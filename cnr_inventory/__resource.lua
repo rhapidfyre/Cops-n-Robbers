@@ -28,24 +28,18 @@ files {
 
 client_scripts {
   "sh_config.lua",
-  "cl_config.lua",
-  "sh_inventory.lua",
   "cl_inventory.lua"
 }
 
 server_scripts {
   "sh_config.lua",
-  "sv_config.lua",
-  "sh_inventory.lua",
   "sv_inventory.lua"
 }
 
 server_exports {
-  "UpdateInventory",        -- Called anytime a script modifies the inventory
-  "ItemAdd",                -- See notes below
-  "ItemRemove",             -- See notes below  
-  "ItemModify",             -- See notes below
-  "ItemCount",
+  "UpdateInventory",      -- Called anytime a script modifies the inventory
+  "ItemAdd",              -- See notes below
+  "ItemRemove",           -- See notes below
   "GetInventory",
   "GetWeight"
 }

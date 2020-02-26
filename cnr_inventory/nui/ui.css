@@ -6,9 +6,10 @@
     width: 346px;
     height: 80%;
     top: 10%;
-    background: rgba(40,40,40,0.25);
+    background: rgba(40,40,40,0.6);
     right: 4px;
     border-radius: 8px 0 0 8px;
+    border: 2px ridge silver;
   }
   
   #inv-items {
