@@ -71,13 +71,14 @@ function ItemAction(val) {
     action:"doAction",
     item:iSelected,
     actn:iAction,
+    quantity:$("#qty").html(),
     trigger:val
   }));
 }
 
 
 function QuantityChange(dir) {
-  let temp = parseInt( $("#qty").val() );
+  let temp = parseInt( $("#qty").html() );
   console.log(temp);
   if (dir == 1) { temp = temp + 1; }
   else { temp = temp - 1; }

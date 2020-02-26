@@ -133,7 +133,7 @@ RegisterNUICallback('inventoryActions', function(data, callback)
     CloseInventory()
   
   elseif data.action == "doAction" then
-  
+    
     if lastServerRequest > GetGameTimer() then
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "You can't do that for another "..
@@ -145,15 +145,15 @@ RegisterNUICallback('inventoryActions', function(data, callback)
     
     local i = tonumber(data.item)
     local t = tonumber(data.trigger)
+    local q = tonumber(data.quantity)
     local runAction = false
+    
     if t == 1 then
-      if data.actn == "c" then 
-        runAction = true
-      end
+      if data.actn == "c" then runAction = true end
     else runAction = true
     end
     if runAction then
-      TriggerServerEvent('cnr:inventory_action', t, i)
+      TriggerServerEvent('cnr:inventory_action', t, i, q)
     else
       if t == 1 then 
         TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
