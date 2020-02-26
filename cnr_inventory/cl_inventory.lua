@@ -126,12 +126,23 @@ AddEventHandler('cnr:inventory_receive', function(myInventory)
 end)
 
 
+local lastServerRequest = 0
 RegisterNUICallback('inventoryActions', function(data, callback)
 
   if data.action == "exit" then
     CloseInventory()
   
   elseif data.action == "doAction" then
+  
+    if lastServerRequest > GetGameTimer() then
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You can't do that for another "..
+        math.ceil((lastServerRequest - GetGameTimer())/1000).." seconds."
+      }})
+      return 0 
+    end
+    lastServerRequest = GetGameTimer() + 5000
+    
     local i = tonumber(data.item)
     local t = tonumber(data.trigger)
     local runAction = false
