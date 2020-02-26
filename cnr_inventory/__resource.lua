@@ -41,31 +41,32 @@ server_scripts {
 }
 
 server_exports {
-  'GetCrimeName',
-  'GetCrimeFine',
-  'GetCrimeTime',
-  'GetCrimeWeight',
-  'IsCrimeFelony',
-  'DoesCrimeExist',
-  'WantedLevel',
-  'WantedPoints',
-  'CrimePoints',
-  'CrimeName',
-  'CrimeList',
+  "UpdateInventory",        -- Called anytime a script modifies the inventory
+  "ItemAdd",                -- See notes below
+  "ItemRemove",             -- See notes below  
+  "ItemModify",             -- See notes below
+  "ItemCount",
+  "GetInventory",
+  "GetWeight"
 }
 
 exports {
-  'CrimeList',
-  'GetCrimeName',
-  'GetCrimeFine',
-  'GetCrimeTime',
-  'GetCrimeWeight',
-  'IsCrimeFelony',
-  'DoesCrimeExist',
-  'GetWanteds',
-  'WantedLevel',
-  'WantedPoints',
-  'CrimeName',
-  'HasRightsToVehicle',
+  "GetInventory",
+  "GetWeight"
 }
 
+--[[
+
+  NOTES
+  ItemAdd() Table:
+    itemInfo:
+      ['name']    = The game name of the item ('drink_beer')
+      ['title']   = The proper name of them item ('Beer')
+      ['consume'] = True if useable, false if not
+  
+  ItemRemove() Table:
+    itemInfo:
+      ['id']   = Database ID # of the item
+      ['name'] = The game name of the item ('food_hamburger')
+      
+]]

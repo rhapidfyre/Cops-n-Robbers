@@ -7,6 +7,26 @@ RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
 
 local menuEnabled = false
 local toggle_inv = 288 -- F1
+local inv = {}
+
+--- EXPORT: GetInventory()
+-- Returns the contents of the player's inventory to calling script
+function GetInventory()
+  return inv
+end
+
+
+--- EXPORT: GetWeight()
+-- Returns total weight of the player's inventory
+function GetWeight()
+  local running_total = 0
+  if #inv > 0 then
+    for k,v in pairs (inv) do 
+      running_total = running_total + (v['weight'] * v['quantity'])
+    end
+  end
+  return running_total
+end
 
 
 -- Returns truth value of whether the player should be 
