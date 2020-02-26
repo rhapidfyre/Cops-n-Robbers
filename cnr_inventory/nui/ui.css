@@ -32,12 +32,12 @@
     height: 96px;
     float: left;
     margin: 2px;
-    padding; 0;
+    padding: 0;
     border: 2px ridge silver;
   }
   
   .highlight {
-    border: 2px ridge gold;
+    border: 2px ridge gold !important;
   }
   
   .item img {

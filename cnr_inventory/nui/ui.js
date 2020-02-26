@@ -1,9 +1,13 @@
 
+var iSelected = 0;
+var iAction   = "i";
+
 $(function()
 {
   
     var exitListen = false;
-    var inv = $("#inv-main");
+    var inv   = $("#inv-main");
+    var items = $("#inv-items");
     
     window.addEventListener('message', function(event)
     {
@@ -19,6 +23,14 @@ $(function()
           inv.hide();
           exitListen = false;
         }
+        if (item.invupdate) {
+          items.empty();
+          items.html(item.invupdate);
+          // On update, reset item selector
+          $("#inv-items").find("*").removeClass("highlight");
+          iSelected = 0;
+          iAction   = "i";
+        }
         
     });
         
@@ -32,6 +44,17 @@ $(function()
         if (exitListen) {CloseMenu();}
       }
     };
+    
+    // Handle item highlighting
+    $(document).on('click', '.item', function() {
+      let ele = $(this).attr('id');
+      let val = ele.substring(1, ele.length);
+      let act = ele.substring(0, 1);
+      $("#inv-items").find("*").removeClass("highlight");
+      $(this).addClass("highlight");
+      iSelected = parseInt(val);
+      iAction   = act;
+    });
         
 });
 
@@ -46,30 +69,22 @@ function CloseMenu() {
 function ItemAction(val) {
   $.post('http://cnr_inventory/inventoryActions', JSON.stringify({
     action:"doAction",
-    direction:val
+    item:iSelected,
+    actn:iAction,
+    trigger:val
   }));
 }
-
-
-/*
-function QuantityChange(val) {
-  $.post('http://cnr_inventory/inventoryActions', JSON.stringify({
-    action:"quantity",
-    direction:val
-  }));
-}
-*/
 
 
 function QuantityChange(dir) {
   let temp = parseInt( $("#qty").val() );
-  if (dir == 1) {
-    temp = temp + 1;
-  } else {
-    temp = temp - 1;
-  }
+  console.log(temp);
+  if (dir == 1) { temp = temp + 1; }
+  else { temp = temp - 1; }
+  console.log(temp);
   if (temp > 10) temp = 10;
   else if (temp < 1) temp = 1;
+  console.log(temp);
   $("#qty").html(temp);
 }
 
