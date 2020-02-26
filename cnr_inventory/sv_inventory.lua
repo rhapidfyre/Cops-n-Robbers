@@ -1,5 +1,6 @@
 
 RegisterServerEvent('cnr:inventory_update')
+RegisterServerEvent('cnr:inventory_action')
 RegisterServerEvent('cnr:client_loaded')
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
@@ -200,7 +201,7 @@ function GetInventory(client)
 
   if not client then return {} end
   local uid = exports['cnrobbers']:UniqueId(client)
-
+  
   if uid > 0 then
     return (
       exports['ghmattimysql']:executeSync(
@@ -219,10 +220,8 @@ end
 -- @param client The server ID of the client to affect. If nil, returns 0.
 -- @return Returns total weight of inventory
 function GetWeight(client)
-
   if not client then return 0 end
   local uid = exports['cnrobbers']:UniqueId(client)
-
   local weight = exports['ghmattimysql']:scalarSync(
     "SELECT SUM(weight * quantity) FROM inventories WHERE character_id = @u",
     {['u'] = uid}
@@ -237,6 +236,7 @@ end
 function UpdateInventory(client)
   if not client then return 0 end
   local uid = exports['cnrobbers']:UniqueId(client)
+  
   exports['ghmattimysql']:execute(
     "SELECT * FROM inventories WHERE character_id = @u",
     {['u'] = uid},
@@ -244,12 +244,69 @@ function UpdateInventory(client)
       TriggerClientEvent('cnr:inventory_receive', client, invStuff)
     end
   )
+  
 end
+
+
+AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coords)
+  local client = source
+  local uid = exports['cnrobbers']:UniqueId(client)
+  
+  local itemInfo = exports['ghmattimysql']:executeSync(
+    "SELECT * FROM inventories WHERE id = @n",
+    {['n'] = idNumber}
+  )
+  
+  if itemInfo then
+    if itemInfo[1] then
+      if itemInfo[1]['name'] then 
+        
+        if action == 2 or action == 0 then -- Drop/Destroy the item entirely
+          exports['ghmattimysql']:execute(
+            "SELECT InvDelete(@uid, @iid, @qty)",
+            {['uid'] = uid, ['iid'] = idNumber, ['qty'] = quantity},
+            function(didPass)
+            
+              if not didPass then 
+                TriggerClientEvent('chat:addMessage', {templateId = 'errMsg',
+                  args = {
+                    "Item Action Failed",
+                    "Database encountered an error while running your request."..
+                    "\nContact Administration."
+                  }
+                });
+              else
+                if action == 0 then -- drop item
+                  TriggerClientEvent('cnr:inventory_drop', (-1),
+                    itemInfo[1], quantity, coords
+                  )
+                end
+                UpdateInventory(client)
+              end
+            
+            end
+          )
+        
+        else -- default case: Assume they're trying to use it
+        
+        end
+        
+      end
+    end
+  end
+  
+end)
+
+
+-- Send player their inventory upon loading in
 AddEventHandler('cnr:client_loaded', function()
   local client = source
   Citizen.Wait(3000)
   UpdateInventory(client)
 end)
+
+
+-- Dispatch inventories on resource restart
 Citizen.CreateThread(function()
   Citizen.Wait(1000)
   local plys = GetPlayers()

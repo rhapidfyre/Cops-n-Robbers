@@ -2,12 +2,16 @@
 RegisterNetEvent('cnr:inventory_receive') -- Update entire inventory
 RegisterNetEvent('cnr:inventory_add')     -- Add a single item stack
 RegisterNetEvent('cnr:inventory_remove')  -- Remove single item stack
+RegisterNetEvent('cnr:inventory_drop')    -- Tracks items dropped on the ground
 RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
 
 
-local menuEnabled = false
-local toggle_inv = 288 -- F1
-local inv = {}
+local menuEnabled  = false
+local pauseDropped = false -- Stop the drop loop from processing
+
+local toggle_inv   = 288 -- F1
+local inv          = {}
+local dropped      = {}
 
 --- EXPORT: GetInventory()
 -- Returns the contents of the player's inventory to calling script
@@ -47,6 +51,8 @@ local function IsInventoryAccessible()
   return true
 end
 
+
+-- Handles reasons why the menu should open or close
 Citizen.CreateThread(function()
   while true do
 
@@ -70,7 +76,105 @@ Citizen.CreateThread(function()
         end
       end
     end
+    
     Citizen.Wait(1)
+  end
+end)
+
+local function CreateDropPackage(coords, givenModel, iName, qty)
+  if not givenModel then givenModel = "prop_cs_package_01" end
+  local mdl = GetHashKey(givenModel)
+  if IsModelValid(mdl) then
+    print("DEBUG - Requesting model '"..givenModel.."'.")
+    RequestModel(mdl)
+    while not HasModelLoaded(mdl) do Wait(10) end
+    print("DEBUG - Model Loaded.")
+    local temp = CreateObject(mdl, coords.x, coords.y, coords.z, true, false, true)
+    print("DEBUG - Object Created @ "..tostring(coords)..".")
+    SetDisableBreaking(temp, true)
+    SetEntityAsMissionEntity(temp, true, true)
+    ActivatePhysics(temp)
+    SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(temp, true)
+    FreezeEntityPosition(temp, false)
+    ApplyForceToEntity(temp, 0,
+      coords.x + 1.0, coords.y, coords.z,
+      0.0, 0.1, 0.0, 0, 0, 1, 1, 0, 1
+    )
+    
+    Citizen.CreateThread(function()
+      while DoesEntityExist(temp) do 
+        local objPos = GetEntityCoords(temp)
+        if #(GetEntityCoords(PlayerPedId()) - objPos) < 12.0 then 
+          DrawText3D(objPos.x, objPos.y, objPos.z,
+            "[~g~E~w~] Pick up: ~y~"..(iName).." ~w~("..(qty)..")"
+          )
+        end
+        Citizen.Wait(1)
+      end
+    end)
+    
+    return temp
+    
+  else
+    print("DEBUG - CreateDropPackage() failed on IsModelValid("..mdl..")")
+    return nil
+  end
+end
+
+
+-- Draws text on screen as positional
+function DrawText3D(x, y, z, text) 
+	local red = 255
+  SetDrawOrigin(x, y, z, 0);
+  BeginTextCommandDisplayText("STRING")
+  SetTextScale(0.3, 0.3)
+  SetTextFont(0)
+  SetTextProportional(1)
+  SetTextColour(255, red, red, 255)
+  SetTextDropshadow(0, 0, 0, 0, 255)
+  SetTextEdge(2, 0, 0, 0, 150)
+  SetTextDropShadow()
+  SetTextOutline()
+  SetTextCentre(1)
+  AddTextComponentString(text)
+  DrawText(0.0, 0.0)
+  ClearDrawOrigin()
+end
+
+
+-- Tracks items dropped on the ground
+Citizen.CreateThread(function()
+  while true do 
+    if not pauseDropped then
+      local myPos = GetEntityCoords(PlayerPedId())
+      for k,v in pairs (dropped) do 
+        if v.pos and not pauseDropped then 
+          local dist = #(myPos - v.pos)
+          
+          -- If object does not exist
+          if not DoesEntityExist(v.obj) then
+            if dist < 80.0 then 
+              print("DEBUG - Creating item package from dropped item.")
+              v.obj = CreateDropPackage(v.pos, v.item['model'], v.item['title'], v.count)
+              print("DEBUG - Successfully created drop package.")
+            end
+            
+          -- Object exists
+          else
+            -- Remove the object if we get too far away
+            if dist > 120.0 then 
+              if v.obj and not pauseDropped then 
+                DeleteObject(v.obj)
+                print("DEBUG - Removing item package from ground (too far)")
+              end
+            
+            end
+          end
+          
+        end -- if pos
+      end -- for
+    end -- if not pauseDropped
+    Citizen.Wait(1000)
   end
 end)
 
@@ -120,9 +224,30 @@ function BuildInventory()
 end
 
 AddEventHandler('cnr:inventory_receive', function(myInventory)
+
   inv = myInventory
-  print("DEBUG - Received inventory from server with "..#inv.." items.")
-  BuildInventory()
+  
+  -- If menu is open, close it, refresh it, and reopen it
+  if menuEnabled then 
+    CloseInventory()
+    Wait(1)
+    BuildInventory()
+    Wait(100)
+    OpenInventory()
+    
+  -- If menu isn't open, just rebuild the inventory silently
+  else BuildInventory()
+  
+  end
+end)
+
+
+AddEventHandler('cnr:inventory_drop', function(itemInfo, qty, coords)
+  pauseDropped = true
+  local n = #dropped + 1
+  dropped[n] = {item = itemInfo, pos = coords, count = qty}
+  print("DEBUG - Added a dropped item ("..tostring(dropped[n].item['name'])..") @ "..tostring(pos))
+  pauseDropped = false
 end)
 
 
@@ -134,18 +259,10 @@ RegisterNUICallback('inventoryActions', function(data, callback)
   
   elseif data.action == "doAction" then
     
-    if lastServerRequest > GetGameTimer() then
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "You can't do that for another "..
-        math.ceil((lastServerRequest - GetGameTimer())/1000).." seconds."
-      }})
-      return 0 
-    end
-    lastServerRequest = GetGameTimer() + 5000
-    
     local i = tonumber(data.item)
     local t = tonumber(data.trigger)
     local q = tonumber(data.quantity)
+    local myPos = GetEntityCoords(PlayerPedId())
     local runAction = false
     
     if t == 1 then
@@ -153,7 +270,17 @@ RegisterNUICallback('inventoryActions', function(data, callback)
     else runAction = true
     end
     if runAction then
-      TriggerServerEvent('cnr:inventory_action', t, i, q)
+    
+      if lastServerRequest > GetGameTimer() then
+        TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+          "You can't do that for another "..
+          math.ceil((lastServerRequest - GetGameTimer())/1000).." seconds."
+        }})
+        return 0 
+      end
+      lastServerRequest = GetGameTimer() + 5000
+      TriggerServerEvent('cnr:inventory_action', t, i, q, myPos)
+      
     else
       if t == 1 then 
         TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
