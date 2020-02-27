@@ -12,28 +12,28 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 -- @param client The server ID of the client to affect. If nil, returns 0
 -- @param itemInfo Table with info (see `__resource.lua`)
 -- @param quantity The amount to add. If nil, adds 1
--- @return Returns 1 if function was successful, 0 on fail, -1 on error
+-- @return Returns true if function was successful, false on failure
 function ItemAdd(client, itemInfo, quantity)
   if not client then
     cprint("^1[INVENTORY] ^7No Server ID given to ItemAdd() in sv_inventory.lua")
-    return 0
+    return false
   end
 
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemAdd() in sv_inventory.lua")
-    return (-1)
+    return false
   end
 
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemAdd() in sv_inventory.lua")
-    return (-1)
+    return false
   end
 
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
   if not quantity then quantity = 1 end
-  local response = exports['ghmattimysql']:executeSync(
+  local response = exports['ghmattimysql']:scalarSync(
     "SELECT InvAdd(@uid, @iname, @ititle, @eat, @qty)",
     {
       ['uid']    = exports['cnrobbers']:UniqueId(client),
@@ -49,6 +49,7 @@ function ItemAdd(client, itemInfo, quantity)
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemAdd() in sv_inventory.lua"
     )
+    return false
   else UpdateInventory(client)
   end
   return response
@@ -60,22 +61,22 @@ end
 -- @param client The server ID of the client to affect
 -- @param itemInfo Table with the terms to search for (see `__resource.lua`)
 -- @param quantity The amount to remove. If nil, removes the entire item
--- @return Returns 1 if function was successful, 0 on fail, -1 on error
+-- @return Returns true if function was successful, false on failure
 function ItemRemove(client, itemInfo, quantity)
   if not client then
     cprint("^1[INVENTORY] ^7No Server ID given to ItemRemove() in sv_inventory.lua")
-    return 0
+    return false
   end
 
   if not itemInfo then
     cprint("^1[INVENTORY] ^7No item table given to ItemRemove() in sv_inventory.lua")
-    return (-1)
+    return false
   end
 
   -- Minimum itemInfo requirement
   if not itemInfo['name'] then
     cprint("^1[INVENTORY] ^7No item game name given to ItemRemove() in sv_inventory.lua")
-    return (-1)
+    return false
   end
 
   if not itemInfo['id'] then itemInfo['id'] = 0 end
@@ -93,6 +94,7 @@ function ItemRemove(client, itemInfo, quantity)
       "^1[INVENTORY] "..
       "^7MySQL indicated an error when running ItemRemove() in sv_inventory.lua"
     )
+    return false
   else UpdateInventory(client)
   end
   return response
