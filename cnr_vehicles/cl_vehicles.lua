@@ -3,13 +3,13 @@ RegisterNetEvent('cnr:consume')
 
 
 local lockLv = {
-  [0] = "None/Unknown",
-  [1] = "Unlocked",
-  [2] = "Locked (No Break-in)",
-  [3] = "Locked for Player",
-  [4] = "Stuck Inside",
-  [7] = "Locked (Break-in OK)",
-  [8] = "Breakable (persist)",
+  [0]  = "None/Unknown",
+  [1]  = "Unlocked",
+  [2]  = "Locked (No Break-in)",
+  [3]  = "Locked for Player",
+  [4]  = "Stuck Inside",
+  [7]  = "Locked (Break-in OK)",
+  [8]  = "Breakable (persist)",
   [10] = "Ignore Attempt to Enter"
 }
 
@@ -26,7 +26,7 @@ local lockChecked = {}
 
 AddEventHandler('cnr:consume', function(itemName)
   if source == "" then
-    print("Unable to authentication the source of the window breaker consume.")
+    print("Unable to authenticate the source of consume[item_window_breaker].")
     return 0
   end
   wbreakers = wbreakers + 1
@@ -202,8 +202,8 @@ Citizen.CreateThread(function()
             else
               TriggerEvent('chat:addMessage', {templateId = 'errMsg',
                 multiline = true, args = {
-                  "Not enough supplies",
-                  "You have no Window Breakers to use. Visit a 24/7."
+                  "You have no Window Breakers",
+                  "Visit a 24/7 and use a window breaker to get one!"
                 }
               })
 
