@@ -54,8 +54,10 @@ Citizen.CreateThread(function()
       )
       if IsControlJustPressed(0, 38) then 
         if not stores[near].inUse then
-          TriggerServerEvent('cnr:stores_start', near, true)
-          Citizen.Wait(3000)
+          if #(GetEntityCoords(PlayerPedId()) - stPos) < 2.25 then
+            TriggerServerEvent('cnr:stores_start', near, true)
+            Citizen.Wait(3000)
+          end
         else
           TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
             args = {"Wait your turn! Somebody else is shopping here right now."}

@@ -30,6 +30,9 @@ AddEventHandler('cnr:consume', function(itemName)
     return 0
   end
   wbreakers = wbreakers + 1
+  TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+    "You can now use "..(wbreakers).." window breakers."
+  }})
 end)
 
 RegisterCommand('vehmodel', function()
