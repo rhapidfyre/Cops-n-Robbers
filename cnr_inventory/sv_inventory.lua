@@ -32,14 +32,18 @@ function ItemAdd(client, itemInfo, quantity)
 
   if not itemInfo['consume'] then itemInfo['consume'] = 0 end
   if not itemInfo['title'] then itemInfo['title'] = itemInfo['name'] end
+  if not itemInfo['mdl'] then itemInfo['mdl'] = "prop_cs_package_01" end
+  if not itemInfo['img'] then itemInfo['img'] = "missing" end
   if not quantity then quantity = 1 end
   local response = exports['ghmattimysql']:scalarSync(
-    "SELECT InvAdd(@uid, @iname, @ititle, @eat, @qty)",
+    "SELECT InvAdd(@uid, @iname, @ititle, @eat, @mdl, @imgsrc, @qty)",
     {
       ['uid']    = exports['cnrobbers']:UniqueId(client),
       ['iname']  = itemInfo['name'],
       ['ititle'] = itemInfo['title'],
       ['eat']    = itemInfo['consume'],
+      ['mdl']    = itemInfo['model'],
+      ['imgsrc'] = itemInfo['img'],
       ['qty']    = quantity
     }
   )
