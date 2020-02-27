@@ -231,11 +231,6 @@ AddEventHandler('cnr:close_all_nui', function()
 end)
 
 
-AddEventHandler('cnr:consume', function(iName)
-  print("DEBUG - Item Consumed: "..iName)
-end)
-
-
 --- BuildInventory()
 -- Builds the inventory from scratch and dispatches it to JavaScript
 function BuildInventory()

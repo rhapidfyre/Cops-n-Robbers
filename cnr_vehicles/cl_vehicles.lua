@@ -1,5 +1,7 @@
 
--- DEBUG - Lock Status
+RegisterNetEvent('cnr:consume')
+
+
 local lockLv = {
   [0] = "None/Unknown",
   [1] = "Unlocked",
@@ -18,8 +20,17 @@ local KEY = {
 -- client vehicles
 local thisVehicle = 0
 local thisDriver  = 0
-local wbreakers   = 1
+local wbreakers   = 0
 local lockChecked = {}
+
+
+AddEventHandler('cnr:consume', function(itemName)
+  if source == "" then
+    print("Unable to authentication the source of the window breaker consume.")
+    return 0
+  end
+  wbreakers = wbreakers + 1
+end)
 
 RegisterCommand('vehmodel', function()
   TriggerEvent('chatMessage', "^3DEBUG - [^7"..GetEntityModel(GetVehiclePedIsIn(PlayerPedId())).."^3]")
