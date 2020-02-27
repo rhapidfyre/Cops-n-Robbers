@@ -23,13 +23,10 @@ $(function() {
     });
         
     // Pressing the ESC key with the menu open closes it 
-    // If they're viewing member info, it'll close that instead
     document.onkeyup = function (data) {
-      if (data.which == 27) {
-        if (a.is(":visible")) {CloseMenu();}
-      }
+      if (data.which == 27) { if (a.is(":visible")) {CloseMenu();} }
     };
-        
+
 });
 
 
@@ -39,6 +36,21 @@ function CloseMenu() {
   }));
 }
 
+
+function PurchaseItem(i) {
+  let quantity = parseInt($("#store-qty").html());
+  $.post('http://cnr_stores/storeMenu', JSON.stringify({
+    action:"purchase",
+    item:i, qty:quantity
+  }));
+}
+
+
 function Quantity(val) {
-  
+  let temp = parseInt( $("#store-qty").html() );
+  if (dir == 1) { temp = temp + 1; }
+  else { temp = temp - 1; }
+  if (temp > 10) temp = 10;
+  else if (temp < 1) temp = 1;
+  $("#store-qty").html(temp);
 }

@@ -34,8 +34,8 @@ $(function()
         
     });
         
-    // Pressing the ESC key with the menu open closes it 
-    // If they're viewing member info, it'll close that instead
+    // Pressing the ESC key with the menu open closes it
+    // Also checks for F1 press to close the menu as well
     document.onkeyup = function (data) {
       if (data.which == 27) {
         if (inv.is(":visible")) {CloseMenu();}
@@ -79,13 +79,10 @@ function ItemAction(val) {
 
 function QuantityChange(dir) {
   let temp = parseInt( $("#qty").html() );
-  console.log(temp);
   if (dir == 1) { temp = temp + 1; }
   else { temp = temp - 1; }
-  console.log(temp);
   if (temp > 10) temp = 10;
   else if (temp < 1) temp = 1;
-  console.log(temp);
   $("#qty").html(temp);
 }
 
