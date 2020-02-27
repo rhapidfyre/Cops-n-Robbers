@@ -59,6 +59,7 @@ AddEventHandler('cnr:stores_purchase', function(i, n)
   
   if buyFlag > 0 then
     -- If they can afford it, submit it to 'cnr_inventory' & deduct price
+    item['resname'] = "cnr_stores"
     local success = exports['cnr_inventory']:ItemAdd(client, item, n)
     if success then 
       if buyFlag == 1 then 

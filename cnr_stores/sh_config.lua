@@ -5,13 +5,13 @@ storeItems = {
   [1] = { ['name'] = "item_window_breaker", ['title'] = "Window Breaker", ['img'] = "wbreaker",
     ['price'] = 1000, ['consume'] = true, ['model'] = nil },
     
-  [2] = { ['name'] = "item_fishing_bait", ['title'] = "Fishing Bait", ['img'] = "bait_poor",
+  [2] = { ['name'] = "item_fishing_bait", ['title'] = "Fishing Bait", ['img'] = "fish_bait_poor",
     ['price'] = 10, ['consume'] = true, ['model'] = nil },
     
-  [3] = { ['name'] = "item_fishing_rod", ['title'] = "Fishing Rod", ['img'] = "rod_poor",
+  [3] = { ['name'] = "item_fishing_rod", ['title'] = "Fishing Rod", ['img'] = "fish_rod_poor",
     ['price'] = 10, ['consume'] = true, ['model'] = nil },
     
-  [4] = { ['name'] = "drink_water", ['title'] = "Water", ['img'] = "water_b ottle",
+  [4] = { ['name'] = "drink_water", ['title'] = "Water", ['img'] = "water_bottle",
     ['price'] = 3, ['consume'] = true, ['model'] = nil },
     
   [5] = { ['name'] = "food_hamburger", ['title'] = "Burger", ['img'] = "hamburger",
@@ -20,7 +20,7 @@ storeItems = {
   [6] = { ['name'] = "food_bag_of_chips", ['title'] = "Chips", ['img'] = "chip_bag",
     ['price'] = 1, ['consume'] = true, ['model'] = nil },
     
-  [7] = { ['name'] = "drink_soda", ['title'] = "Sprunk", ['img'] = "soda_can",
+  [7] = { ['name'] = "drink_sprunk", ['title'] = "Sprunk", ['img'] = "soda_sprunk",
     ['price'] = 1, ['consume'] = true, ['model'] = nil },
     
   [8] = { ['name'] = "liquor_beer", ['title'] = "Beer", ['img'] = "beer_bottle",

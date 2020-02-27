@@ -17,6 +17,10 @@ dependencies  {'cnrobbers','ghmattimysql'}
 
 files {
 	"nui/ui.html",  "nui/ui.js",  "nui/ui.css",
+  "nui/img/beer_bottle.png",    "nui/img/chip_bag.png",
+  "nui/img/fish_bait_poor.png", "nui/img/fish_rod_poor.png",
+  "nui/img/hamburger.png",      "nui/img/soda_sprunk.png",
+  "nui/img/water_bottle.png",   "nui/img/wbreaker.png",
 }
 
 client_scripts {

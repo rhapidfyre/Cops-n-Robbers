@@ -10,7 +10,7 @@ local function BuildStoreItems()
   local htmlTable = {}
   for k,v in pairs (storeItems) do 
     table.insert(htmlTable,
-      '<div class="item" id="i'..k..'"><img src="'..(v["img"])..'.png">'..
+      '<div class="item" id="i'..k..'"><img src="img/'..(v["img"])..'.png">'..
       '<span class="iname">'..(v["title"])..'</span></div>'
     )
   end

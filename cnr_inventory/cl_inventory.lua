@@ -245,11 +245,14 @@ function BuildInventory()
     local n = #htmlTable + 1
     local itemName = v["name"]
     if v["title"] then itemName = v["title"] end
-    
+    local strnPath = "img/"
+    if v["resname"] ~= "cnr_inventory" then 
+      strnPath = 'nui://'..v["resname"]..'/nui/img/'
+    end
     local isConsume = "i"
     if v["consume"] then isConsume = "c" end
     table.insert(htmlTable,
-      '<div class="item" id="'..isConsume..v["id"]..'"><img src="'..v["name"]..'">'..
+      '<div class="item" id="'..isConsume..v["id"]..'"><img src="'..strnPath..v["img"]..'.png">'..
       '<span class="icount">'..v["quantity"]..'</span>'..
       '<span class="iname">'..(itemName)..'</span></div>'
     )
