@@ -10,6 +10,45 @@
   <body>
 
 
+    <div id="store-main" style="display: none;">
+      
+      <div id="store-cont">
+      
+        <h3></h3>
+        <div id="store-items">
+          
+          <!-- TEMPLATE
+          <div class="item" id="i1">
+            <img src="missing.png">
+            <span class="iname">Pickle Jar</span>
+          </div>
+          -->
+          
+        </div>
+      
+      </div>
+        
+      <div id="store-ctrl">
+      
+        <table>
+          <tr><td colspan="3"><input id="store-iname" type="text" value="" readonly></td></tr>
+          <tr><td colspan="3"><input id="store-price" type="text" value="" readonly></td></tr>
+          <tr>
+            <td><button onclick="Quantity(0)">-</button></td>
+            <td><input id="store-qty" type="text" value="1"></td>
+            <td><button onclick="Quantity(1)">+</button></td>
+          </tr>
+        </table>
+        
+        <div id="store-btns">
+          <button id="store-buy" onclick="PurchaseItem()" disabled>PURCHASE</button>
+          <br/>
+          <button id="store-cancel" onclick="CloseMenu()">EXIT STORE</button>
+        </div>
+        
+      </div>
+      
+    </div>
 
 	</body>
 </html>
