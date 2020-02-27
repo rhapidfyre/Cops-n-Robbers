@@ -71,6 +71,9 @@ end)
 
 
 Citizen.CreateThread(function()
+
+  SetNuiFocus(false) -- DEBUG
+  
   Citizen.Wait(2000)
   while true do 
     local myPos = GetEntityCoords(PlayerPedId())
@@ -97,11 +100,53 @@ Citizen.CreateThread(function()
 end)
 
 
+local nextPurchase = 0
 RegisterNUICallback("storeMenu", function(data, callback)
   if data.action == "exit" then 
     TriggerServerEvent('cnr:stores_start', near, false)
     SendNUIMessage({hidestore = true})
     SetNuiFocus(false)
+  
+  elseif data.action == "purchase" then 
+    local n = tonumber(data.qty)
+    local i = tonumber(data.item)
+    if not storeItems[i] then
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "Store Error: 15342",
+        "An error occured when purchasing that item. Contact Administration."
+      }})
+    else
+      local item = storeItems[i]
+      if nextPurchase > GetGameTimer() then 
+        TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+          "Stop impulse-buying! You must wait "..
+          math.ceil((nextPurchase - GetGameTimer())/1000)..
+          " seconds to buy something."
+        }})
+      else
+        nextPurchase = GetGameTimer() + 4999
+        TriggerServerEvent('cnr:stores_purchase', i, n)
+      end
+    end
+  
+  elseif data.action == "viewItem" then 
+    local i = tonumber(data.iNum)
+    if not storeItems[i] then
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "Store Error: 15343",
+        "An error occured when selecting that item. Contact Administration."
+      }})
+      SendNUIMessage({
+        buyenable = false
+      })
+    else
+      SendNUIMessage({
+        buyenable = true,
+        iteminfo = true,
+        itemName = storeItems[i].title,
+        itemCost = "$"..(storeItems[i].price)
+      })
+    end
   
   end
 end)

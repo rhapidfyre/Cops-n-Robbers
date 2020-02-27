@@ -50,6 +50,12 @@
     margin: 4px;
   }
   
+  #store-ctrl table {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
   #store-ctrl input {
     width: 100%;
     text-align: center;
@@ -80,6 +86,10 @@
     margin: 2px;
     padding: 0;
     border: 2px ridge silver;
+  }
+  
+  .highlight {
+    border: 2px ridge gold !important;
   }
   
   .item img {
