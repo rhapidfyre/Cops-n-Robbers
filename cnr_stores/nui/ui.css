@@ -88,16 +88,6 @@
     margin: 0; padding: 0;
   }
   
-  .icount {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 14px;
-    font-weight: bold;
-    text-shadow: 1px 1px 0 black;
-    color: rgb(220,220,220);
-  }
-  
   .iname {
     position: absolute;
     bottom: 2px;

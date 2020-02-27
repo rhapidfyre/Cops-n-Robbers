@@ -2,8 +2,7 @@
 var iSelected = 0;
 var iAction   = "i";
 
-$(function()
-{
+$(function() {
   
     var exitListen = false;
     var inv   = $("#inv-main");
