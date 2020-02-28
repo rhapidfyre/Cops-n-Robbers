@@ -50,11 +50,8 @@ AddEventHandler('cnr:stores_purchase', function(i, n)
   
   if bal < (item.price * n) then
     bal = exports['cnr_cash']:GetPlayerBank(client)
-    if bal < (item.price * n) then 
-      buyFlag = 2
-    end
-  else
-    buyFlag = 1
+    if bal >= (item.price * n) then print("DEBUG - Using Bank."); buyFlag = 2 end
+  else print("DEBUG - Using Cash."); buyFlag = 1
   end
   
   if buyFlag > 0 then
@@ -62,10 +59,8 @@ AddEventHandler('cnr:stores_purchase', function(i, n)
     item['resname'] = "cnr_stores"
     local success = exports['cnr_inventory']:ItemAdd(client, item, n)
     if success then 
-      if buyFlag == 1 then 
-        exports['cnr_cash']:CashTransaction(client, (0 - (item.price * n)))
-      else
-        exports['cnr_cash']:BankTransaction(client, (0 - (item.price * n)))
+      if buyFlag == 1 then exports['cnr_cash']:CashTransaction(client, (0 - (item.price * n)))
+      else                 exports['cnr_cash']:BankTransaction(client, (0 - (item.price * n)))
       end
       TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
         "Purchased "..(n).." "..(item.title).." for ^2$"..(item.price * n).."^7."
