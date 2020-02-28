@@ -44,15 +44,15 @@ local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 -- @return table 1:Admin Level, 2:Admin ID Number
 function AdminLevel(client)
 
-  if not client then          return {[1] = 0, [2] = 0}  end 
-  if not admins[client] then  return {[1] = 0, [2] = 0}  end 
-  
+  if not client then          return {[1] = 0, [2] = 0}  end
+  if not admins[client] then  return {[1] = 0, [2] = 0}  end
+
   if admins[client] > 9999 then
     return {[1] = 4, [2] = admins[client]}
   elseif admins[client] > 999 then
     return {[1] = 3, [2] = admins[client]}
   end
-  
+
   return {[1] = 2, [2] = admins[client]}
 end
 
@@ -60,25 +60,25 @@ local function AssignAdministrator(client, aLevel)
   if not type(aLevel) == "number" then aLevel = tonumber(aLevel) end
   if aLevel > 1 then
     repeat
-      
+
       local gen = math.random(1000,9999)
       if aLevel == 2 then gen = math.random(100,999)
       elseif aLevel == 4 then gen = math.random(10000, 99999)
       end
-      
+
       local exists = false
       for k,v in pairs(admins) do
         if v == gen then exists = true end
       end
-      
+
       if not exists then
         admins[client] = gen
         print("[CNR ADMIN] Assigned Admin ID "..admins[client].." to "..GetPlayerName(client))
         TriggerClientEvent('cnr:admin_assigned', client, admins[client])
-      
+
       end
       Citizen.Wait(10)
-    
+
     until admins[client]
   end
   return ( admins[client] )
@@ -132,7 +132,6 @@ AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
     Citizen.Wait(1200)
     DropPlayer(target, "Kicked by Admin: "..kickReason)
   else
-    print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -156,7 +155,7 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
   if admins[client] then
 
     if admins[client] > 99 then
-    
+
       if BlockAction(client, target) then
         cprint("Admin Action was blocked (equal or greater rank)")
         TriggerEvent('cnr:admin_message',
@@ -189,14 +188,14 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
             ['bt'] = bTimeModified
           }
         )
-        
+
       else
         exports['ghmattimysql']:execute(
           "UPDATE players SET perms = 0, bantime = NULL, "..
           "reason = @br WHERE idUnique = @uid",
           {['br'] = banReason, ['uid'] = uid}
         )
-        
+
       end
 
       Citizen.Wait(1200)
@@ -208,7 +207,6 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
 
     end
   else
-    print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -218,7 +216,7 @@ AddEventHandler('cnr:admin_cmd_warn', function(target, reason)
   if admins[client] then
 
     if admins[client] > 99 then
-      
+
       if BlockAction(client, target) then
         cprint("Admin Action was blocked (equal or greater rank)")
         TriggerEvent('cnr:admin_message',
@@ -227,7 +225,7 @@ AddEventHandler('cnr:admin_cmd_warn', function(target, reason)
         )
         return 0
       end
-      
+
       if not warns[target] then warns[target] = 0 end
       warns[target] = warns[target] + 1
 
@@ -256,7 +254,6 @@ AddEventHandler('cnr:admin_cmd_warn', function(target, reason)
 
     end
   else
-    print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -266,7 +263,7 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
   if admins[client] then
 
     if admins[client] > 99 then
-      
+
       if BlockAction(client, target) then
         cprint("Admin Action was blocked (equal or greater rank)")
         TriggerEvent('cnr:admin_message',
@@ -275,7 +272,7 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
         )
         return 0
       end
-      
+
       TriggerClientEvent('cnr:admin_do_freeze', target, doFreeze, admins[client])
 
     else
@@ -284,7 +281,6 @@ AddEventHandler('cnr:admin_cmd_freeze', function(target, doFreeze)
 
     end
   else
-    print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -293,82 +289,76 @@ end)
 local function TeleportAlert(toPlayer, fromPlayer, admin, aid)
 
   -- CASE 1: Player to Player
-  if toPlayer and fromPlayer then 
-    -- CASE 1A: Player to Player 
-    if toPlayer ~= admin and fromPlayer ~= admin then 
-    
+  if toPlayer and fromPlayer then
+    -- CASE 1A: Player to Player
+    if toPlayer ~= admin and fromPlayer ~= admin then
+
     -- CASE 1B: Player to Admin
-    elseif toPlayer == admin then 
-    
+    elseif toPlayer == admin then
+
     -- CASE 1C: Admin to Player
-    elseif fromPlayer == admin then 
-    
+    elseif fromPlayer == admin then
+
     -- CASE 1D: Admin to Admin
     else
-    
+
     end
-  
+
   -- CASE 2: Player to Nobody (TP to coords)
   elseif fromPlayer then
-  
+
   -- CASE 3: Nobody to Player (Should never happen?)
   else
-  
+
   end
-  
-  
+
+
 end
 
 AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
   local client = source
   print("DEBUG", toPlayer, fromPlayer, coords)
-  if admins[client] then 
+  if admins[client] then
     -- Sending one player to another
-    if toPlayer > 0 and fromPlayer > 0 then 
-      print("DEBUG - Sending Player 1 to Player 2")
+    if toPlayer > 0 and fromPlayer > 0 then
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") sent "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
-    
+
     -- Sending Admin to player
     elseif toPlayer > 0 then
-    print("DEBUG - Sending admin to Player")
       TriggerClientEvent('cnr:admin_tp_coords', client, toPlayer, nil, admins[client])
       TeleportAlert(toPlayer, client, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..GetPlayerName(toPlayer).." (ID #"..toPlayer..")")
-      
+
     -- Bringing another player to Admin
-    elseif fromPlayer > 0 then 
-      print("DEBUG - Sending player to Admin")
+    elseif fromPlayer > 0 then
       TriggerClientEvent('cnr:admin_tp_coords', fromPlayer, client, nil, admins[client])
       TeleportAlert(client, fromPlayer, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") brought "..GetPlayerName(fromPlayer).." (ID #"..fromPlayer..") to them.")
-      
+
     -- Going to a specific location
     else
-      print("DEBUG - Sending admin to coords")
       TriggerClientEvent('cnr:admin_tp_coords', client, client, coords, admins[client])
       TeleportAlert(nil, nil, client, admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..tostring(coords))
     end
   else
-    print("DEBUG - Not an Admin.")
   end
 end)
 
 
 AddEventHandler('cnr:admin_cmd_teleport', function(teleportee)
   local client = source
-  if admins[client] then 
+  if admins[client] then
     TriggerClientEvent('cnr:admin_do_sendback', teleportee, admins[client])
-  else print("DEBUG - Not an Admin.")
   end
 end)
 
 AddEventHandler('cnr:admin_cmd_announce', function(message)
   local client = source
   if admins[client] then
-    if admins[client] > 999 then 
+    if admins[client] > 999 then
       TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg',
         args = { "Admin #"..admins[client]..": "..message }
       })
@@ -377,7 +367,6 @@ AddEventHandler('cnr:admin_cmd_announce', function(message)
         args = { "Insufficient Permissions." }
       })
     end
-  else print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -385,7 +374,7 @@ end)
 AddEventHandler('cnr:admin_cmd_mole', function(message)
   local client = source
   if admins[client] then
-    if admins[client] > 999 then 
+    if admins[client] > 999 then
       TriggerClientEvent('cnr:chat_notification', (-1), "CHAR_LESTER",
         "MOLE", "555-1234", message
       )
@@ -394,7 +383,6 @@ AddEventHandler('cnr:admin_cmd_mole', function(message)
         "5M CNR", "Server Notice", "Insufficient Permissions"
       )
     end
-  else print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -404,7 +392,7 @@ end)
 -- @param message A message sent to all admins
 -- @param client  Player Server ID; If nil, comes from "server"
 function AdminMessage(message, client)
-  
+
   local aid  = 0
   local ply  = "SERVER"
   local name = "SERVER CONSOLE"
@@ -422,12 +410,12 @@ function AdminMessage(message, client)
     }),
     { ['Content-Type'] = 'application/json' }
   )
-  for k,_ in pairs (admins) do 
+  for k,_ in pairs (admins) do
     TriggerClientEvent('chat:addMessage', k, {templateId = 'asay',
       args = {name.." ("..aid..")", message}
     })
   end
-  
+
 end
 
 RegisterCommand('asay', function(s,a,r)
@@ -437,7 +425,6 @@ end, true)
 AddEventHandler('cnr:admin_cmd_asay', function(message)
   local client = source
   if admins[client] then AdminMessage(message, client)
-  else print("DEBUG - Not an Admin")
   end
 end)
 
@@ -476,14 +463,13 @@ end)
 AddEventHandler('cnr:admin_cmd_spawncar', function(vModel)
   local client = source
   if admins[client] then
-    if admins[client] > 999 then 
+    if admins[client] > 999 then
       TriggerClientEvent('cnr:admin_do_spawncar', client, vModel)
     else
       TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
         args = { "Insufficient Permissions" }
       })
     end
-  else print("DEBUG - Not an Admin")
   end
 end)
 
@@ -492,7 +478,6 @@ AddEventHandler('cnr:admin_cmd_delveh', function()
   local client = source
   if admins[client] then
     TriggerClientEvent('cnr:admin_do_delveh', client)
-  else print("DEBUG - Not an Admin")
   end
 end)
 
@@ -503,17 +488,17 @@ end)
 
 
 AddEventHandler('cnr:admin_cmd_setcash', function(target, amount)
-  
+
   local client = source
   if admins[client] then
-  
+
     -- If amount is positive
     if amount > 0 then
       TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
         args = { "Admin #"..admins[client].." added $"..amount.." to your wallet." }
       })
       exports['cnr_cash']:CashTransaction(target, amount)
-    
+
     -- If amount is negative
     elseif amount < 0 then
       if admins[target] then
@@ -523,46 +508,45 @@ AddEventHandler('cnr:admin_cmd_setcash', function(target, amount)
             args = { "Admin #"..admins[client].." took away $"..amount.." from your wallet." }
           })
           exports['cnr_cash']:CashTransaction(target, amount)
-          
+
         -- Admin isn't a Superadmin, and is equal or lower ranking than target
         else
           TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
             args = { "Can't take money away from a higher/equal ranking admin" }
           })
-        
+
         end
-      
+
       else
         TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
           args = { "Admin #"..admins[client].." took away $"..amount.." from your wallet." }
         })
         exports['cnr_cash']:CashTransaction(target, amount)
-      
+
       end
-    
+
     else
       TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
         args = { "Enter an amount other than 0. (Negative takes away money)" }
       })
-    
+
     end
-  else print("DEBUG - Not an Admin")
   end
 end)
 
 
 AddEventHandler('cnr:admin_cmd_setbank', function(target, amount)
-  
+
   local client = source
   if admins[client] then
-  
+
     -- If amount is positive
     if amount > 0 then
       TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
         args = { "Admin #"..admins[client].." added $"..amount.." to your bank balance." }
       })
       exports['cnr_cash']:BankTransaction(target, amount)
-    
+
     -- If amount is negative
     elseif amount < 0 then
       if admins[target] then
@@ -572,30 +556,29 @@ AddEventHandler('cnr:admin_cmd_setbank', function(target, amount)
             args = { "Admin #"..admins[client].." took away $"..amount.." from your bank balance." }
           })
           exports['cnr_cash']:BankTransaction(target, amount)
-          
+
         -- Admin isn't a Superadmin, and is equal or lower ranking than target
         else
           TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
             args = { "Can't take money away from a higher/equal ranking admin" }
           })
-        
+
         end
-      
+
       else
         TriggerClientEvent('chat:addMessage', target, {templateId = 'sysMsg',
           args = { "Admin #"..admins[client].." took away $"..amount.." from your bank balance." }
         })
         exports['cnr_cash']:BankTransaction(target, amount)
-      
+
       end
-    
+
     else
       TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
         args = { "Enter an amount other than 0. (Negative takes away money)" }
       })
-    
+
     end
-  else print("DEBUG - Not an Admin")
   end
 end)
 
@@ -612,15 +595,14 @@ end)
 
 AddEventHandler('cnr:admin_cmd_giveweapon', function(target, wHash, wAmmo)
   local client = source
-  if admins[client] then 
-    if admins[client] > 999 then 
+  if admins[client] then
+    if admins[client] > 999 then
       TriggerClientEvent('cnr:admin_do_giveweapon', target, admins[client], wHash, wAmmo)
     else
       TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg',
         args = { "Insufficient Permissions" }
       })
     end
-  else print("DEBUG - Not an Admin.")
   end
 end)
 
@@ -637,9 +619,8 @@ end)
 
 AddEventHandler('cnr:admin_cmd_togglelock', function(vehNumber)
   local client = source
-  if admins[client] then 
+  if admins[client] then
     TriggerClientEvent('cnr:admin_do_togglelock', client, vehNumber)
-  else print("DEBUG - Not an Admin.")
   end
 end)
 
