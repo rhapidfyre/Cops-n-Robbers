@@ -240,7 +240,6 @@ local doingRevive = false
 function RevivePlayer()
   if doingRevive then return 0 end
   doingRevive = true
-  print("DEBUG - RevivePlayer() @ "..GetGameTimer())
   passiveMode = false -- Just to ensure the previous loop has stopped
   Citizen.Wait(5400)
   if IsPlayerDead(PlayerId()) then
@@ -283,6 +282,13 @@ function RevivePlayer()
       local unarm = GetHashKey("WEAPON_UNARMED")
       SetCurrentPedWeapon(PlayerPedId(), unarm, true)
       local passTime = GetGameTimer() + 300000
+      Citizen.CreateThread(function()
+        while passiveMode do 
+          SetPlayerInvincible(PlayerId(), true)
+          Citizen.Wait(0)
+        end
+        SetPlayerInvincible(PlayerId(), false)
+      end)
       while passiveMode do
         local wLevel = exports['cnr_wanted']:WantedLevel()
         if wLevel > 0 then
