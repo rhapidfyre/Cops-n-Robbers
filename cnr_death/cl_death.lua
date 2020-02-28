@@ -88,7 +88,7 @@ Citizen.CreateThread(function()
     EndTextCommandSetBlipName(blip)
     Citizen.Wait(1)
   end
-  while true do 
+  while true do
     if hNear > 0 then
       local iPos = hospitals[hNear].insure
       DrawMarker(1, iPos.x, iPos.y, iPos.z,
@@ -107,7 +107,7 @@ Citizen.CreateThread(function()
           SetTextEntry_2("STRING")
           AddTextComponentString("[~g~E~w~]: Buy Insurance ($25,000)")
           DrawSubtitleTimed(count, 1)
-          if IsControlJustPressed(0, 38) then 
+          if IsControlJustPressed(0, 38) then
             TriggerServerEvent('cnr:death_buy_insurance')
             Citizen.Wait(3000)
           end
@@ -120,9 +120,9 @@ Citizen.CreateThread(function()
       end
     else Citizen.Wait(3000)
     end
-    
+
     local cDist = math.huge
-    for k,v in pairs (hospitals) do 
+    for k,v in pairs (hospitals) do
       if v.insure then
         local dist = #(GetEntityCoords(PlayerPedId()) - v.insure)
         if dist < cDist and dist < 40.0 then hNear = k end
@@ -194,6 +194,7 @@ local function DeathNotification()
     notified = false
   end
 end
+
 Citizen.CreateThread(function()
    while true do
        Citizen.Wait(0)
@@ -235,20 +236,24 @@ Citizen.CreateThread(function()
     end
 end)
 
+local doingRevive = false
 function RevivePlayer()
+  if doingRevive then return 0 end
+  doingRevive = true
+  print("DEBUG - RevivePlayer() @ "..GetGameTimer())
   passiveMode = false -- Just to ensure the previous loop has stopped
   Citizen.Wait(5400)
   if IsPlayerDead(PlayerId()) then
-  
+
     DoScreenFadeOut(1200)
-  
+
     while not IsScreenFadedOut() do Wait(100) end
-    
-    
+
+
     local myPos   = GetEntityCoords(PlayerPedId())
     local nearest = 1
     local cDist   = math.huge
-    
+
     -- Return closest hospital OR jail/prison hospital
     for k,v in pairs (hospitals) do
       if v.jailHospital == isPrison then
@@ -256,29 +261,29 @@ function RevivePlayer()
         if dist < cDist then nearest = k; cDist = dist end
       end
     end
-    
+
     if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
     SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
     RenderScriptCams(true, true, 500, true, true)
     SetCamActive(cam, true)
-    
+
     NetworkResurrectLocalPlayer(
       hospitals[nearest].coords, 0.0, false, false
     )
-      
+
     SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
     FreezeEntityPosition(PlayerPedId(), true)
-    
+
     Citizen.CreateThread(function()
-      passiveMode = true 
+      passiveMode = true
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "You are ^2now in Passive Mode^7. You are safe from PVP unless you "..
-        "go on police duty, select a weapon, commit a crime, or 5 minutes have passed."
+        "^3PASSIVE MODE: ^2Enabled. You are invincible for 5 minutes unless you "..
+        "go on police duty, select a weapon, or commit a crime."
       }})
       local unarm = GetHashKey("WEAPON_UNARMED")
-      SetPedCurrentWeapon(PlayerPedId(), unarm, true)
+      SetCurrentPedWeapon(PlayerPedId(), unarm, true)
       local passTime = GetGameTimer() + 300000
-      while passiveMode do 
+      while passiveMode do
         local wLevel = exports['cnr_wanted']:WantedLevel()
         if wLevel > 0 then
           passiveMode = false
@@ -286,10 +291,10 @@ function RevivePlayer()
         elseif exports['cnr_police']:DutyStatus() then
           passiveMode = false
           print("Passive mode has been disabled: Went on Police Duty.")
-        elseif GetSelectedPedWeapon(PlayerPedId()) ~= unarmed then
+        elseif GetSelectedPedWeapon(PlayerPedId()) ~= unarm then
           passiveMode = false
           print("Passive mode has been disabled: Selected a Weapon.")
-        elseif passTime < GetGameTimer() then 
+        elseif passTime < GetGameTimer() then
           passiveMode = false
           print("Passive mode has been disabled: 5 Minutes has Passed.")
         end
@@ -297,10 +302,10 @@ function RevivePlayer()
       end
       TriggerServerEvent('cnr:death_nonpassive')
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "You are ^1no longer in Passive Mode^7. You cannow be killed by other players."
+        "^3PASSIVE MODE: ^1Disabled. You cannow be killed by other players."
       }})
     end)
-      
+
     Citizen.Wait(1000)
     DoScreenFadeIn(3000)
     Citizen.Wait(2000)
@@ -308,7 +313,7 @@ function RevivePlayer()
     Citizen.Wait(520)
     FreezeEntityPosition(PlayerPedId(), false)
     SetCamActive(cam, false)
-    
+
     -- If still wanted, report it to 911
     if exports['cnr_wanted']:WantedLevel() > 3 then
       TriggerServerEvent('cnr:police_dispatch_report',
@@ -319,8 +324,8 @@ function RevivePlayer()
         " Wanted Person was just released from their care."
       )
     end
-  
   end
+  doingRevive = false
 end
 
 
@@ -329,33 +334,33 @@ AddEventHandler('cnr:death_insurance', function(insuranceValue)
 
   local wl = exports['cnr_wanted']:WantedLevel()
   if not insuranceValue then insuranceValue = 0 end
-  if insuranceValue > 0 then 
-  
+  if insuranceValue > 0 then
+
     if insuranceValue == 2 then
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "Since you died in police custody, your personal items have been saved."
       }})
-      
+
     else
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "Your insurance prevented you from losing your personal items!\n"..
         "You will have to renew your health insurance before dying again."
       }})
-      
+
     end
-  
+
   else
-  
+
     RemoveAllPedWeapons(PlayerPedId(), true)
     TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
       "You died without health insurance! Welcome to your new life!"
     }})
-    
+
     if wl > 0 then
       TriggerServerEvent('cnr:wanted_points', "jailed")
-      
+
     end
-  
+
   end
   hasInsurance = false
 end)
