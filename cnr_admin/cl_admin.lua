@@ -674,10 +674,13 @@ RegisterCommand('setcash', function(s,a,r)
           args = {"Invalid Arguments", "/"..cmd.." <ID#> <+/->"}
       })
     else
+      local val = tonumber(a[2])
+      if val > 1000000 then val = 1000000
+      elseif val < -1000000 then val = -1000000 end
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
-        args = { "Modifying ID #"..a[1].."'s WALLET CASH by $"..a[2] }
+        args = { "Modifying ID #"..a[1].."'s WALLET CASH by $"..val}
       })
-      TriggerServerEvent('cnr:admin_cmd_setcash', tonumber(a[1]), tonumber(a[2]))
+      TriggerServerEvent('cnr:admin_cmd_setcash', tonumber(a[1]), val)
     end
     
   else CommandInvalid(cmd)
@@ -696,10 +699,13 @@ RegisterCommand('setbank', function(s,a,r)
           args = {"Invalid Arguments", "/"..cmd.." <ID#> <+/->"}
       })
     else
+      local val = tonumber(a[2])
+      if val > 1000000 then val = 1000000
+      elseif val < -1000000 then val = -1000000 end
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg',
-        args = { "Modifying ID #"..a[1].."'s BANK BALANCE by $"..a[2] }
+        args = { "Modifying ID #"..a[1].."'s BANK BALANCE by $"..val}
       })
-      TriggerServerEvent('cnr:admin_cmd_setbank', tonumber(a[1]), tonumber(a[2]))
+      TriggerServerEvent('cnr:admin_cmd_setbank', tonumber(a[1]), val)
     end
     
   else CommandInvalid(cmd)
