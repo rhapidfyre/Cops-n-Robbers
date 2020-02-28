@@ -418,6 +418,60 @@ function AdminMessage(message, client)
 
 end
 
+RegisterCommand('players', function(s,a,r)
+  local plys = GetPlayers()
+  if #plys > 0 then
+    if not a[1] then 
+      cprint("^3[ADMIN] ~~ Listing current players ~~^7")
+      for _,i in ipairs (plys) do
+        local isCop = exports['cnr_police']:DutyStatus(i)
+        local msg   = "Civilian"
+        local wLevel = exports['cnr_wanted']:WantedLevel(i)
+        if not isCop then
+          if wLevel > 0 then msg = "^1WANTED LEVEL ^7("..(wLevel)..")"
+          else msg = "^7INNOCENT" end
+        else              msg = "^5POLICE^7"
+        end
+        cprint("~ ^2"..GetPlayerName(i).." ^7(ID #^3"..(i).."^7) - "..msg) 
+      end
+      cprint("^3[ADMIN] ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~")
+    else
+      if a[1] == "cops" or a[1] == "police" or a[1] == "law" then
+        cprint("^3[ADMIN] ~~ Listing ^5law enforcement ^3players only ~~^7")
+        for _,i in ipairs (plys) do
+          local isCop = exports['cnr_police']:DutyStatus(i)
+          if isCop then
+            cprint("^2"..GetPlayerName(i).." ^7(ID #^5"..(i).."^7)") 
+          end
+        end
+      
+      elseif a[1] == "civs" or a[1] == "civilian" or a[1] == "civilians" or a[1] == "innocent" or a[1] == "innocents" then
+        cprint("^3[ADMIN] ~~ Listing ^7innocent ^3players only ~~^7")
+        for _,i in ipairs (plys) do
+          local wLevel = exports['cnr_wanted']:WantedLevel(i)
+          if wLevel < 1 then
+            cprint("^2"..GetPlayerName(i).." ^7(ID #^3"..(i).."^7)")
+          end
+        end
+      
+      elseif a[1] == "wanteds" or a[1] == "wanted" or a[1] == "robbers" then 
+        cprint("^3[ADMIN] ~~ Listing ^2wanted ^3players only ~~^7")
+        for _,i in ipairs (plys) do
+          local wLevel = exports['cnr_wanted']:WantedLevel(i)
+          if wLevel > 0 then
+            cprint("^2"..GetPlayerName(i).." ^7(ID #^1"..(i).."^7) - Wanted Level "..wLevel)
+          end
+        end
+      else
+        cprint("^1[ADMIN] ^7Failed. Usage: /players <[opt]cops/civs/wanteds>")
+      end
+      cprint("^3[ADMIN] ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~")
+    end
+  else
+    cprint("^3[ADMIN] ^7There are currently ^30 ^7players on the server.")
+  end
+end, true)
+
 RegisterCommand('asay', function(s,a,r)
   AdminMessage(table.concat(a, " "))
 end, true)
