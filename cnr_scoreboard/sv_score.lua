@@ -38,6 +38,31 @@ function CalculateRanks(client)
   return {cop = copRank, civ = civRank}
 end
 
+local function SetScore(client, scores)
+
+  if not client then return 0 end
+  if type(client) ~= "number" then client = tonumber(client) end
+  if not levels[client] then
+    print("DEBUG - No levels[client]. Creating...")
+    levels[client] = {cop = 0, civ = 0}
+  end
+  
+  if not scores then 
+    print("DEBUG - No scores received. Defaulting...")
+    -- Create 'scores' var in SQL result format (i.e "scores[1]")
+    scores = {
+      [1] = { cop = levels[client].cop, civ = levels[client].civ }
+    }
+  end
+  
+  levels[client] = {civ = scores[1]['civ'], cop = scores[1]['cop']}
+  local newScores = CalculateRanks(client)
+  print("DEBUG - Scores: "..json.encode(levels[client]).."& Calculated Ranks: "..json.encode(newScores))
+  TriggerClientEvent('cnr:score_receive', (-1), client, newScores)
+  --TriggerClientEvent('cnr:score_receive', (-1), client, scores)
+      
+end
+
 -- Adjust player's score accordingly
 AddEventHandler('cnr:imprisoned', function(client, cop, wLevel)
   
@@ -67,31 +92,6 @@ AddEventHandler('cnr:imprisoned', function(client, cop, wLevel)
   SetScore(client, scores)
   
 end)
-
-local function SetScore(client, scores)
-
-  if not client then return 0 end
-  if type(client) ~= "number" then client = tonumber(client) end
-  if not levels[client] then
-    print("DEBUG - No levels[client]. Creating...")
-    levels[client] = {cop = 0, civ = 0}
-  end
-  
-  if not scores then 
-    print("DEBUG - No scores received. Defaulting...")
-    -- Create 'scores' var in SQL result format (i.e "scores[1]")
-    scores = {
-      [1] = { cop = levels[client].cop, civ = levels[client].civ }
-    }
-  end
-  
-  levels[client] = {civ = scores[1]['civ'], cop = scores[1]['cop']}
-  local newScores = CalculateRanks(client)
-  print("DEBUG - Scores: "..json.encode(levels[client]).."& Calculated Ranks: "..json.encode(newScores))
-  TriggerClientEvent('cnr:score_receive', (-1), client, newScores)
-  --TriggerClientEvent('cnr:score_receive', (-1), client, scores)
-      
-end
 
 AddEventHandler('cnr:points_wanted', function(client, oldPts, newPts, crime)
   print("DEBUG - Received event points_wanted with args: "..
