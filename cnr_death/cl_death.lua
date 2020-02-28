@@ -13,11 +13,14 @@ RegisterNetEvent('cnr:prison_rejail')
 
 local locksound = false
 local inPrison  = 0
+local hNear     = 0
+local hasInsurance = false
 
 local hospitals = {
   [1] = {
     coords      = vector3(-497.55, -335.841, 34.51),
     deathcam    = vector3(-465.31, -373.534, 39.05),
+    insure      = vector3(-493.62, -325.66, 33.40),
     pedHeading  = 266.0, camHeading = 20.0,
     jailHospital = 0,
     title       = "Mount Zonah Medical Center"
@@ -25,6 +28,7 @@ local hospitals = {
   [2] = {
     coords      = vector3(295.424, -1447.42, 29.97),
     deathcam    = vector3(273.746, -1395.03, 34.51),
+    insure      = vector3(306.268, -1433.35, 28.97),
     pedHeading  = 320.0, camHeading = 190.0,
     jailHospital = 0,
     title       = "UC Los Santos"
@@ -32,6 +36,7 @@ local hospitals = {
   [3] = {
     coords      = vector3(-247.909, 6332.7, 32.4262),
     deathcam    = vector3(-217.081, 6317.74, 35.891),
+    insure      = vector3(-243.758, 6325.6, 31.32),
     pedHeading  = 222.0, camHeading = 86.0,
     jailHospital = 0,
     title       = "Paleto Bay Medical Center"
@@ -39,6 +44,7 @@ local hospitals = {
   [4] = {
     coords      = vector3(1839.26, 3672.99, 34.276),
     deathcam    = vector3(1841.92, 3646.32, 37.151),
+    insure      = vector3(1835.78, 3671.58, 34.28),
     pedHeading  = 210.0, camHeading = 0.0,
     jailHospital = 0,
     title       = "Sandy Shores Care Facility"
@@ -46,6 +52,7 @@ local hospitals = {
   [5] = {
     coords      = vector3(359.99, -585.134, 28.82),
     deathcam    = vector3(391.35, -571.819, 31.5),
+    insure      = vector3(361.28, -580.45, 27.73),
     pedHeading  = 230.0, camHeading = 125.0,
     jailHospital = 0,
     title       = "Pillbox Medical Center"
@@ -79,6 +86,48 @@ Citizen.CreateThread(function()
     AddTextComponentString("Hospital")
     EndTextCommandSetBlipName(blip)
     Citizen.Wait(1)
+  end
+  while true do 
+    if hNear > 0 then
+      local iPos = hospitals[hNear].insure
+      DrawMarker(1, iPos.x, iPos.y, iPos.z,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        1.25, 1.25, 0.65, 255, 255, 255, 120,
+        false, false, 0, false
+      )
+      DrawMarker(29, iPos.x, iPos.y, iPos.z + 1.3,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        1.25, 1.25, 0.65, 255, 65, 65, 255,
+        false, false, 0, true
+      )
+      if #(GetEntityCoords(PlayerPedId()) - iPos) < 3.25 then
+        if not hasInsurance then
+          ClearPrints()
+          SetTextEntry_2("STRING")
+          AddTextComponentString("[~g~E~w~]: Buy Insurance ($25,000)")
+          DrawSubtitleTimed(count, 1)
+          if IsControlJustPressed(0, 38) then 
+            TriggerServerEvent('cnr:death_buy_insurance')
+            Citizen.Wait(3000)
+          end
+        else
+          ClearPrints()
+          SetTextEntry_2("STRING")
+          AddTextComponentString("~r~You already have Health Insurance")
+          DrawSubtitleTimed(count, 1)
+        end
+      end
+    else Citizen.Wait(3000)
+    end
+    
+    local cDist = math.huge
+    for k,v in pairs (hospitals) do 
+      if v.insure then
+        local dist = #(GetEntityCoords(PlayerPedId()) - v.insure)
+        if dist < cDist and dist < 40.0 then hNear = k end
+      end
+    end
+    Citizen.Wait(0)
   end
 end)
 
@@ -274,9 +323,14 @@ AddEventHandler('cnr:death_insurance', function(insuranceValue)
     end
   
   end
-  
+  hasInsurance = false
 end)
 
+
+RegisterNetEvent('cnr:death_has_insurance', function()
+  print("DEBUG - You have insurance!")
+  hasInsurance = true
+end)
 
 RegisterNetEvent('cnr:death_notify')
 AddEventHandler('cnr:death_notify', function(v, k)

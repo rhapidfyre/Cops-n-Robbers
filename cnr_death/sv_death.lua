@@ -7,9 +7,66 @@
   Handles all death events, and life saving/resurrection type scripting.
 --]]
 
+RegisterServerEvent('cnr:death_check')
+RegisterServerEvent('cnr:death_noted')
+RegisterServerEvent('cnr:player_death')
+RegisterServerEvent('cnr:death_buy_insurance')
+
+
+local hiCost = 25000
+
+AddEventHandler('cnr:death_buy_insurance', function()
+  local client = source
+  local uid    = exports['cnrobbers']:UniqueId(client)
+  
+  exports['ghmattimysql']:scalar(
+    "SELECT insured FROM characters WHERE idUnique = @u",
+    {['u'] = uid},
+    function(isInsured)
+      if isInsured then 
+        TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+          "You already have Health Insurance!"
+        }})
+      else
+        local cash = exports['cnr_cash']:GetPlayerCash(client)
+        local bank = exports['cnr_cash']:GetPlayerBank(client)
+        if cash >= hiCost or bank >= hiCost then 
+          if cash >= hiCost then
+            exports['cnr_cash']:CashTransaction(client, (0 - hiCost))
+            TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+              "You have purchased Health Insurance! (Paid $^2"..hiCost.."^7 from cash)"
+            }})
+            
+          else
+            exports['cnr_cash']:BankTransaction(client, (0 - hiCost))
+            TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+              "You have purchased Health Insurance! (Paid $^2"..hiCost.."^7 from bank)"
+            }})
+          
+          end
+          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+            "You will retain your personal belongings next time you die."
+          }})
+          
+          exports['ghmattimysql']:execute(
+            "UPDATE characters SET insured = 1 WHERE idUnique = @u",
+            {['u'] = uid}
+          )
+        
+        else
+          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+            "You cannot afford to buy Health Insurance! (Costs $^1"..hiCost.."^7)"
+          }})
+        
+        end
+      end
+    end
+  )
+  
+end)
+
 
 -- Check if the death was a crime, and then notify the players
-RegisterServerEvent('cnr:death_check')
 AddEventHandler('cnr:death_check', function(killer)
 
   local victim = source
@@ -61,8 +118,8 @@ AddEventHandler('cnr:death_check', function(killer)
   exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
 end)
 
+
 -- Just note the death and notify the players
-RegisterServerEvent('cnr:death_noted')
 AddEventHandler('cnr:death_noted', function(killer)
   local dMessage = GetPlayerName(victim).." died"
   exports['cnrobbers']:ConsolePrint(dMessage)
@@ -70,7 +127,7 @@ AddEventHandler('cnr:death_noted', function(killer)
   TriggerClientEvent('cnr:death_notify', (-1), source, killer)
 end)
 
-RegisterServerEvent('cnr:player_death')
+
 AddEventHandler('cnr:player_death', function()
 
   local client = source
@@ -82,6 +139,23 @@ AddEventHandler('cnr:player_death', function()
     function(retValue)
       TriggerEvent('cnr:death_insured', client, retValue)
       TriggerClientEvent('cnr:death_insurance', client, retValue)
+    end
+  )
+  
+end)
+
+
+AddEventHandler('cnr:client_loaded', function()
+  local client = source
+  local uid    = exports['ghmattimysql']:UniqueId(client)
+  
+  exports['ghmattimysql']:execute(
+    "SELECT insured FROM characters WHERE idUnique = @u",
+    {['u'] = uid},
+    function(isInsured)
+      if isInsured then 
+        TriggerClientEvent('cnr:death_has_insurance', client)
+      end
     end
   )
   
