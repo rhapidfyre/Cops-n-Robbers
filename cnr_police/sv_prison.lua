@@ -93,11 +93,12 @@ function ImprisonClient(ply, cop)
 
     -- Jail / Prison
     if wantedLevel > 3 then
-
+      print("DEBUG - Player is eligible for jail/prison.")
       serveTime[ply]  = CalculateTime(ply) * 60
       inmates[ply]    = true
 
       if wantedLevel > 5 then
+        print("DEBUG - Player is going to prison.")
         prisoners[ply] = true
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to prison for "..(serveTime[ply]/60).." minutes!"
@@ -106,6 +107,14 @@ function ImprisonClient(ply, cop)
           GetPlayerName(ply).." has been caught and was sent to prison!",
           "Arrested by "..GetPlayerName(cop)
         )
+
+        -- SQL: Insert inmate to SQL
+        exports['ghmattimysql']:execute(
+          "INSERT INTO inmates (idUnique, sentence, isPrison) "..
+          "VALUES (@uid, @jt, @p)",
+          {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = 1}
+        )
+        
       else
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to jail for "..(serveTime[ply]/60).." minutes!"
@@ -113,6 +122,13 @@ function ImprisonClient(ply, cop)
         exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
           GetPlayerName(ply).." has been caught and was sent to jail!",
           "Arrested by "..GetPlayerName(cop)
+        )
+
+        -- SQL: Insert inmate to SQL
+        exports['ghmattimysql']:execute(
+          "INSERT INTO inmates (idUnique, sentence, isPrison) "..
+          "VALUES (@uid, @jt, @p)",
+          {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = 0}
         )
       end
 
@@ -124,15 +140,9 @@ function ImprisonClient(ply, cop)
       -- Fire off relevant server scripts
       TriggerEvent('cnr:imprisoned', ply, cop, wantedLevel)
 
-      -- SQL: Insert inmate to SQL
-      exports['ghmattimysql']:execute(
-        "INSERT INTO inmates (idUnique, sentence, isPrison) "..
-        "VALUES (@uid, @jt, @p)",
-        {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = prisoners[ply]}
-      )
-
     -- Ticket
     elseif wantedLevel > 0 then
+      print("DEBUG - Player is eligible for a ticket.")
       if not tickets[ply] then tickets[ply] = 0 end
       if tickets[ply] > 0 then
         TriggerClientEvent('chat:addMessage', cop, {args={
@@ -188,7 +198,9 @@ end
 AddEventHandler('cnr:prison_sendto', function(ply)
   local cop = source
   if exports['cnr_police']:DutyStatus(cop) then
+    print("DEBUG - Player #"..cop.." is sending Player #"..ply.." to jail!")
     ImprisonClient(ply, cop)
+  else print("DEBUG - Player #"..cop.." is not on Law Enforcement duty!")
   end
 end)
 
