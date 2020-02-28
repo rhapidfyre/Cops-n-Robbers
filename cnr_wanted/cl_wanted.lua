@@ -183,6 +183,15 @@ function IsPlayerAimingAtCop(target)
   if not DecorExistOn(target, "AimCrime") then DecorRegister("AimCrime", 2) end
   if not DecorGetBool(target, "AimCrime") then
     DecorSetBool(target, "AimCrime", true)
+    
+    -- Remove flag after 30 seconds
+    Citizen.CreateThread(function()
+      Citizen.Wait(30000)
+      if DoesEntityExist(target) then 
+        DecorSetBool(target, "AimCrime", false)
+      end
+    end)
+    
     local myPos = GetEntityCoords(PlayerPedId())
     if IsPedAPlayer(target) then
       if exports['cnr_police']:DutyStatus(target) then
@@ -226,32 +235,34 @@ function NotCopLoops()
     Citizen.CreateThread(function()
       while not isCop do
         local ped = PlayerPedId()
-
+        local isCop = exports['cnr_police']:DutyStatus()
         -- Aiming/Shooting Crimes
-        if IsPlayerFreeAiming(PlayerId()) then
-          if not exports['cnr_ammunation']:InsideGunRange() then
-            local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
-            if DoesEntityExist(aimTarget) then
-              if IsEntityAPed(aimTarget) then
-                local dist = #(GetEntityCoords(ped) -
-                              GetEntityCoords(aimTarget)
-                )
-                if dist < 120.0 then
-                  if HasEntityClearLosToEntity(ped, aimTarget, 17) then
-                    if lastAim < GetGameTimer() then
-                      lastAim = GetGameTimer() + 12000
-                      IsPlayerAimingAtCop(aimTarget)
+        if not isCop then -- Ignore if player is a cop
+          if IsPlayerFreeAiming(PlayerId()) then
+            if not exports['cnr_ammunation']:InsideGunRange() then
+              local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
+              if DoesEntityExist(aimTarget) then
+                if IsEntityAPed(aimTarget) then
+                  local dist = #(GetEntityCoords(ped) -
+                                GetEntityCoords(aimTarget)
+                  )
+                  if dist < 120.0 then
+                    if HasEntityClearLosToEntity(ped, aimTarget, 17) then
+                      if lastAim < GetGameTimer() then
+                        lastAim = GetGameTimer() + 12000
+                        IsPlayerAimingAtCop(aimTarget)
+                      end
                     end
                   end
                 end
               end
+            else print("DEBUG - Aiming Ignored; Within a no-reporting zone.")
             end
-          else print("DEBUG - Aiming Ignored; Within a no-reporting zone.")
           end
         end
-
+        
         -- Shooting a firearm near peds and someone can see it
-        if IsPedShooting(ped) then
+        if IsPedShooting(ped) and not isCop then
           if not exports['cnr_ammunation']:InsideGunRange() then
             if lastShot < GetGameTimer() then
               local wasShotSeen = false

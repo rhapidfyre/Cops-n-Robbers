@@ -86,60 +86,61 @@ local notified = false
 local function DeathNotification()
   if not notified then
     notified = true
-    TriggerEvent('cnr:player_died')
-    TriggerServerEvent('cnr:player_death')
-  local cause  = GetPedCauseOfDeath(PlayerPedId())
-  local killer = GetPedSourceOfDeath(PlayerPedId())
-  print(cause, killer)
-  if DoesEntityExist(killer) then
-    if IsEntityAPed(killer) then
-      if IsPedAPlayer(killer) then
-        if PlayerPedId() == killer then
-          print("DEBUG - You killed yourself!")
-          TriggerServerEvent('cnr:death_check', GetPlayerServerId(PlayerId()))
-        else
-          print("DEBUG - Killed by Player!")
-          local plys = GetActivePlayers()
-          for _,i in ipairs (plys) do
-            if GetPlayerPed(i) == killer then
-              print("DEBUG - Killed by player #"..GetPlayerServerId(i))
-              TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
-            end
-          end
-        end
-      else print("DEBUG - Killed by an NPC!")
-      end
-    elseif IsEntityAVehicle(killer) then
-      local driver = GetPedInVehicleSeat(killer, (-1))
-      if DoesEntityExist(driver) then
-        if IsEntityAPed(driver) then
-          if IsPedAPlayer(driver) then
+    local cause  = GetPedCauseOfDeath(PlayerPedId())
+    local killer = GetPedSourceOfDeath(PlayerPedId())
+    print(cause, killer)
+    if DoesEntityExist(killer) then
+      if IsEntityAPed(killer) then
+        if IsPedAPlayer(killer) then
+          if PlayerPedId() == killer then
+            print("DEBUG - You killed yourself!")
+            TriggerServerEvent('cnr:death_check', GetPlayerServerId(PlayerId()))
+          else
             print("DEBUG - Killed by Player!")
             local plys = GetActivePlayers()
             for _,i in ipairs (plys) do
-              if GetPlayerPed(i) == driver then
-                print("DEBUG - Ran over by player #"..GetPlayerServerId(i))
+              if GetPlayerPed(i) == killer then
+                print("DEBUG - Killed by player #"..GetPlayerServerId(i))
                 TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
               end
             end
+          end
+        else print("DEBUG - Killed by an NPC!")
+        end
+      elseif IsEntityAVehicle(killer) then
+        local driver = GetPedInVehicleSeat(killer, (-1))
+        if DoesEntityExist(driver) then
+          if IsEntityAPed(driver) then
+            if IsPedAPlayer(driver) then
+              print("DEBUG - Killed by Player!")
+              local plys = GetActivePlayers()
+              for _,i in ipairs (plys) do
+                if GetPlayerPed(i) == driver then
+                  print("DEBUG - Ran over by player #"..GetPlayerServerId(i))
+                  TriggerServerEvent('cnr:death_check', GetPlayerServerId(i))
+                end
+              end
+            else
+              print("DEBUG - Ran down by an aggressive NPC driver!")
+              TriggerServerEvent('cnr:death_check', nil)
+            end
           else
-            print("DEBUG - Ran down by an aggressive NPC driver!")
+            print("DEBUG - Ran down by a vehicle with no ped driving!")
             TriggerServerEvent('cnr:death_check', nil)
           end
         else
-          print("DEBUG - Ran down by a vehicle with no ped driving!")
+          print("DEBUG - Ran down by a vehicle with no driver!")
           TriggerServerEvent('cnr:death_check', nil)
         end
       else
-        print("DEBUG - Ran down by a vehicle with no driver!")
+        print("DEBUG - Killed by something else!")
         TriggerServerEvent('cnr:death_check', nil)
       end
-    else
-      print("DEBUG - Killed by something else!")
-      TriggerServerEvent('cnr:death_check', nil)
     end
-  end
-    Citizen.Wait(5000)
+    Citizen.Wait(2000)
+    TriggerEvent('cnr:player_died')
+    TriggerServerEvent('cnr:player_death')
+    Citizen.Wait(3000)
     notified = false
   end
 end
@@ -204,8 +205,6 @@ function RevivePlayer()
         if dist < cDist then nearest = k; cDist = dist end
       end
     end
-      
-    
     
     if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
     SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
@@ -226,6 +225,17 @@ function RevivePlayer()
     Citizen.Wait(520)
     FreezeEntityPosition(PlayerPedId(), false)
     SetCamActive(cam, false)
+    
+    -- If still wanted, report it to 911
+    if exports['cnr_wanted']:WantedLevel() > 3 then
+      TriggerServerEvent('cnr:police_dispatch_report',
+        "Wanted Person",
+        hospitals[nearest].title,
+        GetEntityCoords(PlayerPedId()),
+        hospitals[nearest].title.." Security reported a Level "..wl..
+        " Wanted Person was just released from their care."
+      )
+    end
   
   end
 end
@@ -248,29 +258,19 @@ AddEventHandler('cnr:death_insurance', function(insuranceValue)
         "Your insurance prevented you from losing your personal items!\n"..
         "You will have to renew your health insurance before dying again."
       }})
-        
-      if wl > 3 then
-        TriggerServerEvent('cnr:police_dispatch_report',
-          "Wanted Person",
-          hospitals[nearest].title,
-          GetEntityCoords(PlayerPedId()),
-          hospitals[nearest].title.." Security reported a Level "..wl..
-          " Wanted Person was just released from their care."
-        )
-      end
+      
     end
   
   else
   
     RemoveAllPedWeapons(PlayerPedId(), true)
     TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-      "You died without health insurance! Your personal items were taken!"
+      "You died without health insurance! Welcome to your new life!"
     }})
+    
     if wl > 0 then
       TriggerServerEvent('cnr:wanted_points', "jailed")
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "Your wanted level has been reset."
-      }})
+      
     end
   
   end
@@ -320,16 +320,13 @@ end
 AddEventHandler('cnr:police_imprison', function(serveTime, isPrisoner)
   if isPrisoner then isPrison = 2
   else isPrison = 1 end
-  PrisonRevive()
 end)
 
 AddEventHandler('cnr:prison_rejail', function(serveTime, isPrisoner)
   if isPrisoner then isPrison = 2
   else isPrison = 1 end
-  PrisonRevive()
 end)
 
 AddEventHandler('cnr:prison_release', function(serveTime, isPrisoner)
   isPrison = 0
-  PrisonRevive()
 end)

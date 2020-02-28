@@ -152,8 +152,8 @@ function WantedPoints(ply, crime, msg)
     TriggerEvent('cnr:points_wanted', ply, lastWanted, wanted[ply], crime)
     TriggerClientEvent('cnr:wanted_client', (-1), ply, wanted[ply])
   else
-    cprint("^1Police Officer committed a crime!")
-    cprint(GetPlayerName(ply)..": "..crime)
+    cprint("^1[CRIME] ^7"..GetPlayerName(ply).." #"..ply..
+        ", a ^5police officer ^7, committed: "..crime)
   end
 end
 local tracking = {}

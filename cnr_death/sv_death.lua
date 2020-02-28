@@ -29,8 +29,27 @@ AddEventHandler('cnr:death_check', function(killer)
           )
         end
       else
-        dMessage = GetPlayerName(killer).." neutralized "..GetPlayerName(victim)
-        print("DEBUG - cnr:death_check determined JUSTIFIED.")
+      
+        -- If victim was not a wanted person
+        local wLevel = exports['cnr_wanted']:WantedLevel(victim)
+        if wLevel > 3 then 
+          dMessage = GetPlayerName(killer).." neutralized "..GetPlayerName(victim)
+          print("DEBUG - cnr:death_check determined JUSTIFIED POLICE SHOOTING.")
+        
+        else
+        
+          dMessage = GetPlayerName(killer).." unjustly killed "..GetPlayerName(victim)
+          print("DEBUG - cnr:death_check determined UNJUSTIFIED POLICE SHOOTING")
+          
+          local msgg = GetPlayerName(victim).." for a ticket-only offense."
+          if wLevel < 1 then
+            msgg = GetPlayerName(victim)..", an innocent civilian."
+          end
+          exports['cnr_admin']:AdminMessage(
+            "Officer "..GetPlayerName(killer).." killed "..msgg
+          )
+        
+        end
       end
     else
       dMessage = GetPlayerName(victim).." killed themselves."
