@@ -188,6 +188,7 @@ Citizen.CreateThread(function()
     else
 
       local entering = GetVehiclePedIsTryingToEnter(PlayerPedId())
+      local myPos    = GetEntityCoords(PlayerPedId())
       if entering > 0 then
 
         -- Check lock chance if not already checked
@@ -198,9 +199,20 @@ Citizen.CreateThread(function()
           VehicleHint("(~g~E~w~): USE WINDOW BREAKER", 100)
           if IsControlJustPressed(0, 38) then
             if wbreakers > 0 then
+              local wereIntact = AreAllVehicleWindowsIntact(entering)
               SetVehicleDoorsLocked(entering, 7)
               wbreakers = wbreakers - 1
-              TriggerServerEvent('cnr:inventory_use', 'item_window_breaker', 1)
+              Citizen.CreateThread(function()
+                Citizen.Wait(3000)
+                if not AreAllVehicleWindowsIntact(entering) then
+                  if wereIntact then 
+                    TriggerServerEvent('cnr:wanted_points', 'vandalism', true,
+                      exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+                      myPos
+                    )
+                  end
+                end
+              end)
 
             else
               TriggerEvent('chat:addMessage', {templateId = 'errMsg',
