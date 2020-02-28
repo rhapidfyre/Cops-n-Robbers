@@ -10,10 +10,25 @@
 RegisterServerEvent('cnr:death_check')
 RegisterServerEvent('cnr:death_noted')
 RegisterServerEvent('cnr:player_death')
+RegisterServerEvent('cnr:death_nonpassive')
 RegisterServerEvent('cnr:death_buy_insurance')
 
 
 local hiCost = 25000
+local passives = {}
+
+AddEventHandler('cnr:death_nonpassive', function()
+  passives[client] = nil
+end)
+
+
+function IsPassive(client, isPassive)
+  if not client then return false end
+  if isPassive then passives[client] = isPassive end
+  if passives[client] then return passives[client] end
+  return false
+end
+
 
 AddEventHandler('cnr:death_buy_insurance', function()
   local client = source
@@ -71,6 +86,7 @@ AddEventHandler('cnr:death_check', function(killer)
 
   local victim = source
   local dMessage = GetPlayerName(victim).." died"
+  passives[victim] = true
   if killer then
     if killer ~= victim then
       local isCop = exports['cnr_police']:DutyStatus(killer)
@@ -121,10 +137,12 @@ end)
 
 -- Just note the death and notify the players
 AddEventHandler('cnr:death_noted', function(killer)
+  local victim   = source
   local dMessage = GetPlayerName(victim).." died"
+  passives[victim] = true
   exports['cnrobbers']:ConsolePrint(dMessage)
   exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
-  TriggerClientEvent('cnr:death_notify', (-1), source, killer)
+  TriggerClientEvent('cnr:death_notify', (-1), victim, killer)
 end)
 
 

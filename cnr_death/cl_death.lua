@@ -15,6 +15,7 @@ local locksound = false
 local inPrison  = 0
 local hNear     = 0
 local hasInsurance = false
+local passiveMode = false
 
 local hospitals = {
   [1] = {
@@ -235,6 +236,7 @@ Citizen.CreateThread(function()
 end)
 
 function RevivePlayer()
+  passiveMode = false -- Just to ensure the previous loop has stopped
   Citizen.Wait(5400)
   if IsPlayerDead(PlayerId()) then
   
@@ -266,6 +268,38 @@ function RevivePlayer()
       
     SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
     FreezeEntityPosition(PlayerPedId(), true)
+    
+    Citizen.CreateThread(function()
+      passiveMode = true 
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You are ^2now in Passive Mode^7. You are safe from PVP unless you "..
+        "go on police duty, select a weapon, commit a crime, or 5 minutes have passed."
+      }})
+      local unarm = GetHashKey("WEAPON_UNARMED")
+      SetPedCurrentWeapon(PlayerPedId(), unarm, true)
+      local passTime = GetGameTimer() + 300000
+      while passiveMode do 
+        local wLevel = exports['cnr_wanted']:WantedLevel()
+        if wLevel > 0 then
+          passiveMode = false
+          print("Passive mode has been disabled: Committed a Criminal Offense.")
+        elseif exports['cnr_police']:DutyStatus() then
+          passiveMode = false
+          print("Passive mode has been disabled: Went on Police Duty.")
+        elseif GetSelectedPedWeapon(PlayerPedId()) ~= unarmed then
+          passiveMode = false
+          print("Passive mode has been disabled: Selected a Weapon.")
+        elseif passTime < GetGameTimer() then 
+          passiveMode = false
+          print("Passive mode has been disabled: 5 Minutes has Passed.")
+        end
+        Citizen.Wait(100)
+      end
+      TriggerServerEvent('cnr:death_nonpassive')
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You are ^1no longer in Passive Mode^7. You cannow be killed by other players."
+      }})
+    end)
       
     Citizen.Wait(1000)
     DoScreenFadeIn(3000)

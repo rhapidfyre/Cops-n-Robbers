@@ -30,6 +30,7 @@ server_scripts {
 }
 
 server_exports {
+  "IsPassive",
 }
 
 exports {
