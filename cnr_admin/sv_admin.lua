@@ -3,6 +3,7 @@
 RegisterServerEvent('cnr:client_loaded')
 RegisterServerEvent('cnr:admin_check')
 
+RegisterServerEvent('cnr:admin_cmd_release')
 RegisterServerEvent('cnr:admin_cmd_kick')
 RegisterServerEvent('cnr:admin_cmd_ban')
 RegisterServerEvent('cnr:admin_cmd_warn')
@@ -85,6 +86,20 @@ local function AssignAdministrator(client, aLevel)
 end
 
 
+--- BlockAction()
+-- Blocks the action attempt if affected admin is equal or greater rank
+-- @return True if the action should be blocked/stopped
+local function BlockAction(offense, defense)
+  if admins[offense] > 9999 then return false
+  elseif admins[offense] > 999 then
+    if admins[defense] > 999 then return true end
+  elseif admins[offense] > 99 then
+    if admins[defense] > 99 then return true end
+  end
+  return true
+end
+
+
 local function CheckAdmin(client)
   local uid    = exports['cnrobbers']:UniqueId(client)
   local aLevel = exports['ghmattimysql']:scalarSync(
@@ -110,11 +125,47 @@ AddEventHandler('playerDropped', function(reason)
 end)
 
 
+AddEventHandler('cnr:admin_cmd_release', function(target, bailReason)
+  local client = source
+  if admins[client] then
+    exports['cnr_police']:ReleaseFugitive(target, false)
+    cprint(
+      "^3[ADMIN] ^7"..GetPlayerName(client).." released "..GetPlayerName(target)..
+      " from custody. Reason Given: "..bailReason
+    )
+    Citizen.Wait(1000)
+    TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg', args = {
+      "Admin #"..(admins[client]).." ^2set^7 "..GetPlayerName(target)..
+      " free. Reason: ^3"..bailReason.."^7"
+    }})
+    Citizen.Wait(1200)
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_imprison', function(target, jailReason)
+  local client = source
+  if admins[client] then
+    exports['cnr_police']:ImprisonClient(target, client, true)
+    cprint(
+      "^3[ADMIN] ^7"..GetPlayerName(client).." threw "..GetPlayerName(target)..
+      " in jail. Reason Given: "..jailReason
+    )
+    Citizen.Wait(1000)
+    TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg', args = {
+      "Admin #"..(admins[client]).." threw ^7 "..GetPlayerName(target)..
+      " in jail. Reason: ^3"..jailReason.."^7"
+    }})
+    Citizen.Wait(1200)
+  end
+end)
+
+
 AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
   local client = source
   if admins[client] then
     if admins[target] then
-      if admins[target] >= 1000 and admins[client] < 1000 then
+      if BlockAction(client, target) then
         TriggerEvent('cnr:admin_message',
           "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to kick "..
           "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
@@ -131,23 +182,8 @@ AddEventHandler('cnr:admin_cmd_kick', function(target, kickReason)
     })
     Citizen.Wait(1200)
     DropPlayer(target, "Kicked by Admin: "..kickReason)
-  else
   end
 end)
-
-
---- BlockAction()
--- Blocks the action attempt if affected admin is equal or greater rank
--- @return True if the action should be blocked/stopped
-local function BlockAction(offense, defense)
-  if admins[offense] > 9999 then return false
-  elseif admins[offense] > 999 then
-    if admins[defense] > 999 then return true end
-  elseif admins[offense] > 99 then
-    if admins[defense] > 99 then return true end
-  end
-  return true
-end
 
 
 AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)

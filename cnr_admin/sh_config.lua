@@ -10,7 +10,7 @@ local cmds = {
   ['spawnped']   = 2, ['setcash']      = 2, ['setbank']    = 2,
   ['setweather'] = 3, ['settime']      = 3, ['giveweapon'] = 3,
   ['takeweapon'] = 3, ['stripweapons'] = 3, ['togglelock'] = 3,
-  ['inmates']    = 2
+  ['inmates']    = 2, ['release']      = 2
 }
 
 -- 0: Banned, 1: Player, 2: Moderator, 3: Admin, 4: Superadmin

@@ -53,7 +53,9 @@ server_exports {
   'Probation',    -- Release from Jail
   'Parole',       -- Release from Prison
   'CountCops',
-  'DispatchPolice'
+  'DispatchPolice',
+  'ReleaseFugitive',
+  'ImprisonClient',
 }
 
 exports {

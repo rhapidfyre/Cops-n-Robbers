@@ -85,17 +85,22 @@ AddEventHandler('cnr:prison_break', function()
   ReleaseFugitive(source, true)
 end)
 
-function ImprisonClient(ply, cop)
+function ImprisonClient(ply, cop, isAdmin)
   if ply and cop then
 
     local wantedLevel = exports['cnr_wanted']:WantedLevel(ply)
     local uid         = exports['cnrobbers']:UniqueId(ply)
 
+    local copName = GetPlayerName(cop)
+    if isAdmin then copName = isAdmin end
+
     -- Jail / Prison
-    if wantedLevel > 3 then
+    if ((wantedLevel > 3) or isAdmin) then
       print("DEBUG - Player is eligible for jail/prison.")
-      serveTime[ply]  = CalculateTime(ply) * 60
-      inmates[ply]    = true
+      if isAdmin then serveTime[ply] = 15 * 60
+      else            serveTime[ply]  = CalculateTime(ply) * 60
+      end
+      inmates[ply] = true
 
       if wantedLevel > 5 then
         print("DEBUG - Player is going to prison.")
@@ -105,7 +110,7 @@ function ImprisonClient(ply, cop)
         )
         exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
           GetPlayerName(ply).." has been caught and was sent to prison!",
-          "Arrested by "..GetPlayerName(cop)
+          "Arrested by "..copName
         )
 
         -- SQL: Insert inmate to SQL
@@ -121,7 +126,7 @@ function ImprisonClient(ply, cop)
         )
         exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
           GetPlayerName(ply).." has been caught and was sent to jail!",
-          "Arrested by "..GetPlayerName(cop)
+          "Arrested by "..copName
         )
 
         -- SQL: Insert inmate to SQL
