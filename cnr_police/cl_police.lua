@@ -17,7 +17,7 @@ local parking     = {}      -- Holds the parking spots that are occupied/station
 local stationInfo = {}      -- Current duty station information
 local vehSelected = 0
 
-local forcedutyEnabled = false -- DEBUG - /forceduty
+local forcedutyEnabled = true -- DEBUG - /forceduty
 
 
 --- EXPORT: CopRank()
@@ -320,6 +320,7 @@ RegisterCommand('forceduty', function()
         "Already on Law Enforcement duty!"
       }})
     end
+  else print("DEBUG - forceduty is not enabled.")
   end
 end)
 
@@ -389,13 +390,30 @@ end
 -- Sends the given ID (or closest player) to prison if they are Wanted
 function ImprisonClient(client)
   if isCop then
-    print("DEBUG - Try to jail client.")
+    if IsPedDeadOrDying(PlayerPedId()) then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "You Are Dead",
+        "How are you going to arrest someone if you're dead?"
+      }})
+      return 0
+    end
+    
+    print("DEBUG - Trying to jail client.")
     if not client then
       client = exports['cnrobbers']:GetClosestPlayer()
-      print("DEBUG - Imprisoning nearest client.")
+      print("DEBUG - No Client ID given - Imprisoning nearest client.")
     end
-    local dist = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
-    if dist < 2.0 then
+    
+    local theyPed = GetPlayerPed(client)
+    if IsPedDeadOrDying(theyPed) or IsPlayerDead(client) then 
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "Player is Dead", "You can't put dead people in jail!"
+      }})
+      return 0
+    end
+    
+    local dist     = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
+    if dist < 4.25 then
       print("DEBUG - Trying to imprison "..GetPlayerName(client))
       TriggerServerEvent('cnr:prison_sendto', GetPlayerServerId(client))
     else
@@ -403,6 +421,7 @@ function ImprisonClient(client)
         "Too far away, get closer!"
       }})
     end
+    
   else
     TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
       "You are not on Law Enforcement duty!"
@@ -417,6 +436,7 @@ RegisterCommand('ticket', ImprisonClient)
 -- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
 -- I need to find a better way to implement this later.
 local lastRequest = 0
+local lastArrest  = 0
 function PoliceDutyLoops()
 
   Citizen.CreateThread(function()
@@ -433,10 +453,13 @@ function PoliceDutyLoops()
         end
 
       -- Handle "F1" Busting
-      elseif IsControlJustPressed(0, 288) then
-        print("DEBUG - ImprisonClient() [F1]")
-        ImprisonClient() -- F1
-
+      elseif IsControlJustPressed(0, 289) then
+        if lastArrest < GetGameTimer() then
+          lastArrest = GetGameTimer() + 3000
+          Citizen.CreateThread(function()
+            ImprisonClient()
+          end)
+        end
       end
       
       -- Draw markers if applicable
