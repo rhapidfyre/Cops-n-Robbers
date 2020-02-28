@@ -43,10 +43,12 @@ AddEventHandler('cnr:police_setparking', function(nStation, nPos, isOccupied)
   TriggerClientEvent('cnr:police_parking', (-1), nStation, nPos, isOccupied)
 end)
 
-AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
+AddEventHandler('cnr:police_status', function(agency, onDuty)
 
   local ply = source
 
+  local numCops = CountCops()
+  
   if onDuty then
     local uid = exports['cnrobbers']:UniqueId(ply)
     exports['ghmattimysql']:scalar(
@@ -71,7 +73,6 @@ AddEventHandler('cnr:police_status', function(onDuty, agencyNum)
     TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
   end
 
-  local numCops = CountCops()
   local dt      = os.date("%H:%M", os.time())
 
   if numCops < 1 then
@@ -102,7 +103,6 @@ AddEventHandler('cnr:client_loaded', function()
   for k,v in pairs(dropCop) do
     if v == uid then
       TriggerClientEvent('cnr:police_reduty', ply)
-      TriggerClientEvent('cnr:police_officer_duty', (-1), ply, true)
       TriggerClientEvent('chat:addMessage', {
         color     = {255,180,40},
         multiline = true,

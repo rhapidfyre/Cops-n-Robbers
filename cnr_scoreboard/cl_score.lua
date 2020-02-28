@@ -99,7 +99,7 @@ Citizen.CreateThread(function()
   
           if i == PlayerId() then myself = ' class="myself"' end
           
-          if svwp then
+          if svwp and not copPlayers[svid] then
           
             -- Is Wanted
             if svwp > 0 then
@@ -138,13 +138,11 @@ Citizen.CreateThread(function()
             end
           elseif copPlayers[svid] then
             -- Is a cop
-            local cLev = math.floor(copPlayers[svid]/10)
-            if cLev <= 0 then cLev = 1
-            elseif cLev > 10 then cLev = 10 end
-            
+            local temp = copScore
+            if copScore > 10 then temp = 10 end
             table.insert(players, '<div class="ply_info">'..
               '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5>'..
-              '<table class="police'..(cLev)..'">'..
+              '<table class="police'..(temp)..'">'..
               '<tr><thead><th colspan="2">Law Enforcement</th></thead></tr>'..
               '<tr><th>Cop Level</th><td>'..copScore..'</td></tr>'..
               '<tr><th>Civ Level</th><td>'..civScore..'</td></tr>'..
