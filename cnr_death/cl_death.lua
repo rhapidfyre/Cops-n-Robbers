@@ -7,39 +7,62 @@
   Handles all death events, and life saving/resurrection type scripting.
 --]]
 RegisterNetEvent('cnr:death_insurance')
+RegisterNetEvent('cnr:police_imprison')
+RegisterNetEvent('cnr:prison_release')
+RegisterNetEvent('cnr:prison_rejail')
 
 local locksound = false
+local inPrison  = 0
 
 local hospitals = {
   [1] = {
     coords      = vector3(-497.55, -335.841, 34.51),
     deathcam    = vector3(-465.31, -373.534, 39.05),
     pedHeading  = 266.0, camHeading = 20.0,
+    jailHospital = 0,
     title       = "Mount Zonah Medical Center"
   },
   [2] = {
     coords      = vector3(295.424, -1447.42, 29.97),
     deathcam    = vector3(273.746, -1395.03, 34.51),
     pedHeading  = 320.0, camHeading = 190.0,
+    jailHospital = 0,
     title       = "UC Los Santos"
   },
   [3] = {
     coords      = vector3(-247.909, 6332.7, 32.4262),
     deathcam    = vector3(-217.081, 6317.74, 35.891),
     pedHeading  = 222.0, camHeading = 86.0,
+    jailHospital = 0,
     title       = "Paleto Bay Medical Center"
   },
   [4] = {
     coords      = vector3(1839.26, 3672.99, 34.276),
     deathcam    = vector3(1841.92, 3646.32, 37.151),
     pedHeading  = 210.0, camHeading = 0.0,
+    jailHospital = 0,
     title       = "Sandy Shores Care Facility"
   },
   [5] = {
     coords      = vector3(359.99, -585.134, 28.82),
     deathcam    = vector3(391.35, -571.819, 31.5),
     pedHeading  = 230.0, camHeading = 125.0,
+    jailHospital = 0,
     title       = "Pillbox Medical Center"
+  },
+  [6] = {
+    coords      = vector3(1662.25, 2592.99, 45.56),
+    deathcam    = vector3(1642.71, 2605.39, 48.68),
+    pedHeading  = 82.0, camHeading = 220.0,
+    jailHospital = 2,
+    title       = "Bolingbroke Medical Center"
+  },
+  [7] = {
+    coords      = vector3(460.97, -1001.05, 24.91),
+    deathcam    = vector3(465.12, -1002.69, 25.91),
+    pedHeading  = 272.0, camHeading = 66.0,
+    jailHospital = 1,
+    title       = "Mission Row Medical Bay"
   },
 }
 
@@ -65,38 +88,6 @@ local function DeathNotification()
     notified = true
     TriggerEvent('cnr:player_died')
     TriggerServerEvent('cnr:player_death')
-  --[[
-  local killer, killerweapon = NetworkGetEntityKillerOfPlayer(PlayerId())
-  local killerentitytype     = GetEntityType(killer)
-  local killerinvehicle      = false
-  local killervehiclename    = ''
-  local killervehicleseat    = 0
-
-  local killerid             = GetPlayerServerId(killer)
-
-  print("DEBUG - killer ("..tostring(killer)..")")
-  print("DEBUG - killerid ("..tostring(killerid)..")")
-  print("DEBUG - killerentitytype ("..tostring(killerentitytype)..")")
-  print("DEBUG - GetPedCauseOfDeath("..tostring(GetPedCauseOfDeath(PlayerPedId()))..")")
-
-  local kInfo = {
-    weapon    = killerweapon,
-    idKiller  = killerid,
-    entType   = killerentitytype,
-    causation = GetPedCauseOfDeath(PlayerPedId())
-  }
-
-  -- Is this client a cop? If so, modify the 911 call
-  if exports['cnr_police']:DutyStatus() then
-
-  -- If this client isn't a cop
-  else
-    if killerid then
-      if killerid > 0 then
-        TriggerServerEvent('cnr:death_check', killerid)
-      end
-    end
-  end]]
   local cause  = GetPedCauseOfDeath(PlayerPedId())
   local killer = GetPedSourceOfDeath(PlayerPedId())
   print(cause, killer)
@@ -194,41 +185,48 @@ Citizen.CreateThread(function()
 end)
 
 function RevivePlayer()
-  if not notified then
-    Citizen.Wait(5400)
-    if IsPlayerDead(PlayerId()) then
+  Citizen.Wait(5400)
+  if IsPlayerDead(PlayerId()) then
   
-      DoScreenFadeOut(1200)
+    DoScreenFadeOut(1200)
   
-      while not IsScreenFadedOut() do Wait(100) end
-      local myPos   = GetEntityCoords(PlayerPedId())
-      local nearest = 1
-      local cDist   = math.huge
-      for k,v in pairs (hospitals) do
+    while not IsScreenFadedOut() do Wait(100) end
+    
+    
+    local myPos   = GetEntityCoords(PlayerPedId())
+    local nearest = 1
+    local cDist   = math.huge
+    
+    -- Return closest hospital OR jail/prison hospital
+    for k,v in pairs (hospitals) do
+      if v.jailHospital == isPrison then
         local dist = #(myPos - v.coords)
         if dist < cDist then nearest = k; cDist = dist end
       end
-  
-      if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-      SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
-      RenderScriptCams(true, true, 500, true, true)
-      SetCamActive(cam, true)
-  
-      NetworkResurrectLocalPlayer(
-      hospitals[nearest].coords, 0.0, false, false
-      )
-      
-      SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
-      FreezeEntityPosition(PlayerPedId(), true)
-      Citizen.Wait(1000)
-      DoScreenFadeIn(3000)
-      Citizen.Wait(2000)
-      RenderScriptCams(false, true, 500, false, false)
-      Citizen.Wait(520)
-      FreezeEntityPosition(PlayerPedId(), false)
-      SetCamActive(cam, false)
-  
     end
+      
+    
+    
+    if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+    SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
+    RenderScriptCams(true, true, 500, true, true)
+    SetCamActive(cam, true)
+    
+    NetworkResurrectLocalPlayer(
+      hospitals[nearest].coords, 0.0, false, false
+    )
+      
+    SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
+    FreezeEntityPosition(PlayerPedId(), true)
+      
+    Citizen.Wait(1000)
+    DoScreenFadeIn(3000)
+    Citizen.Wait(2000)
+    RenderScriptCams(false, true, 500, false, false)
+    Citizen.Wait(520)
+    FreezeEntityPosition(PlayerPedId(), false)
+    SetCamActive(cam, false)
+  
   end
 end
 
@@ -319,6 +317,19 @@ function drawNotification(Notification)
 	DrawNotification(false, false)
 end
 
+AddEventHandler('cnr:police_imprison', function(serveTime, isPrisoner)
+  if isPrisoner then isPrison = 2
+  else isPrison = 1 end
+  PrisonRevive()
+end)
 
+AddEventHandler('cnr:prison_rejail', function(serveTime, isPrisoner)
+  if isPrisoner then isPrison = 2
+  else isPrison = 1 end
+  PrisonRevive()
+end)
 
-
+AddEventHandler('cnr:prison_release', function(serveTime, isPrisoner)
+  isPrison = 0
+  PrisonRevive()
+end)
