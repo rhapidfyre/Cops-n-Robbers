@@ -7,6 +7,13 @@ RegisterServerEvent('cnr:client_loaded')
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
 
+AddEventHandler('cnr:death_insured', function(client, retValue)
+  if retValue == 0 then
+    TriggerClientEvent('cnr:inventory_receive', client, {})
+  end
+end)
+
+
 --- EXPORT: ItemAdd()
 -- Adds an item with specified quantity to the inventory
 -- @param client The server ID of the client to affect. If nil, returns 0
