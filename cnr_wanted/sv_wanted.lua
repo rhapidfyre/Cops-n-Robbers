@@ -189,14 +189,17 @@ end)
 -- @return The wanted level based on current wanted points
 function WantedLevel(ply)
 
+  if type(ply) ~= "number" then ply = tonumber(ply) end
+  
   -- If ply not given, return 0
-  if not ply          then return 0 end
+  if not ply         then return 0 end
   if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
 
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
   end
-  return (math.floor((wanted[ply])/10) + 1)
+  
+  return (math.ceil(wanted[ply]/10))
 
 end
 
