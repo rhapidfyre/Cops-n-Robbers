@@ -294,31 +294,35 @@ RegisterNUICallback('inventoryActions', function(data, callback)
     local q = tonumber(data.quantity)
     local myPos = GetEntityCoords(PlayerPedId())
     local runAction = false
-    
-    if t == 1 then
-      if data.actn == "c" then runAction = true end
-    else runAction = true
-    end
-    if runAction then
-    
-      if lastServerRequest > GetGameTimer() then
-        TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-          "You can't do that for another "..
-          math.ceil((lastServerRequest - GetGameTimer())/1000).." seconds."
-        }})
-        return 0 
-      end
-      lastServerRequest = GetGameTimer() + 5000
-      TriggerServerEvent('cnr:inventory_action', t, i, q, myPos)
-      
+    if i <= 0 then
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "No Item Selected", "You must select an item before doing that!"
+      }})
     else
-      if t == 1 then 
-        TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-          "That item cannot be used this way!"
-        }})
+      if t == 1 then
+        if data.actn == "c" then runAction = true end
+      else runAction = true
+      end
+      if runAction then
+      
+        if lastServerRequest > GetGameTimer() then
+          TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+            "You can't do that for another "..
+            math.ceil((lastServerRequest - GetGameTimer())/1000).." seconds."
+          }})
+          return 0 
+        end
+        lastServerRequest = GetGameTimer() + 5000
+        TriggerServerEvent('cnr:inventory_action', t, i, q, myPos)
+        
+      else
+        if t == 1 then 
+          TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+            "That item cannot be used this way!"
+          }})
+        end
       end
     end
-    
   elseif data.action == "itemSelect" then
     SendNUIMessage({itemsel = data.sel})
 
