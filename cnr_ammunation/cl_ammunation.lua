@@ -141,7 +141,7 @@ Citizen.CreateThread(function()
       local temp = AddBlipForCoord(v.walkup)
       SetBlipSprite(temp, v.icon)
       SetBlipAsShortRange(temp, true)
-      SetBlipDisplay(temp, 8)
+      SetBlipDisplay(temp, 2)
       v.blip = temp
     end
   end
