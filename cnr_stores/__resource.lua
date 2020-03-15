@@ -21,6 +21,7 @@ files {
   "nui/img/fish_bait_poor.png", "nui/img/fish_rod_poor.png",
   "nui/img/hamburger.png",      "nui/img/soda_sprunk.png",
   "nui/img/water_bottle.png",   "nui/img/wbreaker.png",
+  "nui/img/scratchers.png",     "nui/img/lotto_ticket.png",
 }
 
 client_scripts {
