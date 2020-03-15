@@ -113,7 +113,7 @@ function DoParkedVehicleLock(veh)
         local myPos = GetEntityCoords(PlayerPedId())
         TriggerServerEvent('cnr:wanted_points', '664-carjack', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-          myPos
+          myPos, true -- ignore 911
         )
 
       end
@@ -210,7 +210,7 @@ Citizen.CreateThread(function()
                   if wereIntact then 
                     TriggerServerEvent('cnr:wanted_points', 'vandalism', true,
                       exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                      myPos
+                      myPos, true -- ignore 911
                     )
                   end
                 end

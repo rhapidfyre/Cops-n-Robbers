@@ -16,9 +16,6 @@ AddEventHandler('cnr:robbery_atm', function(zoneName, position)
     atmRobbed[client] = GetGameTimer() + 300000
     exports['cnr_cash']:CashTransaction(client, math.random(100,1000))
     exports['cnr_wanted']:WantedPoints(client, 'atm', true)
-    exports['cnr_police']:DispatchPolice(
-      "ATM Alarm", zoneName, position
-    )
   else
     TriggerClientEvent('chat:addMessage', client, {
       multiline = true,
@@ -102,7 +99,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
       Citizen.Wait(math.random(1, 10) * 1000)
       local mission = rob[storeNumber]
       exports['cnr_police']:DispatchPolice(
-        "Hold-up Alarm", mission.title..", in "..mission.area,
+        "robbery", mission.title..", in "..mission.area,
         vector3(mission.spawn.x, mission.spawn.x, mission.spawn.z)
       )
       exports['cnr_chat']:DiscordMessage(

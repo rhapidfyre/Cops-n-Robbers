@@ -44,6 +44,14 @@ function DispatchMessage(title, msg, customMessage)
   end
 end
 
+function DispatchAnnounce(crime) --[[
+  print("DEBUG - Announcing '"..crime.."'")
+  -- DEBUG - use Lua to check if file exists
+  SendNUIMessage({
+    playsound = "sfx/codes/"..crime..".ogg"
+  })]]
+end
+
 function DispatchNotification(title, msg)
 	SetNotificationTextEntry("STRING")
 	AddTextComponentString(msg)
@@ -54,36 +62,50 @@ function DispatchNotification(title, msg)
 end
 
 function DispatchBlip(x,y,z,title)
-  if not title then title = "911" end
-  local callBlip = AddBlipForCoord(x,y,z)
-  SetBlipSprite(callBlip, 526)
+
+  if not title then title = "9-1-1 Call Center" end
+  local callBlip = AddBlipForRadius(x,y,0.0,120.0)
+  --SetBlipSprite(callBlip, 526)
+  SetBlipSprite(callBlip, 9)
   SetBlipColour(callBlip, 1)
-  SetBlipScale(callBlip, 0.78)
-  SetBlipDisplay(callBlip, 2)
-  SetBlipFlashes(callBlip, true)
-  SetBlipFlashTimer(callBlip, 3000)
-  BeginTextCommandSetBlipName("STRING")
-  AddTextComponentString(title)
-  EndTextCommandSetBlipName(callBlip)
-  Citizen.CreateThread(function()
-    Citizen.Wait(60000)
-    if DoesBlipExist(callBlip) then RemoveBlip(callBlip) end
-  end)
+  SetBlipAlpha(callBlip, 200)
+  
+  Citizen.Wait(12000)
+  for i = 180, 40, -1 do
+    SetBlipAlpha(callBlip, i)
+    if i < 80 then
+      Citizen.Wait(2000)
+    else
+      Citizen.Wait(1000)
+    end
+  end
+  
+  Citizen.Wait(10000)
+  if DoesBlipExist(callBlip) then
+    print("DEBUG - Removed 911 radius")
+    RemoveBlip(callBlip)
+  end
+  
 end
 
--- Sends a message to on duty cop as dispatch
-function SendDispatch(title, place, pos, y, z, message)
-  if isCop then
-    if type(pos) ~= "vector3" then pos = vector3(x, y, z) end
+-- Sends a message to on duty cop as dispatchSendDispatch
+function SendDispatch(title, place, pos, y, z, message, crime)
+  --if isCop then
     if pos then
-      if not title then title = "9-1-1" end
+      if type(pos) ~= "vector3" then
+        pos = vector3(pos, y, z)
+      end
       if not place then place = "Cell Phone 911" end
       if not area then area   = "Unknown Area" end
+      if title then DispatchAnnounce(title) end
+      if not title then title = "9-1-1 Call Center" end
+      title = exports['cnr_wanted']:GetCrimeName(title)
       DispatchMessage(title, place, message)
       DispatchNotification(title, place)
       DispatchBlip(pos.x, pos.y, pos.z, title)
+    else print("DEBUG - pos was nil, unable to dispatch.")
     end
-  end
+  --end
 end
 AddEventHandler('cnr:dispatch', SendDispatch)
 

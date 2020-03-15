@@ -24,6 +24,7 @@ end
 function DispatchPolice(title, zName, position, message)
   if not zName then zName = "San Andreas" end
   if not message then message = "A(n) "..title.." was reported in "..zName end
+  print("DEBUG - Calling Dispatch for: "..title.." in "..zName.." @ "..tostring(position))
   TriggerClientEvent('cnr:dispatch', (-1), title, zName, position, message)
   exports['cnr_chat']:DiscordMessage(
     35578, "Crime Reported", message, title, 1

@@ -156,19 +156,32 @@ function WantedPoints(ply, crime, msg)
         ", a ^5police officer ^7, committed: "..crime)
   end
 end
-local tracking = {}
+local tracking   = {}
+local worstCrime = {}
 AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911)
   local ply = source
   if crime then
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
-      if not tracking[ply] then
-        tracking[ply] = GetGameTimer() + 30000
-        if not ignore911 then
+    
+      -- This is the first crime that has been committed
+      if not tracking[ply] and not ignore911 then
+        worstCrime[ply] = crime
+        tracking[ply] = GetGameTimer() + 6000
+        Citizen.CreateThread(function()
+          while tracking[ply] > GetGameTimer() do Citizen.Wait(100) end
           exports['cnr_police']:DispatchPolice(
-            GetCrimeName(crime), zName, posn
+            worstCrime[ply], zName, posn
           )
-        else print("DEBUG - Ignoring 911 callout for this crime.")
+          tracking[ply] = nil
+          worstCrime[ply] = nil
+        end)
+      -- Update with worst crime committed
+      else
+        local cWeight = GetCrimeWeight(crime)
+        if cWeight > GetCrimeWeight(worstCrime[ply]) then
+          worstCrime[ply] = crime
+          tracking[ply]   = GetGameTimer() + 6000
         end
       end
       WantedPoints(ply, crime, msg)

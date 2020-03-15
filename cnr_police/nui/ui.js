@@ -27,6 +27,21 @@ $(function() {
     if (item.jailTime)   {$("#j-time").html(item.jailTime)};
     if (item.ticketTime) {$("#t-time").html(item.ticketTime)};
     
+    
+    
+    /*
+    if (item.playsound) {
+      var audio = document.getElementById('disp_audio');
+      audio[0].empty();
+      $("#disp_src").attr('src', item.playsound);
+      audio[0].load();
+      audio[0].play();
+    }
+    */
+    
+    
+    
+    
   });
   
   // Pressing the ESC key with the menu open closes it 

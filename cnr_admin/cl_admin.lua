@@ -15,12 +15,13 @@ local showHelp = true
 local helpNum = 1
 
 local helpMessages = {
-  [1] = "~r~Red circles~w~ on the map? A ~r~crate~w~ is waiting for you!",
-  [2] = "Help with a job, controls or commands? Type ~y~/help~w~ for info.",
-  [3] = "Go on/off ~b~police duty~w~ at anytime by entering a station in the active ~y~/zones~w~.",
-  [4] = "Not sure what to do? Rob a 24/7 by pointing a gun at the clerk!",
-  [5] = "Rob an ATM by smashing it with a melee weapon!",
-  [6] = "Need extra cash, legally? Try fishing or hunting!"
+  "~r~Red circles~w~ on the map? A ~r~crate~w~ is waiting to be collected!",
+  "Help with a job, controls or commands? Type ~y~/help~w~ for info.",
+  "Go on/off ~b~police duty~w~ at anytime by entering a station in the active ~y~/zones~w~.",
+  "Bored? Why not rob a 24/7? Grab a gun and aim it at the clerk!",
+  "Rob an ~g~ATM ~w~by smashing it with a melee weapon!",
+  "Need clean cash on the side? Try fishing or hunting!",
+  "Try out some legal jobs at one of the briefcases on the map!"
 }
 
 Citizen.CreateThread(function()

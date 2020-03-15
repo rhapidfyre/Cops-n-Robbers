@@ -198,7 +198,7 @@ function IsPlayerAimingAtCop(target)
         print("DEBUG - Player IS a cop. Brandish on an LEO")
         TriggerServerEvent('cnr:wanted_points', 'brandish-leo', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-          myPos
+          myPos, true -- ignore 911
         )
         Citizen.Wait(1000)
       else
@@ -210,9 +210,18 @@ function IsPlayerAimingAtCop(target)
         Citizen.Wait(1000)
       end
     else
+        
+        --[[
+      local myPos         = GetEntityCoords(PlayerPedId())
+      local stName, cross = GetStreetNameAtCoord(myPos.x, myPos.y, myPos.z)
+      local zn            = GetNameOfZone(myPos.x, myPos.y, myPos.z)
+      local r1            = GetStreetNameFromHashKey(stName)
+        
+      print("DEBUG - ("..stName..") "..r1.." @ "..zn)  
+        ]]
       TriggerServerEvent('cnr:wanted_points', 'brandish-npc', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-          myPos
+          myPos, true -- ignore 911
       )
       Citizen.Wait(1000)
     end
@@ -266,9 +275,10 @@ function NotCopLoops()
           if not exports['cnr_ammunation']:InsideGunRange() then
             if lastShot < GetGameTimer() then
               local wasShotSeen = false
+              local thisPos = GetEntityCoords(ped)
               for peds in exports['cnrobbers']:EnumeratePeds() do
                 if not IsPedAPlayer(peds) then
-                  if #(GetEntityCoords(ped) - GetEntityCoords(peds)) < 200.0 then
+                  if #(thisPos - GetEntityCoords(peds)) < 40.0 then
                     if HasEntityClearLosToEntity(peds, ped, 17) then
                       wasShotSeen = true
                     end
@@ -281,7 +291,9 @@ function NotCopLoops()
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
                   myPos
                 )
+              else print("DEBUG - Shot not seen.")
               end
+            else print("DEBUG - Shot too recently")
             end
           else print("DEBUG - Gunshot ignored; Within a no-reporting zone.")
           end
@@ -349,7 +361,7 @@ AddEventHandler('cnr:wanted_enter_vehicle', function(veh)
         else
           TriggerServerEvent('cnr:wanted_points', 'carjack-npc', true,
             exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-            myPos
+            myPos, true -- ignore 911
           )
         end
       -- Unoccupied: GTA
