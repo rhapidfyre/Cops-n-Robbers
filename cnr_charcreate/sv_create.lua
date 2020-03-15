@@ -78,8 +78,9 @@ end
 function GetPlayerInformation(ply)
   local plyInfo = GetPlayerIdentifiers(ply)
   local infoTable = {
-    ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
-    ['ip'] = GetPlayerEndpoint(ply)
+    ['stm'] = "", ['soc'] = "", ['five'] = "", ['disc'] = "",
+    ['ip'] = GetPlayerEndpoint(ply),
+    ['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   }
   for _,id in pairs (plyInfo) do
     if string.sub(id, 1, string.len("steam:")) == "steam:" then
@@ -93,7 +94,6 @@ function GetPlayerInformation(ply)
     end
   end
 
-  infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
   return infoTable
 end
 
@@ -104,29 +104,28 @@ end
 -- @param ply The Player's Server ID. If not given, function ends
 function CreateUniqueId(ply)
 
-  if not ply then return 0 end
-
-  -- Filter username for special characters
+  if not ply then
+    print("^1[CNR CHARCREATE] ^7- No player ID given to CreateUniqueId()")
+    return 0
+  end
 
   -- SQL: Insert new user account for new player
   -- If steamid and fiveid are nil, the procedure will return 0
   local ids = GetPlayerInformation(ply)
   local uid = exports['ghmattimysql']:scalarSync(
-    "SELECT new_player (@stm, @soc, @five, @disc, @ip, @user)",
-    {
-      ['stm']  = ids['stm'],   ['soc'] = ids['soc'], ['five'] = ids['five'],
-      ['disc'] = ids['discd'], ['ip']  = ids['ip'],  ['user'] = ids['user']
-    }
+    "SELECT new_player (@stm, @soc, @five, @disc, @ip, @user)", ids
   )
   if uid then
     unique[ply] = uid
     exports['cnrobbers']:UniqueId(ply, tonumber(uid)) -- Set UID for session
     cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
+    
   else
     cprint("^1A Fatal Error has occurred, and the player has been dropped.")
     print("5M:CNR was unable to ascertain a Unique ID for "..GetPlayerName(ply))
     print("The player is not using any methods of identification.")
     DropPlayer(ply, "Fatal Error; Steam, Social Club, FiveM, or Discord License required on this server for stats tracking.")
+    
   end
   return unique[ply]
 end
@@ -142,89 +141,60 @@ AddEventHandler('cnr:create_player', function()
 
   if doJoin then cprint("^2"..ustring.." connected.^7") end
 
-  --[[if ids then
-    if dMsg then
-      cprint("Steam ID or FiveM License exists. Retrieving Unique ID.")
-    end]]
 
-    -- SQL: Retrieve character information
-    local uid = CreateUniqueId(ply) --[[ exports['ghmattimysql']:scalarSync(
-      "SELECT idUnique FROM players "..
-      "WHERE idSteam = @steam OR idFiveM = @five OR idSocialClub = @soc "..
-      "OR idDiscord = @disc LIMIT 1",
-      {['steam'] = ids['stm'], ['five'] = ids['five'], ['soc'] = ids['soc'], ['disc'] = ids['discd']}
-    )]]
+  -- SQL: Retrieve character information
+  local uid = CreateUniqueId(ply)
 
-    if uid then
+  if uid then
 
-      local banInfo = exports['ghmattimysql']:executeSync(
-        "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
-        {['uid'] = uid}
-      )
-
-      if banInfo[1]["bantime"] > 0 then
-
-        local nowDate = os.time()
-        local banRelease = banInfo[1]["bantime"]/1000
-        if nowDate >= banRelease then
-          exports['ghmattimysql']:executeSync(
-            "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
-            "WHERE idUnique = @uid", {['uid'] = uid}
-          )
-          banInfo[1]["perms"] = 1
-          print("[CNR ADMIN] "..ustring.."'s ban time is up. They've been unbanned.")
-
-        end
-      end
-
-      -- Player is Banned
-      if banInfo[1]["perms"] < 1 then
-        cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
-        DropPlayer(ply, "You have been banned from playing on this server.")
-        exports['cnr_chat']:DiscordMessage(
-          16711680, "Disconnect", name.." failed to join the game.",
-          "User was previously banned from this server"
-        )
-
-      -- Player is not banned
-      else
-        unique[ply] = uid
-        cprint("Found Unique ID "..uid.." for "..ustring)
-        exports['cnrobbers']:UniqueId(ply, uid)
-
-        Citizen.Wait(200)
-        cprint(ustring.." is loaded in, and ready to play!")
-        TriggerClientEvent('cnr:create_ready', ply)
-        CreateSession(ply)
-
-      end
-
-    else
-      DropPlayer(ply,
-        "You must use a Steam, Social Club, FiveM, or Discord license key "..
-        "to play on this server, so that we can track your stats!"
-      )
---[[
-      uid = CreateUniqueId(ply)
-      if uid < 1 then
-        cprint("^1A Fatal Error has Occurred.")
-        cprint("No player ID given to CreateUniqueId() in sv_create.lua")
-      else
-        cprint(
-          "Successfully created UID ("..tostring(uid)..
-          ") for player "..GetPlayerName(ply)
-        )
-      end
-]]
-    end
---[[
-  else
-    cprint("^1"..ustring.." disconnected. ^7(No ID Validation Obtained)")
-    DropPlayer(ply,
-      "Your FiveM License was invalid, and you are not using Steam. "..
-      "Please relaunch FiveM, or log into Steam to play on this server."
+    local banInfo = exports['ghmattimysql']:executeSync(
+      "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
+      {['uid'] = uid}
     )
-  end]]
+
+    if banInfo[1]["bantime"] > 0 then
+
+      local nowDate = os.time()
+      local banRelease = banInfo[1]["bantime"]/1000
+      if nowDate >= banRelease then
+        exports['ghmattimysql']:executeSync(
+          "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
+          "WHERE idUnique = @uid", {['uid'] = uid}
+        )
+        banInfo[1]["perms"] = 1
+        print("[CNR ADMIN] "..ustring.."'s ban time is up. They've been unbanned.")
+
+      end
+    end
+
+    -- Player is Banned
+    if banInfo[1]["perms"] < 1 then
+      cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
+      DropPlayer(ply, "You have been banned from playing on this server.")
+      exports['cnr_chat']:DiscordMessage(
+        16711680, "Disconnect", name.." failed to join the game.",
+        "User was previously banned from this server"
+      )
+
+    -- Player is not banned
+    else
+      unique[ply] = uid
+      cprint("Found Unique ID "..uid.." for "..ustring)
+      exports['cnrobbers']:UniqueId(ply, uid)
+
+      Citizen.Wait(200)
+      cprint(ustring.." is loaded in, and ready to play!")
+      TriggerClientEvent('cnr:create_ready', ply)
+      CreateSession(ply)
+
+    end
+
+  else
+    DropPlayer(ply,
+      "You must use a Steam, Social Club, FiveM, or Discord license key "..
+      "to play on this server, so that we can track your stats!"
+    )
+  end
 end)
 
 

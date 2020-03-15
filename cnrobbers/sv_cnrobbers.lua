@@ -78,58 +78,32 @@ end
 AddEventHandler('cnr:print', ConsolePrint)
 
 
-function GetPlayerInformation(ply)
-  local plyInfo = GetPlayerIdentifiers(ply)
-  local infoTable = {
-    ['stm'] = "", ['soc'] = "", ['five'] = "", ['discd'] = "",
-    ['ip'] = GetPlayerEndpoint(ply)
-  }
-  for _,id in pairs (plyInfo) do
-    if string.sub(id, 1, string.len("steam:")) == "steam:" then
-      infoTable['stm'] = id
-    elseif string.sub(id, 1, string.len("license:")) == "license:" then
-      infoTable['soc'] = id
-    elseif string.sub(id, 1, string.len("fivem:")) == "fivem:" then
-      infoTable['five'] = id
-    elseif string.sub(id, 1, string.len("discord:")) == "steam:" then
-      infoTable['discd'] = id
-    end
-  end
-
-  infoTable['user'] = string.gsub(GetPlayerName(ply), "[%W]", "")
-  return infoTable
-end
-
-
 --- EXPORT: UniqueId()
 -- Assigns / Retrieves player's Unique ID (SQL Database ID Number)
 -- @param ply The player (server ID) to get the UID for
 -- @param uid If provided, sets player's UID. If nil, returns UID
 -- @return Returns the Unique ID, or 0 if not found
-function UniqueId(ply, uid)
+function UniqueId(client, uid)
+  local ply = tonumber(client)
   if ply then
 
     -- If UID is given, assign it.
-    if uid then unique[ply] = uid
-
-    -- Otherwise, find it.
+    if uid then
+      unique[ply] = tonumber(uid)
+      print("[CNROBBERS] ^2Unique ID Set ^7("..uid..") for Player #"..ply)
     else
-
-      local ids = GetPlayerInformation(ply)
-
-      local idNumber = exports['ghmattimysql']:scalarSync(
-        "SELECT new_player(@steam, @soc, @five, @disc, @ep, @un)",
-        {['steam'] = ids['stm'], ['five'] = ids['five'],
-        ['soc'] = ids['soc'], ['disc'] = ids['discd'],
-        ['ep'] = GetPlayerEndpoint(ply), GetPlayerName(ply)}
-      )
-
-      unique[ply] = idNumber
-
+      if not unique[ply] then
+        print("^3[CNROBBERS] ^7- ^1ERROR; ^7Resource "..GetInvokingResource()..
+          "' requested Player #"..ply.."'s Unique ID, but it was not found (nil)."
+        )
+      end
     end
+    
   else
-    print("DEBUG - ERROR; 'ply' not given to 'UniqueId()' (sv_cnrobbers.lua)")
+  
+    print("DEBUG - ERROR; No 'ply' given to 'UniqueId()' (sv_cnrobbers.lua)")
     return 0 -- No 'ply' given, return 0
+    
   end
   return (unique[ply])
 end
