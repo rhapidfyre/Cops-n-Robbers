@@ -15,9 +15,9 @@ ui_page "nui/ui.html"
 dependencies {'baseevents', 'cnrobbers'}
 
 files {
-	"nui/ui.html",
-  "nui/ui.js",
-  "nui/ui.css"
+	"nui/ui.html", "nui/ui.js", "nui/ui.css",
+  "nui/img/cocaine.png", "nui/img/syringe.png",
+  "nui/img/weed.png", "nui/img/gun_parts1.png"
 }
 
 client_scripts {
