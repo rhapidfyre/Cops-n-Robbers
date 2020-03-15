@@ -29,10 +29,12 @@ AddEventHandler('cnr:consume', function(itemName)
     print("Unable to authenticate the source of consume[item_window_breaker].")
     return 0
   end
-  wbreakers = wbreakers + 1
-  TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-    "You can now use "..(wbreakers).." window breakers."
-  }})
+  if itemName == "item_window_breaker" then
+    wbreakers = wbreakers + 1
+    TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+      "You can now use "..(wbreakers).." window breakers."
+    }})
+  end
 end)
 
 RegisterCommand('vehmodel', function()
