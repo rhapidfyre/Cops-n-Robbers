@@ -14,6 +14,18 @@ RegisterNetEvent('cnr:police_officer_duty')
 RegisterNetEvent('cnr:wanted_client')
 
 local plyBlip = {}
+local largeMap = false
+
+Citizen.CreateThread(function()
+  while true do
+  	Citizen.Wait(1)
+  	if IsControlJustReleased(0, 20) then
+      largeMap = not largeMap
+  	  SetRadarBigmapEnabled(largeMap, false)
+  	end
+  end
+end)
+
 
 local function CNRBlipColour(blip, wLevel, cLevel)
   if cLevel then
@@ -32,6 +44,7 @@ local function CNRBlipColour(blip, wLevel, cLevel)
     end     
   end
 end
+
 
 -- Ensures blips are created for all players
 function DrawPlayerBlips()
