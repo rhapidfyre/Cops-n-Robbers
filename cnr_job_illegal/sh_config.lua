@@ -19,7 +19,7 @@ local supplies = {
   [3] = {
     name  = "supplies_chopshop", title = "Modparts",
     count = function() return math.random(5, 14) end,
-    img   = "gun_part1"
+    img   = "car_part1"
   }
 }
 
