@@ -22,6 +22,14 @@ local pauseCrates   = false     -- Stops crate loop for script to make changes
 local collectorRunning = false  -- Is "KEY_CRATE"-press loop running already
 
 
+local function PublicSafety()
+  if exports['cnr_police']:DutyStatus() then return true end
+  --if exports['cnr_ems']:DutyStatus() then return true end
+  --if exports['cnr_fire']:DutyStatus() then return true end
+  return false
+end
+
+
 --- PickupCrate()
 -- Allows the player to pick up a crate, remove it, and notify the server.
 -- Func must check that it still exists, that nobody else got it @ same time
@@ -41,14 +49,7 @@ function PickupCrate(k)
       TriggerServerEvent('cnr:tr_crate_pickup', cInfo.hash, cInfo.key)
       
       local myPos = GetEntityCoords(PlayerPedId())
-      local crime = 'traffic_drug'
-      if     cInfo.cont == SUPPLY_GUNS then crime = 'traffic_guns'
-      elseif cInfo.cont == SUPPLY_CHOP then crime = 'traffic_chop'
-      end
-      TriggerServerEvent('cnr:wanted_points', crime, true,
-        exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-        myPos, true
-      )
+      
       
     end
   end
@@ -89,9 +90,17 @@ function CrateCollection()
             
             -- If such crate exists and it's reasonably close
             if cCrate > 0 then 
-            
+              
               if cDist < 2.25 then
-                PickupCrate(cCrate)
+                if not PublicSafety() then
+                  PickupCrate(cCrate)
+                  
+                else
+                  TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+                    "^1Public Safety professionals can't collect supply caches!"
+                  }})
+                  
+                end
               
               -- If crate isn't close, display "TOO FAR AWAY!"
               -- from the crate's position (might be de-sync'd)
@@ -119,7 +128,7 @@ end
 
 
 -- Handles removing crates
-AddEventHandler('cnr:tr_crate_delete', function(serverKey)
+AddEventHandler('cnr:tr_crate_delete', function(serverKey, collector, cType)
   
   -- 'pauseCrates' allows the script to pause the handling of creating,
   -- deleting, or otherwise altering crates while crateList is being modified.
@@ -134,7 +143,7 @@ AddEventHandler('cnr:tr_crate_delete', function(serverKey)
 
   -- if such crate is found
   if i > 0 then
-    
+    print("DEBUG - Found existing crate.")
     -- Remove the blip if exists, then remove the object if exists
     if crateList[i].blip then 
       if DoesBlipExist(crateList[i].blip) then RemoveBlip(crateList[i].blip) end
@@ -146,9 +155,21 @@ AddEventHandler('cnr:tr_crate_delete', function(serverKey)
     
     -- Must make sure the crate is removed before allowing the loop to continue
     table.remove(crateList, i)
-
+  else
+    print("DEBUG - Unable to find existing crate.")
   end -- if i<0
   pauseCrates = false
+  
+  if GetPlayerFromServerId(collector) == PlayerId() then 
+    local crime = "traffic_drug"
+    if cType == SUPPLY_GUNS then crime = "traffic_guns"
+    elseif cType == SUPPLY_CHOP then crime = "traffic_chop"
+    end
+    TriggerServerEvent('cnr:wanted_points', crime, true,
+      exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
+      myPos, true -- ignore 911
+    )
+  end
 end)
 
 
@@ -179,9 +200,10 @@ function CrateHandler()
               )
               -- Set Options on the Crate
               SetDisableBreaking(v.obj, true)     -- Invincible
+              PlaceObjectOnGroundProperly(v.obj)
+              Citizen.Wait(100)
               ActivatePhysics(v.obj)              -- Allow physics
               FreezeEntityPosition(v.obj, false)  -- Unfreeze
-              Citizen.Wait(100)
               
             end
           end -- dist < 100
@@ -209,44 +231,65 @@ end
 -- @param cInfo Table: {hash, position, key, model}
 AddEventHandler('cnr:tr_crate_create', function(cHash, cPos, cKey, cModel)
   
-  pauseCrates = true -- Stop crate rendering
-  
-  -- Create table entry
-  local n = #crateList + 1
-  crateList[n] = {
-    hash = cHash, pos  = cPos,
-    key  = cKey, mdl  = cModel
-  }
-  
-  
-  local dist = 90.0
-  
-  -- Generate positional information
-  local loopn = true      -- loop until radius is valid
-  local pX, pY = 0.0, 0.0 -- PsuedoX, PsuedoY
-  while loopn do
-    pX = math.random(-80, 80) + (cPos.x)
-    pY = math.random(-80, 80) + (cPos.y)
-    if in_circle(pX, pY, dist, cPos.x, cPos.y) then
-      loopn = false
+    pauseCrates = true -- Stop crate rendering
+    
+    -- Create table entry
+    local n = #crateList + 1
+    crateList[n] = {
+      hash = cHash, pos  = cPos,
+      key  = cKey, mdl  = cModel
+    }
+    
+    
+    local dist = 90.0
+    
+    -- Generate positional information
+    local loopn = true      -- loop until radius is valid
+    local pX, pY = 0.0, 0.0 -- PsuedoX, PsuedoY
+    while loopn do
+      pX = math.random(-80, 80) + (cPos.x)
+      pY = math.random(-80, 80) + (cPos.y)
+      if in_circle(pX, pY, dist, cPos.x, cPos.y) then
+        loopn = false
+      end
+      Citizen.Wait(0)
     end
-    Citizen.Wait(0)
-  end
-  
-  local tempBlip = AddBlipForRadius(pX, pY, 0.0, dist)
-  SetBlipSprite(tempBlip, 9)
-  SetBlipColour(tempBlip, 1)
-  SetBlipAlpha(tempBlip, 40)
-  crateList[n].blip = tempBlip
-  
-  
-	SetNotificationTextEntry("STRING")
-	AddTextComponentString("A supply drop has become available. Check your map.")
-	SetNotificationMessage(icon, icon, false, 2, title, subtitle, "")
-	DrawNotification(false, true)
-	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
-  
-  CrateCollection()
-  
-  pauseCrates = false -- Allow crate rendering
+    
+    -- Draw blips if the player isn't a cop, medic or firefighter
+    if not PublicSafety() then
+    
+      local flashBlip = AddBlipForCoord(pX, pY, 0.0)
+      SetBlipSprite(flashBlip, 478)
+      SetBlipColour(flashBlip, 1)
+      SetBlipScale(flashBlip, 0.82)
+      SetBlipFlashes(flashBlip, true)
+      SetBlipFlashTimer(flashBlip, 5000)
+      
+      Citizen.CreateThread(function()
+        for i = 255, 0, -10 do 
+          SetBlipAlpha(flashBlip, i)
+          Citizen.Wait(5000)
+        end
+        RemoveBlip(flashBlip)
+      end)
+      
+      local tempBlip = AddBlipForRadius(pX, pY, 0.0, dist)
+      SetBlipSprite(tempBlip, 9)
+      SetBlipColour(tempBlip, 1)
+      SetBlipAlpha(tempBlip, 40)
+      crateList[n].blip = tempBlip
+      
+      SetNotificationTextEntry("STRING")
+      AddTextComponentString(RandomCacheMessage())
+      SetNotificationMessage("CHAR_LESTER", "CHAR_LESTER", false, 2, "Supply Cache", "", "")
+      DrawNotification(false, true)
+      PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
+      
+    else
+      print("DEBUG - Ignoring Crate blips. Player is Public Safety.")
+      
+    end
+    
+    CrateCollection()
+    pauseCrates = false -- Allow crate rendering
 end)

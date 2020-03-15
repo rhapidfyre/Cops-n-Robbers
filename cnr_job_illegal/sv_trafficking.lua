@@ -18,14 +18,26 @@ AddEventHandler('cnr:tr_crate_pickup', function(cHash, k)
   local client = source
   if boxes[k].id == cHash then 
   
+    local n           = boxes[k].cont
+    local contentType = GetSupplyFromEnum(n)
+    
     print(
       "^3[TRAFFICKING] ^7"..GetPlayerName(client)..
-      " (#"..client..") has collected a ^2trafficking crate^7!"
+      " (#"..client..") has collected a ^2trafficking crate^7 containing ^1"..
+      contentType.."^7!"
     )
-    -- DEBUG - TEMPORARY
+      
+    --[[ DEBUG - TEMPORARY
     -- Give the player $1000 until the inventory system is in place
-    exports['cnr_cash']:CashTransaction(client, 1000)
-    TriggerClientEvent('cnr:tr_crate_delete', (-1), k)
+    exports['cnr_cash']:CashTransaction(client, 1000)]]
+    TriggerClientEvent('cnr:tr_crate_delete', (-1), k, client, contentType)
+    
+    exports['cnr_inventory']:ItemAdd(client, {
+      ['name']    = contentType,
+      ['title']   = GetSupplyTitle(n),
+      ['resname'] = "cnr_job_illegal",
+      ['img']     = GetSupplyImage(n)
+    }, GetSupplyReward(n))
     
   end
 end)

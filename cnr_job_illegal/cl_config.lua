@@ -1,6 +1,18 @@
 
 -- config (client)
 
+local cacheMessages = { -- Crate Event
+  "Found a drop, sent it to your GPS. Others will be looking for it, too.",
+  "Got a hit on a drop, it's on your GPS. Better find it before someone else.",
+  "Drop Located. Sent coords to your GPS. First come first serve, get going.",
+  "Got another hit on a drop, better get moving. You're not alone.",
+  "Another drop coming your way, better get on it."
+}
+
+function RandomCacheMessage()
+  return cacheMessages[math.random(#cacheMessages)]
+end
+
 -- Draws text on screen as positional
 function DrawText3D(x, y, z, text) 
   SetDrawOrigin(x, y, z, 0);
