@@ -212,6 +212,7 @@ AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coo
             });
             return 0 -- stop on failure
           end
+          UpdateInventory(client)
         end
         
         local didPass = ItemRemove(client, itemInfo[1], quantity)
