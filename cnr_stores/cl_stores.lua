@@ -1,9 +1,19 @@
 
+RegisterNetEvent('cnr:lotto_drawing')
 RegisterNetEvent('cnr:stores_start')
 RegisterNetEvent('cnr:stores_usage')
 
 local menuEnabled = false
 local near = 0
+
+
+-- addComma()
+-- Adds a comma every 3 digits to format the cash value
+-- @param
+local function addComma(str)
+	return #str % 3 == 0 and str:reverse():gsub("(%d%d%d)","%1,"):reverse():sub(2) or str:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+end
+
 
 
 local function BuildStoreItems()
@@ -16,6 +26,30 @@ local function BuildStoreItems()
   end
   SendNUIMessage({storeitems = table.concat(htmlTable)})
 end
+
+
+AddEventHandler('cnr:lotto_drawing', function(nWin, idWin, newPot)
+  TriggerEvent('chat:addMessage', {templateId = 'lotto', args = {
+    "The winning number is ^3"..nWin.."^7."
+  }})
+  if idWin then
+    local winner = GetPlayerFromServerId(idWin)
+    if winner == PlayerId() then 
+      exports['cnr_chat']:ChatNotification(
+        "CHAR_SOCIAL_CLUB", "5M-CNR Lottery",
+        "~g~YOU WIN!!",
+        "Your winnings were deposited to your bank account! Congratulations!!"
+      )
+    end
+    TriggerEvent('chat:addMessage', {templateId = 'lotto', args = {
+      "Somebody won the jackpot! The new jackpot is now ^2"..addComma(tostring(newPot)).."^7!"
+    }})
+  else
+    TriggerEvent('chat:addMessage', {templateId = 'lotto', args = {
+      "No winners! The new jackpot is now ^2"..addComma(tostring(newPot)).."!"
+    }})
+  end
+end)
 
 
 AddEventHandler('cnr:close_all_nui', function()

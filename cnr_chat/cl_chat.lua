@@ -54,6 +54,10 @@ AddEventHandler('onClientResourceStart', function(rname)
       '<b><font color="#A00">Invalid Command:</font> '..
       '<font color="#996"> {0} </font>'
     )
+    TriggerEvent('chat:addTemplate', 'lotto',
+      '<b><font color="#FD0">[LOTTERY]</font> '..
+      '<font color="#996">{0}</font>'
+    )
   end
 end)
 

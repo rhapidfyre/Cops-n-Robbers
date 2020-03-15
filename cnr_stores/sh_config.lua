@@ -25,6 +25,12 @@ storeItems = {
     
   [8] = { ['name'] = "liquor_beer", ['title'] = "Beer", ['img'] = "beer_bottle",
     ['price'] = 5, ['consume'] = true, ['model'] = nil },
+    
+  [9] = { ['name'] = "lotto_ticket", ['title'] = "Lotto Ticket", ['img'] = "lotto_ticket",
+    ['price'] = 100, ['consume'] = true, ['model'] = nil },
+    
+  [10] = { ['name'] = "lotto_scratcher", ['title'] = "Scratcher", ['img'] = "scratchers",
+    ['price'] = 100, ['consume'] = true, ['model'] = nil },
 }
 
 

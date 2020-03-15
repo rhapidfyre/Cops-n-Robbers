@@ -1,9 +1,55 @@
 
-RegisterServerEvent('cnr:stores_start')
 RegisterServerEvent('cnr:stores_purchase')
+RegisterServerEvent('cnr:lotto_purchase')
+RegisterServerEvent('cnr:stores_start')
 
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
+local lotto = {
+  interval = 10, -- Minutes between lotto drawings
+  starting = 250000,
+  increase = function() return (math.random(25, 100) * 1000) end,
+  timer    = 0,
+  mini     = 1,  -- Minimum number possibility
+  maxi     = 10, -- Maximum number possibility
+  lockout  = false, -- Prevent people from buying a ticket
+  players  = {}
+}
+
+AddEventHandler('cnr:lotto_purchase', function(ticketType)
+  local client = source
+  
+  -- Scratcher
+  if ticketType == 0 then 
+    
+  -- Lotto Drawing, where ticketType is their chosen number
+  else
+    if lotto.lockout then 
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'lotto', args = {
+        "You can't submit a ticket when a drawing is about to start!"
+      }})
+      
+    else
+      local taken = false
+      for ply,v in pairs (lotto.players) do 
+        if v.draw == ticketType then 
+          taken = true
+        end
+      end
+      
+      if not taken then 
+        TriggerClientEvent('chat:addMessage', client, {templateId = 'lotto', args = {
+          "Someone has chosen that number already!"
+        }})
+      else
+        TriggerClientEvent('chat:addMessage', client, {templateId = 'lotto', args = {
+          "Your lotto drawing number has been registered: "..ticketType
+        }})
+        lotto.players[client] = ticketType
+      end
+    end
+  end
+end)
 
 
 AddEventHandler('cnr:stores_start', function(n, useStore)
@@ -77,5 +123,54 @@ AddEventHandler('cnr:stores_purchase', function(i, n)
     TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
       "You can't afford to buy ^2"..(item.title).." ^7(Costs $^1"..(item.price).."^7)"
     }})
+  end
+end)
+
+
+Citizen.CreateThread(function()
+  Citizen.Wait(1000)
+  lotto.timer = GetGameTimer() + (1000 * 60 * lotto.interval)
+  while true do
+    if lotto.timer > GetGameTimer() then
+      
+      TriggerClientEvent('cnr:chat_notification', (-1),
+        "CHAR_SOCIAL_CLUB", "5M-CNR Lottery",
+        "Drawing Soon",
+        "~y~5 ~w~Minutes until the draw! Get your ticket at ~y~24/7~w~!"
+      )
+      
+      Citizen.Wait(3000)
+    
+      lotto.lockout = true
+      TriggerClientEvent('cnr:chat_notification',
+        "CHAR_SOCIAL_CLUB", "5M-CNR Lottery",
+        "Drawing Now",
+        "Lottery ~r~CLOSED~w~! Drawing in ~y~30 ~w~seconds."
+      )
+      
+      Citizen.Wait(1000)
+      
+      local jackpot = math.random(lotto.mini, lotto.maxi)
+      local winner  = 0
+      for ply,drawNumber in pairs (lotto.players) do 
+        if drawNumber == jackpot then winner = ply end
+      end
+      
+      if winner > 0 then 
+        lotto.pot = lotto.starting
+        exports['cnr_cash']:BankTransaction(winner, lotto.pot)
+        
+      else
+        lotto.pot = lotto.pot + lotto.increase()
+        
+      end
+      
+      TriggerClientEvent('cnr:lotto_drawing', (-1), jackpot, winner, lotto.pot)
+      
+      lotto.timer   = GetGameTimer() + (1000 * 60 * lotto.interval)
+      lotto.players = {}
+      lotto.lockout = false
+    end
+    Citizen.Wait(1000)
   end
 end)
