@@ -179,28 +179,6 @@ Citizen.CreateThread(function()
 end)
 
 
-Citizen.CreateThread(function()
-  while true do
-    local clientTable = GetActivePlayers()
-    for _,i in ipairs (clientTable) do
-      local ped = GetPlayerPed(i)
-      if ped ~= PlayerPedId() then
-        blip = GetBlipFromEntity(ped)
-        -- Blip does not exist, create it, and we'll fix it next frame (DEBUG - )
-        if not DoesBlipExist(blip) then
-          blip = AddBlipForEntity(ped)
-          SetBlipScale(blip, 0.8)
-          SetBlipDisplay(blip, 8)
-          SetBlipShrink(blip, true)
-        end
-      end
-      Citizen.Wait(1)
-    end
-    Citizen.Wait(10)
-  end
-end)
-
-
 -- Draws the text above the head
 function DrawText3D(x,y,z, text, col) -- some useful function, use it if you want!
   local onScreen,_x,_y = GetScreenCoordFromWorldCoord(x,y,z)
