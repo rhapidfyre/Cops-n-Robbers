@@ -49,7 +49,7 @@ function DrawPlayerBlips()
   while true do
     local plys = GetActivePlayers()
     for _,ply in ipairs (plys) do
-      --if ply ~= PlayerId() then
+      if ply ~= PlayerId() then
       
         local ped    = GetPlayerPed(ply)
         local exists = GetBlipFromEntity(ped)
@@ -68,8 +68,7 @@ function DrawPlayerBlips()
           SetBlipScale(blip, 0.8)
           print("DEBUG - Created blip for Player #"..svid)
         end
-        
-      --end
+      end
     end
     Citizen.Wait(1000)
   end
