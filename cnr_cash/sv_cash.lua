@@ -3,8 +3,16 @@ RegisterServerEvent('cnr:cash_transaction')
 RegisterServerEvent('cnr:bank_transaction')
 RegisterServerEvent('cnr:bank_transfer')
 RegisterServerEvent('cnr:client_loaded')
+RegisterServerEvent('cnr:death_insured')
 
 RegisterServerEvent('cnr:atm_usage')
+
+AddEventHandler('cnr:death_insured', function(client, isInsured)
+  if isInsured < 1 then
+    TriggerClientEvent('cnr:wallet_value', client, 0)
+    TriggerClientEvent('cnr:bank_account', client, 0)
+  end
+end)
 
 local plyCash = {}
 local plyBank = {}
@@ -170,7 +178,7 @@ end
 AddEventHandler('cnr:client_loaded', function(client)
   local ply = source
   if client then ply = client end
-  SetPlayerCashValues(tonumber(client))
+  SetPlayerCashValues(tonumber(ply))
 end)
 
 Citizen.CreateThread(function()

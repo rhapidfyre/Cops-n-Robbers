@@ -58,7 +58,7 @@ AddEventHandler('onClientResourceStart', function(rname)
 end)
 
 --- EXPORT: ChatNotification()
--- Also EVENT 'srp:chat_notification'
+-- Also EVENT 'cnr:chat_notification'
 -- Creates a popup blip with icon, title, sub, and msg
 -- @param icon The icon path to show
 -- @param title The title of popup
