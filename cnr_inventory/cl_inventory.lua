@@ -219,6 +219,7 @@ Citizen.CreateThread(function()
 end)
 
 
+--- EXPORTS: CloseInventory()
 function CloseInventory()
   print("DEBUG - Closing Inventory.")
   SendNUIMessage({hideinv = true})
@@ -227,6 +228,7 @@ function CloseInventory()
 end
 
 
+--- EXPORTS: OpenInventory()
 function OpenInventory()
   print("DEBUG - Opening Inventory.")
   menuEnabled = true

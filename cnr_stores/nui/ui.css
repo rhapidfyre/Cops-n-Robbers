@@ -1,6 +1,34 @@
 
   body, html {margin: 0; padding: 0;}
   
+  #lotto-menu {
+    position: absolute;
+    width: 20%;
+    min-width: 256px;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(80,80,80,0.8);
+    border-radius: 8px 0 0 0;
+  }
+  
+  #lotto-menu h3, #lotto-menu p {
+    color: white;
+    text-align: center;
+    text-shadow: 1px 1px 0 black;
+  }
+  
+  #lotto-menu table {
+    text-align: center;
+    margin: 0 auto;
+    width: 90%;
+  }
+  
+  #lotto-menu button {
+    text-align: center;
+    width: 100%;
+    height: auto;
+  }
+  
   #store-main {
     width: 60%;
     height: 50%;

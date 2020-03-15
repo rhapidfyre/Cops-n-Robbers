@@ -2,10 +2,18 @@
 RegisterServerEvent('cnr:inventory_update')
 RegisterServerEvent('cnr:inventory_action')
 RegisterServerEvent('cnr:inventory_pickup')
+RegisterServerEvent('cnr:death_insured')
 RegisterServerEvent('cnr:client_loaded')
 
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 
+
+
+AddEventHandler('cnr:death_insured', function(client, isInsured)
+  if isInsured < 1 then 
+    UpdateInventory(client)
+  end
+end)
 
 AddEventHandler('cnr:death_insured', function(client, retValue)
   if retValue == 0 then
@@ -42,9 +50,10 @@ function ItemAdd(client, itemInfo, quantity)
   if not itemInfo['model'] then itemInfo['model'] = "prop_cs_package_01" end
   if not itemInfo['img'] then itemInfo['img'] = "missing" end
   if not itemInfo['resname'] then itemInfo['resname'] = "cnr_inventory" end
+  if not itemInfo['stack'] then itemInfo['stack'] = 0 else itemInfo['stack'] = 1 end
   if not quantity then quantity = 1 end
   local response = exports['ghmattimysql']:scalarSync(
-    "SELECT InvAdd(@uid, @iname, @ititle, @eat, @mdl, @imgsrc, @qty, @rname)",
+    "SELECT InvAdd(@uid, @iname, @ititle, @eat, @mdl, @imgsrc, @qty, @rname, @stk)",
     {
       ['uid']    = exports['cnrobbers']:UniqueId(client),
       ['iname']  = itemInfo['name'],
@@ -53,7 +62,8 @@ function ItemAdd(client, itemInfo, quantity)
       ['mdl']    = itemInfo['model'],
       ['imgsrc'] = itemInfo['img'],
       ['qty']    = quantity,
-      ['rname']  = itemInfo['resname']
+      ['rname']  = itemInfo['resname'],
+      ['stk']    = itemInfo['stack']
     }
   )
 
@@ -200,7 +210,9 @@ AddEventHandler('cnr:inventory_action', function(action, idNumber, quantity, coo
     if itemInfo[1] then
       if itemInfo[1]['name'] then 
         
-        
+        if not itemInfo[1]['stacks'] then
+          quantity = itemInfo[1]['quantity']
+        end
         if action == 1 then
           if itemInfo[1]['consume'] then
             quantity = 1
