@@ -10,6 +10,7 @@ RegisterServerEvent('cnr:prison_time_served') -- 30 seconds served
 RegisterServerEvent('cnr:client_loaded')
 RegisterServerEvent('cnr:police_door')
 RegisterServerEvent('cnr:prison_break')
+RegisterServerEvent('cnr:player_death')
 
 
 local inmates   = {}
@@ -119,7 +120,7 @@ function ImprisonClient(ply, cop, isAdmin)
           "VALUES (@uid, @jt, @p)",
           {['uid'] = uid, ['jt'] = serveTime[ply], ['p'] = 1}
         )
-        
+
       else
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to jail for "..(serveTime[ply]/60).." minutes!"
@@ -179,9 +180,7 @@ function ImprisonClient(ply, cop, isAdmin)
           Citizen.Wait(ticketTime * 1000)
           if tickets[cl] > 0 then
             exports['cnr_wanted']:WantedPoints(cl, 'unpaid')
-            TriggerClientEvent('chat:addMessage', cl, {templateId = 'crimeMsg',
-              args = {"Failure to Pay a Citation"}
-            })
+            TriggerClientEvent('cnr:ticket_unpaid', cl)
           end
         end)
 
@@ -200,12 +199,19 @@ function ImprisonClient(ply, cop, isAdmin)
 
   end
 end
+AddEventHandler('cnr:player_death', function()
+  local client = source
+  if tickets[cl] then
+    if tickets[cl] > 0 then tickets[cl] = 0 end
+  end
+end)
 AddEventHandler('cnr:prison_sendto', function(ply)
   local cop = source
   if exports['cnr_police']:DutyStatus(cop) then
     print("DEBUG - Player #"..cop.." is sending Player #"..ply.." to jail!")
     ImprisonClient(ply, cop)
-  else print("DEBUG - Player #"..cop.." is not on Law Enforcement duty!")
+  else
+    print("DEBUG - Player #"..cop.." is not on Law Enforcement duty!")
   end
 end)
 
