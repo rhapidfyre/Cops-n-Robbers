@@ -87,7 +87,7 @@ function DoParkedVehicleLock(veh)
       -- Otherwise give it a random lock chance
       else
 
-        if math.random(1, 1000) > 180 then  SetVehicleDoorsLocked(veh, 2)
+        if math.random(1, 1000) > 320 then  SetVehicleDoorsLocked(veh, 2)
         else                                SetVehicleDoorsLocked(veh, 0)
         end
 
