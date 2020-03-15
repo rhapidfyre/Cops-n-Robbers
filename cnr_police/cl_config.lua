@@ -6,7 +6,7 @@ femaleHash = GetHashKey("mp_f_freemode_01")
 
 depts = {} -- Global Var for police scripts
 
-local policeCars = {
+policeCars = {
   [GetHashKey("POLICE")]   = true,  [GetHashKey("POLICEB")]  = true,
   [GetHashKey("POLICE2")]  = true,  [GetHashKey("POLICE3")]  = true,
   [GetHashKey("POLICE4")]  = true,  [GetHashKey("POLICE5")]  = true,

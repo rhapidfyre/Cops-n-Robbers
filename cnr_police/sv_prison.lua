@@ -6,6 +6,7 @@ RegisterServerEvent('cnr:police_release')
 RegisterServerEvent('cnr:police_ticket')
 RegisterServerEvent('cnr:prison_break')       -- Starts the prison break event
 RegisterServerEvent('cnr:prison_sendto')
+RegisterServerEvent('cnr:prison_taser')
 RegisterServerEvent('cnr:prison_time_served') -- 30 seconds served
 RegisterServerEvent('cnr:client_loaded')
 RegisterServerEvent('cnr:police_door')
@@ -210,6 +211,15 @@ AddEventHandler('cnr:prison_sendto', function(ply)
   if exports['cnr_police']:DutyStatus(cop) then
     print("DEBUG - Player #"..cop.." is sending Player #"..ply.." to jail!")
     ImprisonClient(ply, cop)
+  else
+    print("DEBUG - Player #"..cop.." is not on Law Enforcement duty!")
+  end
+end)
+AddEventHandler('cnr:prison_taser', function(cop)
+  local criminal = source
+  if exports['cnr_police']:DutyStatus(cop) then
+    print("DEBUG - Player #"..cop.." is sending Player #"..criminal.." to jail!")
+    ImprisonClient(criminal, cop)
   else
     print("DEBUG - Player #"..cop.." is not on Law Enforcement duty!")
   end

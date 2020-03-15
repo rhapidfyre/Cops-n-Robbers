@@ -475,14 +475,14 @@ function PoliceDutyLoops()
           RequestBackup(true)
         end
 
-      -- Handle "F1" Busting
+      --[[ Handle "F1" Busting
       elseif IsControlJustPressed(0, 289) then
         if lastArrest < GetGameTimer() then
           lastArrest = GetGameTimer() + 3000
           Citizen.CreateThread(function()
             ImprisonClient()
           end)
-        end
+        end]]
       end
       
       -- Draw markers if applicable
@@ -509,6 +509,51 @@ function PoliceDutyLoops()
   end)
 end
 
+
+local isStunned = false
+Citizen.CreateThread(function()
+  while true do 
+    if IsPedBeingStunned(PlayerPedId()) then 
+      isStunned = true
+      
+      local nearPed = 0
+      local cDist   = math.huge
+      local myPed   = PlayerPedId()
+      local myPos   = GetEntityCoords(myPed)
+      
+      for ped in exports['cnrobbers']:EnumeratePeds() do
+        if ped ~= myPed then
+          local dist = #(GetEntityCoords(ped) - myPos)
+          if dist < cDist and dist < 12.0 then
+            if GetSelectedPedWeapon(ped) == GetHashKey("WEAPON_STUNGUN") then 
+              nearPed = ped; cDist = dist
+            end
+          end
+        end
+      end
+      
+      local plys = GetActivePlayers()
+      local cop  = 0
+      for _,i in ipairs(plys) do 
+        if nearPed == GetPlayerPed(i) then 
+          cop = GetPlayerServerId(i)
+        end
+      end
+      print("DEBUG - Stunned by ped "..tostring(nearPed).." at distance "..tostring(cDist).."!")
+      
+      if cop > 0 then 
+        print("DEBUG - Tased by cop ID #"..cop)
+        TriggerServerEvent('cnr:prison_taser', cop)
+      else
+        print("DEBUG - Unable to find a cop for the taser action.")
+      end
+      
+      while IsPedBeingStunned(myPed) do Wait(10) end
+      isStunned = false
+    end
+    Citizen.Wait(100)
+  end
+end)
 
 function PoliceArmory()
 
@@ -615,12 +660,19 @@ Citizen.CreateThread(function()
   while true do
     Wait(0)
     -- If player gets in a restricted vehicle, delete it
-    local vehc = GetVehiclePedIsTryingToEnter(PlayerPedId())
+    local vehc = GetVehiclePedIsIn(PlayerPedId())
     if vehc > 0 then
       local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(vehc))
       if restricted[mdl] then
-        if true then --exports['ham']:MyAdminLevel() < 4 then
-          TaskLeaveVehicle(PlayerPedId(), vehc, 16)
+        TaskLeaveVehicle(PlayerPedId(), vehc, 16)
+      end
+      if DutyStatus() then 
+        if not IsUsingPoliceVehicle() then 
+          TaskLeaveAnyVehicle(PlayerPedId(), 16, 16)
+          TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+            "Not a Police Vehicle",
+            "That isn't a police vehicle. Stranded? Try using ^3/copcar^7."
+          }})
         end
       end
       Citizen.Wait(1000)
