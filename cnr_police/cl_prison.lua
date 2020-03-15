@@ -6,6 +6,7 @@ RegisterNetEvent('cnr:ticket_client')
 RegisterNetEvent('cnr:police_imprison')
 RegisterNetEvent('cnr:prison_rejail')
 RegisterNetEvent('cnr:prison_release')
+RegisterNetEvent('cnr:ticket_unpaid')
 RegisterNetEvent('cnr:police_doors')
 
 local isPrisoner = false
@@ -122,44 +123,51 @@ function Reimprison(jt, jp)
 end
 AddEventHandler('cnr:prison_rejail', Reimprison)
 
+function ClearTicket()
+  SendNUIMessage({hideticket = true})
+end
+AddEventHandler('cnr:ticket_unpaid', ClearTicket)
+AddEventHandler('cnr:player_died', ClearTicket)
 
 local ticketWaiting = false
 function IssueTicket(idOfficer, price)
-  SendNUIMessage({showticket = true})
-  TriggerEvent('chat:addMessage', { args = {
-    "TICKET",
-    "You have been issued a ticket for ^2$"..price..
-    "^7 by ^4"..GetPlayerName(GetPlayerFromServerId(idOfficer)).."^7."
-  }})
-  TriggerEvent('chat:addMessage', { args = {
-    "TICKET",
-    "You have^3 30 seconds ^7to decide your response ( F1 to Pay )."
-  }})
-  if not ticketWaiting then
-    ticketWaiting = true
-    ticketClock = GetGameTimer() + 30000
-    Citizen.CreateThread(function()
-      while ticketWaiting do
-        if IsControlJustPressed(0, 288) then
-          ticketWaiting = false
-          TriggerServerEvent('cnr:ticket_payment', idOfficer)
-        else
-          if GetGameTimer > ticketClock then
+  -- Can't issue a ticket to a dead guy
+  if not IsPedDeadOrDying(PlayerPedId()) and not IsPlayerDead(PlayerId()) then
+    SendNUIMessage({showticket = true})
+    TriggerEvent('chat:addMessage', { args = {
+      "TICKET",
+      "You have been issued a ticket for ^2$"..price..
+      "^7 by ^4"..GetPlayerName(GetPlayerFromServerId(idOfficer)).."^7."
+    }})
+    TriggerEvent('chat:addMessage', { args = {
+      "TICKET",
+      "You have^3 30 seconds ^7to decide your response ( F1 to Pay )."
+    }})
+    if not ticketWaiting then
+      ticketWaiting = true
+      ticketClock = GetGameTimer() + 30000
+      Citizen.CreateThread(function()
+        while ticketWaiting do
+          if IsControlJustPressed(0, 288) then
             ticketWaiting = false
+            TriggerServerEvent('cnr:ticket_payment', idOfficer)
           else
-            SendNUIMessage({
-              ticketTime = "0:"..((ticketClock - GetGameTimer())/1000)
-            })
+            if GetGameTimer > ticketClock then
+              ticketWaiting = false
+            else
+              SendNUIMessage({
+                ticketTime = "0:"..((ticketClock - GetGameTimer())/1000)
+              })
+            end
           end
+          Citizen.Wait(1)
         end
-        Citizen.Wait(1)
-      end
-      ticketWaiting = false
-    end)
+        ticketWaiting = false
+      end)
+    end
   end
 end
 AddEventHandler('cnr:ticket_client', IssueTicket)
-
 
 --- EXPORT: ReleaseClient()
 -- Releases person from jail/prison

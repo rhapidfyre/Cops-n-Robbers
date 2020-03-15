@@ -412,10 +412,11 @@ end
 -- Sends the given ID (or closest player) to prison if they are Wanted
 function ImprisonClient(client)
   if isCop then
+  
     if IsPedDeadOrDying(PlayerPedId()) then 
       TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
         "You Are Dead",
-        "How are you going to arrest someone if you're dead?"
+        "How are you going to penalize someone if you're dead?"
       }})
       return 0
     end
@@ -429,12 +430,12 @@ function ImprisonClient(client)
     local theyPed = GetPlayerPed(client)
     if IsPedDeadOrDying(theyPed) or IsPlayerDead(client) then 
       TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
-        "Player is Dead", "You can't put dead people in jail!"
+        "Player is Dead", "You can't penalize dead people!"
       }})
       return 0
     end
     
-    local dist     = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
+    local dist = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
     if dist < 4.25 then
       print("DEBUG - Trying to imprison "..GetPlayerName(client))
       TriggerServerEvent('cnr:prison_sendto', GetPlayerServerId(client))
@@ -446,7 +447,7 @@ function ImprisonClient(client)
     
   else
     TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
-      "You are not on Law Enforcement duty!"
+      "You are not a law enforcement officer!"
     }})
   end
 end
