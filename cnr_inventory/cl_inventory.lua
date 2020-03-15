@@ -7,6 +7,7 @@ RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
 RegisterNetEvent('cnr:consume')
 
 
+openKey = {keyboard = 288, controller = 0}
 local menuEnabled  = false
 local pauseDropped = false -- Stop the drop loop from processing
 
@@ -53,6 +54,15 @@ local function IsInventoryAccessible()
   return true
 end
 
+local function InventoryKeypress()
+  if IsControlJustPressed(0, openKey.keyboard) and GetLastInputMethod(2) then
+    return true
+  --elseif IsControlJustPressed(0, openKey.controller) and not GetLastInputMethod(2) then
+  --  return true
+  end
+  return false
+end
+
 
 -- Handles reasons why the menu should open or close
 Citizen.CreateThread(function()
@@ -69,7 +79,7 @@ Citizen.CreateThread(function()
 
     -- While the menu is CLOSED
     else
-      if IsControlJustPressed(0, toggle_inv) then
+      if InventoryKeypress() then
         if IsInventoryAccessible() then
           if not menuEnabled then
             OpenInventory()
