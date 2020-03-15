@@ -143,7 +143,7 @@ AddEventHandler('cnr:cash_transaction', function(value, client)
 end)
 
 
-function SetPlayerCashValues(val, ply)
+function SetPlayerCashValues(ply)
   local uid = exports['cnrobbers']:UniqueId(ply)
   if uid then
     -- SQL: Get player's cash values
@@ -170,9 +170,16 @@ end
 AddEventHandler('cnr:client_loaded', function(client)
   local ply = source
   if client then ply = client end
-  SetPlayerCashValues(val, ply)
+  SetPlayerCashValues(tonumber(client))
 end)
 
+Citizen.CreateThread(function()
+  Citizen.Wait(3000)
+  local plys = GetPlayers()
+  for _,i in ipairs(plys) do 
+    SetPlayerCashValues(tonumber(i))
+  end
+end)
 
 --- EXPORT: GetPlayerCash()
 -- Returns the player's cash roll

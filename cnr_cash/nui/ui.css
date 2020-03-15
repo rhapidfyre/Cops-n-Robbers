@@ -1,2 +1,19 @@
 
   body, html {margin:0;padding:0;}
+  
+  #monies {
+    position: absolute;
+    bottom: 3.6%;
+    left: 3%;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+  }
+  
+  #disp-cash {
+    color: #0F0;
+  }
+  
+  #disp-bank {
+    color: #FC0;
+  }

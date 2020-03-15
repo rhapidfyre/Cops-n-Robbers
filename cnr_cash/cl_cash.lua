@@ -35,6 +35,7 @@ AddEventHandler('cnr:wallet_value', function(val)
 	else                 myCash = val
 	end
   -- Sets the actual cash/wallet balance on screen/in the ESC menu
+  SendNUIMessage({cashbalance = myCash})
 	StatSetInt('MP0_WALLET_BALANCE', math.floor(val), true)
 end)
 
@@ -46,5 +47,6 @@ AddEventHandler('cnr:bank_account', function(val)
 	else                 myBank = val
 	end
   -- Sets the actual bank account balance on the screen/ESC menu
+  SendNUIMessage({bankbalance = myBank})
 	StatSetInt('BANK_BALANCE', math.floor(val), true)
 end)

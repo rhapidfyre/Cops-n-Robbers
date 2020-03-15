@@ -8,3 +8,4 @@
   interfaces. Adding, removing, manipulating items as well as 24/7 purchasing
 --]]
 
+openKey = {keyboard = 288, controller = 0}

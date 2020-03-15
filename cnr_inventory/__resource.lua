@@ -35,11 +35,13 @@ files {
 
 client_scripts {
   "sh_config.lua",
+  "cl_config.lua",
   "cl_inventory.lua"
 }
 
 server_scripts {
   "sh_config.lua",
+  "sv_config.lua",
   "sv_inventory.lua"
 }
 
