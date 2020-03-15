@@ -30,7 +30,7 @@ storeItems = {
     ['price'] = 100, ['consume'] = true, ['model'] = nil },
     
   [10] = { ['name'] = "lotto_scratcher", ['title'] = "Scratcher", ['img'] = "scratchers",
-    ['price'] = 100, ['consume'] = true, ['model'] = nil },
+    ['price'] = 50, ['consume'] = true, ['model'] = nil },
 }
 
 

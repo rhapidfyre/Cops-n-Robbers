@@ -55,5 +55,7 @@ server_exports {
 
 exports {
   "GetInventory",
-  "GetWeight"
+  "GetWeight",
+  "CloseInventory",
+  "OpenInventory"
 }

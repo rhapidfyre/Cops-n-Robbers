@@ -2,6 +2,7 @@
 RegisterNetEvent('cnr:lotto_drawing')
 RegisterNetEvent('cnr:stores_start')
 RegisterNetEvent('cnr:stores_usage')
+RegisterNetEvent('cnr:consume')
 
 local menuEnabled = false
 local near = 0
@@ -28,11 +29,21 @@ local function BuildStoreItems()
 end
 
 
+AddEventHandler('cnr:consume', function(iName)
+  if iName == "lotto_ticket" then
+    exports['cnr_inventory']:CloseInventory()
+    Citizen.Wait(10)
+    SendNUIMessage({showlotto = true})
+    SetNuiFocus(true, true)
+  end
+end)
+
+
 AddEventHandler('cnr:lotto_drawing', function(nWin, idWin, newPot)
   TriggerEvent('chat:addMessage', {templateId = 'lotto', args = {
     "The winning number is ^3"..nWin.."^7."
   }})
-  if idWin then
+  if idWin > 0 then
     local winner = GetPlayerFromServerId(idWin)
     if winner == PlayerId() then 
       exports['cnr_chat']:ChatNotification(
@@ -88,7 +99,7 @@ Citizen.CreateThread(function()
       )
       if IsControlJustPressed(0, 38) then 
         if not stores[near].inUse then
-          if #(GetEntityCoords(PlayerPedId()) - stPos) < 2.25 then
+          if #(GetEntityCoords(PlayerPedId()) - stPos) < 1.65 then
             TriggerServerEvent('cnr:stores_start', near, true)
             Citizen.Wait(3000)
           end
@@ -136,11 +147,20 @@ Citizen.CreateThread(function()
 end)
 
 
+RegisterNUICallback("lottoMenu", function(data, callback)
+  if data.action == "number" then 
+    TriggerServerEvent('cnr:lotto_choice', tonumber(data.iNum))
+  end
+  SendNUIMessage({hidelotto = true})
+  SetNuiFocus(false)
+end)
+
 local nextPurchase = 0
 RegisterNUICallback("storeMenu", function(data, callback)
   if data.action == "exit" then 
     TriggerServerEvent('cnr:stores_start', near, false)
     SendNUIMessage({hidestore = true})
+    SendNUIMessage({hidelotto = true})
     SetNuiFocus(false)
   
   elseif data.action == "purchase" then 

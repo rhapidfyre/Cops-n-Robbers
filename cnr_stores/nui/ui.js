@@ -2,13 +2,14 @@
 var iSelected = 0;
 
 $(function() {
-  
+
     var store = $("#store-main");
     var buybtn = $("#store-buy");
-    
+    var lottery = $("#lotto-menu");
+
     window.addEventListener('message', function(event)
     {
-        
+
         var item = event.data;
         if (item.showstore) {
           store.show();
@@ -22,28 +23,38 @@ $(function() {
           $("#store-qty").val('1');
           iSelected = 0;
         }
-        
+
         if (item.iteminfo) {
           $("#store-iname").val(item.itemName);
           $("#store-price").val(item.itemCost);
         }
-        
+
         if (item.buyenable)  {buybtn.prop('disabled', false);}
         if (item.buydisable) {buybtn.prop('disabled', true);}
-        
+
         if (item.storeitems) {
           $("#store-items").empty();
           $("#store-items").html(item.storeitems);
         }
-        
+
+        if (item.showlotto) {
+          lottery.show();
+        }
+
+        if (item.hidelotto) {
+          lottery.hide();
+        }
     });
-        
-    // Pressing the ESC key with the menu open closes it 
+
+    // Pressing the ESC key with the menu open closes it
     document.onkeyup = function (data) {
-      if (data.which == 27) { if (store.is(":visible")) {CloseMenu();} }
+      if (data.which == 27) {
+        if (store.is(":visible")) {CloseMenu();}
+        if (lottery.is(":visible")) {CloseMenu();}
+      }
     };
 
-    
+
     // Handle item highlighting
     $(document).on('click', '.item', function() {
       let ele = $(this).attr('id');
@@ -56,6 +67,15 @@ $(function() {
         iNum:iSelected
       }));
     });
+
+    $(document).on('click', '.lotto-choice', function() {
+      let ele = $(this).html();
+      lottery.hide();
+      $.post('http://cnr_stores/lottoMenu', JSON.stringify({
+        action:"number",
+        iNum:ele
+      }));
+    });
 });
 
 
@@ -64,7 +84,6 @@ function CloseMenu() {
     action:"exit"
   }));
 }
-
 
 function PurchaseItem() {
   let quantity = parseInt($("#store-qty").val());
@@ -77,7 +96,7 @@ function PurchaseItem() {
 
 function Quantity(dir) {
   let temp = parseInt( $("#store-qty").val() );
-  if (dir == 1) temp = temp + 1; 
+  if (dir == 1) temp = temp + 1;
   else temp = temp - 1;
   if (temp > 10) temp = 10;
   else if (temp < 1) temp = 1;
