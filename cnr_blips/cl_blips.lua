@@ -12,17 +12,47 @@
 --]]
 RegisterNetEvent('cnr:police_officer_duty')
 RegisterNetEvent('cnr:wanted_client')
+RegisterNetEvent('cnr:loaded')
 
 local plyBlip = {}
 local largeMap = false
+local loaded   = true
+
+AddEventHandler('cnr:loaded', function()
+  loaded = true
+end)
+
+local function CloseBigMap()
+  largeMap = false
+  SetRadarBigmapEnabled(largeMap, false)
+  TriggerEvent('cnr:bigmap', false)
+end
 
 Citizen.CreateThread(function()
+  while not loaded do Wait(100) end
+  print("DEBUG - Client loaded and ready.")
   while true do
+  
   	Citizen.Wait(1)
+    
   	if IsControlJustReleased(0, 20) then
       largeMap = not largeMap
   	  SetRadarBigmapEnabled(largeMap, false)
+      TriggerEvent('cnr:bigmap', largeMap)
   	end
+    
+    if largeMap then 
+    
+      -- Close the map if the pause menu is opened
+      if IsPauseMenuActive() then 
+        CloseBigMap()
+        
+      -- Close the map if player is dead
+      elseif IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
+        CloseBigMap()
+        
+      end
+    end
   end
 end)
 

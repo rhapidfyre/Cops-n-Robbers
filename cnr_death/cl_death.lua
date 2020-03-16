@@ -77,16 +77,17 @@ local hospitals = {
 -- Add Hospital Blips
 Citizen.CreateThread(function()
   for _,v in pairs(hospitals) do
-    local blip = AddBlipForCoord(v.coords)
-    SetBlipSprite(blip, 61)
-    SetBlipDisplay(blip, 2)
-    SetBlipScale(blip, 1.0)
-    SetBlipColour(blip, 0)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Hospital")
-    EndTextCommandSetBlipName(blip)
-    Citizen.Wait(1)
+    if v.jailHospital < 1 then
+      local blip = AddBlipForCoord(v.coords)
+      SetBlipSprite(blip, 61)
+      SetBlipDisplay(blip, 2)
+      SetBlipScale(blip, 0.82)
+      SetBlipColour(blip, 0)
+      SetBlipAsShortRange(blip, true)
+      BeginTextCommandSetBlipName("STRING")
+      AddTextComponentString("Hospital")
+      EndTextCommandSetBlipName(blip)
+    end
   end
   while true do
     if hNear > 0 then

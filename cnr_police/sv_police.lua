@@ -131,11 +131,14 @@ AddEventHandler('playerDropped', function()
     Citizen.CreateThread(function()
       Citizen.Wait(600000)
       for k,v in pairs (dropCop) do
-        if v == uid then table.remove(dropCop, k) end
+        if v == uid then
+          table.remove(dropCop, k)
+          TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)  
+          break
+        end
       end
     end)
   end
-  TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
 end)
 
 

@@ -8,9 +8,8 @@ $(function()
   {
       var item = event.data;
 
-      if (item.showmoney) { monies.fadeIn(1000); }
-
-      if (item.hidemoney) { monies.fadeOut(200); }
+      if (item.showmoney) { monies.fadeIn(400); }
+      if (item.hidemoney) { monies.hide(); }
 
       if (item.cashbalance) {
         $("#handcash").html(item.cashbalance);

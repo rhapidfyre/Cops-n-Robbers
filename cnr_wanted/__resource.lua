@@ -31,12 +31,12 @@ files {
 }
 
 client_scripts {
+  "cl_config.lua",
   "sh_wanted.lua",
   "cl_wanted.lua"
 }
 
 server_scripts {
-  "sv_crimes.lua",
   "sh_wanted.lua",
   "sv_wanted.lua"
 }

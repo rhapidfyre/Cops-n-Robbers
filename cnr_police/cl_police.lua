@@ -30,17 +30,23 @@ end
 --- EXPORT: DispatchMessage()
 function DispatchMessage(title, msg, customMessage)
   if not customMessage then
+    exports['cnr_chat']:PushNotification(2, "Crime Reported",
+      '<font color="red">'..title..' reported in '..msg..'</font>'
+    )--[[
     TriggerEvent('chat:addMessage', {
       color = {0,180,255}, multiline = true, args = {
-        "DISPATCH", "^3"..title.."\n^5"..msg
+        "DISPATCH", "^3"..title.." reported in "..msg.."^7"
       }
-    })
+    })]]
   else
+    exports['cnr_chat']:PushNotification(2, "Crime Reported",
+      '<font color="red">Criminal Disturbance reported in '..msg..'</font>'
+    )--[[
     TriggerEvent('chat:addMessage', {
       color = {0,180,255}, multiline = true, args = {
-        "DISPATCH", "^3New Incident Reported\n^5"..customMessage
+        "DISPATCH", "^3New Incident Reported in "..customMessage.."^7"
       }
-    })
+    })]]
   end
 end
 
