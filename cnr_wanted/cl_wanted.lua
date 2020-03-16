@@ -266,6 +266,7 @@ function NotCopLoops()
                   end
                 end
               end
+            else print("DEBUG - Not a crime to aim with this weapon ("..tostring(GetSelectedPedWeapon(PlayerPedId()))..").")
             end
           end
         end
@@ -287,9 +288,10 @@ function NotCopLoops()
               end
               if wasShotSeen then
                 lastShot = GetGameTimer() + 12000
+                local myPos = GetEntityCoords(PlayerPedId())
                 TriggerServerEvent('cnr:wanted_points', 'discharge', true,
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                  GetEntityCoords(PlayerPedId())
+                  myPos
                 )
               end
             end
@@ -326,9 +328,10 @@ function NotCopLoops()
               end
               if DecorGetInt(peds, "idKiller") == PlayerPedId() then
                 DecorSetBool(peds, "KillCrime", true)
+                local myPos = GetEntityCoords(PlayerPedId())
                 TriggerServerEvent('cnr:wanted_points', 'manslaughter', true,
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                  GetEntityCoords(PlayerPedId())
+                  myPos
                 )
               end
             end
