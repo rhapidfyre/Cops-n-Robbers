@@ -245,7 +245,7 @@ Citizen.CreateThread(function()
         "~y~"..(lotto.waitTime).." ~w~Minutes until the draw! Get your ticket at ~y~24/7~w~!"
       )
       
-      Citizen.Wait(1000 * (lotto.waitTime))
+      Citizen.Wait(1000 * (lotto.waitTime * 60))
     
       lotto.lockout = true
       cprint("The lottery is locked from receiving new numbers!")
@@ -255,7 +255,7 @@ Citizen.CreateThread(function()
         "Lottery ~r~CLOSED~w~! Drawing in ~y~1 minute!"
       )
       
-      Citizen.Wait(2000)
+      Citizen.Wait(60000)
       
       local jackpot = math.random(lotto.mini, lotto.maxi)
       local winner  = 0
