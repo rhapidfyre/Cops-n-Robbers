@@ -113,6 +113,61 @@ AddEventHandler('cnr:admin_assigned', function(aNumber)
 end)
 
 
+RegisterCommand('noclip', function()
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    noclip = not noclip
+    if noclip then 
+      Citizen.CreateThread(function()
+        local noPos = GetEntityCoords(PlayerPedId())
+        local heading = GetEntityHeading(PlayerPedId())
+        FreezeEntityPosition(PlayerPedId(), true)
+        while noclip do 
+          Citizen.Wait(0)
+          DisableControlAction(0, 32, true) -- W
+          DisableControlAction(0, 33, true) -- S 
+          DisableControlAction(0, 34, true) -- A 
+          DisableControlAction(0, 147, true) -- A Parachute
+          DisableControlAction(0, 35, true) -- D 
+          DisableControlAction(0, 9, true) -- D Flying
+          DisableControlAction(0, 148, true) -- D Parachute
+          DisableControlAction(0, 21, true) -- Shift (Sprint)
+          DisableControlAction(0, 22, true) -- Spacebar
+          DisableControlAction(0, 36, true) -- Duck (Ctrl)
+          
+          -- Turning
+          if IsDisabledControlPressed(0, 34) or IsDisabledControlPressed(0, 147) then -- A
+	  			  heading = (heading + 2.0)
+	  		  elseif IsDisabledControlPressed(0, 35) or IsDisabledControlPressed(0, 9)  then -- D
+	  			   heading = heading - 2.0
+	  		  end
+          SetEntityHeading(PlayerPedId(), heading%360)
+          
+          -- Movement up/down/forward/back
+          if IsDisabledControlPressed(0, 32) then -- W
+            noPos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, -1.0, 0.0)
+          end
+          if IsDisabledControlPressed(0, 33) then -- S
+            noPos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 1.0, 0.0)
+          end
+          if IsDisabledControlPressed(0, 22) then -- Space Bar
+            noPos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0.0, 1.0)
+          end
+          if IsDisabledControlPressed(0, 36) then -- Control
+            noPos = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.0, 0.0, -1.0)
+          end
+          SetEntityCoordsNoOffset(PlayerPedId(), noPos.x, noPos.y, noPos.z, 0, 0, 0)
+        end
+        FreezeEntityPosition(PlayerPedId(), false)
+      end)
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+
 RegisterCommand('release', function(s,a,r)
   local sp  = string.find(r, ' ')
   if sp then sp = sp - 1 end
