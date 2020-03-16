@@ -1,0 +1,78 @@
+
+  body, html {margin: 0, padding: 0;}
+  
+  #help-main {
+    position: relative;
+    margin: 0 auto;
+    width: 65%;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60%;
+    background: rgb(200,200,255);
+    border-radius: 4px;
+    border: 2px ridge silver;
+  }
+  
+  #help-title {
+    text-align: left;
+    background: #888;
+    border-bottom: 2px ridge silver;
+  }
+  #help-title h3 {
+    margin: 0 0 0 8px;
+    padding: 2px;
+    font-size: 32px;
+    font-style: italic;
+    color: gold;
+    text-shadow: 1px 1px 0 black;
+  }
+  #help-menu {
+    position: relative;
+    width: 136px;
+    float: left; 
+    background: #555;
+    height: calc(100% - 44px);
+  }
+  #help-menu ul {
+    padding: 4px;
+    list-style-type: none;
+  }
+  #help-menu ul li { margin: 0 0 4px 0; }
+  #help-menu button {
+    background: transparent;
+    border: 0;
+    color: silver;
+    text-shadow: 1px 1px 0 black;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 1.1vw;
+  }
+  #help-content {
+    width: calc(100% - 148px);
+    float: right;
+    overflow-y: scroll;
+    height: calc(100% - 44px);
+  }
+  
+  .game-info {
+    width: 100%;
+    font-size: 1.2vw;
+  }
+  
+  .tbl-list {
+    width: 100%; 
+  }
+  .tbl-list th {
+    width: 10%; 
+  }
+  #creditz {
+    position: absolute;
+    width: 100%;
+    bottom: 4px;
+    text-align: center;
+    color: white;
+    font-size: 1.3vw;
+  }
+  #creditz strong {
+    color: #0BF !important; 
+  }

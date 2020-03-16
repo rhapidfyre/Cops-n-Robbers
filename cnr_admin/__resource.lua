@@ -17,7 +17,10 @@ dependency 'cnrobbers'
 files {
 	"nui/ui.html",
   "nui/ui.js",
-  "nui/ui.css"
+  "nui/ui.css",
+  "nui/help.html"
+  "nui/help.js",
+  "nui/help.css"
 }
 
 client_scripts {
