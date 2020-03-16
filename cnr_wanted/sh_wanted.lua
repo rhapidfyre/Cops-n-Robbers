@@ -126,17 +126,17 @@ local crimes = {
     fine = function() return (math.random(100, 500)) end
   },
   ['brandish'] = {
-    title = "Firearm Brandished",
+    title = "Weapon Brandished",
     weight = 5, minTime = 2, maxTime = 5, isFelony = false,
     fine = function() return (math.random(200, 1000)) end
   },
   ['brandish-npc'] = {
-    title = "Firearm Brandished",
+    title = "Weapon Brandished",
     weight = 5, minTime = 1, maxTime = 2, isFelony = false,
     fine = function() return (math.random(100, 500)) end
   },
   ['brandish-leo'] = {
-    title = "Firearm Brandished on a LEO",
+    title = "Weapon Brandished on a LEO",
     weight = 50, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(500, 1200)) end
   },
