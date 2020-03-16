@@ -245,6 +245,12 @@ AddEventHandler('cnr:create_save_character', function(pModel)
     {['uid'] = uid, ['mdl'] = pModel},
     function()
       TriggerClientEvent('cnr:create_finished', ply)
+      TriggerClientEvent('chat:addMessage', (-1), {templateId = 'sysMsg', args = {
+        "Welcome, ^3"..GetPlayerName(ply).."^7! Hey everyone! We got a new kid!"
+      }})
+      TriggerClientEvent('chat:addMessage', ply, {templateId = 'sysMsg', args = {
+        "Check out ^3/help ^7for info about the game!"
+      }})
     end
   )
 end)
