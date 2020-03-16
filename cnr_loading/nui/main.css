@@ -54,13 +54,23 @@ h4 {
 }
 
 #loading-main {
-  position: absolute;
   width: calc(100% - 16px);
-  height: 30%;
   bottom: 48px;
   left: 8px;
 }
 #server-name {
+  position: absolute;
+  width: 60%;
+  right: 5%;
+  top: 12%;
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+	text-shadow: 1px 1px 2px white;
+	color: #F50;
+	font: 2.0vw 'LeagueGothicRegular';
+}
+#server-name strong {
   text-align: center;
   font-weight: bold;
   font-style: italic;
@@ -71,11 +81,17 @@ h4 {
 #server-info {
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: 10%;
+  top: 50%;
+  transform: translateY(-50%);
   width: 30%;
-  font-size: 1.35vw;
+  font-size: 1.2vw;
+  text-align: justify;
+  text-indent: 24px;
   text-shadow: 0 0 2px white;
   color: silver;
+  border-radius: 4px;
+  padding: 8px;
 }
 #loading-foot {
   position: absolute;
@@ -97,19 +113,20 @@ h4 {
 }
 .loadBar {
   width: 100%;
-  background-color: #eee;
+  background-color: #111;
   height: 20px;
   margin: 5px 3px 5px 2px;
   overflow: hidden;
   position: fixed;
   left: 0;
-  bottom: 0;
+  bottom: 8px;
   display: block;
 }
 .progressBar {
   width: 10%;
-  background-color: #FC0349;
-  height: 20px;
+  background-color: #F40;
+  height: 14px;
   position: absolute;
+  border: 2px ridge silver;
   left: 10%;
 }
