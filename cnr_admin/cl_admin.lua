@@ -87,10 +87,13 @@ local function CommandValid(cmd)
       return true
     end
   end
+  return false
+end
+
+local function CommandInvalid(cmd)
   TriggerEvent('chat:addMessage', {
     templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}
   })
-  return false
 end
 
   
@@ -138,7 +141,7 @@ RegisterCommand('release', function(s,a,r)
   else
     TriggerEvent('chat:addMessage', {template = 'errMsg', args = {
       "This is an Admin Command",
-      "If you're trying to let someone out of jail, try ^3/bail ^7or ^3/escape^7."
+      "If you're trying to let someone out of jail, try ^3/bail ^7or ^3/lockpick^7."
     }})
   end
 end)
@@ -151,10 +154,9 @@ RegisterCommand('imprison', function(s,a,r)
   if CommandValid(cmd) then
 
     if not a[1] or not a[2] then
-      TriggerEvent('chat:addMessage', {
-        templateId = 'errMsg', multiline = true,
-          args = {"Invalid Arguments", "/"..cmd.." <ID#> <Reason>"}
-      })
+      TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
+        "Invalid Arguments", "/"..cmd.." <ID#> <Reason>"
+      }})
     
     else
     
@@ -296,6 +298,34 @@ RegisterCommand('warn', function(s,a,r)
       for _,i in ipairs (plys) do
         if GetPlayerServerId(i) == tgt then
           TriggerServerEvent('cnr:admin_cmd_warn', tgt, table.concat(a, " "))
+          break -- End the loop when we find the right person
+        end
+      end
+    end
+  else CommandInvalid(cmd)
+  end
+end)
+
+
+RegisterCommand('setwanted', function(s,a,r)
+  local sp  = string.find(r, ' ')
+  if sp then sp = sp - 1 end
+  local cmd = string.sub(r, 1, sp)
+  if CommandValid(cmd) then
+    if not a[1] or not a[2] then
+      TriggerEvent('chat:addMessage', {
+        templateId = 'errMsg', multiline = true,
+          args = {"Invalid Arguments", "/"..cmd.." <ID#> <WantedLevel[0/1:Ticket/2:Mis/3:Felon/4:MW]>"}
+      })
+    
+    else
+    
+      local tgt  = tonumber(a[1])
+    
+      local plys = GetActivePlayers()
+      for _,i in ipairs (plys) do
+        if GetPlayerServerId(i) == tgt then
+          TriggerServerEvent('cnr:admin_cmd_setwanted', tgt, tonumber(a[2]))
           break -- End the loop when we find the right person
         end
       end
@@ -451,7 +481,7 @@ end)
 
 
 RegisterCommand('tpmark', function()
-  if CommandLevel('tpmark') then
+  if CommandValid('tpmark') then
     local ped    = PlayerPedId()
     local blip   = GetFirstBlipInfoId(8) -- Retrieve GPS marker
     local coords = nil

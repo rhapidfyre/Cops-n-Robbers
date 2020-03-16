@@ -10,10 +10,11 @@ local cmds = {
   ['spawnped']   = 2, ['setcash']      = 2, ['setbank']    = 2,
   ['setweather'] = 3, ['settime']      = 3, ['giveweapon'] = 3,
   ['takeweapon'] = 3, ['stripweapons'] = 3, ['togglelock'] = 3,
-  ['inmates']    = 2, ['release']      = 2
+  ['inmates']    = 2, ['release']      = 2, ['setwanted']  = 2
 }
 
 -- 0: Banned, 1: Player, 2: Moderator, 3: Admin, 4: Superadmin
+-- If cmd permission level not found, assume it's a superadmin command
 function CommandLevel(cmd)
   if not cmd then return 4 end
   if not cmds[cmd] then return 4 end

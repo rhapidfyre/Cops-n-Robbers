@@ -34,6 +34,7 @@ RegisterServerEvent('cnr:admin_cmd_takeweapon')
 RegisterServerEvent('cnr:admin_cmd_stripweapons')
 RegisterServerEvent('cnr:admin_cmd_togglelock')
 RegisterServerEvent('cnr:admin_cmd_inmates')
+RegisterServerEvent('cnr:admin_cmd_setwanted')
 
 local admins = {}
 local warns  = {}
@@ -139,6 +140,10 @@ AddEventHandler('cnr:admin_cmd_release', function(target, bailReason)
       " free. Reason: ^3"..bailReason.."^7"
     }})
     Citizen.Wait(1200)
+  else
+    TriggerClientEvent('chat:addMessage', client, {templateId = 'errMsg', args = {
+      "Command Failure", "You're not an admin, fuck off."
+    }})
   end
 end)
 
@@ -290,6 +295,62 @@ AddEventHandler('cnr:admin_cmd_warn', function(target, reason)
 
     end
   else
+  end
+end)
+
+
+AddEventHandler('cnr:admin_cmd_setwanted', function(target, setLevel)
+  local client = source
+  if admins[client] then
+
+    if admins[client] > 99 then
+
+      if BlockAction(client, target) then
+        cprint("Admin Action was blocked (equal or greater rank)")
+        TriggerEvent('cnr:admin_message',
+          "Admin "..GetPlayerName(client).." (ID #"..client..") attempted to freeze "..
+          "Admin "..GetPlayerName(target).." (ID #"..target.."), but was blocked."
+        )
+        return 0
+      end
+  
+      local offen = "ticketable"
+      if setLevel < 1 then 
+        exports['cnr_wanted']:WantedPoints(target, "jailed")
+        TriggerClientEvent('chat:addMessage', (-1), {
+          multiline = true, args = {
+            GetPlayerName(target).." had their wanted levels ^2cleared^7 by ^1Admin #"..
+            (admins[client]).."^7. They're now innocent."
+          }
+        })
+        return 0
+      elseif setLevel == 1 then
+        exports['cnr_wanted']:WantedPoints(target, "vandalism")
+        offen = "ticketable"
+      elseif setLevel == 2 then
+        exports['cnr_wanted']:WantedPoints(target, "gta-npc")
+        offen = "a criminal"
+      elseif setLevel == 3 then 
+        exports['cnr_wanted']:WantedPoints(target, "murder")
+        offen = "a felon"
+      else
+        exports['cnr_wanted']:WantedPoints(target, "murder-leo")
+        exports['cnr_wanted']:WantedPoints(target, "murder-leo")
+        offen = "Most Wanted"
+      end
+      TriggerClientEvent('chat:addMessage', (-1), {
+        multiline = true, args = {
+          GetPlayerName(target).." had their wanted level set by ^1Admin #"..
+          (admins[client]).."^7. They're now ^1"..offen..".^7"
+        }
+      })
+        
+
+    else
+      local msg = "Insufficient Permissions"
+      TriggerEvent('cnr:admin_message', msg)
+
+    end
   end
 end)
 

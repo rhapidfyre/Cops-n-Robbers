@@ -76,7 +76,7 @@ local crimes = {
     fine = function() return (math.random(6250, 12000)) end
   },
   ['mans-veh'] = {
-    title = "Murder of a LEO",
+    title = "Vehicular Manslaughter",
     weight = 220, minTime = 10, maxTime = 25, isFelony = true,
     fine = function() return (math.random(6250, 12000)) end
   },
