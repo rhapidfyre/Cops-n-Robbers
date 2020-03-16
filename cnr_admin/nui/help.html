@@ -8,22 +8,22 @@
     
 <body>
 
-<div id="help-main">
+<div id="help-main" style="display: none;">
   
   <div id="help-title"><h3>5M: Cops n' Robbers</h3></div>
   
   <div id="help-menu">
     <ul>
-      <li><button onclick="HelpMenu(0)">Info / About</button></li>
-      <li><button onclick="HelpMenu(1)">Controls</button></li>
-      <li><button onclick="HelpMenu(2)">Commands</button></li>
-      <li><button onclick="HelpMenu(3)">Legal Stuff</button></li>
-      <li><button onclick="HelpMenu(4)">Illegal Stuff</button></li>
-      <li><button onclick="HelpMenu(5)">Cop Stuff</button></li>
-      <li><button onclick="HelpMenu(6)">Housing</button></li>
-      <li><button onclick="HelpMenu(7)">Death</button></li>
-      <li><button onclick="HelpMenu(8)">Lotto</button></li>
-      <li><button onclick="HelpMenu(9)">Activities</button></li>
+      <li><button id="btn0" onclick="HelpMenu(0)">Info / About</button></li>
+      <li><button id="btn1" onclick="HelpMenu(1)">Controls</button></li>
+      <li><button id="btn2" onclick="HelpMenu(2)">Commands</button></li>
+      <li><button id="btn3" onclick="HelpMenu(3)">Legal Stuff</button></li>
+      <li><button id="btn4" onclick="HelpMenu(4)">Illegal Stuff</button></li>
+      <li><button id="btn5" onclick="HelpMenu(5)">Cop Stuff</button></li>
+      <li><button id="btn6" onclick="HelpMenu(6)">Housing</button></li>
+      <li><button id="btn7" onclick="HelpMenu(7)">Death</button></li>
+      <li><button id="btn8" onclick="HelpMenu(8)">Lotto</button></li>
+      <li><button id="btn9" onclick="HelpMenu(9)">Activities</button></li>
     </ul>
     <div id="creditz">
       <strong>DISCORD</strong><br>
@@ -40,22 +40,26 @@
         to fund your addictions. Buy cars, a house, an apartment, a business,
         weapon upgrades, vehicle upgrades, and other things like drugs and women (or men?).
       </p>
+      <p>I KNOW. Menu based servers can suck because your mouse or a menu gets stuck
+        open. So, we've added two ways to try to fix that instead of you just having
+        to reconnect... First, hit ESC and try to open the game menu. If that doesn't work,
+        hit F8 and type our custom command <font color="gold">menus</font>. That should
+        fix the problem. If not, then yeah, you'll have to reconnect. Sorry.
+      </p>
       <p>
-        To get started, check out our job help menus (on the left), the controls, or the
-        commands section. Your life in the server is what you make it - There's no historical
+        ANYWAY... To get started, check out our help menus on the left.
+        Your life in the server is what you make it - There's no historical
         data here. Become a cop at any time, become a criminal at any time.
       </p>
       <p>
-        Oh, don't die without health insurance
-        (purchasable at the pink and white circle at any hospital).
+        Oh, also, try not to die without health insurance..
         You'll lose all your money, weapons, owned vehicles, and everything.
         Yes, you'll lose your house and everything that was in it, too.
         So don't die without health insurance. Ahhh... America.
-      
       </p>
     </div>
     
-    <div id="help1" class="game-info">
+    <div id="help1" class="game-info" style="display: none;">
       <h3>Game Controls</h3>
       <p>We try to keep the controls to a minimum, so that you can just jump in and start playing.
         With that being said, some things just can't be done without controls (obviously).
