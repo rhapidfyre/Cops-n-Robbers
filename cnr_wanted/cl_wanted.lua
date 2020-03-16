@@ -289,7 +289,7 @@ function NotCopLoops()
                 lastShot = GetGameTimer() + 12000
                 TriggerServerEvent('cnr:wanted_points', 'discharge', true,
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                  myPos
+                  GetEntityCoords(PlayerPedId())
                 )
               end
             end
@@ -326,10 +326,9 @@ function NotCopLoops()
               end
               if DecorGetInt(peds, "idKiller") == PlayerPedId() then
                 DecorSetBool(peds, "KillCrime", true)
-                local myPos = GetEntityCoords(PlayerPedId())
                 TriggerServerEvent('cnr:wanted_points', 'manslaughter', true,
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
-                  myPos
+                  GetEntityCoords(PlayerPedId())
                 )
               end
             end
