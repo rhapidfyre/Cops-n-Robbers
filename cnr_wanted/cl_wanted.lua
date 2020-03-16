@@ -247,7 +247,7 @@ function NotCopLoops()
         -- Aiming/Shooting Crimes
         if not isCop then -- Ignore if player is a cop
           if IsPlayerFreeAiming(PlayerId()) then
-            if IsAimCrime(GetSelectedPedWeapon(PlayerPedId())) then
+            if not IsAimCrime(GetSelectedPedWeapon(PlayerPedId())) then
               if not exports['cnr_ammunation']:InsideGunRange() then
                 local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
                 if DoesEntityExist(aimTarget) then
@@ -259,16 +259,24 @@ function NotCopLoops()
                       if HasEntityClearLosToEntity(ped, aimTarget, 17) then
                         if lastAim < GetGameTimer() then
                           lastAim = GetGameTimer() + 12000
+                          print("DEBUG - Checking IsPlayerAimingAtCop()")
                           IsPlayerAimingAtCop(aimTarget)
+                        else print("DEBUG - Aim crime reported too recently.")
                         end
+                      else print("DEBUG - No line of sight")
                       end
+                    else print("DEBUG - Too far away.")
                     end
+                  else print("DEBUG - Entity not a ped")
                   end
+                else print("DEBUG - Nonexistant entity.")
                 end
+              else print("DEBUG - Ignoring freeaim; In a crime free zone")
               end
             else print("DEBUG - Not a crime to aim with this weapon ("..tostring(GetSelectedPedWeapon(PlayerPedId()))..").")
             end
           end
+        else print("DEBUG - Ignoring freeaim; Player is a cop.")
         end
         
         -- Shooting a firearm near peds and someone can see it

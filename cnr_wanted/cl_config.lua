@@ -15,6 +15,6 @@ local isSafe = {
 -- Checks if the weapon being aimed should be a Brandishing Crime
 -- @return True if the player SHOULD be charged with Firearm Brandishing
 function IsAimCrime(weaponHash)
-  if not weaponHash then return false end
+  if not weaponHash then return false end -- Assume it's a crime
   return isSafe[weaponHash]
 end
