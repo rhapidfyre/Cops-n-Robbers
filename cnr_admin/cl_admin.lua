@@ -39,7 +39,6 @@ local helpMessages = {
 }
 
 Citizen.CreateThread(function()
-  SetNuiFocus(false) -- DEBUG
   local helpNum = math.random(#helpMessages)
   while true do 
     exports['cnr_chat']:ChatNotification("CHAR_SOCIAL_CLUB", "~y~System Help",

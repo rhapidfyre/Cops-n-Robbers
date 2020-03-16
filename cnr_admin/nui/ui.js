@@ -18,7 +18,7 @@ $(function() {
     // If they're viewing member info, it'll close that instead
     document.onkeyup = function (data) {
       if (data.which == 27) {
-        if ($("#help-menu").is(":visible")) {helpExit();}
+        if ($("#help-main").is(":visible")) {helpExit();}
         if ($("#admin-menu").is(":visible")) {adminExit();}
       }
     };
@@ -31,7 +31,7 @@ function adminExit() {
 }
 
 function helpExit() {
-  $("#help-menu").hide();
+  $("#help-main").hide();
   $.post('http://cnr_admin/helpMenu', JSON.stringify({action:"exit"}));
 }
 
