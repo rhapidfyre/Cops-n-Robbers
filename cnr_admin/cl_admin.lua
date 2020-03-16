@@ -14,6 +14,20 @@ local aid    = 0
 local showHelp = true
 local helpNum = 1
 
+-- Emergency close (/menus)
+RegisterNetEvent('cnr:close_all_nui')
+AddEventHandler('cnr:close_all_nui', function()
+  SendNUIMessage({hidehelp = true})
+  SetNuiFocus(false)
+end)
+
+
+RegisterCommand('help', function()
+  SendNUIMessage({showhelp = true})
+  SetNuiFocus(true, true)
+end)
+
+
 local helpMessages = {
   "~r~Red circles~w~ on the map? A ~r~crate~w~ is waiting to be collected!",
   "Help with a job, controls or commands? Type ~y~/help~w~ for info.",
@@ -999,3 +1013,14 @@ AddEventHandler('cnr:admin_do_sendback', function(aid)
   end
 end)
 
+
+RegisterNUICallback("helpMenu", function(data, callback)
+  if data.action == "action" then 
+  
+  -- All other actions default to exit/close
+  else
+    SendNUIMessage({hidehelp = true})
+    SetNuiFocus(false)
+  
+  end
+end)
