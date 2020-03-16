@@ -225,7 +225,6 @@ function IsPlayerAimingAtCop(target)
       )
       Citizen.Wait(1000)
     end
-  else print("DEBUG - Already been charged.")
   end
 end
 
@@ -248,24 +247,25 @@ function NotCopLoops()
         -- Aiming/Shooting Crimes
         if not isCop then -- Ignore if player is a cop
           if IsPlayerFreeAiming(PlayerId()) then
-            if not exports['cnr_ammunation']:InsideGunRange() then
-              local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
-              if DoesEntityExist(aimTarget) then
-                if IsEntityAPed(aimTarget) then
-                  local dist = #(GetEntityCoords(ped) -
-                                GetEntityCoords(aimTarget)
-                  )
-                  if dist < 120.0 then
-                    if HasEntityClearLosToEntity(ped, aimTarget, 17) then
-                      if lastAim < GetGameTimer() then
-                        lastAim = GetGameTimer() + 12000
-                        IsPlayerAimingAtCop(aimTarget)
+            if IsAimCrime(GetSelectedPedWeapon(PlayerPedId())) then
+              if not exports['cnr_ammunation']:InsideGunRange() then
+                local _, aimTarget = GetEntityPlayerIsFreeAimingAt(PlayerId())
+                if DoesEntityExist(aimTarget) then
+                  if IsEntityAPed(aimTarget) then
+                    local dist = #(GetEntityCoords(ped) -
+                                   GetEntityCoords(aimTarget)
+                    )
+                    if dist < 120.0 then
+                      if HasEntityClearLosToEntity(ped, aimTarget, 17) then
+                        if lastAim < GetGameTimer() then
+                          lastAim = GetGameTimer() + 12000
+                          IsPlayerAimingAtCop(aimTarget)
+                        end
                       end
                     end
                   end
                 end
               end
-            else print("DEBUG - Aiming Ignored; Within a no-reporting zone.")
             end
           end
         end
@@ -291,11 +291,8 @@ function NotCopLoops()
                   exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
                   myPos
                 )
-              else print("DEBUG - Shot not seen.")
               end
-            else print("DEBUG - Shot too recently")
             end
-          else print("DEBUG - Gunshot ignored; Within a no-reporting zone.")
           end
         end
         Citizen.Wait(0)
