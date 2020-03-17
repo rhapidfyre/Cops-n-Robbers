@@ -120,6 +120,92 @@ AddEventHandler('cnr:client_loaded', function() CheckAdmin(source) end)
 AddEventHandler('cnr:admin_check',   function() CheckAdmin(source) end)
 
 
+function ShutdownServer(src, a)
+  if not src then src = 1 end
+  if not a then a = 61 end
+	if src < 1 then
+    if a < 60 then a = 60 end -- Give people a minimum of 60 seconds
+    local mins = math.floor(a/60)
+    
+    local tempMessage = "The server is shutting down in "..mins.." minute(s)!"
+    cprint("^3"..tempMessage, true)
+    
+    exports['cnr_chat']:DiscordMessage(
+      9807270, "Game Server",
+      "The server is shutting down in **"..mins.." minute(s)**!",
+      "Safe-Shutdown process was invoked at the Server Terminal."
+    )
+    
+    TriggerClientEvent('chatMessage', (-1), 
+      "^3The server is shutting down in "..mins.." minutes.\n"..
+      "^3Wrap up what you're doing, the world's about to end."
+    )
+    
+    -- Loop until time is up
+    while a > 0 do
+      if a % 15 then
+      
+        a = a - 1
+        local secs = math.floor(a%60)
+        local mins = math.floor(a/60)
+        local pl = {s = "", m = ""} -- plural
+        
+        if mins > 1 then pl.m = "s" end
+        if secs > 1 then pl.s = "s" end
+        
+        -- Prep message. If no time remains, nil it and disregard
+        local msg = "^3The server is shutting down in "
+        if a < 1 then msg = nil end
+        
+        -- If a minute or more remain, add "# minute(s)" to message
+        if mins > 0 then msg = msg..mins.." minute"..(pl.m) end
+        
+        -- If time remains, and seconds are > 0, add "# second(s)" to message
+        if msg and secs > 0 then
+          msg = msg..secs.." second"..(pl.s)
+        end
+        
+        if msg then 
+          -- Broadcast every 15 seconds
+          if (a % 15 == 0) or (a <= 10) then 
+            TriggerClientEvent('chatMessage', (-1), msg)
+          end
+        end
+        
+      end
+      Citizen.Wait(1001)
+    end
+    
+    TriggerClientEvent('chatMessage', (-1),
+      "^1The server is now shutting down.\n"..
+      "^7All players will be disconnected to preserve character information."
+    )
+    
+		Citizen.Wait(1000)
+		while (#GetPlayers() > 0) do
+			DropPlayer(GetPlayers()[1], "The server is shutting down. Please come again soon!")
+			Citizen.Wait(10)
+		end
+    
+		Citizen.Wait(100)
+    cprint("^2Safe Shutdown Complete. ^7Terminating the program.", true)
+    
+    
+    Citizen.Wait(3000)
+    os.execute('screen -S "fivem" -X quit') -- Terminate the window
+    
+	else
+		TriggerClientEvent('chat:addMessage', {templateId = 'errMsg', args = {
+      "Improper Usage", "Command must be used at the terminal window."
+    }})
+	end
+end
+RegisterCommand('shutdown', function(src,sec)
+  if not sec then sec = {} end       -- If not given, empty table (stops nil error)
+  if not sec[1] then sec[1] = 60 end -- If not given, shutdown in 60 seconds
+  ShutdownServer(tonumber(src), tonumber(sec[1]))
+end, true)
+
 AddEventHandler('playerDropped', function(reason)
   local client = source
   if admins[client] then admins[client] = nil end
