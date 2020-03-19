@@ -61,6 +61,7 @@ files {
 }
 
 client_scripts {
+  "@NativeUILua_Reloaded/src/NativeUIReloaded.lua",
   "sh_prison.lua",
   "cl_disable.lua",         -- Disable cops/military/jets/etc
   "cl_config.lua",          -- Client settings for prison/police scripts

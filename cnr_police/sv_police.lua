@@ -11,7 +11,6 @@ RegisterServerEvent('cnr:police_stations_req') -- Client requests stations info
 local cops      = {}
 local dropCop   = {}
 
-
 function CountCops()
   local n = 0
   for k,v in pairs(cops) do
