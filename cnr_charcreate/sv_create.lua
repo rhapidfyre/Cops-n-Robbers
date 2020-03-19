@@ -16,40 +16,6 @@ local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
 local unique    = {} -- Unique IDs by player server ID
 
 
---- GetPlayerSteamId()
--- Finds the player's Steam ID. We know it exists because of deferrals.
-function GetPlayerSteamId(ply)
-  if steams[ply] then return steams[ply] end
-  local sid = nil
-  for _,id in pairs(GetPlayerIdentifiers(ply)) do
-    print("DEBUG - ^3"..tostring(id).."^7")
-    if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
-    end
-  end
-  steams[ply] = sid
-  if doTalk then
-    cprint(GetPlayerName(ply).." Steam ID ["..tostring(steams[ply]).."]")
-  end
-  return sid
-end
-
-
--- GetPlayerLicense()
--- Finds the player's FiveM License ID
-function GetPlayerLicense(ply)
-  if fivem[ply] then return fivem[ply] end
-  local fid = nil
-  for _,id in pairs(GetPlayerIdentifiers(ply)) do
-    if string.sub(id, 1, string.len("license:")) == "license:" then fid = id
-    end
-  end
-  fivem[ply] = fid
-  if doTalk then
-    cprint(GetPlayerName(ply).." FiveM ID ["..tostring(fivem[ply]).."]")
-  end
-  return fid
-end
-
 --- ReadChangelog()
 -- Scans the change log and sends it to the player
 function ReadChangelog(ply)
@@ -256,3 +222,61 @@ AddEventHandler('cnr:create_save_character', function(pModel)
 end)
 
 
+
+
+
+
+
+--[[ ----------------------------------------------------------
+          TEMPORARY WHITELIST STUFF
+--]] ----------------------------------------------------------
+
+local function FileExists()
+  local f = io.open("resources/[cnr]/cnr_charcreate/whitelist.txt", "rb")
+  if f then f:close() end
+  return f ~= nil
+end
+
+local function GetWhitelist()
+  if not FileExists() then return {} end
+  local whitelistFile = "resources/[cnr]/cnr_charcreate/whitelist.txt"
+  local lines = {}
+  for line in io.lines(whitelistFile) do 
+    lines[#lines + 1] = string.gsub(line, "\r", "")
+  end
+  return lines
+end
+
+--[[
+	When a player joins, check if they're in the whitelistArray.
+	If they are, allow them to join. Otherwise don't let them.
+]]
+AddEventHandler("playerConnecting", function(playerName, setKickReason, deferrals)
+
+    -- Tell the connection to defer until we have done our whitelist check
+	deferrals.defer()
+	
+  local ids = GetPlayerIdentifiers(source)
+	local authorizedList = GetWhitelist()
+  
+	-- Tell the user we're checking stuff (not shown for long)
+  deferrals.update("Checking early access whitelist...")
+	Wait(200)
+  
+  for myIdx,identifier in pairs(ids) do
+	
+	-- Loop through the whitelist array
+    for _,i in ipairs(authorizedList) do
+	  
+	    -- Check if the player exists in the array.
+      if (string.lower(i) == string.lower(identifier)) then
+        print("[CNR WHITELIST] ^2Authorized ^7"..playerName.." to join. ("..identifier..").")
+        deferrals.done() -- They're in it... Let them in!
+        return
+      end
+    end
+  end
+  
+	print("[CNR WHITELIST] ^1Failed^7 to authorize "..playerName..". Connection rejected.")
+	deferrals.done("Whitelist Violation - Get Whitelisted @ http://discord.gg/jaxxkKp !")
+end)
