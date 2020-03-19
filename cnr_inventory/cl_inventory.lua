@@ -6,15 +6,14 @@ RegisterNetEvent('cnr:inventory_drop')    -- Tracks items dropped on the ground
 RegisterNetEvent('cnr:inventory_modify')  -- Modify an item by amount
 RegisterNetEvent('cnr:consume')
 
+local menuEnabled	= false
+local pauseDropped	= false -- Stop the drop loop from processing
 
-openKey = {keyboard = 288, controller = 0}
-local menuEnabled  = false
-local pauseDropped = false -- Stop the drop loop from processing
-
-local toggle_inv   = 288 -- F1
-local pickup_key   = 38
-local inv          = {}
-local dropped      = {}
+local openKey		= {keyboard = 288, controller = 0}
+local toggle_inv	= 288 -- F1
+local pickup_key	= 38
+local inv			= {}
+local dropped		= {}
 
 --- EXPORT: GetInventory()
 -- Returns the contents of the player's inventory to calling script
