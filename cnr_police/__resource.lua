@@ -66,7 +66,7 @@ client_scripts {
   "cl_disable.lua",         -- Disable cops/military/jets/etc
   "cl_config.lua",          -- Client settings for prison/police scripts
   "cl_police.lua",          -- Law Enforcement Scripts
-  "cl_prison.lua",          -- Prison/Jail/Ticket Handling
+  "cl_prison.lua"	        -- Prison/Jail/Ticket Handling
 }
 
 server_scripts {
@@ -85,7 +85,7 @@ server_exports {
   'CountCops',
   'DispatchPolice',
   'ReleaseFugitive',
-  'ImprisonClient',
+  'ImprisonClient'
 }
 
 exports {
@@ -94,4 +94,5 @@ exports {
   'SendDispatch',
   'JailStatus',     -- Allows client to check if someone is in jail/prison
   'CopRank',
+  'VehicleMenuOpen'
 }

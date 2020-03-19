@@ -55,6 +55,12 @@ RegisterCommand('openmenu', function()
   vehMenu:Visible(true)
 end)
 
+--- EXPORT: VehicleMenuOpen()
+-- Call to check if vehicle menu is open.
+function VehicleMenuOpen()
+	return _menuPool:IsAnyMenuOpen()
+end
+
 Citizen.CreateThread(function()
   while true do 
     _menuPool:ProcessMenus()
