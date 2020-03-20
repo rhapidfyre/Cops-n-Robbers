@@ -145,7 +145,10 @@ function GetPoliceVehicle(agency, i)
     agency = 0, rank = 0, livery = 0, extras = {}, price = 0
   }
     
-  if not agency then return noVehicles end
+  if not agency then
+    print("DEBUG - Agency not given (nil), returning standard vehicle table.")
+    return noVehicles
+  end
   
   local triedAttempts = 1
   local maxAttempts   = #pVehicles + 1
@@ -167,7 +170,11 @@ function GetPoliceVehicle(agency, i)
     until ((validVehicle) or (triedAttempts > maxAttempts))
   end
   
-  if not pVehicles[vIndex] then return noVehicles end
+  if not pVehicles[vIndex] then
+    print("DEBUG - Index "..vIndex.." was not valid; Returning standard vehicle.")
+    return noVehicles
+  end
+  print("DEBUG - Found vehicle @ vIndex "..vIndex..": "..(json.encode(pVehicles[vIndex])))
   return pVehicles[vIndex]
   
 end

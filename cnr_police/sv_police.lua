@@ -11,7 +11,8 @@ RegisterServerEvent('cnr:police_stations_req') -- Client requests stations info
 local cops      = {}
 local dropCop   = {}
 
-local function CopRankFormula()
+local function CopRankFormula(n)
+  if not n then n = 1 end
   return (((n * (n + 1)) / 2) * 100)
 end
 
@@ -66,7 +67,7 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
           "There is now "..CountCops().." cop(s) on duty.", ""
         )
         local copRank = cLevel
-        while (cLevel > rankFormula(copRank)) do 
+        while (cLevel > CopRankFormula(copRank)) do 
           copRank = copRank + 1
           Citizen.Wait(1)
         end
