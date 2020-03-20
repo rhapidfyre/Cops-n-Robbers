@@ -34,24 +34,25 @@ Citizen.CreateThread(function()
   while true do
   
   	Citizen.Wait(1)
-    
-  	if IsControlJustReleased(0, 20) then
+	
+  	if IsControlJustReleased(0, 20) and not exports['cnr_police']:VehicleMenuOpen() then
       largeMap = not largeMap
   	  SetRadarBigmapEnabled(largeMap, false)
       TriggerEvent('cnr:bigmap', largeMap)
   	end
     
-    if largeMap then 
+    if largeMap then
     
-      -- Close the map if the pause menu is opened
-      if IsPauseMenuActive() then 
-        CloseBigMap()
+		-- Close the map if the pause menu is opened
+		if IsPauseMenuActive() then 
+			CloseBigMap()
+		end
         
-      -- Close the map if player is dead
-      elseif IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
-        CloseBigMap()
-        
-      end
+		-- Close the map if player is dead
+		if IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
+			CloseBigMap()
+		end
+	  
     end
   end
 end)

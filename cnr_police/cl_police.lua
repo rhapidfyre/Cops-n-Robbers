@@ -29,12 +29,41 @@ function CopRank()
   return myCopRank
 end
 
-Citizen.CreateThread(function()
-  while true do 
-    _menuPool:ProcessMenus()
-    Citizen.Wait(0)
+_menuPool = NativeUI.CreatePool()
+vehMenu   = NativeUI.CreateMenu("Vehicles", "~b~I'm some Blue Context!")
+_menuPool:Add(vehMenu)
+
+RegisterCommand('testmenu', function()
+  local newItem = NativeUI.CreateItem("I'm an item!", "This is an item!")
+  newItem:SetLeftBadge(BadgeStyle.Star)
+  newItem:SetRightBadge(BadgeStyle.Tick)
+  vehMenu:AddItem(newItem)
+  vehMenu.OnItemSelect = function(sender, item, index)
+    if item == newItem then 
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You selected a menu item!"
+      }})
+    end
   end
+  vehMenu.OnIndexChange = function(sender, index)
+    if sender.Items[index] == newItem then 
+      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+        "You changed selections!"
+      }})
+    end
+  end
+  _menuPool:RefreshIndex()
 end)
+
+RegisterCommand('openmenu', function()
+  vehMenu:Visible(true)
+end)
+
+--- EXPORT: VehicleMenuOpen()
+-- Call to check if vehicle menu is open.
+function VehicleMenuOpen()
+	return _menuPool:IsAnyMenuOpen()
+end
 
 
 --- EXPORT: DispatchMessage()
@@ -655,6 +684,7 @@ Citizen.CreateThread(function()
 		SetPlayerWantedLevel(PlayerId(), 0, false)
 		SetPlayerWantedLevelNow(PlayerId(), false)
 		SetPlayerWantedLevelNoDrop(PlayerId(), 0, false)
+    _menuPool:ProcessMenus()
 		Wait(0)
 	end
 end)
