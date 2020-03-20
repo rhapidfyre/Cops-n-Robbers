@@ -16,6 +16,10 @@ local activeCops  = {}
 local parking     = {}      -- Holds the parking spots that are occupied/station
 local stationInfo = {}      -- Current duty station information
 local vehSelected = 0
+local _menuPool = NativeUI.CreatePool()
+      _menuPool:MouseControlsEnabled(false)
+      _menuPool:MouseEdgeEnabled(false)
+      _menuPool:ControlDisablingEnabled(false)
 
 local forcedutyEnabled = true -- DEBUG - /forceduty
 
@@ -24,36 +28,6 @@ local forcedutyEnabled = true -- DEBUG - /forceduty
 function CopRank()
   return myCopRank
 end
-
-_menuPool = NativeUI.CreatePool()
-vehMenu   = NativeUI.CreateMenu("Vehicles", "~b~I'm some Blue Context!")
-_menuPool:Add(vehMenu)
-
-RegisterCommand('testmenu', function()
-  local newItem = NativeUI.CreateItem("I'm an item!", "This is an item!")
-  newItem:SetLeftBadge(BadgeStyle.Star)
-  newItem:SetRightBadge(BadgeStyle.Tick)
-  vehMenu:AddItem(newItem)
-  vehMenu.OnItemSelect = function(sender, item, index)
-    if item == newItem then 
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "You selected a menu item!"
-      }})
-    end
-  end
-  vehMenu.OnIndexChange = function(sender, index)
-    if sender.Items[index] == newItem then 
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "You changed selections!"
-      }})
-    end
-  end
-  _menuPool:RefreshIndex()
-end)
-
-RegisterCommand('openmenu', function()
-  vehMenu:Visible(true)
-end)
 
 Citizen.CreateThread(function()
   while true do 
@@ -287,6 +261,11 @@ function BeginCopDuty(st)
       "You are now on Law Enforcement duty."
     )
     myAgency = c.agency
+    
+    -- Initialize NativeUI Menus
+    vehMenu = NativeUI.CreateMenu("Vehicles", stationName)
+    _menuPool:Add(vehMenu)
+    
     PoliceDutyLoops()
   else
     TriggerEvent('chat:addMessage', {
@@ -601,17 +580,9 @@ function PoliceArmory()
 
   -- Closes the menu
   if not openMenu then
-    SetNuiFocus(false)
-    SendNUIMessage({hidearmory = true})
-    Citizen.Wait(3000)
-    ignoreDuty = false
   
   -- Opens the menu
   else
-    ignoreDuty = true
-    SetNuiFocus(true, true)
-    SendNUIMessage({showarmory = true})
-    LawVehicle("initial", 1) -- Spawns an initial vehicle (vehicle 1)
   
   end
 end
@@ -625,18 +596,12 @@ function PoliceGarage(openMenu)
 
   -- Closes the menu
   if not openMenu then
-    print("DEBUG - PoliceGarage(false)")
-    SetNuiFocus(false)
-    SendNUIMessage({hidevehs = true})
     Citizen.Wait(3000)
     ignoreDuty = false
   
   -- Opens the menu
   else
-    print("DEBUG - PoliceGarage(true)")
     ignoreDuty = true
-    SetNuiFocus(true, true)
-    SendNUIMessage({showvehs = true})
     LawVehicle("initial", 1) -- Spawns an initial vehicle (vehicle 1)
   
   end
@@ -796,201 +761,109 @@ AddEventHandler('cnr:police_officer_duty', function(ply, onDuty, cLevel)
 end)
 
 
-function CalculateExtras(veh)
-  
-  local extras = {}
-  local hasExtras = false
-  for i = 1, 14 do 
-    if DoesExtraExist(veh, i) then
-      if IsVehicleExtraTurnedOn(veh, i) then
-        table.insert(extras,
-        '<tr><th colspan="3">Extra '..(i)..'</th><td><button id="te'..(i)..'" onclick="ToggleExtra('..(i)..')">OFF</button></td></tr>'
-        )
-      else
-        table.insert(extras,
-        '<tr><th colspan="3">Extra '..(i)..'</th><td><button id="te'..(i)..'" onclick="ToggleExtra('..(i)..')">ON</button></td></tr>'
-        )
-      end
-      print("DEBUG - Vehicle has extra @ Slot #"..i)
-      hasExtras = true
-    end
-  end
-  if hasExtras then
-    SendNUIMessage({vehextras = table.concat(extras)})
-  else
-    print("DEBUG - Vehicle has no extras.")
-    SendNUIMessage({
-      vehextras = '<tr><td colspan="4"><button disabled>NO EXTRAS</button></td></tr>'
-    })
-  end
-  
-end
-
-
 -- DEBUG - Needs to take into account rank authorization
 function LawVehicle(actionName, value)
+  TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
+    "LawVehicle("..actionName..", "..value..") Invoked."
+  }})
+  if not pauseSelection then
 
-  -- Initial Vehicle Spawn
-  if actionName == "initial" then
-  
-    DoScreenFadeOut(400)
-    Citizen.Wait(400)
-  
-    local mdl    = stationInfo['vh'][1]['mdl']
-    local gHash  = GetHashKey(mdl)
-    local pspots = math.random(#stationInfo['gs'])
+    pauseSelection = true -- Avoid spawning multiple police cars while browsing
     
-    RequestModel(gHash)
-    while not HasModelLoaded(gHash) do Wait(10) end
+    -- Initial Vehicle Spawn
+    if actionName == "initial" then
     
-    local veh = CreateVehicle(
-      GetHashKey(stationInfo['vh'][1]['mdl']),
-      stationInfo['gs'][1]['x'],
-      stationInfo['gs'][1]['y'],
-      stationInfo['gs'][1]['z'],
-      0.0, true, false
-    )
-    
-    local ped = PlayerPedId()
-		SetVehicleEngineOn(veh, true, false, false)
-    FreezeEntityPosition(veh, true)
-		SetVehicleLivery(veh, 1)
-		SetVehicleOnGroundProperly(veh)
-    SetEntityHeading(veh, stationInfo['gs'][1]['h'])
-		SetVehicleNeedsToBeHotwired(veh, false)
-		SetPedIntoVehicle(ped, veh, (-1))
-    
-    -- DEBUG - Revisit vehicle mods later
-		SetVehicleModKit(veh, 0)
-		SetVehicleMod(veh, 11, 3, false) -- EMS 4 Engine
-		SetVehicleMod(veh, 12, 1, false) -- Sport Brakes
-		SetVehicleMod(veh, 13, 2, false) -- Performance Transmission
-		
-		SetModelAsNoLongerNeeded(gHash)
-    CalculateExtras(veh)
-    
-    Citizen.Wait(1000)
-    if not DoesCamExist(cam) then
-      cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
-    end
-    SetCamActive(cam, true)
-    RenderScriptCams(true, true, 500, true, true)
-    local pHead = GetEntityHeading(veh)
-    local offset = GetOffsetFromEntityInWorldCoords(veh, -2.4, 6.0, 1.2)
-    SetCamParams(cam, offset.x, offset.y, offset.z, 350.0, 0.0, pHead + 200.0, 60.0)
-    DoScreenFadeIn(1000)
-    
-  -- Change the extra(s)
-  elseif actionName == "extra" then 
-
-    local veh = GetVehiclePedIsIn(PlayerPedId())
-    local i = value
-    if IsVehicleExtraTurnedOn(veh, i) then
-      SendNUIMessage({togextra = i, flipname = "ON"})
-      SetVehicleExtra(veh, i, 1)
-    else
-      SendNUIMessage({togextra = i, flipname = "OFF"})
-      SetVehicleExtra(veh, i, 0)
-    end
-    
-  -- Change the vehicle selected
-  elseif actionName == "change" then
-  
-    local veh = GetVehiclePedIsIn(PlayerPedId())
-    local thisModel = GetEntityModel(veh)
-    local curr = 1
-    
-    if veh > 0 then
-      DeleteVehicle(veh)
-    end
-    
-    local count = 0
-    local resolved = false
-    for k,v in pairs (stationInfo['vh']) do
-      count = count + 1
-      if not resolved then
-        if GetHashKey(v['mdl']) == thisModel then
-          curr = k
-          print("DEBUG - "..GetHashKey(v['mdl']).." == "..thisModel)
-          if value == 2 then curr = curr + 1
-          else               curr = curr - 1
-          end
-          resolved = true
+      ResetPoliceVehicleIndex()
+      
+      -- Adds the menu items for selecting the vehicle
+      local nextVeh = NativeUI.CreateItem("Next Vehicle", "Next Vehicle")
+      vehMenu:AddItem(nextVeh)
+      vehMenu.OnItemSelect = function(sender, item, index)
+        if item == nextVeh then 
+          TriggerEvent('cnr:law_vehicle', "cycle", 0)
         end
       end
-    end
-    if curr > count or curr < 1 then
-      if curr < 0 then curr = count
-      else curr = 1 end
-      print("DEBUG - curr was out of range, reset to "..curr..".")
-    end
-    print("DEBUG - Vehicle "..curr.." of "..count)
-    
-    local mdl = stationInfo['vh'][curr]['mdl']
-    local gHash = GetHashKey(mdl)
-    RequestModel(gHash)
-    while not HasModelLoaded(gHash) do Wait(10) end
-    
-    local gSpot = 1
-    local myPos = GetEntityCoords(PlayerPedId())
-    local gs    = stationInfo['gs']
-    local d1    = vector3(stationInfo['gs'][1]['x'], stationInfo['gs'][1]['y'], stationInfo['gs'][1]['z'])
-    for k,v in pairs(gs) do 
-      local d2 = vector3(v['x'], v['y'], v['z'])
-      if #(myPos - vector3(d1['x'], d1['y'], d1['z'])) > #(myPos - d2) then
-        d1 = d2; gSpot = k
+      local prevVeh = NativeUI.CreateItem("Previous Vehicle", "Previous Vehicle")
+      vehMenu:AddItem(prevVeh)
+      vehMenu.OnItemSelect = function(sender, item, index)
+        if item == prevVeh then 
+          TriggerEvent('cnr:law_vehicle', "cycle", -1)
+        end
       end
+      local thisVeh = NativeUI.CreateItem("Select This Vehicle", "~g~Choose This Vehicle")
+      vehMenu:AddItem(thisVeh)
+      vehMenu.OnItemSelect = function(sender, item, index)
+        if item == thisVeh then 
+          vehMenu:Visible(false)
+          TriggerEvent('cnr:law_vehicle', "select", 1)
+        end
+      end
+      local noVeh = NativeUI.CreateItem("Cancel and Exit", "~r~Leave This Menu")
+      vehMenu:AddItem(noVeh)
+      vehMenu.OnItemSelect = function(sender, item, index)
+        if item == noVeh then 
+          vehMenu:Visible(false)
+          TriggerEvent('cnr:law_vehicle', "cancel", 1)
+        end
+      end
+      _menuPool:RefreshIndex()
+      vehMenu:Visible(true)
+      
     end
     
-    local veh = CreateVehicle(
-      GetHashKey(stationInfo['vh'][curr]['mdl']),
-      stationInfo['gs'][gSpot]['x'],
-      stationInfo['gs'][gSpot]['y'],
-      stationInfo['gs'][gSpot]['z'],
-      0.0, true, false
+    if actionName ~= "cancel" then 
+      local vehChoice = GetPoliceVehicle(agency, value)
+      local gHash     = vehChoice.mdl
+      local pspots    = math.random(#stationInfo['gs'])
+      
+      RequestModel(gHash)
+      while not HasModelLoaded(gHash) do Wait(10) end
+      
+      local isLocal = true
+      if actionName == "select" then
+        isLocal = false
+      end
+      local veh = CreateVehicle(gHash,
+        stationInfo['gs'][1]['x'],
+        stationInfo['gs'][1]['y'],
+        stationInfo['gs'][1]['z'],
+        0.0, isLocal, false
+      )
+      
+      local ped = PlayerPedId()
+      SetVehicleEngineOn(veh, true, false, false)
+      FreezeEntityPosition(veh, true)
+      SetVehicleLivery(veh, 1)
+      SetVehicleOnGroundProperly(veh)
+      SetEntityHeading(veh, stationInfo['gs'][1]['h'])
+      SetVehicleNeedsToBeHotwired(veh, false)
+      SetPedIntoVehicle(ped, veh, (-1))
+      SetModelAsNoLongerNeeded(gHash)
+      
+      Citizen.Wait(1000)
+      -- Creates the view camera for vehicle selection
+      if not DoesCamExist(cam) then
+        cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+      end
+      SetCamActive(cam, true)
+      RenderScriptCams(true, true, 500, true, true)
+      local pHead = GetEntityHeading(veh)
+      local offset = GetOffsetFromEntityInWorldCoords(veh, -2.4, 6.0, 1.2)
+      SetCamParams(cam, offset.x, offset.y, offset.z, 350.0, 0.0, pHead + 200.0, 60.0)
+    else
+      SetCamActive(cam, false)
+      if DoesCamExist(cam) then cam = nil end
+      DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
+      SetEntityCoords(PlayerPedId(),
+        stationInfo['gg'][1]['x'],stationInfo['gg'][1]['y'],stationInfo['gg'][1]['z']
+      )
+    end
+    pauseSelection = false
+  else
+    exports['cnr_chat']:ChatNotification(
+      "CHAR_SOCIAL_CLUB", "System Notice", "~r~Slow Down!",
+      "Let this model load before you continue!"
     )
-    
-    local ped = PlayerPedId()
-    FreezeEntityPosition(veh, true)
-		SetVehicleEngineOn(veh, true, false, false)
-		SetVehicleLivery(veh, 1)
-		SetVehicleOnGroundProperly(veh)
-    SetEntityHeading(veh, stationInfo['gs'][gSpot]['h'])
-		SetVehicleNeedsToBeHotwired(veh, false)
-		SetPedIntoVehicle(ped, veh, (-1))
-		
-    -- DEBUG - Revisit vehicle mods later
-		SetVehicleModKit(veh, 0)
-		SetVehicleMod(veh, 11, 3, false) -- EMS 4 Engine
-		SetVehicleMod(veh, 12, 1, false) -- Sport Brakes
-		SetVehicleMod(veh, 13, 2, false) -- Performance Transmission
-		
-		SetModelAsNoLongerNeeded(veh)
-    CalculateExtras(veh)
-    
-  
   end
 end
-
-RegisterNUICallback("vehicleMenu", function(data, cb)
-
-  local cmd = data.action
-  if cmd == "lawVehicle" then
-    LawVehicle("change", data.dir)
-  
-  elseif cmd == "toggleExtra" then
-    LawVehicle("extra", data.num)
-  
-  else -- Fallback case: Close Menu
-    FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId()), false)
-    if DoesCamExist(cam) then 
-      SetCamActive(cam, false)
-      RenderScriptCams(false, true, 500, true, true)
-      cam = nil
-    end
-    PoliceGarage(false)
-    print("DEBUG - Law Vehicle selection canceled / closed.")
-    
-  end
-
-end)
+AddEventHandler('cnr:law_vehicle', LawVehicle)

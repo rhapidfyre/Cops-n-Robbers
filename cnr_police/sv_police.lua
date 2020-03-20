@@ -11,6 +11,10 @@ RegisterServerEvent('cnr:police_stations_req') -- Client requests stations info
 local cops      = {}
 local dropCop   = {}
 
+local function CopRankFormula()
+  return (((n * (n + 1)) / 2) * 100)
+end
+
 function CountCops()
   local n = 0
   for k,v in pairs(cops) do
@@ -61,7 +65,12 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
           GetPlayerName(ply).." is now on Law Enforcement duty",
           "There is now "..CountCops().." cop(s) on duty.", ""
         )
-        TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, cLevel)
+        local copRank = cLevel
+        while (cLevel > rankFormula(copRank)) do 
+          copRank = copRank + 1
+          Citizen.Wait(1)
+        end
+        TriggerClientEvent('cnr:police_officer_duty', (-1), ply, onDuty, copRank)
       end
     )
   else

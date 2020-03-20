@@ -33,7 +33,8 @@ server_scripts {
 }
 
 server_exports {
-  "CalculateRanks"
+  "CalculateRanks",
+  "CopRankFormula"
 }
 
 exports {
