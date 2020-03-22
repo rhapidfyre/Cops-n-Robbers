@@ -280,7 +280,6 @@ function BeginCopDuty(st)
     
     -- DEBUG - Using Ped Model System
     oldModel = GetEntityModel(PlayerPedId())
-    print(oldModel)
     local newModel = GetHashKey('s_m_y_cop_01')
     RequestModel(newModel)
     while not HasModelLoaded(newModel) do Wait(1) end
@@ -445,10 +444,11 @@ function UnlockPoliceCarDoor()
   local veh = GetVehiclePedIsTryingToEnter(PlayerPedId())
   if veh > 0 then
     local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
-    if policeCar[mdl] then
+    if IsUsingPoliceVehicle() then
       if GetVehicleDoorLockStatus(veh) > 0 then
         if isCop then
-          SetVehicleDoorsLocked(veh, 0)
+          print("DEBUG - Vehicle is a cop car, unlocking.")
+          SetVehicleDoorsLocked(veh, 1)
           SetVehicleNeedsToBeHotwired(veh, false)
           Citizen.CreateThread(function()
             Citizen.Wait(6000)
@@ -844,8 +844,6 @@ function LawVehicle(actionName, value)
       end
       _menuPool:RefreshIndex()
       vehMenu:Visible(true)
-    else
-      DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
     
     end
     
@@ -854,6 +852,10 @@ function LawVehicle(actionName, value)
         local vehChoice = GetPoliceVehicle(myAgency, value)
         local gHash     = vehChoice.mdl
         local pspots    = math.random(#stationInfo['gs'])
+        
+        -- Delete previous vehicle
+        local tempVeh = GetVehiclePedIsIn(PlayerPedId())
+        if tempVeh > 0 then DeleteVehicle(tempVeh) end
         
         RequestModel(gHash)
         while not HasModelLoaded(gHash) do Wait(10) end
@@ -873,26 +875,42 @@ function LawVehicle(actionName, value)
         local ped = PlayerPedId()
         SetVehicleEngineOn(veh, true, false, false)
         FreezeEntityPosition(veh, true)
-        SetVehicleLivery(veh, 1)
         SetVehicleOnGroundProperly(veh)
         SetEntityHeading(veh, stationInfo['gs'][1]['h'])
         SetVehicleNeedsToBeHotwired(veh, false)
         SetPedIntoVehicle(ped, veh, (-1))
+        
+        -- Start by setting all extras to OFF
+        for i = 1, 25 do 
+          if DoesExtraExist(veh, i) then 
+            SetVehicleExtra(veh, i, 1)
+          end
+        end
+        
+        -- Adds the extra to the vehicle as specified in cl_config.lua
+        for _,i in ipairs (vehChoice.extras) do 
+          if DoesExtraExist(veh, i) then
+            SetVehicleExtra(veh, i, 0)
+          end
+        end
+        
+        SetVehicleLivery(veh, vehChoice.livery)
         SetModelAsNoLongerNeeded(gHash)
+        
       end
       Citizen.Wait(10)
       -- Creates the view camera for vehicle selection
-      if actionName == "initial" then
-        if not DoesCamExist(cam) then
-          cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
-        end
+      if not DoesCamExist(cam) then
+        cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
         SetCamActive(cam, true)
         RenderScriptCams(true, true, 500, true, true)
-        local pHead = GetEntityHeading(veh)
-        local offset = GetOffsetFromEntityInWorldCoords(veh, -2.4, 6.0, 1.2)
+        local pHead = GetEntityHeading(PlayerPedId())
+        local offset = GetOffsetFromEntityInWorldCoords(PlayerPedId(), -2.4, 6.0, 1.2)
         SetCamParams(cam, offset.x, offset.y, offset.z, 350.0, 0.0, pHead + 200.0, 60.0)
-      elseif actionName == "select" then 
-        FreezeEntityPosition(veh, true)
+      end
+      if actionName == "select" then 
+        local veh = GetVehiclePedIsIn(PlayerPedId())
+        FreezeEntityPosition(veh, false)
         PoliceGarage(false)
       end
     else

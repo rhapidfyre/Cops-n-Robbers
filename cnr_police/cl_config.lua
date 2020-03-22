@@ -18,57 +18,57 @@ local pVehicles = {
 
   -- "scpd1" variations
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "BCSO Standard",
-    agency = 3, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
+    agency = 3, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "BCSO Slicktop",
-    agency = 3, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 3, rank = 2, livery = 0, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "LSSD Standard",
-    agency = 2, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
+    agency = 2, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "LSSD Slicktop",
-    agency = 2, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 2, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "PBPD Standard",
-    agency = 8, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
+    agency = 8, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "PBPD Slicktop",
-    agency = 8, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 8, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "LSPD Standard",
-    agency = 1, rank = 0, livery = 4, extras = {1,3,4,5,6}, price = 0},
+    agency = 1, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "LSPD Slicktop",
-    agency = 1, rank = 2, livery = 4, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 1, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
   
   -- "scpd2" variations
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "BCSO Standard",
-    agency = 3, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
+    agency = 3, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "BCSO Slicktop",
-    agency = 3, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 3, rank = 2, livery = 0, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "USAF Standard",
-    agency = 6, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
+    agency = 6, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "USAF Slicktop",
-    agency = 6, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 6, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "FIB Standard",
-    agency = 7, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
+    agency = 7, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "FIB Slicktop",
-    agency = 7, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 7, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "LSPD Standard",
-    agency = 1, rank = 0, livery = 4, extras = {1,3,4,5,6}, price = 0},
+    agency = 1, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "LSPD Slicktop",
-    agency = 1, rank = 2, livery = 4, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 1, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
   
   -- "scpd3" variations
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSPD Standard",
-    agency = 1, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
+    agency = 1, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSPD Slicktop",
-    agency = 1, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 1, rank = 2, livery = 0, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "PARK Standard",
-    agency = 5, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
+    agency = 5, rank = 0, livery = 1, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "PARK Slicktop",
-    agency = 5, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 5, rank = 2, livery = 1, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "PBPD Standard",
-    agency = 8, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
+    agency = 8, rank = 0, livery = 2, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "PBPD Slicktop",
-    agency = 8, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 8, rank = 2, livery = 2, extras = {2,3,4,5,6}, price = 1000, uc = true},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSSD Standard",
-    agency = 2, rank = 0, livery = 4, extras = {1,3,4,5,6}, price = 0},
+    agency = 2, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSSD Slicktop",
-    agency = 2, rank = 2, livery = 4, extras = {2,3,4,5,6}, price = 1000, uc = true},
+    agency = 2, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
     
   -- "scpd4" variations
   {mdl = GetHashKey("scpd4"), title = "Ford Interceptor", subtitle = "BCSO Standard",
@@ -82,9 +82,9 @@ local pVehicles = {
   
   -- "1200RT" variations
   {mdl = GetHashKey("1200RT"), title = "BMW Motorbike", subtitle = "LSPD Traffic Division",
-    agency = 1, rank = 4, livery = 1, extras = {1,2,3}, price = 2250},
+    agency = 1, rank = 4, livery = 0, extras = {1,2,3}, price = 2250},
   {mdl = GetHashKey("1200RT"), title = "BMW Motorbike", subtitle = "BCSO Traffic Division",
-    agency = 3, rank = 4, livery = 2, extras = {1,2,3}, price = 2250},
+    agency = 3, rank = 4, livery = 1, extras = {1,2,3}, price = 2250},
   
   -- Dodge Challenger Hellcat (UC)
   {mdl = GetHashKey("hellcat"), title = "Challenger Hellcat", subtitle = "Pursuit Intercept",
@@ -102,15 +102,15 @@ local pVehicles = {
     
   -- Chevy Camaro (UC)
   {mdl = GetHashKey("camarorb"), title = "Chevy Camaro", subtitle  = "Pursuit Intercept",
-    agency = 0, rank = 7, livery = 0, extras = {1}, price = 0, uc = true, pursuit = true},
+    agency = 0, rank = 7, livery = 1, extras = {1}, price = 0, uc = true, pursuit = true},
   
   -- Highway Patrol Vehicles
   {mdl = GetHashKey("hwaycar"), title = "Ford Interceptor", subtitle = "SA Highway Patrol",
-    agency = 0, rank = 0, livery = 0, extras = {1}, price = 0},
+    agency = 4, rank = 0, livery = 0, extras = {1}, price = 0},
   {mdl = GetHashKey("hwaycar2"), title = "Dodge Charger", subtitle = "SA Highway Patrol",
-    agency = 0, rank = 1, livery = 0, extras = {1}, price = 0},
+    agency = 4, rank = 1, livery = 0, extras = {1}, price = 0},
   {mdl = GetHashKey("hwaycar4"), title = "Ford F150", subtitle = "Utility Vehicle",
-    agency = 0, rank = 0, livery = 0, extras = {1}, price = 0, utility = true},
+    agency = 4, rank = 0, livery = 0, extras = {1}, price = 0, utility = true},
 
 }
 
@@ -151,24 +151,25 @@ function GetPoliceVehicle(agency, i)
   end
   
   local triedAttempts = 1
-  local maxAttempts   = #pVehicles + 1
+  local maxAttempts   = #pVehicles * 3
   local validVehicle  = false
-  if i < 1 then
-    repeat
-      if i < 0 then vIndex = vIndex - 1
-      else vIndex = vIndex + 1 -- if i == 0 increment
-      end
-      if vIndex < 1 then vIndex = #pVehicles
-      elseif vIndex > #pVehicles then vIndex = 1
-      end
-      -- Stop when the vehicle chosen is the same agency or all agencies
-      if pVehicles[vIndex].agency == agency then validVehicle = true
-      elseif pVehicles[vIndex].agency == 0 then validVehicle = true
-      end
-      triedAttempts = triedAttempts + 1
-      Citizen.Wait(1)
-    until ((validVehicle) or (triedAttempts > maxAttempts))
-  end
+  
+  repeat
+    if i < 0 then vIndex = vIndex - 1
+    else vIndex = vIndex + 1 -- if i == 0 increment
+    end
+    if vIndex < 1 then vIndex = #pVehicles
+    elseif vIndex > #pVehicles then vIndex = 1
+    end
+    -- Stop when the vehicle chosen is the same agency or all agencies
+    if pVehicles[vIndex].agency == agency then validVehicle = true
+    elseif pVehicles[vIndex].agency == 0 then validVehicle = true
+    end
+    triedAttempts = triedAttempts + 1
+    print("DEBUG - Attempting vIndex ["..vIndex.."]")
+    Citizen.Wait(1)
+  until ((validVehicle) or (triedAttempts > maxAttempts))
+    
   
   if not pVehicles[vIndex] then
     print("DEBUG - Index "..vIndex.." was not valid; Returning standard vehicle.")
@@ -181,7 +182,7 @@ end
 
 
 function ResetPoliceVehicleIndex()
-  vIndex = 0 -- Increments to 1 when vehicle menu is opened
+  vIndex = 0
 end
 
 -- Builds a basic table of police stations
