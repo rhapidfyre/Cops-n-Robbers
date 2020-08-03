@@ -1,21 +1,21 @@
 urls = {
 
   -- Game Status Feed
-  [1] = "https://discordapp.com/api/webhooks/634831765344616485/ONwDIsdKDhQs5Lmij14RACCtL-5ayHjxKrMeKc3BsGHTjTc9rGH_wFc_0I469IbwI8lE",
+  [1] = "",
 
   -- Basically emergencies and 911 calls
-  [2] = "https://discordapp.com/api/webhooks/667800212617560072/iqX7vGXSajNaOaNGYOAcvmLsn5Y--GZ2wy6Y8KcZe0hYJ98bwIUOPJM3-M3nK7B289u-",
+  [2] = "",
 
   -- Police Duty Status
-  [3] = "https://discordapp.com/api/webhooks/667799882278502421/rBTPbc1AMuO4O7wXZBe0hCAZWaIt0yJstYts8bSX7nrbN3nZXI9-_1p8Ge99DylbSIAB",
+  [3] = "",
 
   -- Server Chat
-  [4] = "https://discordapp.com/api/webhooks/667799882278502421/rBTPbc1AMuO4O7wXZBe0hCAZWaIt0yJstYts8bSX7nrbN3nZXI9-_1p8Ge99DylbSIAB",
+  [4] = "",
 
   -- Admin Stuff
-  [5] = "https://discordapp.com/api/webhooks/667800489534160925/ws7iwSoeIBjRrcX5vV7nJoyDFoAEXXAXoJx6onGgZyKqa3fLWBAJzf12fGzWUuA5gTqT",
+  [5] = "",
 
   -- Wanted Messages
-  [6] = "https://discordapp.com/api/webhooks/667800212617560072/iqX7vGXSajNaOaNGYOAcvmLsn5Y--GZ2wy6Y8KcZe0hYJ98bwIUOPJM3-M3nK7B289u-",
+  [6] = "",
 
 }
