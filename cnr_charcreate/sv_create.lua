@@ -253,6 +253,7 @@ end
 ]]
 AddEventHandler("playerConnecting", function(playerName, setKickReason, deferrals)
 
+--[[
     -- Tell the connection to defer until we have done our whitelist check
 	deferrals.defer()
 
@@ -279,4 +280,7 @@ AddEventHandler("playerConnecting", function(playerName, setKickReason, deferral
 
 	print("[CNR WHITELIST] ^1Failed^7 to authorize "..playerName..". Connection rejected.")
 	deferrals.done("Whitelist Violation - Get Whitelisted @ http://discord.gg/jaxxkKp !")
+  deferrals.done()
+  
+  ]]
 end)
