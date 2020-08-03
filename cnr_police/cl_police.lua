@@ -112,9 +112,9 @@ function DispatchNotification(title, msg)
   return true
 end
 
-function DispatchBlip(x,y,z,title)
+function DispatchBlip(x,y,z)--,title)
 
-  if not title then title = "9-1-1 Call Center" end
+  --if not title then title = "9-1-1 Call Center" end
   local callBlip = AddBlipForRadius(x,y,0.0,120.0)
   --SetBlipSprite(callBlip, 526)
   SetBlipSprite(callBlip, 9)
