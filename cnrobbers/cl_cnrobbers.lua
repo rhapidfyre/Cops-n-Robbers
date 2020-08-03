@@ -151,7 +151,6 @@ RegisterCommand('zones', ListZones)
 function InActiveZone()
   local myPos   = GetEntityCoords(PlayerPedId())
   local zn      = GetNameOfZone(myPos.x, myPos.y, myPos.z)
-  local zName   = GetFullZoneName(zn)
   local zNumber = GetZoneNumber(zn)
 
   if activeZone == zNumber then return true end

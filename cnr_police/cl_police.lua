@@ -13,9 +13,9 @@ local transition  = false
 local myAgency    = 0
 local myCopRank   = 1
 local activeCops  = {}
-local parking     = {}      -- Holds the parking spots that are occupied/station
+--local parking     = {}      -- Holds the parking spots that are occupied/station
 local stationInfo = {}      -- Current duty station information
-local vehSelected = 0
+--local vehSelected = 0
 local _menuPool = NativeUI.CreatePool()
       _menuPool:MouseControlsEnabled(false)
       _menuPool:MouseEdgeEnabled(false)
@@ -45,14 +45,14 @@ RegisterCommand('testmenu', function()
   newItem:SetRightBadge(BadgeStyle.Tick)
   vehMenu:AddItem(newItem)
   vehMenu.OnItemSelect = function(sender, item, index)
-    if item == newItem then 
+    if item == newItem then
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "You selected a menu item!"
       }})
     end
   end
   vehMenu.OnIndexChange = function(sender, index)
-    if sender.Items[index] == newItem then 
+    if sender.Items[index] == newItem then
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "You changed selections!"
       }})
@@ -120,7 +120,7 @@ function DispatchBlip(x,y,z,title)
   SetBlipSprite(callBlip, 9)
   SetBlipColour(callBlip, 1)
   SetBlipAlpha(callBlip, 200)
-  
+
   Citizen.Wait(12000)
   for i = 180, 40, -1 do
     SetBlipAlpha(callBlip, i)
@@ -130,13 +130,13 @@ function DispatchBlip(x,y,z,title)
       Citizen.Wait(1000)
     end
   end
-  
+
   Citizen.Wait(10000)
   if DoesBlipExist(callBlip) then
     print("DEBUG - Removed 911 radius")
     RemoveBlip(callBlip)
   end
-  
+
 end
 
 -- Sends a message to on duty cop as dispatchSendDispatch
@@ -273,11 +273,11 @@ function BeginCopDuty(st)
   local ply = GetPlayerServerId(PlayerId())
   if not wanted[ply] then wanted[ply] = 0 end
   if wanted[ply] < 1 then
-  
+
     transition = true
     PoliceCamera(c)
     isCop = true
-    
+
     -- DEBUG - Using Ped Model System
     oldModel = GetEntityModel(PlayerPedId())
     local newModel = GetHashKey('s_m_y_cop_01')
@@ -295,11 +295,11 @@ function BeginCopDuty(st)
       "You are now on Law Enforcement duty."
     )
     myAgency = c.agency
-    
+
     -- Initialize NativeUI Menus
     vehMenu = NativeUI.CreateMenu("Vehicles", stationName)
     _menuPool:Add(vehMenu)
-    
+
     PoliceDutyLoops()
   else
     TriggerEvent('chat:addMessage', {
@@ -346,7 +346,7 @@ end
 AddEventHandler('cnr:police_station_info', function(stInfo)
   if not stInfo then print("DEBUG - No station information received.")
   else
-    
+
     local decoded = {}
     if stInfo['armory']      then decoded['ar'] = json.decode(stInfo['armory'])      end
     if stInfo['garage']      then decoded['gg'] = json.decode(stInfo['garage'])      end
@@ -354,7 +354,7 @@ AddEventHandler('cnr:police_station_info', function(stInfo)
     if stInfo['vehicles']    then decoded['vh'] = json.decode(stInfo['vehicles'])    end
     if stInfo['spawn_heli']  then decoded['he'] = json.decode(stInfo['spawn_heli'])  end
     if stInfo['spawn_cycle'] then decoded['cy'] = json.decode(stInfo['spawn_cycle']) end
-    
+
     -- Restructure stationInfo with new blips and stuff!
     if stationInfo.blips then
       for k,v in pairs (stationInfo.blips) do
@@ -364,10 +364,10 @@ AddEventHandler('cnr:police_station_info', function(stInfo)
     stationInfo = { blips = {} }
     for k,v in pairs (decoded) do
       if k == 'ar' or k == 'gg' then
-      
+
         local temp = AddBlipForCoord(v['x'], v['y'], v['z'])
         SetBlipColour(temp, 42)
-        
+
         if     k == 'ar' then
           SetBlipSprite(temp, 487)
           SetBlipScale(temp, 1.1)
@@ -375,15 +375,15 @@ AddEventHandler('cnr:police_station_info', function(stInfo)
           SetBlipSprite(temp, 524)
           SetBlipScale(temp, 0.85)
         end
-        
+
         table.insert(stationInfo.blips, temp)
-        
+
       end -- k != gs
-      
+
       stationInfo[k] = decoded[k]
-      
+
     end -- for
-    
+
   end
 end)
 
@@ -411,10 +411,10 @@ function EndCopDuty(st)
   transition = true
   myAgency   = 0
   PoliceCamera(c)
-  
+
   -- Reset 'stationInfo'
   if stationInfo.blips then
-    for k,v in pairs (stationInfo.blips) do 
+    for k,v in pairs (stationInfo.blips) do
       if DoesBlipExist(v) then RemoveBlip(v) end
     end
   end
@@ -443,7 +443,7 @@ end
 function UnlockPoliceCarDoor()
   local veh = GetVehiclePedIsTryingToEnter(PlayerPedId())
   if veh > 0 then
-    local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
+--    local mdl = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
     if IsUsingPoliceVehicle() then
       if GetVehicleDoorLockStatus(veh) > 0 then
         if isCop then
@@ -468,29 +468,29 @@ end
 -- Sends the given ID (or closest player) to prison if they are Wanted
 function ImprisonClient(client)
   if isCop then
-  
-    if IsPedDeadOrDying(PlayerPedId()) then 
+
+    if IsPedDeadOrDying(PlayerPedId()) then
       TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
         "You Are Dead",
         "How are you going to penalize someone if you're dead?"
       }})
       return 0
     end
-    
+
     print("DEBUG - Trying to jail client.")
     if not client then
       client = exports['cnrobbers']:GetClosestPlayer()
       print("DEBUG - No Client ID given - Imprisoning nearest client.")
     end
-    
+
     local theyPed = GetPlayerPed(client)
-    if IsPedDeadOrDying(theyPed) or IsPlayerDead(client) then 
+    if IsPedDeadOrDying(theyPed) or IsPlayerDead(client) then
       TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
         "Player is Dead", "You can't penalize dead people!"
       }})
       return 0
     end
-    
+
     local dist = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(GetPlayerPed(client)))
     if dist < 4.25 then
       print("DEBUG - Trying to imprison "..GetPlayerName(client))
@@ -500,7 +500,7 @@ function ImprisonClient(client)
         "Too far away, get closer!"
       }})
     end
-    
+
   else
     TriggerEvent('chat:addMessage', {templateId = "errMsg", args = {
       "You are not a law enforcement officer!"
@@ -515,12 +515,12 @@ RegisterCommand('ticket', ImprisonClient)
 -- DEBUG - ctr is used to determine if B was pressed twice to upgrade alarm to emergent
 -- I need to find a better way to implement this later.
 local lastRequest = 0
-local lastArrest  = 0
+--local lastArrest  = 0
 function PoliceDutyLoops()
 
   Citizen.CreateThread(function()
     while isCop do
-    
+
       -- Unlock police vehicle door if entering locked police cars
       if IsControlJustPressed(0, 75) then UnlockPoliceCarDoor() -- F
 
@@ -540,12 +540,12 @@ function PoliceDutyLoops()
           end)
         end]]
       end
-      
+
       -- Draw markers if applicable
       local myPos = GetEntityCoords(PlayerPedId())
       if stationInfo['ar'] then
         local dmPos = vector3(stationInfo['ar']['x'], stationInfo['ar']['y'], stationInfo['ar']['z'] - 1.12)
-        if #(myPos - dmPos) < 100.0 then 
+        if #(myPos - dmPos) < 100.0 then
           DrawMarker(1, dmPos, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.8, 0.8, 0.45, 255, 0, 0, 120, false, false, 0, false
           )
@@ -553,74 +553,76 @@ function PoliceDutyLoops()
       end
       if stationInfo['gg'] then
         local dmPos = vector3(stationInfo['gg']['x'], stationInfo['gg']['y'], stationInfo['gg']['z'] - 1.12)
-        if #(myPos - dmPos) < 100.0 then 
+        if #(myPos - dmPos) < 100.0 then
           DrawMarker(1, dmPos, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.8, 0.8, 0.45, 0, 180, 255, 120, false, false, 0, false
           )
         end
       end
-      
+
       Citizen.Wait(0)
     end
   end)
 end
 
 
-local isStunned = false
+--local isStunned = false
 Citizen.CreateThread(function()
-  while true do 
-    if IsPedBeingStunned(PlayerPedId()) then 
-      isStunned = true
-      
+  while true do
+    if IsPedBeingStunned(PlayerPedId()) then
+      --isStunned = true
+
       local nearPed = 0
       local cDist   = math.huge
       local myPed   = PlayerPedId()
       local myPos   = GetEntityCoords(myPed)
-      
+
       for ped in exports['cnrobbers']:EnumeratePeds() do
         if ped ~= myPed then
           local dist = #(GetEntityCoords(ped) - myPos)
           if dist < cDist and dist < 12.0 then
-            if GetSelectedPedWeapon(ped) == GetHashKey("WEAPON_STUNGUN") then 
+            if GetSelectedPedWeapon(ped) == GetHashKey("WEAPON_STUNGUN") then
               nearPed = ped; cDist = dist
             end
           end
         end
       end
-      
+
       local plys = GetActivePlayers()
       local cop  = 0
-      for _,i in ipairs(plys) do 
-        if nearPed == GetPlayerPed(i) then 
+      for _,i in ipairs(plys) do
+        if nearPed == GetPlayerPed(i) then
           cop = GetPlayerServerId(i)
         end
       end
       print("DEBUG - Stunned by ped "..tostring(nearPed).." at distance "..tostring(cDist).."!")
-      
-      if cop > 0 then 
+
+      if cop > 0 then
         print("DEBUG - Tased by cop ID #"..cop)
         TriggerServerEvent('cnr:prison_taser', cop)
       else
         print("DEBUG - Unable to find a cop for the taser action.")
       end
-      
+
       while IsPedBeingStunned(myPed) do Wait(10) end
-      isStunned = false
+      --isStunned = false
     end
     Citizen.Wait(100)
   end
 end)
 
+--[[
 function PoliceArmory()
 
   -- Closes the menu
   if not openMenu then
-  
+
   -- Opens the menu
   else
-  
+
   end
 end
+]]
 
 
 --- PoliceGarage()
@@ -636,14 +638,14 @@ function PoliceGarage(openMenu)
     cam = nil
     Citizen.Wait(3000)
     ignoreDuty = false
-  
+
   -- Opens the menu
   else
     ignoreDuty = true
     LawVehicle("initial", 1) -- Spawns an initial vehicle (vehicle 1)
-  
+
   end
-  
+
 end
 
 
@@ -664,23 +666,23 @@ Citizen.CreateThread(function()
         end
         Citizen.Wait(100)
       end
-      
+
       -- If station has an armory, allow interaction
       if stationInfo['ar'] then
         local dist = #(myPos - vector3(stationInfo['ar']['x'],stationInfo['ar']['y'],stationInfo['ar']['z']))
-        if dist < 1.25 then 
+        if dist < 1.25 then
           PoliceArmory(true)
         end
       end
-      
+
       -- If station has a garage, allow vehicle select
-      if stationInfo['gg'] then 
+      if stationInfo['gg'] then
         local dist = #(myPos - vector3(stationInfo['gg']['x'],stationInfo['gg']['y'],stationInfo['gg']['z']))
-        if dist < 1.25 then 
+        if dist < 1.25 then
           PoliceGarage(true)
         end
       end
-      
+
     end
     Citizen.Wait(10)
   end
@@ -712,8 +714,8 @@ Citizen.CreateThread(function()
       if restricted[mdl] then
         TaskLeaveVehicle(PlayerPedId(), vehc, 16)
       end
-      if DutyStatus() then 
-        if not IsUsingPoliceVehicle() then 
+      if DutyStatus() then
+        if not IsUsingPoliceVehicle() then
           TaskLeaveAnyVehicle(PlayerPedId(), 16, 16)
           TriggerEvent('chat:addMessage', {templateId = 'errMsg', args = {
             "Not a Police Vehicle",
@@ -805,12 +807,12 @@ function LawVehicle(actionName, value)
   if not pauseSelection then
 
     pauseSelection = true -- Avoid spawning multiple police cars while browsing
-    
+
     -- Initial Vehicle Spawn
     if actionName == "initial" then
-    
+
       ResetPoliceVehicleIndex()
-      
+
       -- Adds the menu items for selecting the vehicle
       local nextVeh = NativeUI.CreateItem("Next Vehicle", "Next Vehicle")
       vehMenu:AddItem(nextVeh)
@@ -834,7 +836,7 @@ function LawVehicle(actionName, value)
         vehMenu:Visible(false)
         TriggerEvent('cnr:law_vehicle', "cancel", 1)
       end
-      
+
       vehMenu.MouseControlsEnabled    = false
       vehMenu.MouseEdgeEnabled        = false
       vehMenu.ControlDisablingEnabled = false
@@ -844,19 +846,19 @@ function LawVehicle(actionName, value)
       end
       _menuPool:RefreshIndex()
       vehMenu:Visible(true)
-    
+
     end
-    
-    if actionName ~= "cancel" then 
+
+    if actionName ~= "cancel" then
       if actionName ~= "select" then
         local vehChoice = GetPoliceVehicle(myAgency, value)
         local gHash     = vehChoice.mdl
-        local pspots    = math.random(#stationInfo['gs'])
-        
+        --local pspots    = math.random(#stationInfo['gs'])
+
         -- Delete previous vehicle
         local tempVeh = GetVehiclePedIsIn(PlayerPedId())
         if tempVeh > 0 then DeleteVehicle(tempVeh) end
-        
+
         RequestModel(gHash)
         while not HasModelLoaded(gHash) do Wait(10) end
         ClearAreaOfVehicles(
@@ -871,7 +873,7 @@ function LawVehicle(actionName, value)
           stationInfo['gs'][1]['z'],
           0.0, true, false
         )
-        
+
         local ped = PlayerPedId()
         SetVehicleEngineOn(veh, true, false, false)
         FreezeEntityPosition(veh, true)
@@ -879,24 +881,24 @@ function LawVehicle(actionName, value)
         SetEntityHeading(veh, stationInfo['gs'][1]['h'])
         SetVehicleNeedsToBeHotwired(veh, false)
         SetPedIntoVehicle(ped, veh, (-1))
-        
+
         -- Start by setting all extras to OFF
-        for i = 1, 25 do 
-          if DoesExtraExist(veh, i) then 
+        for i = 1, 25 do
+          if DoesExtraExist(veh, i) then
             SetVehicleExtra(veh, i, 1)
           end
         end
-        
+
         -- Adds the extra to the vehicle as specified in cl_config.lua
-        for _,i in ipairs (vehChoice.extras) do 
+        for _,i in ipairs (vehChoice.extras) do
           if DoesExtraExist(veh, i) then
             SetVehicleExtra(veh, i, 0)
           end
         end
-        
+
         SetVehicleLivery(veh, vehChoice.livery)
         SetModelAsNoLongerNeeded(gHash)
-        
+
       end
       Citizen.Wait(10)
       -- Creates the view camera for vehicle selection
@@ -908,7 +910,7 @@ function LawVehicle(actionName, value)
         local offset = GetOffsetFromEntityInWorldCoords(PlayerPedId(), -2.4, 6.0, 1.2)
         SetCamParams(cam, offset.x, offset.y, offset.z, 350.0, 0.0, pHead + 200.0, 60.0)
       end
-      if actionName == "select" then 
+      if actionName == "select" then
         local veh = GetVehiclePedIsIn(PlayerPedId())
         FreezeEntityPosition(veh, false)
         PoliceGarage(false)

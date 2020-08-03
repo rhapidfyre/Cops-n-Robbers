@@ -32,27 +32,27 @@ Citizen.CreateThread(function()
   while not loaded do Wait(100) end
   print("DEBUG - Client loaded and ready.")
   while true do
-  
-  	Citizen.Wait(1)
-	
-  	if IsControlJustReleased(0, 20) and not exports['cnr_police']:VehicleMenuOpen() then
+
+    Citizen.Wait(1)
+
+    if IsControlJustReleased(0, 20) and not exports['cnr_police']:VehicleMenuOpen() then
       largeMap = not largeMap
-  	  SetRadarBigmapEnabled(largeMap, false)
+      SetRadarBigmapEnabled(largeMap, false)
       TriggerEvent('cnr:bigmap', largeMap)
-  	end
-    
+    end
+
     if largeMap then
-    
+
 		-- Close the map if the pause menu is opened
-		if IsPauseMenuActive() then 
+		if IsPauseMenuActive() then
 			CloseBigMap()
 		end
-        
+
 		-- Close the map if player is dead
 		if IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
 			CloseBigMap()
 		end
-	  
+
     end
   end
 end)
@@ -65,14 +65,14 @@ local function CNRBlipColour(blip, wLevel, cLevel)
     elseif cLevel < 8   then SetBlipColour(blip, 30)
     elseif cLevel < 10  then SetBlipColour(blip, 42)
     else                     SetBlipColour(blip, 63)
-    end     
+    end
   else
     if wLevel < 1       then SetBlipColour(blip, 0)
     elseif wLevel < 4   then SetBlipColour(blip, 5)
     elseif wLevel < 7   then SetBlipColour(blip, 44)
     elseif wLevel < 10  then SetBlipColour(blip, 47)
     else                     SetBlipColour(blip, 49)
-    end     
+    end
   end
 end
 
@@ -89,15 +89,15 @@ function DrawPlayerBlips()
         RemoveBlip(blip)
       end
     end
-  end 
+  end
   while true do
     local plys = GetActivePlayers()
     for _,ply in ipairs (plys) do
       if ply ~= PlayerId() then
-      
+
         local ped    = GetPlayerPed(ply)
         local exists = GetBlipFromEntity(ped)
-        
+
         if not DoesBlipExist(exists) then
           local blip = AddBlipForEntity(ped)
           local svid = GetPlayerServerId(ply)

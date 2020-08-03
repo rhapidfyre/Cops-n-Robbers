@@ -9,7 +9,7 @@ depts = {} -- Global Var for police scripts
 --[[ 'agency':
   0:SWAT (In this case, 0 means anyone can use it including SWAT)
   1:LSPD 2:LSSD 3:BCSO 4:SAHP 5:PARK 6:USAF 7:FIB 8:PBPD
-  'rank': 0 means any rank 
+  'rank': 0 means any rank
   'uc': If true, the occupants will NOT show up blue on the radar.
   'utilty': If true, vehicle can be used for restock
 ]]
@@ -33,7 +33,7 @@ local pVehicles = {
     agency = 1, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd1"), title = "Crown Victoria", subtitle = "LSPD Slicktop",
     agency = 1, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
-  
+
   -- "scpd2" variations
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "BCSO Standard",
     agency = 3, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0},
@@ -51,7 +51,7 @@ local pVehicles = {
     agency = 1, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd2"), title = "Ford Taurus", subtitle = "LSPD Slicktop",
     agency = 1, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
-  
+
   -- "scpd3" variations
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSPD Standard",
     agency = 1, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0},
@@ -69,7 +69,7 @@ local pVehicles = {
     agency = 2, rank = 0, livery = 3, extras = {1,3,4,5,6}, price = 0},
   {mdl = GetHashKey("scpd3"), title = "Dodge Charger", subtitle = "LSSD Slicktop",
     agency = 2, rank = 2, livery = 3, extras = {2,3,4,5,6}, price = 1000, uc = true},
-    
+
   -- "scpd4" variations
   {mdl = GetHashKey("scpd4"), title = "Ford Interceptor", subtitle = "BCSO Standard",
     agency = 3, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0, utility = true},
@@ -79,31 +79,31 @@ local pVehicles = {
     agency = 8, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0, utility = true},
   {mdl = GetHashKey("scpd4"), title = "Ford Interceptor", subtitle = "USAF Standard",
     agency = 6, rank = 0, livery = 0, extras = {1,3,4,5,6}, price = 0, utility = true},
-  
+
   -- "1200RT" variations
   {mdl = GetHashKey("1200RT"), title = "BMW Motorbike", subtitle = "LSPD Traffic Division",
     agency = 1, rank = 4, livery = 0, extras = {1,2,3}, price = 2250},
   {mdl = GetHashKey("1200RT"), title = "BMW Motorbike", subtitle = "BCSO Traffic Division",
     agency = 3, rank = 4, livery = 1, extras = {1,2,3}, price = 2250},
-  
+
   -- Dodge Challenger Hellcat (UC)
   {mdl = GetHashKey("hellcat"), title = "Challenger Hellcat", subtitle = "Pursuit Intercept",
     agency = 0, rank = 7, livery = 1, extras = {1,2,3,4,12}, price = 6000, uc = true, pursuit = true},
-  
+
   -- Chevy Corvette (UC)
   {mdl = GetHashKey("zr1"), title = "Chevy Corvette", subtitle = "Pursuit Intercept",
     agency = 0, rank = 10, livery = 1, extras = {1,2}, price = 8000, uc = true, pursuit = true},
   {mdl = GetHashKey("zr1"), title = "Chevy Corvette", subtitle = "Pursuit Intercept",
     agency = 0, rank = 10, livery = 1, extras = {}, price = 8000, pursuit = true},
-    
+
   -- Shelby Mustang GT (UC)
   {mdl = GetHashKey("17gt500"), title = "Shelby Mustang", subtitle = "Pursuit Intercept",
     agency = 0, rank = 7, livery = 1, extras = {1,2}, price = 8000, uc = true, pursuit = true},
-    
+
   -- Chevy Camaro (UC)
   {mdl = GetHashKey("camarorb"), title = "Chevy Camaro", subtitle  = "Pursuit Intercept",
     agency = 0, rank = 7, livery = 1, extras = {1}, price = 0, uc = true, pursuit = true},
-  
+
   -- Highway Patrol Vehicles
   {mdl = GetHashKey("hwaycar"), title = "Ford Interceptor", subtitle = "SA Highway Patrol",
     agency = 4, rank = 0, livery = 0, extras = {1}, price = 0},
@@ -124,7 +124,7 @@ function IsUsingPoliceVehicle()
   if IsPedInAnyVehicle(ped) then
     local veh = GetVehiclePedIsIn(ped)
     if GetVehicleClass(veh) == 18 then return true end
-    for k,_ in pairs (pVehicles) do 
+    for k,_ in pairs (pVehicles) do
       if k == veh then return true end
     end
   end
@@ -138,22 +138,22 @@ end
 -- @i (-1): Previous Index (0): Next Index (1): Current Index
 -- @return A table of vehicle information
 function GetPoliceVehicle(agency, i)
-  
+
   local noVehicles = {
     mdl = GetHashKey("police"), title = "No Vehicles",
     subtitle = "This Station has no Vehicles!",
     agency = 0, rank = 0, livery = 0, extras = {}, price = 0
   }
-    
+
   if not agency then
     print("DEBUG - Agency not given (nil), returning standard vehicle table.")
     return noVehicles
   end
-  
+
   local triedAttempts = 1
   local maxAttempts   = #pVehicles * 3
   local validVehicle  = false
-  
+
   repeat
     if i < 0 then vIndex = vIndex - 1
     else vIndex = vIndex + 1 -- if i == 0 increment
@@ -169,15 +169,15 @@ function GetPoliceVehicle(agency, i)
     print("DEBUG - Attempting vIndex ["..vIndex.."]")
     Citizen.Wait(1)
   until ((validVehicle) or (triedAttempts > maxAttempts))
-    
-  
+
+
   if not pVehicles[vIndex] then
     print("DEBUG - Index "..vIndex.." was not valid; Returning standard vehicle.")
     return noVehicles
   end
   print("DEBUG - Found vehicle @ vIndex "..vIndex..": "..(json.encode(pVehicles[vIndex])))
   return pVehicles[vIndex]
-  
+
 end
 
 
@@ -190,8 +190,8 @@ end
 AddEventHandler('cnr:police_stations', function(stations)
 
   depts = {} -- Reset / Resize 'depts'
-  for k,v in pairs (stations) do 
-  
+  for k,v in pairs (stations) do
+
     -- Temp var for settings.
     -- The garbage collector will dispose of it. This blip won't change.
     local newVector = vector3(v['x'], v['y'], v['z'])
@@ -200,11 +200,11 @@ AddEventHandler('cnr:police_stations', function(stations)
     SetBlipColour(temp, v['blip_color'])
     SetBlipAsShortRange(temp, true)
     SetBlipDisplay(temp, 2)
-    
+
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Police Station")
     EndTextCommandSetBlipName(temp)
-    
+
     -- Do it again, but for the duty position
     -- As before, dispose. It won't change.
     local dty        = json.decode(v['duty_point'])
@@ -215,7 +215,7 @@ AddEventHandler('cnr:police_stations', function(stations)
     SetBlipScale(dutyBlip, 1.12)
     SetBlipAsShortRange(dutyBlip, true)
     SetBlipDisplay(dutyBlip, 5)
-    
+
     local camInfo = json.decode(v['cams'])
     local camView = {
       pos = vector3(camInfo['view']['x'],camInfo['view']['y'],camInfo['view']['z']),
@@ -229,7 +229,7 @@ AddEventHandler('cnr:police_stations', function(stations)
       pos = vector3(camInfo['walk']['x'],camInfo['walk']['y'],camInfo['walk']['z']),
       rot = camInfo['walk']['h']
     }
-    
+
     -- Build K->V table
     depts[ v['id'] ] = {
       agency  = v['agency_id'],
@@ -239,6 +239,6 @@ AddEventHandler('cnr:police_stations', function(stations)
         view = camView, leave = camExit, walk = walkoff
       }
     }
-    
+
   end -- for
 end) -- cnr:police_stations

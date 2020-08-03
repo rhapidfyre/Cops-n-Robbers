@@ -6,7 +6,7 @@ RegisterServerEvent('cnr:police_stations_req')
 -- Sends list of valid police stations to player (if given) or all players
 -- @param client The client to send it to. Defaults to all clients if nil
 local function LoadPoliceStations(client)
-  
+
   -- SQL: Return list of all stations that are law enforcement related
   exports['ghmattimysql']:execute(
     "SELECT st.cams,st.zone,st.id,st.agency_id,st.x,st.y,st.z,st.duty_point,a.blip_color,a.blip_sprite "..
@@ -17,7 +17,7 @@ local function LoadPoliceStations(client)
       TriggerClientEvent('cnr:police_stations', src, stationList)
     end
   )
-  
+
 end
 
 
@@ -39,7 +39,7 @@ AddEventHandler('cnr:police_stations_req', function(stNumber)
   print("DEBUG - Player #"..client.." requesting Station #"..stNumber.." information.")
   if stNumber then
     if stNumber > 0 then
-    
+
       -- SQL: Return station information (armory, vehicles, etc)
       exports['ghmattimysql']:execute(
         "SELECT * FROM stations WHERE id = @n", {['n'] = stNumber},
@@ -50,7 +50,7 @@ AddEventHandler('cnr:police_stations_req', function(stNumber)
           print("DEBUG - Sent player station info: "..json.encode(stationInfo[1]))
         end
       )
-    
+
     end -- stNumber > 0
   end -- stNumber
 end)

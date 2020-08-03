@@ -35,17 +35,17 @@ AddEventHandler('cnr:robbery_take', function(cashTake)
     local ply = source
     local uid = exports['cnrobbers']:UniqueId(ply)
     if uid then
-    
+
       TriggerEvent('cnr:robbery', ply, cashTake)
       TriggerClientEvent('cnr:robbery_drops', ply)
-      
+
       -- SQL: Add cash take to robbery DB.
       -- This has to be cashed in later
       exports['ghmattimysql']:execute(
         "INSERT INTO robberies (idUnique, cash) VALUES (@u, @m)",
         {['u'] = uid, ['m'] = cashTake}
       )
-    
+
     end
 
   else

@@ -4,14 +4,14 @@ RegisterServerEvent('cnr:create_player')  -- Client has connected
 RegisterServerEvent('cnr:create_session') -- Client is ready to join
 
 -- Whether the server should display connection/join messages --
-local doTalk = true
+--local doTalk = true
 local doJoin = true
 local cprint = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 local dMsg   = true -- Display debug messages
 ----------------------------------------------------------------
 
-local steams    = {} -- Collection of Steam IDs by Server ID.
-local fivem     = {} -- Collection of FiveM License #s by Server ID.
+--local steams    = {} -- Collection of Steam IDs by Server ID.
+--local fivem     = {} -- Collection of FiveM License #s by Server ID.
 local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
 local unique    = {} -- Unique IDs by player server ID
 
@@ -85,13 +85,13 @@ function CreateUniqueId(ply)
     unique[ply] = uid
     exports['cnrobbers']:UniqueId(ply, tonumber(uid)) -- Set UID for session
     cprint("Unique ID ("..(uid)..") created for  "..GetPlayerName(ply))
-    
+
   else
     cprint("^1A Fatal Error has occurred, and the player has been dropped.")
     print("5M:CNR was unable to ascertain a Unique ID for "..GetPlayerName(ply))
     print("The player is not using any methods of identification.")
     DropPlayer(ply, "Fatal Error; Steam, Social Club, FiveM, or Discord License required on this server for stats tracking.")
-    
+
   end
   return unique[ply]
 end
@@ -241,7 +241,7 @@ local function GetWhitelist()
   if not FileExists() then return {} end
   local whitelistFile = "resources/[cnr]/cnr_charcreate/whitelist.txt"
   local lines = {}
-  for line in io.lines(whitelistFile) do 
+  for line in io.lines(whitelistFile) do
     lines[#lines + 1] = string.gsub(line, "\r", "")
   end
   return lines
@@ -255,19 +255,19 @@ AddEventHandler("playerConnecting", function(playerName, setKickReason, deferral
 
     -- Tell the connection to defer until we have done our whitelist check
 	deferrals.defer()
-	
+
   local ids = GetPlayerIdentifiers(source)
 	local authorizedList = GetWhitelist()
-  
+
 	-- Tell the user we're checking stuff (not shown for long)
   deferrals.update("Checking early access whitelist...")
 	Wait(200)
-  
+
   for myIdx,identifier in pairs(ids) do
-	
+
 	-- Loop through the whitelist array
     for _,i in ipairs(authorizedList) do
-	  
+
 	    -- Check if the player exists in the array.
       if (string.lower(i) == string.lower(identifier)) then
         print("[CNR WHITELIST] ^2Authorized ^7"..playerName.." to join. ("..identifier..").")
@@ -276,7 +276,7 @@ AddEventHandler("playerConnecting", function(playerName, setKickReason, deferral
       end
     end
   end
-  
+
 	print("[CNR WHITELIST] ^1Failed^7 to authorize "..playerName..". Connection rejected.")
 	deferrals.done("Whitelist Violation - Get Whitelisted @ http://discord.gg/jaxxkKp !")
 end)

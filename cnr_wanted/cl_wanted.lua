@@ -183,15 +183,15 @@ function IsPlayerAimingAtCop(target)
   if not DecorExistOn(target, "AimCrime") then DecorRegister("AimCrime", 2) end
   if not DecorGetBool(target, "AimCrime") then
     DecorSetBool(target, "AimCrime", true)
-    
+
     -- Remove flag after 30 seconds
     Citizen.CreateThread(function()
       Citizen.Wait(30000)
-      if DoesEntityExist(target) then 
+      if DoesEntityExist(target) then
         DecorSetBool(target, "AimCrime", false)
       end
     end)
-    
+
     local myPos = GetEntityCoords(PlayerPedId())
     if IsPedAPlayer(target) then
       if exports['cnr_police']:DutyStatus(target) then
@@ -210,14 +210,14 @@ function IsPlayerAimingAtCop(target)
         Citizen.Wait(1000)
       end
     else
-        
+
         --[[
       local myPos         = GetEntityCoords(PlayerPedId())
       local stName, cross = GetStreetNameAtCoord(myPos.x, myPos.y, myPos.z)
       local zn            = GetNameOfZone(myPos.x, myPos.y, myPos.z)
       local r1            = GetStreetNameFromHashKey(stName)
-        
-      print("DEBUG - ("..stName..") "..r1.." @ "..zn)  
+
+      print("DEBUG - ("..stName..") "..r1.." @ "..zn)
         ]]
       TriggerServerEvent('cnr:wanted_points', 'brandish-npc', true,
           exports['cnrobbers']:GetFullZoneName(GetNameOfZone(myPos)),
@@ -243,7 +243,7 @@ function NotCopLoops()
     Citizen.CreateThread(function()
       while not isCop do
         local ped = PlayerPedId()
-        local isCop = exports['cnr_police']:DutyStatus()
+        isCop = exports['cnr_police']:DutyStatus()
         -- Aiming/Shooting Crimes
         if not isCop then -- Ignore if player is a cop
           if IsPlayerFreeAiming(PlayerId()) then
@@ -278,7 +278,7 @@ function NotCopLoops()
           end
         else print("DEBUG - Ignoring freeaim; Player is a cop.")
         end
-        
+
         -- Shooting a firearm near peds and someone can see it
         if IsPedShooting(ped) and not isCop then
           if not exports['cnr_ammunation']:InsideGunRange() then

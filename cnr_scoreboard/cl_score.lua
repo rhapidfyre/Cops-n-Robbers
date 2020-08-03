@@ -49,29 +49,28 @@ function GetClientScore(client, copScore)
   if not client then client = GetPlayerServerId(PlayerId()) end
   if type(client) ~= "number" then tonumber(client) end
   if not levels[client] then SetClientScore(client) end
-  
+
   if copScore then  return (levels[client].cop)
   else              return (levels[client].civ)
   end
-  
-  return (-1) -- Error, return -1
+
 end
 
 function SetClientScore(client, scores)
   if not client then client = GetPlayerServerId(PlayerId()) end
   if type(client) ~= "number" then client = tonumber(client) end
-  if not scores then 
+  if not scores then
     levels[client] = {cop = 1, civ = 1}
     return {cop = 1, civ = 1}
-    
+
   else
     if not levels[client] then
       levels[client] = {cop = 0, civ = 0}
     end
-    
+
     levels[client] = {civ = scores.civ, cop = scores.cop}
     return {cop = levels[client].cop, civ = levels[client].civ}
-    
+
   end
 end
 AddEventHandler('cnr:score_receive', function(client, scores)
@@ -89,23 +88,23 @@ Citizen.CreateThread(function()
 				local players = {}
 				local clients = GetActivePlayers()
 				for _,i in ipairs(clients) do
-        
+
 					local uname  = GetPlayerName(i)
 					local svid   = GetPlayerServerId(i)
           local myself = ""
           local svwp   = GetPlayerWantedScore(svid)
           local copScore = GetClientScore(svid, true)
           local civScore = GetClientScore(svid, false)
-  
+
           if i == PlayerId() then myself = ' class="myself"' end
-          
+
           if svwp and not copPlayers[svid] then
-          
+
             -- Is Wanted
             if svwp > 0 then
-            
+
               if svwp > 10 then -- Most Wanted
-              
+
                 table.insert(players, '<div class="ply_info">'..
                   '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
                   '</h5><table class="wanted10">'..
@@ -115,7 +114,7 @@ Citizen.CreateThread(function()
                   '</table></div>'
                 )
               else -- Wanted
-              
+
                 table.insert(players, '<div class="ply_info">'..
                   '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..
                   '</h5><table class="wanted'..(svwp)..'">'..
@@ -127,7 +126,7 @@ Citizen.CreateThread(function()
                 )
               end
             else -- Is Not Wanted
-            
+
               table.insert(players, '<div class="ply_info">'..
                 '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
                 '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
@@ -151,7 +150,7 @@ Citizen.CreateThread(function()
 
           -- Is Not Wanted
           else
-          
+
             table.insert(players, '<div class="ply_info">'..
               '<h3'..myself..'>'..(uname)..'</h3><h5'..myself..'>'..(svid)..'</h5><table>'..
               '<tr><thead><th colspan="2">Not Wanted</th></thead></tr>'..
@@ -162,7 +161,7 @@ Citizen.CreateThread(function()
           end
 
 				end
-        
+
 				SendNUIMessage({ text = table.concat(players) })
 				showList = true
 				while showList do

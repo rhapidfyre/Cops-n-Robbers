@@ -184,7 +184,7 @@ end)
 Citizen.CreateThread(function()
   Citizen.Wait(3000)
   local plys = GetPlayers()
-  for _,i in ipairs(plys) do 
+  for _,i in ipairs(plys) do
     SetPlayerCashValues(tonumber(i))
   end
 end)

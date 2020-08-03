@@ -202,8 +202,8 @@ function ImprisonClient(ply, cop, isAdmin)
 end
 AddEventHandler('cnr:player_death', function()
   local client = source
-  if tickets[cl] then
-    if tickets[cl] > 0 then tickets[cl] = 0 end
+  if tickets[client] then
+    if tickets[client] > 0 then tickets[client] = 0 end
   end
 end)
 AddEventHandler('cnr:prison_sendto', function(ply)

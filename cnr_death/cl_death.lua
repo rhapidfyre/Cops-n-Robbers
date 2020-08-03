@@ -12,7 +12,7 @@ RegisterNetEvent('cnr:prison_release')
 RegisterNetEvent('cnr:prison_rejail')
 
 local locksound = false
-local inPrison  = 0
+--local inPrison  = 0
 local hNear     = 0
 local hasInsurance = false
 local passiveMode = false
@@ -284,7 +284,7 @@ function RevivePlayer()
       SetCurrentPedWeapon(PlayerPedId(), unarm, true)
       local passTime = GetGameTimer() + 300000
       Citizen.CreateThread(function()
-        while passiveMode do 
+        while passiveMode do
           SetPlayerInvincible(PlayerId(), true)
           Citizen.Wait(0)
         end

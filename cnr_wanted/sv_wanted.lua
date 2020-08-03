@@ -163,7 +163,7 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911
   if crime then
     -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
-    
+
       -- This is the first crime that has been committed
       if not tracking[ply] and not ignore911 then
         worstCrime[ply] = crime
@@ -203,7 +203,7 @@ end)
 function WantedLevel(ply)
 
   if type(ply) ~= "number" then ply = tonumber(ply) end
-  
+
   -- If ply not given, return 0
   if not ply         then return 0 end
   if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
@@ -211,7 +211,7 @@ function WantedLevel(ply)
   if     wanted[ply] <   1 then return  0
   elseif wanted[ply] > 100 then return 11
   end
-  
+
   return (math.ceil(wanted[ply]/10))
 
 end

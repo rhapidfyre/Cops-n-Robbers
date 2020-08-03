@@ -53,7 +53,7 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
   local ply = source
 
   local numCops = CountCops()
-  
+
   if onDuty then
     local uid = exports['cnrobbers']:UniqueId(ply)
     exports['ghmattimysql']:scalar(
@@ -67,7 +67,7 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
           "There is now "..CountCops().." cop(s) on duty.", ""
         )
         local copRank = cLevel
-        while (cLevel > CopRankFormula(copRank)) do 
+        while (cLevel > CopRankFormula(copRank)) do
           copRank = copRank + 1
           Citizen.Wait(1)
         end
@@ -142,7 +142,7 @@ AddEventHandler('playerDropped', function()
       for k,v in pairs (dropCop) do
         if v == uid then
           table.remove(dropCop, k)
-          TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)  
+          TriggerClientEvent('cnr:police_officer_duty', (-1), ply, nil, 0)
           break
         end
       end

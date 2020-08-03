@@ -98,12 +98,12 @@ function UniqueId(client, uid)
         )
       end
     end
-    
+
   else
-  
+
     print("DEBUG - ERROR; No 'ply' given to 'UniqueId()' (sv_cnrobbers.lua)")
     return 0 -- No 'ply' given, return 0
-    
+
   end
   return (unique[ply])
 end
