@@ -10,7 +10,7 @@
 ## Headers
 
 **Discord Invite:** [Join us on Discord](https://discord.gg/RFpFYhf)  
-Official Test Server: **www.rhapidfyre.com:30120**
+Official Test Server: **www.5mcnr.net**
 
 ## Gamemode Information (Section 1)
 
