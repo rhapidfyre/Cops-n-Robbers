@@ -9,7 +9,9 @@ local zone = {
 CNR.SQL = {
   
   RESULT = function(query, tbl)
+    if not query then return error("No Querystring given to CNR.SQL") end
     local p = promise.new()
+    if not tbl then tbl = {} end
     exports['ghmattimysql']:execute(query, tbl,
       function(result) p:resolve(result) end
     )
@@ -17,7 +19,9 @@ CNR.SQL = {
   end,
   
   SCALAR = function(query, tbl)
+    if not query then return error("No Querystring given to CNR.SQL") end
     local p = promise.new()
+    if not tbl then tbl = {} end
     exports['ghmattimysql']:scalar(query, tbl,
       function(result) p:resolve(result) end
     )
@@ -25,14 +29,48 @@ CNR.SQL = {
   end,
   
   RSYNC = function(query, tbl)
+    if not query then return error("No Querystring given to CNR.SQL") end
+    if not tbl then tbl = {} end
     return exports['ghmattimysql']:executeSync(query, tbl)
   end,
   
   RSCALAR = function(query, tbl)
+    if not query then return error("No Querystring given to CNR.SQL") end
+    if not tbl then tbl = {} end
     return exports['ghmattimysql']:scalarSync(query, tbl)
   end
   
 }
+
+
+AddEventHandler('cnr:metatable', function(cb)
+  cb(CNR)
+end)
+
+
+function GetMetaTable()
+  return CNR
+end
+
+
+--[[ Other scripts will call this to receive the metatable
+Citizen.CreateThread(function()
+  while not CNR do
+    CNR = exports['cnr_gamemode']:GetMetaTable()
+    Citizen.Wait(1)
+  end
+end)
+]]
+
+
+Citizen.CreateThread(function()
+  Citizen.Wait(1000)
+  CNR.zone_list = CNR.SQL.RSCALAR("SELECT * FROM zones")
+  TriggerClientEvent('cnr_base:zonelist', CNR.zone_list)
+end)
+
+
+
 
 --[[ --------------------------------------------------------------------------
   ~ BEGIN POSITION AQUISITION SCRIPTS
@@ -85,8 +123,3 @@ end)
 --[[---------------------------------------------------------------------------
   ~ END OF POSITION ACQUISITION SCRIPTS
 --]]
-
-RegisterCommand('testsql', function()
-  local v = CNR.SQL.QUERY("SELECT * FROM agencies")
-  print(v)
-end, true)
