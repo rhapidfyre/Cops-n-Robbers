@@ -66,10 +66,15 @@ end)
 Citizen.CreateThread(function()
   Citizen.Wait(1000)
   CNR.zone_list = CNR.SQL.RSCALAR("SELECT * FROM zones")
+end)
+
+AddEventHandler('playerSpawned', function()
   TriggerClientEvent('cnr_base:zonelist', CNR.zone_list)
 end)
 
-
+AddEventHandler('cnr_base:request_zones', function()
+  TriggerClientEvent('cnr_base:zonelist', CNR.zone_list)
+end)
 
 
 --[[ --------------------------------------------------------------------------

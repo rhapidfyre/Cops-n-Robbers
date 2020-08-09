@@ -110,3 +110,16 @@ function IsActiveZone()
   if activeZone == zNumber then return true end
   return false
 end
+
+
+Citizen.CreateThread(function()
+  while not #CNR.zone_list > 0 do 
+    Citizen.Wait(1000)
+    TriggerServerEvent('cnr_base:request_zones')
+  end
+end)
+
+
+AddEventHandler('cnr_base:zonelist', function(zlist)
+  CNR.zone_list = zList
+end)

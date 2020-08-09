@@ -27,7 +27,7 @@ end
 
 
 function GetZoneNumber(abbrv)
-  if not zoneByName[abbrv] then return 0 end
+  if not zoneByName[abbrv] then return 1 end
   return (zoneByName[abbrv].z)
 end
 
