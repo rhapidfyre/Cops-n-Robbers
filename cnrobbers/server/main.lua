@@ -1,71 +1,6 @@
 
 local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
 
-local zone = {
-  timer  = 300,       -- Time in minutes between zone changes
-  count  = 4,         -- Number of zones to use
-  active = 1,         -- The currently active zone
-  pick   = 18000000,  -- The next time to pick a zone (in ms)
-}
-
---[[ --------------------------------------------------------------------------
-  ~ BEGIN POSITION AQUISITION SCRIPTS
-  1) Players, when loaded, will submit their position every 12 seconds
-  2) The server, every 30 seconds, loops through the positions table
-  3) For each entry found, it will update their last known position in SQL
-  4) When the update succeeds, it will remove the position entry
-  5) When a player drops, it will send and immediate update.
-]]-----------------------------------------------------------------------------
-local positions = {}
-
-RegisterServerEvent('cnr:save_pos')
-AddEventHandler('cnr:save_pos', function(pos)
-  local ply = source
-  local uid = unique[ply]
-  if uid then
-    positions[uid] = pos
-  end
-end)
-
-
-function SavePlayerPos(uid,pos)
-  if uid then
-    if not pos then pos = positions[uid] end
-    if pos then
-      exports['ghmattimysql']:execute(
-        "UPDATE characters SET position = @p WHERE idUnique = @uid",
-        {['p'] = pos, ['uid'] = uid},
-        function()
-          -- Once updated, remove entry
-          positions[uid] = nil
-        end
-      )
-    end
-  end
-end
-
-
-AddEventHandler('playerDropped', function(reason)
-  local ply = source
-  local uid = unique[ply]
-  local plyInfo = GetPlayerName(ply)
-  if uid then
-    SavePlayerPos(uid, positions[uid])
-  end
-  ConsolePrint(
-    "^1"..tostring(plyInfo).." disconnected. ^7("..tostring(reason)..")"
-  )
-  exports['cnr_chat']:DiscordMessage(
-    16711680, tostring(plyInfo).." Disconnected", tostring(reason), ""
-  )
-end)
-
-
---[[---------------------------------------------------------------------------
-  ~ END OF POSITION ACQUISITION SCRIPTS
---]]
-
-
 --- ConsolePrint()
 -- Nicely formatted console print with timestamp
 -- @param msg The message to be displayed
@@ -175,7 +110,7 @@ function ZoneChange()
       })
       ZoneNotification("CHAR_SOCIAL_CLUB",
         "Zone Change", "~r~"..mins,
-        "Active zone is changing soon!"
+        "The active zone is changing soon!"
       )
     end
     n = n - 1
@@ -213,16 +148,19 @@ end
 
 -- Runs the zone change timer for choosing which zone is being played
 function ZoneLoop()
-  while true do
+  ConsolePrint("Zonechange will occur at "..(os.date("%x %X", CNR.zones.pick)))
+  while CNR.zones.count > 1 do
     if GetGameTimer() > zone.pick then
 
-      zone.pick = GetGameTimer() + (zone.timer * 60 * 1000)
-
+      CNR.zones.pick = os.time() + (Config.MinutesPerZone() * 60)
+      
       --[[
         Threaded to ensure the (zone.timer) is consistent, and doesn't add
         5 minutes of tick every time the script decides to change the zone.
       ]]
       Citizen.CreateThread(ZoneChange)
+      ConsolePrint("The next zone will be chosen at "..(os.date("%x %X", CNR.zones.pick)))
+      
     end
     Citizen.Wait(1000)
   end
@@ -236,7 +174,6 @@ AddEventHandler('cnr:client_loaded', function()
   TriggerClientEvent('cnr:active_zone', source, zone.active)
 end)
 
-SetGameType('5M Cops and Robbers')
 
 
 

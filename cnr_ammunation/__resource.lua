@@ -15,7 +15,7 @@
 resource_manifest_version  '05cfa83c-a124-4cfa-a768-c24a5811d8f9'
 
 ui_page "nui/ui.html"
-dependency 'cnrobbers'
+dependency {'cnrobbers'}
 
 files {
   "nui/img/WEAPON_PISTOL50.png", "nui/img/WEAPON_SAWNOFFSHOTGUN.png",

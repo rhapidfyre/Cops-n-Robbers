@@ -1,4 +1,6 @@
 
+local reportLocation = false
+
 local zoneByName = {
   ["AIRP"]    = {name = 'Los Santos Airport', z = 1},
   ["ALAMO"]   = {name = 'Alamo Sea', z = 2},
@@ -91,22 +93,66 @@ local zoneByName = {
   ["ZQ_UAR"]  = {name = 'Davis Quartz', z = 1},
 }
 
+-- Start saving the player's location
+function ReportPosition(doReporting)
+  reportLocation = doReporting
 
---- EXPORT: GetFullZoneName()
--- Returns the name found for the zone in shared.lua
--- If one isn't found, returns "San Andreas"
--- @param abbrv The abbreviation of the zone name given by runtime
--- @return A string containing the proper zone name ("LS Airport")
-function GetFullZoneName(abbrv)
-  if not zoneByName[abbrv] then return "San Andreas" end
-  return (zoneByName[abbrv].name)
+  -- Sends update to MySQL every 12 seconds
+  -- Does not send the update if position has not changed
+  Citizen.CreateThread(function()
+
+    while reportLocation do
+      local myPos = GetEntityCoords(PlayerPedId())
+      local doUpdate = false
+      if not lastPos then
+        doUpdate = true
+      elseif #(lastPos - myPos) > 5.0 then
+        doUpdate = true
+      end
+      if doUpdate then
+        TriggerServerEvent('cnr:save_pos')
+      end
+      lastPos = GetEntityCoords(PlayerPedId())
+      Citizen.Wait(12000)
+    end
+    
+  end)
+
 end
 
-function GetZoneNumber(abbrv)
-  if not zoneByName[abbrv] then return 0 end
-  return (zoneByName[abbrv].z)
+
+function ZoneName()
+  local zn = GetNameOfZone(GetEntityCoords(PlayerPedId()))
+  if zoneByName[zn] then return zoneByName[zn].name end
+  return "San Andreas"
 end
 
-function RetrieveAllZones()
-  return zoneByName
+
+function ZoneNumber()
+  local zn = GetNameOfZone(GetEntityCoords(PlayerPedId()))
+  if zoneByName[zn] then return zoneByName[zn].z end
+  return 0
+end
+
+
+function InActiveZone()
+  local zn = ZoneNumber
+  local az = CNR.activeZone
+  local z  = Config.GetNumberOfZones()
+  if z > 3 then 
+    -- All zones in play. Zone should match
+    return (zn == az)
+  elseif z == 3 then
+    -- Zone 3 & 4, or Zone 1 or Zone 2
+    if az > 2 then return (zn == 3 or zn == 4) end
+    return (az == zn)
+  elseif z == 2 then
+    -- North County
+    if az > 2 then return (zn == 3 or zn == 4) end
+    -- South County
+    return (zn == 1 or zn == 2)
+  else 
+    -- Whole Map is in Play
+    return true
+  end
 end

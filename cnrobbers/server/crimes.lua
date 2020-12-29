@@ -1,28 +1,5 @@
 
 --[[
-  Cops and Robbers: Wanted Script - Shared Dependencies
-  Created by Michael Harris (mike@harrisonline.us)
-  08/20/2019
-
-  This file's main purpose is the definition of criminal events.
-
-  We don't want client modders to modify the fines or times they would receive.
-  Thus, the variable is secure to this file and only accessible by accessors.
-
---]]
-
-
--- List of emergency vehicles by MODELNAME
-eVehicle = {
-  "POLICE", "POLICE2", "POLICE3", "POLICE4",
-  "SHERIFF", "SHERIFF2",
-  "FBI", "FBI2", "FIB", "FIB2",
-  "PRANGER", "FBIRANCHER",
-  "HYDRA", "RHINO", "BARRACKS"
-}
-
-
---[[
   VAR: crimes
   INFO: Holds the crimes information.
   KEY: crime designation/event
@@ -34,6 +11,7 @@ eVehicle = {
     isFelony: This crime can make the player exceed Wanted Level 5
     fine:     The amount of the fine (if applicable)
 ]]
+
 local crimes = {
   ['gta-npc'] = {
     title = "Grand Theft Auto",
@@ -262,3 +240,28 @@ function DoesCrimeExist(crime)
     return false
   end
 end
+
+
+--- EXPORT: AddCrime()
+-- Allows other scripts to add a crime to the list
+function AddCrime(cName, cTable)
+  if crimes[cName] then return false end
+  if not cTable then
+    ConsolePrint("^1No table (args[2]) was given to AddCrime()")
+    return false
+  end
+  if not cTable.title then 
+    ConsolePrint("^1No title in args[2] was given to AddCrime()")
+    return false
+  end
+  if not cTable.weight then cTable.weight = 1 end
+  if not cTable.minTime then cTable.minTime = 5 end
+  if not cTable.maxTime then cTable.maxTime = 15 end
+  if not cTable.fine then
+    cTable.fine = function() return math.random(1000,5000) end
+  end
+  crimes[cName] = cTable
+  return true
+end
+
+
