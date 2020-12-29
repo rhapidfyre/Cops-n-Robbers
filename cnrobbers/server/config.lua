@@ -3,6 +3,11 @@ SetGameType('5M Cops and Robbers')
 
 Citizen.CreateThread(function()
   
+  CNR.reduce = {
+    points = Config.ReductionPoints(),
+    timer  = Config.ReductionTimer()
+  }
+  
   CNR.zones = {
   
       -- The currently active zone
