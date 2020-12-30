@@ -45,13 +45,41 @@ AddEventHandler('cnr:discord', DiscordFeed)
 AddEventHandler('cnr:feed', DiscordFeed)
 
 
-AddEventHandler('chatMessage', function(msgClient, name, message)
+-- Sends all chat messages to the Server Terminal & Discord Feed
+AddEventHandler('chatMessage', function(src, name, message)
   PerformHttpRequest(urls[4],
     function(err, text, headers) end, 'POST',
     json.encode({
-      username = "5M:CNR Monitor",
+      username = "Game Monitor",
       content  = "**"..name.."**: "..message
     }),
     { ['Content-Type'] = 'application/json' }
   )
+  ConsolePrint(
+    '(CHAT) ^6'..tostring(name)..' ('..tostring(src)..'): ^7"'..tostring(message)..'"'
+  )
+end)
+
+
+--- SendRadioMessage()
+-- Sends a radio message to all players.
+AddEventHandler('cnr:radio_message', function(msg, isDept)
+  local ply   = source
+  local isCop = DutyStatus(ply)
+  if isCop then
+    local pName = GetPlayerName(ply)
+    TriggerClientEvent('cnr:radio_receive', (-1),
+      isDept, pName.." ("..ply..")", msg, isCop
+    )
+  else
+    if isDept then
+      TriggerClientEvent('chat:addMessage', ply, {templateId = "errMsg",
+        args = {"/dept", "Must be on Public Safety Duty."
+      }})
+    else
+      TriggerClientEvent('chat:addMessage', ply, {templateId = "errMsg",
+        args = {"/radio", "Must be on Public Safety Duty."
+      }})
+    end
+  end
 end)

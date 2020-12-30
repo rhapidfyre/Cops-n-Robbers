@@ -38,14 +38,10 @@ $(function() {
       }
       if (item.crimeon) {$("#crimefree").fadeOut(1000);}
       
+      if (item.nostars) wnts.hide();
       if (item.stars) {
         wnts.show();
         $("#wstar").attr("src", 'stars/' + (item.stars) + '.png');
-      }
-      if (item.nostars) {wnts.hide();}
-      if (item.mostwanted) {
-        wnts.show();
-        $("#wstar").attr("src", 'stars/11.png');
       }
     
       /* Chat Roller */

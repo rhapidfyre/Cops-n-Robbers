@@ -47,15 +47,9 @@ Citizen.CreateThread(function()
     
   }
   
-  CNR.unique = {} 
-  CNR.police = {} 
-  CNR.wanted = {}
+  CNR.unique      = {} -- Unique ID Assignments
   
-  CNR.reduce = {
-    points = Config.ReductionPoints(),
-    timer  = Config.ReductionTimer()
-  }
-  
+  -- Playzone Information
   CNR.zones = {
   
       -- The currently active zone
@@ -66,12 +60,11 @@ Citizen.CreateThread(function()
       
   }
 
-  CNR.activeZone = math.random( Config.GetNumberOfZones() )
-  TriggerClientEvent('cnr:active_zone', (-1), CNR.activeZone)
+  TriggerClientEvent('cnr:active_zone', (-1), CNR.zones.active)
   CNR.ready = true
   
   ConsolePrint("Metatable configuration complete. The game is now ready!")
-  ConsolePrint("Zone "..(CNR.activeZone).." is the active zone!")
+  ConsolePrint("Zone "..(CNR.zones.active).." is the active zone!")
   
 end)
 

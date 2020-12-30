@@ -1,14 +1,23 @@
 
 RegisterNetEvent('cnr:police_imprison')
+RegisterNetEvent('cnr:player_respawn')
 RegisterNetEvent('cnr:prison_release')
 RegisterNetEvent('cnr:prison_rejail')
+RegisterNetEvent('cnr:death_notify')
 
-local locksound = false
---local inPrison  = 0
-local hNear     = 0
-local hasInsurance = false
-local passiveMode = false
-local notified = false
+local locksound     = false
+local hNear         = 0
+local hasInsurance  = false
+local passiveMode   = false
+local notified      = false
+local doingRevive   = false
+
+
+local function deathNotify(Notification)
+	SetNotificationTextEntry('STRING')
+	AddTextComponentString(Notification)
+	DrawNotification(false, false)
+end
 
 
 Citizen.CreateThread(function()
@@ -27,11 +36,11 @@ Citizen.CreateThread(function()
       EndTextCommandSetBlipName(blip)
     end
   end
-  
+
   -- Track hospital information (if one is nearby)
   while true do
     if hNear > 0 then
-    
+
       -- Can only buy insurance at non-jail hospitals
       if not hospitals[hNear].jailHospital then
         local iPos = hospitals[hNear].insure
@@ -56,11 +65,11 @@ Citizen.CreateThread(function()
           end
         end
       end
-      
+
     end
     Citizen.Wait(1)
   end
-  
+
 end)
 
 
@@ -74,7 +83,7 @@ Citizen.CreateThread(function()
       if hospitals[i].insure then
         local dist = #(myPos - hospitals[i].coords)
         if dist < cDist then
-          cDist = dist; nearestHospital = i 
+          cDist = dist; nearestHospital = i
         end
       end
     end
@@ -84,6 +93,7 @@ Citizen.CreateThread(function()
 end)
 
 
+-- Sends killer information to server and triggers death events
 local function DeathNotification()
   if not notified then
     notified = true
@@ -137,118 +147,98 @@ local function DeathNotification()
         TriggerServerEvent('cnr:death_check', nil)
       end
     end
+    
     TriggerEvent('cnr:player_died')
     TriggerServerEvent('cnr:player_death')
-    
-    -- Prevent repeat checks/messages per death
-    Citizen.Wait(5000)
-    notified = false
-    
+
   end
 end
 
 
-Citizen.CreateThread(function()
-  while not CNR do Wait(100) end
-  while true do
-    Citizen.Wait(0)
-    if CNR.loaded then
-      if not CNR.dead then
-        if IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
-          CNR.dead = true
-        end
-        Citizen.CreateThread(RevivePlayer)
-        Citizen.CreateThread(DeathNotification)
-        StartScreenEffect("DeathFailOut", 0, 0)
-        if not locksound then
-          PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
-          locksound = true
-        end
-        ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
-  
-        local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
-  
-  
-        if HasScaleformMovieLoaded(scaleform) then
-          Citizen.Wait(0)
-  
-          PushScaleformMovieFunction(scaleform, "SHOW_SHARD_WASTED_MP_MESSAGE")
-          BeginTextComponent("STRING")
-          AddTextComponentString("~r~wasted")
-          EndTextComponent()
-          PopScaleformMovieFunctionVoid()
-  
-          Citizen.Wait(500)
-  
-          PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
-          while IsPlayerDead(PlayerId()) do
-            DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-            HideHudAndRadarThisFrame(true)
-            Citizen.Wait(0)
-          end
-          StopScreenEffect("DeathFailOut")
-          locksound = false
-        end
-      end
+-- Runs the traditional "WASTED" screen
+local function DeathFX()
+  StartScreenEffect("DeathFailOut", 0, 0)
+  if not locksound then
+    PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
+    locksound = true
+  end
+  ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
+  local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
+  if HasScaleformMovieLoaded(scaleform) then
+
+    Citizen.Wait(1)
+    PushScaleformMovieFunction(scaleform, "SHOW_SHARD_WASTED_MP_MESSAGE")
+    BeginTextComponent("STRING")
+    AddTextComponentString("~r~wasted")
+    EndTextComponent()
+    PopScaleformMovieFunctionVoid()
+    Citizen.Wait(500)
+    PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
+
+    -- Keep screen active until the player has respawned
+    while IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) do
+      DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
+      HideHudAndRadarThisFrame(true)
+      Citizen.Wait(0)
+    end
+
+    StopScreenEffect("DeathFailOut")
+    locksound = false
+
+  end
+end
+
+
+function CheckForDeath()
+  if not CNR.dead then
+    if IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
+      CNR.dead = true
+      Citizen.CreateThread(DeathFX)
+      Citizen.CreateThread(DeathNotification)
     end
   end
-end)
+end
 
-local doingRevive = false
-function RevivePlayer()
-  if doingRevive then return 0 end
-  doingRevive = true
-  passiveMode = false -- Just to ensure the previous loop has stopped
-  Citizen.Wait(5400)
-  if IsPlayerDead(PlayerId()) then
 
+--function RevivePlayer()
+AddEventHandler('cnr:player_respawn', function(hNumber)
+
+  if source ~= "" then
+  
     DoScreenFadeOut(1200)
-
     while not IsScreenFadedOut() do Wait(100) end
 
-
-    local myPos   = GetEntityCoords(PlayerPedId())
-    local nearest = 1
-    local cDist   = math.huge
-
-    -- Return closest hospital OR jail/prison hospital
-    for k,v in pairs (hospitals) do
-      if Imprisoned() then
-      if v.jailHospital then
-        local dist = #(myPos - v.coords)
-        if dist < cDist then nearest = k; cDist = dist end
+    if not hNumber then
+      if Imprisoned() then hNumber = 6
+      else hNumber = 1
       end
     end
-
+    
     if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-    SetCamParams(cam, hospitals[nearest].deathcam, 0.0, 0.0, hospitals[nearest].camHeading, 50.0)
+    SetCamParams(cam, hospitals[hNumber].deathcam, 0.0, 0.0, hospitals[hNumber].camHeading, 50.0)
     RenderScriptCams(true, true, 500, true, true)
     SetCamActive(cam, true)
 
-    NetworkResurrectLocalPlayer(
-      hospitals[nearest].coords, 0.0, false, false
-    )
-
-    SetEntityHeading(PlayerPedId(), hospitals[nearest].pedHeading)
+    local ped = PlayerPedId()
+    NetworkResurrectLocalPlayer(GetEntityCoords(ped), 0.0, false, false)
     FreezeEntityPosition(PlayerPedId(), true)
-
+  
+    -- Activate Passive Mode
+    -- Threaded to ensure player stays in passive mode while the main game driver runs
     Citizen.CreateThread(function()
       passiveMode = true
+      print("DEBUG - Passive Mode Activated.")
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "^3PASSIVE MODE: ^2Enabled. You are invincible for 5 minutes unless you "..
+        "^3PASSIVE MODE: ^2Enabled. You are invincible for "..(Config.PassiveTimer()).." minutes ^1unless^7 you "..
         "go on police duty, select a weapon, or commit a crime."
       }})
+  
       local unarm = GetHashKey("WEAPON_UNARMED")
       SetCurrentPedWeapon(PlayerPedId(), unarm, true)
-      local passTime = GetGameTimer() + 300000
-      Citizen.CreateThread(function()
-        while passiveMode do
-          SetPlayerInvincible(PlayerId(), true)
-          Citizen.Wait(0)
-        end
-        SetPlayerInvincible(PlayerId(), false)
-      end)
+      local passTime = GetGameTimer() + (Config.PassiveTimer() * 60 * 1000)
+  
       while passiveMode do
+        SetPlayerInvincible(PlayerId(), true)
         local wLevel = WantedLevel()
         if wLevel > 0 then
           passiveMode = false
@@ -263,14 +253,18 @@ function RevivePlayer()
           passiveMode = false
           print("Passive mode has been disabled: 5 Minutes has Passed.")
         end
-        Citizen.Wait(100)
+        Citizen.Wait(0)
       end
+      print("DEBUG - Passive Mode Disabled.")
+      SetPlayerInvincible(PlayerId(), false)
       TriggerServerEvent('cnr:death_nonpassive')
       TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
         "^3PASSIVE MODE: ^1Disabled. You cannow be killed by other players."
       }})
     end)
-
+  
+    notified = false
+    CNR.dead = false
     Citizen.Wait(1000)
     DoScreenFadeIn(3000)
     Citizen.Wait(2000)
@@ -278,76 +272,45 @@ function RevivePlayer()
     Citizen.Wait(520)
     FreezeEntityPosition(PlayerPedId(), false)
     SetCamActive(cam, false)
-
-    -- If still wanted, report it to 911
-    if WantedLevel() > 3 then
-      TriggerServerEvent('cnr:police_dispatch_report',
-        "Wanted Person",
-        hospitals[nearest].title,
-        GetEntityCoords(PlayerPedId()),
-        hospitals[nearest].title.." Security reported a Level "..wl..
-        " Wanted Person was just released from their care."
-      )
-    end
-    
-    Citizen.Wait(1000)
-    TriggerEvent('cnr:death_respawn', hospitals[nearest].title)
-    TriggerServerEvent('cnr:death_respawn', hospitals[nearest].title)
-    
+    Citizen.Wait(100)
+  
+    -- Fire off respawn events after this script has finished
+    TriggerEvent('cnr:death_respawned', hospitals[nearest].title)
+    TriggerServerEvent('cnr:death_respawned', hospitals[nearest].title)
+  
+  else print("DEBUG - Respawn event received illegitimately!")
   end
-  doingRevive = false
+  
 end
 
 
-RegisterNetEvent('cnr:death_notify')
 AddEventHandler('cnr:death_notify', function(v, k)
   local myid = PlayerId()
   local victim = GetPlayerFromServerId(v)
   local killer = GetPlayerFromServerId(k)
 
-  print(v, k, victim, killer)
-
   if not killer then
-    drawNotification(GetPlayerName(victim).." died")
+    deathNotify(GetPlayerName(victim).." died")
     return 0
   end
 
   -- This client DIED
   if myid == victim then
     if victim == killer then
-      drawNotification("You committed suicide")
+      deathNotify("You committed suicide")
     else
-      drawNotification(GetPlayerName(killer).." killed you")
+      deathNotify(GetPlayerName(killer).." killed you")
     end
 
   -- This client KILLED
   elseif myid == killer then
-    drawNotification("You killed "..GetPlayerName(victim))
+    deathNotify("You killed "..GetPlayerName(victim))
 
   -- Someone killed somebody
   else
-    drawNotification(GetPlayerName(killer).." killed "..GetPlayerName(victim))
+    deathNotify(GetPlayerName(killer).." killed "..GetPlayerName(victim))
 
   end
 
 end)
 
-function drawNotification(Notification)
-	SetNotificationTextEntry('STRING')
-	AddTextComponentString(Notification)
-	DrawNotification(false, false)
-end
-
-AddEventHandler('cnr:police_imprison', function(serveTime, isPrisoner)
-  if isPrisoner then isPrison = 2
-  else isPrison = 1 end
-end)
-
-AddEventHandler('cnr:prison_rejail', function(serveTime, isPrisoner)
-  if isPrisoner then isPrison = 2
-  else isPrison = 1 end
-end)
-
-AddEventHandler('cnr:prison_release', function(serveTime, isPrisoner)
-  isPrison = 0
-end)

@@ -56,10 +56,10 @@ function WantedLevel(ply)
   if not ply then ply = GetPlayerServerId(PlayerId()) end
   if not CNR.wanted[ply] then CNR.wanted[ply] = 0 end -- Create entry if not exists
 
-  if     CNR.wanted[ply] <   1 then return  0
-  elseif CNR.wanted[ply] > 100 then return 11
-  end
-  return (math.ceil((CNR.wanted[ply])/10))
+  -- If points are over 100, return 11 (5 gold stars)
+  if CNR.wanted[ply] > 100.0 then return 11 end
+  
+  return math.ceil( (CNR.wanted[ply]) / 10 )
 
 end
 

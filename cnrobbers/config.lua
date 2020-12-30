@@ -22,7 +22,14 @@ local reducePoints = 1.25   -- Zero through infinity
 -- Set reducePoints to zero if you never want their wanted level to reduce automatically
 local reduceTimer  = 30     -- Minimum of 30 seconds, no maximum
 
+-- How many minutes someone is passive after dying.
+-- Ensures they're not spawn camped and can't die immediately after respawning
+local passiveTimer  = 5    -- Set to zero to disable (not recommended)
 
+
+-- Debugging Mode
+-- Enables various things like debug messages, /forceduty, etc
+local debugMode = true
 
 
 
@@ -59,5 +66,17 @@ end
 function Config.ReductionTimer()
   if not reduceTimer    then reduceTimer = 30 end
   if reduceTimer < 30   then reduceTimer = 30 end
-  return reduceTimer*60
+  return reduceTimer
 end
+
+
+function Config.PassiveTimer()
+  if not passiveTimer    then passiveTimer = 5 end
+  return passiveTimer
+end
+
+
+function Config.DebuggingMode()
+  return debugMode
+end
+

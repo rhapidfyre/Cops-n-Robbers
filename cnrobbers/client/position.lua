@@ -95,7 +95,9 @@ local zoneByName = {
 
 -- Start saving the player's location
 function ReportPosition(doReporting)
+
   reportLocation = doReporting
+  CNR.loaded     = doReporting -- If reporting location, player is valid/loaded
 
   -- Sends update to MySQL every 12 seconds
   -- Does not send the update if position has not changed
@@ -137,7 +139,7 @@ end
 
 function InActiveZone()
   local zn = ZoneNumber
-  local az = CNR.activeZone
+  local az = CNR.zones.active
   local z  = Config.GetNumberOfZones()
   if z > 3 then 
     -- All zones in play. Zone should match

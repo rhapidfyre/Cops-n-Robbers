@@ -32,7 +32,8 @@ end)
 -- Called by server to tell client what the current zone is
 AddEventHandler('cnr:active_zone', function(aZone)
   if source ~= "" then
-    CNR.activeZone = aZone
+    if not CNR.zones then CNR.zones = {} end
+    CNR.zones.active = aZone
   end
 end)
 
@@ -73,22 +74,8 @@ end
 --- EXPORT: GetActiveZone()
 -- Returns what zone number is currently active.
 function GetActiveZone()
-  return CNR.activeZone
+  return CNR.zones.active
 end
-
-
---- EXPORT: ChatNotification()
--- Sends a notification to the lower left area of the screen
--- @param icon The icon to display (https://pastebin.com/XdpJVbHz)
-function ChatNotification(icon, title, subtitle, message)
-	SetNotificationTextEntry("STRING")
-	AddTextComponentString(message)
-	SetNotificationMessage(icon, icon, false, 2, title, subtitle, "")
-	DrawNotification(false, true)
-	PlaySoundFrontend(-1, "GOON_PAID_SMALL", "GTAO_Boss_Goons_FM_SoundSet", 0)
-  return true
-end
-AddEventHandler('cnr:chat_notify', ChatNotification)
 
 
 -- Displays the zones, the current active zone, and what zone client is in
@@ -132,7 +119,55 @@ Citizen.CreateThread(function()
   while not CNR do Wait(1000) end
   while not CNR.ready do Wait(100) end
   while true do
-    Citizen.Wait(1000)
-    UpdateWantedStars()
+    Citizen.Wait(1)
+    if CNR.loaded then
+      UpdateWantedStars()
+      CheckForDeath()
+    end
   end
+end)
+
+
+
+
+--[[ ---------------------------------------------------------
+  DISABLE POLICE/MILITARY DISPATCHING / AGGRESSION / VEHICLES
+------------------------------------------------------------ ]]
+local disScenario = {"WORLD_HUMAN_COP_IDLES",
+            "WORLD_VEHICLE_POLICE_BIKE",
+            "WORLD_VEHICLE_POLICE_CAR",
+            "WORLD_VEHICLE_POLICE_NEXT_TO_CAR",
+            "CODE_HUMAN_POLICE_CROWD_CONTROL",
+            "CODE_HUMAN_POLICE_INVESTIGATE"
+}
+Citizen.CreateThread(function()
+
+  for i = 1, #disScenario do
+    SetScenarioTypeEnabled(disScenario[i], false)
+  end
+  
+  for i = 1, 14 do EnableDispatchService(i, false) end
+  SetMaxWantedLevel(0)
+  
+  while true do
+    Citizen.Wait(100)
+    local myPos = GetEntityCoords(PlayerPedId())
+    ClearAreaOfCops(myPos.x, myPos.y, myPos.z, 1000.0, 0)
+  end
+  
+end)
+
+
+--[[ -----------------------------------------------
+  DISCORD RICH PRESENCE
+-------------------------------------------------- ]]
+Citizen.CreateThread(function()
+	while true do
+		SetDiscordAppId(613118632549154817) -- Discord app id
+		SetDiscordRichPresenceAsset('5MCNR') -- Big picture asset name
+    SetDiscordRichPresenceAssetText('5M Cops and Robbers') -- Big picture hover text
+    SetDiscordRichPresenceAssetSmall('cnr_logo') -- Small picture asset name
+    SetDiscordRichPresenceAssetSmallText('5M CnR') -- Small picture hover text
+		Citizen.Wait(600000) --How often should this script check for updated assets? (in MS)
+	end
 end)

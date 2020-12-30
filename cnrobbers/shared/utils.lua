@@ -1,5 +1,17 @@
 
 
+function CopRankFormula(n)
+  if not n then n = 1 end
+  return (((n * (n + 1)) / 2) * 100)
+end
+
+
+function CivRankFormula(n)
+  if not n then n = 1 end
+  return (((n * (n + 1)) / 2) * 100)
+end
+
+
 function Round(value, numDecimalPlaces)
 	if numDecimalPlaces then
 		local power = 10^numDecimalPlaces

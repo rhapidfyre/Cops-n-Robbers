@@ -39,7 +39,7 @@ Citizen.CreateThread(function()
     
   -- Don't allow any scripts to execute until the metatable exists
   while not CNR do Wait(100) end
-  CNR.ready = true
+  CNR.ready = true  -- Gamemode is Ready
 
   exports.spawnmanager:setAutoSpawn(false)
   

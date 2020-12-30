@@ -201,30 +201,34 @@ end)
 --- AutoReduce()
 -- Reduces wanted points per tick
 function AutoReduce()
+  while not CNR do Wait(100) end
+  while not CNR.ready do Wait(100) end
   while true do
     if wanted then
-      for k,v in pairs (CNR.wanted) do
-        if math.floor(v) > 0 then
+      for idPlayer,wPoints in pairs (CNR.wanted) do
+        if wPoints > 0 then
           -- If wanted level is not paused/locked, allow it to reduce
-          if not paused[k] then
-            local oldLevel = WantedLevel(k)
-            local newV = v - (reduce.points)
-            CNR.wanted[k] = newV
-            if oldLevel > WantedLevel(k) then
-              TriggerClientEvent('cnr:wanted_client', (-1), k, CNR.wanted[k])
+          if not paused[idPlayer] then
+            local oldLevel  = WantedLevel(idPlayer)
+            local newPoints = wPoints - (CNR.reduce.points)
+            CNR.wanted[idPlayer] = newPoints
+            if oldLevel > WantedLevel(idPlayer) then
+              print("DEBUG - Wanted Level Reduced: "..GetPlayerName(idPlayer).." ("..idPlayer..")")
+              TriggerClientEvent('cnr:wanted_client', (-1), idPlayer, newPoints)
             end
           end
         else
-          if not crimesList[k] then crimesList[k] = {} end
-          CNR.wanted[k] = 0
-          crimesList[k] = {}
+          print("DEBUG - "..GetPlayerName(idPlayer).." ("..idPlayer..") is no longer wanted (AutoReduce)")
+          if not CNR.crimes[idPlayer] then CNR.crimes[idPlayer] = {} end
+          CNR.wanted[idPlayer] = 0
+          CNR.crimes[idPlayer] = {}
           TriggerClientEvent('cnr:wanted_client', (-1), k, 0)
-          TriggerClientEvent('cnr:wanted_crimelist', k, {})
+          TriggerClientEvent('cnr:crimes_client', k, {})
         end
         Citizen.Wait(10)
       end
     end
-    Citizen.Wait((reduce.tickTime)*1000)
+    Citizen.Wait((CNR.reduce.timer)*1000)
   end
 end
 Citizen.CreateThread(AutoReduce)

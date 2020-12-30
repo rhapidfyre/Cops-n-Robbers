@@ -1,6 +1,6 @@
 
 RegisterServerEvent('cnr:death_check')          -- Checks for criminal death
-RegisterServerEvent('cnr:death_respawn')        -- Player reports respawn
+RegisterServerEvent('cnr:death_respawned')      -- Player reports respawn
 RegisterServerEvent('cnr:death_noted')
 RegisterServerEvent('cnr:player_death')
 RegisterServerEvent('cnr:death_nonpassive')
@@ -18,15 +18,27 @@ end)
 
 AddEventHandler('cnr:death_respawn', function(hTitle)
 
-  local ply = source
+  local client = source
+  local pInfo   = GetPlayerName(client).." ("..client..")"
   if not hTitle then hTitle = "General Medical" end
   
-  if IsWanted(ply) then
-    TriggerClientEvent('cnr:dispatch', "Wanted Patient", hTitle,
-      GetEntityCoords(GetPlayerPed(ply)), 
-      "Security reporting a wanted person was just released"
-    )
+  if IsWanted(client) then
+    local ped = GetPlayerPed(client)
+    if DoesEntityExist(ped) then
+      TriggerClientEvent('cnr:dispatch', "Wanted Patient", hTitle,
+        GetEntityCoords(ped), 
+        "Security reporting a wanted person was just released"
+      )
+      print("DEBUG - "..pInfo.." respawned as a wanted person!")
+    else
+      print("DEBUG - "..pInfo..
+        " was wanted on respawn, but could not dispatch police.\n"..
+        "Player Coordinates were invalid (GetPlayerPed() failed)."
+      )
+    end
   end
+  
+  ConsolePrint(pInfo.." has respawned")
   
 end)
 
@@ -162,26 +174,57 @@ end)
 
 AddEventHandler('cnr:player_death', function()
 
-  local client = source
-  local uid    = UniqueId(client)
-
+  local client    = source
+  local uid       = UniqueId(client)
+  local insurance = 0
   
-
-end)
-
-
-AddEventHandler('cnr:client_loaded', function()
-  local client = source
-  local uid    = exports['ghmattimysql']:UniqueId(client)
-
-  exports['ghmattimysql']:execute(
-    "SELECT insured FROM characters WHERE idUnique = @u",
-    {['u'] = uid},
-    function(isInsured)
-      if isInsured then
-        TriggerClientEvent('cnr:death_has_insurance', client)
-      end
-    end
+  print("DEBUG - "..GetPlayerName(client).." ("..client..") "..
+    "reports that they have died! ('cnr:player_death')"
   )
+  
+  if Imprisoned(client) then
+    print("DEBUG - "..pInfo.." died in prison. No penalty.")
+  else
+    print("DEBUG - "..pInfo.." died NOT in prison. Checking for insurance.")
+    
+    insurance = SRP.SQL.RSYNC(
+      "SELECT insurance_life FROM characters WHERE idUnique = @u",
+      {['u'] = uid}
+    )
+    
+    if not insurance then insurance = 0 end
+    if insurance > 0 then
+      print("DEBUG - "..pInfo.." ^2DID ^7have life insurance.")
+    else print("DEBUG - "..pInfo.." ^1DID NOT ^7have life insurance.")
+    end
+  end
+  
+  -- Wait 6 seconds and then respawn them at the nearest hospital
+  print("DEBUG - Waiting 6 seconds, then respawning. ('cnr:player_death')")
+
+  Citizen.Wait(6000)
+  
+  if Imprisoned(client) then
+    print("DEBUG - Player was respawned in prison. ('cnr:player_death')")
+    
+  else
+    local ped = GetPlayerPed(client)
+    local hospitalNumber = 1
+    if DoesEntityExist(ped) then
+      local plyPos = GetEntityCoords(ped)
+      local cDist = #(plyPos - hospitals[1].coords)
+      for i = 2, #hospitals do 
+        local dist = #(plyPos - hospitals[i].coords)
+        if dist < cDist then cDist = dist; hospitalNumber = i end
+      end
+      SetEntityCoords(ped, hospitals[hospitalNumber].coords)
+      SetEntityHeading(ped, hospitals[hospitalNumber].pedHeading)
+      TriggerClientEvent('cnr:player_respawn', hospitalNumber)
+    else TriggerClientEvent('cnr:player_respawn')
+    end
+    print("DEBUG - Player was respawned. ('cnr:player_death')")
+  end
 
 end)
+
+

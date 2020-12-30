@@ -10,13 +10,22 @@ CNR = {
     nextZone    = Config.MinutesPerZone()
   },
   
-  wanted = {},
-  levels = {},
+  levels      = {},
+  police      = {}, -- On Duty Police Officers
+  wanted      = {}, -- Wanted Players
+  crimes      = {}, -- List of crimes by player (index)
+  prisoners   = {}, -- List of prisoners
+  
+  -- Wanted Points Reduction
+  reduce = {
+    points = Config.ReductionPoints(),
+    timer  = Config.ReductionTimer()
+  },
+  
 }
 
-
 function GetActiveZone()
-  return CNR.activeZone
+  return CNR.zones.active
 end
 
 

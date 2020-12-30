@@ -39,7 +39,7 @@ end)
 --- EVENT: create_finished
 -- Called when the player has finished creating their player model
 AddEventHandler('cnr:create_finished', function()
-  local game_area = CNR.activeZone
+  local game_area = CNR.zones.active
   if not game_area then game_area = 1 end
   SendNUIMessage({hideallmenus = true})
   SetNuiFocus(false)

@@ -1,6 +1,8 @@
 
 RegisterNetEvent('cnr:wanted_client')
+RegisterNetEvent('cnr:crimes_client')
 
+local prevWanted      = 0
 local crimeCar        = {} -- Used to check GTA/Carjacking
 local cfreeResources  = {}
 local pedTargets      = {}
@@ -43,7 +45,10 @@ end
 --- EXPORT: CrimeList()
 -- Returns a list of crime codes the player has committed
 -- @return A table (list form) of crimes
-function CrimeList() return CNR.crimes end
+function CrimeList()
+  if not CNR.crimes then CNR.crimes = {} end
+  return CNR.crimes
+end
 
 
 --- EVENT: 'wanted_client'
@@ -66,11 +71,30 @@ AddEventHandler('cnr:wanted_client', function(ply, wantedPoints)
       -- If no wanted table entry, create one.
       if not CNR.wanted[ply] then CNR.wanted[ply] = 0 end
     
-      print("Wanted level update received - Player #"..ply.." (^3"..wantedPoints.."^7).")
+      print("Wanted level update received - Player #"..ply.." (^3"..wantedPoints.." WP^7).")
       CNR.wanted[ply] = wantedPoints -- Update wanted list entry
   
     end
   
+  end
+end)
+
+
+AddEventHandler('cnr:crimes_client', function(idPlayer, idCrime)
+  if not CNR.crimes then CNR.crimes = {} end
+  if source ~= "" then
+    if not idCrime then idCrime = {} end
+    if (not CNR.crimes[idPlayer]) then
+      CNR.crimes[idPlayer] = {}
+    end
+    if (not idCrime[1]) then
+      CNR.crimes[idPlayer] = {}
+      print("DEBUG - Crimes List Cleared for Player #"..idPlayer)
+    else
+      local n = #(CNR.crimes[idPlayer])
+      CNR.crimes[idPlayer][n] = idCrime
+      print("DEBUG - Added crime '"..idCrime.."' to list for Player #"..idPlayer)
+    end
   end
 end)
 
@@ -80,35 +104,15 @@ end)
 -- If they differ from the NUI display, it will update the NUI.
 function UpdateWantedStars()
 
-  local prevWanted = 0
-  local tickCount  = 0
-  
-  while true do
-    local myWanted = WantedLevel()
-
-    -- Wanted Level has changed
-    if myWanted ~= prevWanted then
-      prevWanted = myWanted -- change to reflect it
-      tickCount  = 0      -- Restart flash if changes again during flash
-
-    else
-      -- Make it flash, end on the solid version
-      if tickCount < 10 then            tickCount = tickCount + 1
-        if myWanted == 0 then           SendNUIMessage({nostars = true})
-        else
-          -- Normal version (light saturation)
-          if tickCount % 2 == 0 then    SendNUIMessage({stars = myWanted})
-          else
-            -- Performs the flash (dark saturation)
-            if     myWanted > 10 then   SendNUIMessage({stars = "c"})
-            elseif myWanted >  5 then   SendNUIMessage({stars = "b"})
-            else                        SendNUIMessage({stars = "a"})
-            end
-          end
-        end
-      end
+  -- If Wanted Level has changed, do JQuery update
+  local myWanted = WantedLevel()
+  if myWanted ~= prevWanted then
+    prevWanted = myWanted -- keep track of last wanted level
+    
+    -- Determine if Stars are Visible
+    if      myWanted     ==  0 then   SendNUIMessage({nostars = true})
+    elseif  myWanted % 2 ==  0 then   SendNUIMessage({stars = myWanted})
     end
-    Wait(600)
   end
   
 end
