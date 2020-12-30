@@ -19,7 +19,6 @@ RegisterServerEvent('cnr:wanted_points')
 RegisterServerEvent('cnr:client_loaded')
 
 
-local cprint     = function(msg) exports['cnrobbers']:ConsolePrint(msg) end
 local carUse     = {}  -- Keeps track of vehicle theft actions
 local paused     = {}  -- Players to keep from wanted points being reduced
 local crimesList = {}
@@ -34,16 +33,16 @@ local reduce     = {
 -- @param crime    The crime that was committed
 -- @param msg      If true, displays "Crime Committed" message
 function WantedPoints(ply, crime, msg)
-  if not exports['cnr_police']:DutyStatus(ply) then
-    if not ply         then return 0        end
-    if not wanted[ply] then wanted[ply] = 0 end -- Creates ply index
-    if not crime       then
-      cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
+  if not DutyStatus(ply) then
+    if not ply              then return 0             end
+    if not CNR.wanted[ply]  then CNR.wanted[ply] = 0  end -- Creates ply index
+    if not crime            then
+      ConsolePrint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
       return 0
     end
 
     if crime == 'jailed' then
-      wanted[ply] = 0
+      CNR.wanted[ply] = 0
       TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
       TriggerClientEvent('chat:addMessage', ply, {args={
         "^2Your wanted level has been cleared."
@@ -67,7 +66,7 @@ function WantedPoints(ply, crime, msg)
     local n = GetCrimeWeight(crime)
     if not n then return 0 end
 
-    local lastWanted = wanted[ply]
+    local lastWanted = CNR.wanted[ply]
 
     -- Sends a crime message to the perp
     if msg then
@@ -96,7 +95,7 @@ function WantedPoints(ply, crime, msg)
       -- Ensure crime is NOT a felony
       if (not IsCrimeFelony(crime)) then
         -- If the next point would make them a felon, do nothing.
-        if wanted[ply] + 1 >= felony then addPoints = false end
+        if CNR.wanted[ply] + 1 >= CNR.points.felony then addPoints = false end
       end
 
       -- Crime is a felony, or would not make player a felon (if not a felony)
@@ -108,8 +107,8 @@ function WantedPoints(ply, crime, msg)
         ]]
 
         -- NEW FORMULA: 1(0.98/1 ^x)
-        local modifier = (0.98) ^ wanted[ply]
-        wanted[ply]    = wanted[ply] + modifier
+        local modifier = (0.98) ^ (CNR.wanted[ply])
+        CNR.wanted[ply]    = (CNR.wanted[ply]) + modifier
 
       else n = 0
       end
@@ -120,27 +119,27 @@ function WantedPoints(ply, crime, msg)
     end
 
     -- Check for broadcast
-    if lastWanted ~= wanted[ply] then
+    if lastWanted ~= CNR.wanted[ply] then
       local wants = WantedLevel(ply)
 
       -- Wanted level went up by at least 10 (1 level)
-      if lastWanted < wanted[ply] - 10 then
+      if lastWanted < CNR.wanted[ply] - 10 then
         if wants > 10 then
-          exports['cnr_chat']:DiscordMessage(
+          DiscordFeed(
             11027200, "San Andreas' Most Wanted",
             GetPlayerName(ply).." is now on the Most Wanted list!",
             "", 6
           )
         else
-          exports['cnr_chat']:DiscordMessage(
+          DiscordFeed(
             15105570, GetPlayerName(ply).." had their Wanted Level increased!",
             "WANTED LEVEL "..wants, "", 6
           )
         end
 
       -- Player is no longer wanted
-      elseif lastWanted > 0 and wanted[ply] <= 0 then
-        exports['cnr_chat']:DiscordMessage(
+      elseif lastWanted > 0 and CNR.wanted[ply] <= 0 then
+        DiscordFeed(
           8359053, GetPlayerName(ply).." is no longer wanted.",
           "WANTED LEVEL 0", "", 6
         )
@@ -149,13 +148,14 @@ function WantedPoints(ply, crime, msg)
     end
 
     -- Tell other scripts about the change
-    TriggerEvent('cnr:points_wanted', ply, lastWanted, wanted[ply], crime)
-    TriggerClientEvent('cnr:wanted_client', (-1), ply, wanted[ply])
+    TriggerEvent('cnr:points_wanted', ply, lastWanted, CNR.wanted[ply], crime)
+    TriggerClientEvent('cnr:wanted_client', (-1), ply, CNR.wanted[ply])
   else
-    cprint("^1[CRIME] ^7"..GetPlayerName(ply).." #"..ply..
+    ConsolePrint("^1[CRIME] ^7"..GetPlayerName(ply).." #"..ply..
         ", a ^5police officer ^7, committed: "..crime)
   end
 end
+
 local tracking   = {}
 local worstCrime = {}
 AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911)
@@ -186,35 +186,16 @@ AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911
       end
       WantedPoints(ply, crime, msg)
     else
-      cprint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
+      ConsolePrint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
     end
   end
 end)
 
+
 AddEventHandler('cnr:imprisoned', function(client)
-  wanted[client] = 0
+  CNR.wanted[client] = 0
   TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
 end)
-
---- EXPORT WantedLevel()
--- Returns the wanted level of the player for easier calculation
--- @param ply Server ID, if provided
--- @return The wanted level based on current wanted points
-function WantedLevel(ply)
-
-  if type(ply) ~= "number" then ply = tonumber(ply) end
-
-  -- If ply not given, return 0
-  if not ply         then return 0 end
-  if not wanted[ply] then wanted[ply] = 0 end -- Create entry if not exists
-
-  if     wanted[ply] <   1 then return  0
-  elseif wanted[ply] > 100 then return 11
-  end
-
-  return (math.ceil(wanted[ply]/10))
-
-end
 
 
 --- AutoReduce()
@@ -222,20 +203,20 @@ end
 function AutoReduce()
   while true do
     if wanted then
-      for k,v in pairs (wanted) do
+      for k,v in pairs (CNR.wanted) do
         if math.floor(v) > 0 then
           -- If wanted level is not paused/locked, allow it to reduce
           if not paused[k] then
             local oldLevel = WantedLevel(k)
             local newV = v - (reduce.points)
-            wanted[k] = newV
+            CNR.wanted[k] = newV
             if oldLevel > WantedLevel(k) then
-              TriggerClientEvent('cnr:wanted_client', (-1), k, wanted[k])
+              TriggerClientEvent('cnr:wanted_client', (-1), k, CNR.wanted[k])
             end
           end
         else
           if not crimesList[k] then crimesList[k] = {} end
-          wanted[k] = 0
+          CNR.wanted[k] = 0
           crimesList[k] = {}
           TriggerClientEvent('cnr:wanted_client', (-1), k, 0)
           TriggerClientEvent('cnr:wanted_crimelist', k, {})
@@ -257,17 +238,17 @@ function CheckIfWanted(ply)
   local uid = GetUniqueId(ply)
 
   if uid then
-    CNR.SQL.EXECUTE(
-      "SELECT wanted FROM players WHERE idUnique = @uid",
+    CNR.SQL.SCALAR(
+      "SELECT wanted FROM players WHERE id = @uid",
       {['uid'] = uid},
       function(wp)
         -- If player being checked is wanted, send update for that player
         if not wp then
-          print("^1[CNR ERROR] ^7SQL gave no response for wanted level query.")
+          ConsolePrint("^1SQL gave no response for wanted level query.")
           return
         end
         if wp > 0 then
-          wanted[ply] = wp
+          CNR.wanted[ply] = wp
           TriggerClientEvent('cnr:wanted_client', (-1), ply, wp)
         end
       end

@@ -53,7 +53,7 @@ function ReleaseFugitive(ply, isBreakout)
 
     if not isBreakout then
       TriggerClientEvent('cnr:prison_release', ply, prisoners[ply])
-      exports['cnr_chat']:DiscordMessage(1752220, "RELEASED",
+      exports['cnrobbers']:DiscordFeed(1752220, "RELEASED",
         GetPlayerName(ply).." has paid their debt to society.", ""
       )
       cprint(
@@ -110,7 +110,7 @@ function ImprisonClient(ply, cop, isAdmin)
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to prison for "..(serveTime[ply]/60).." minutes!"
         )
-        exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
+        exports['cnrobbers']:DiscordFeed(1752220, "BUSTED",
           GetPlayerName(ply).." has been caught and was sent to prison!",
           "Arrested by "..copName
         )
@@ -126,7 +126,7 @@ function ImprisonClient(ply, cop, isAdmin)
         cprint("^4"..GetPlayerName(ply)..
           " has been sent to jail for "..(serveTime[ply]/60).." minutes!"
         )
-        exports['cnr_chat']:DiscordMessage(1752220, "BUSTED",
+        exports['cnrobbers']:DiscordFeed(1752220, "BUSTED",
           GetPlayerName(ply).." has been caught and was sent to jail!",
           "Arrested by "..copName
         )

@@ -1,6 +1,6 @@
 
-RegisterServerEvent('cnr:death_check')
-RegisterServerEvent('cnr:death_respawn')
+RegisterServerEvent('cnr:death_check')          -- Checks for criminal death
+RegisterServerEvent('cnr:death_respawn')        -- Player reports respawn
 RegisterServerEvent('cnr:death_noted')
 RegisterServerEvent('cnr:player_death')
 RegisterServerEvent('cnr:death_nonpassive')
@@ -165,13 +165,7 @@ AddEventHandler('cnr:player_death', function()
   local client = source
   local uid    = UniqueId(client)
 
-  local retValue = SRP.SQL.RSYNC(
-    "SELECT PlayerDeath(@uid)",
-    {['uid'] = uid}
-  )
   
-  TriggerEvent('cnr:death_insured', client, retValue)
-  TriggerClientEvent('cnr:death_insurance', client, retValue)
 
 end)
 

@@ -3,15 +3,7 @@ SetGameType('5M Cops and Robbers')
 
 Citizen.CreateThread(function()
   
-  CNR.zones = {
-  
-      -- The currently active zone
-      active  = math.random(Config.GetNumberOfZones()),
-      count   = Config.GetNumberOfZones(),
-      pick    = Config.MinutesPerZone() * (os.time() * 60), -- os.time() is in seconds
-      timer   = Config.MinutesPerZone() * (os.time() * 60)  -- os.time() is in seconds
-      
-  }
+  while not CNR do Wait(1) end
   
   CNR.SQL = {
   
@@ -55,6 +47,24 @@ Citizen.CreateThread(function()
     
   }
   
+  CNR.unique = {} 
+  CNR.police = {} 
+  CNR.wanted = {}
+  
+  CNR.reduce = {
+    points = Config.ReductionPoints(),
+    timer  = Config.ReductionTimer()
+  }
+  
+  CNR.zones = {
+  
+      -- The currently active zone
+      active  = math.random(Config.GetNumberOfZones()),
+      count   = Config.GetNumberOfZones(),
+      pick    = Config.MinutesPerZone() * (os.time() * 60), -- os.time() is in seconds
+      timer   = Config.MinutesPerZone() * (os.time() * 60)  -- os.time() is in seconds
+      
+  }
 
   CNR.activeZone = math.random( Config.GetNumberOfZones() )
   TriggerClientEvent('cnr:active_zone', (-1), CNR.activeZone)

@@ -12,7 +12,7 @@ local function NeverLocked(veh)
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped)
     if not DoesEntityExist(veh) then
-     veh = GetVehiclePedIsTryingToEnter(ped))
+     veh = GetVehiclePedIsTryingToEnter(ped)
     end
   end
   if DoesEntityExist(veh) then
@@ -33,7 +33,7 @@ local function AlwaysLocked(veh)
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped)
     if not DoesEntityExist(veh) then
-     veh = GetVehiclePedIsTryingToEnter(ped))
+		veh = GetVehiclePedIsTryingToEnter(ped)
     end
   end
   if DoesEntityExist(veh) then
@@ -57,7 +57,8 @@ end
 -- Bastardized version of the baseevents vehiclechecker.lua
 -- Sends a Vehicle Network ID instead of the vehicle entity ID
 Citizen.CreateThread(function()
-	while not CNR.ready do Wait(1000) end
+	while not CNR do Wait(1000) end
+	while not CNR.ready do Wait(100) end
 	while true do
 
 		Citizen.Wait(10)
@@ -103,8 +104,10 @@ Citizen.CreateThread(function()
          and not IsPedInAnyVehicle(ped, true)
          and enteringVehicle
         then
-          TriggerServerEvent('cnr:entering_abort')
-          TriggerEvent('cnr:entering_abort')
+          TriggerServerEvent('cnr:entering_abort',
+            NetworkGetNetworkIdFromEntity(enteringVehicle)
+          )
+          TriggerEvent('cnr:entering_abort', enteringVehicle)
           enteringVehicle = nil
           inVehicle       = nil
           inSeat          = nil
@@ -118,7 +121,9 @@ Citizen.CreateThread(function()
         inSeat       = GetVehicleSeat()
         local model  = GetEntityModel(inVehicle)
         if inSeat < 0 then usingVehicle = inVehicle end
-				TriggerServerEvent('cnr:in_vehicle', NetworkGetNetworkIdFromEntity(inVehicle), inSeat)
+				TriggerServerEvent('cnr:in_vehicle',
+          NetworkGetNetworkIdFromEntity(inVehicle), inSeat
+        )
 				TriggerEvent('cnr:in_vehicle', inVehicle, inSeat)
         
         -- Disable Plane/Helicopter Turbulance
@@ -135,7 +140,9 @@ Citizen.CreateThread(function()
 			
 			-- If ped is not in a car but the script thinks they are, OR if they died in the car
 			if not IsPedInAnyVehicle(ped) or IsPlayerDead(pid) then
-				TriggerServerEvent('cnr:exit_vehicle', NetworkGetNetworkIdFromEntity(inVehicle))
+				TriggerServerEvent('cnr:exit_vehicle',
+          NetworkGetNetworkIdFromEntity(inVehicle)
+        )
 				TriggerEvent('cnr:exit_vehicle', inVehicle, currentSeat)
         
         -- Reset Variables

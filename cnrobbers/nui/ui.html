@@ -1,0 +1,668 @@
+
+<html>
+
+    <head>
+        <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+        <script src="ui.js" type="text/javascript"></script>
+        <link href="ui.css" rel="stylesheet" type="text/css"/>
+        <link href="creator.css" rel="stylesheet" type="text/css"/>
+        <link href="wanted.css" rel="stylesheet" type="text/css"/>
+        <link href="roller.css" rel="stylesheet" type="text/css"/>
+        <link href="admin.css" rel="stylesheet" type="text/css"/>
+        <link href="help.css" rel="stylesheet" type="text/css"/>
+    </head>
+
+  <body>
+  
+    <div id="info_box">
+      <!--
+        <div class="info-crime">
+          <h5>&#8227;&nbsp; EXAMPLE CRIME MESSAGE</h5>
+          <p>Brandishing a Firearm at a Law Officer</p>
+          <div class="info-crime-bar"></div>
+        </div>
+        <div class="info-law">
+          <h5>&#8227;&nbsp; EXAMPLE LAW-RELATED MESSAGE</h5>
+          <p>Officer RhapidFyre went off duty!</p>
+          <div class="info-law-bar"></div>
+        </div>
+        <div class="info-civ">
+          <h5>&#8227;&nbsp; EXAMPLE GENERIC MESSAGE</h5>
+          <p>A new waypoint is available, check it out!</p>
+          <div class="info-civ-bar"></div>
+        </div>
+      -->
+    </div>
+    
+    <!-- Wanted Level Display -->
+    <div id="wantedstars" style="display:none;">
+      <img id="wstar" src="stars/0.png" width="256px" height="46px">
+    </div>
+    
+    <!-- Crime Free Area Display -->
+    <div id="crimefree" style="display: none;">
+      <table>
+        <tr> <th><img src="crimefree.png"></th> </tr>
+        <tr> <th>Non-Reporting Area</th> </tr>
+      </table>
+    </div>
+
+    <!--
+    DEBUG - EXTREMELY simple character select method just to get the script going
+    -->
+    <div id="ped-select" style="display: none;">
+      <h3>Model Selection</h3>
+      <p>Ped Models have taken the place <strong>temporarily</strong> of
+        custom player models (the multiplayer model you are all used to). This is solely
+        for making time
+        to develop the necessary scripts, such as robberies and fishing, as I am
+        the only developer on this project.
+      </p>
+      <p>
+        The multiplayer model (MP Model) <strong>WILL</strong> become available once all the scripts
+        to make the game functioning and playable are finished.
+      </p>
+      <p>Once the MP Model is available you will be prompted one time to customize your model
+      when you've logged in.</p>
+      <p>Have fun!</p>
+      <table>
+        <tr>
+          <th colspan="3">Skin Selection Control</th>
+        </tr>
+        <tr>
+          <td><button onclick="ModelSelect(1)">&lt;&lt;</button></td>
+          <td><button onclick="ModelSelect(0)">SELECT & PLAY</button></td>
+          <td><button onclick="ModelSelect(2)">&gt;&gt;</button></td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <button onclick="ModelSelect(3)">Generate Random Model</button>
+          </td>
+        </tr>
+      </table>
+      <p>Oh, one last note... For now, you can change your skin anytime you are
+        innocent, by typing <strong>/reskin</strong>. Also, the arrow keys work
+        for this menu, so you don't have to keep clicking. Hit SPACEBAR when done.
+      </p>
+      <br>
+    </div>
+    
+    <!-- Server Welcome Screen -->
+    <div id="motd_bkgd" style="display: none;">
+      <img id="logo" src="logo.gif">
+      <strong>
+      www.our-future-site.net
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      https://discord.gg/FRWpsbq</strong><br/>
+      <img id="img1" src="robber.gif">
+      <img id="img2" src="cop.gif">
+      <div id="motd_fore">
+        <div id="motd_info">
+          <h3>What is Cops and Robbers (CNR)?</h3>
+          <p>CNR is a gamemode that turns the childhood game we all love
+          into a virtual depiction where you flee from the cops! There's <strong>no requirement</strong> to
+          be either - You can just join the game, play in our events, drive vehicles, or complete missions
+          and avoid the cops altogether if you wish.
+          </p>
+          <h3>So this is a Deathmatch Server?</h3>
+          <p>No.
+          It is <strong>not allowed</strong> for anyone to just randomly kill another player. It's
+          encouraged to try to escape police without resorting to murder, however,
+          deathmatch between a Cop and a Wanted is generally tolerated.
+          </p>
+          <h3>I'm a first time player, how do I start?</h3>
+          <p>Simply click 'PLAY', and you'll be taken to the one-time character designer. From then on, you'll
+          simply reconnect where ever you last logged off the next time you click 'PLAY'. Your info is
+          saved based on your Steam ID, so you can play from anywhere you can access your Steam Account.
+          </p>
+          <h3>How do I become a Cop?</h3>
+          <p>Simply visit any police department in the active area of the map to go on duty at any time.
+          More duty privileges will come as you gain levels in Law Enforcement.
+          </p>
+          <h3>How do I lose my wanted level?</h3>
+          <p>Short of giving yourself up to police, you lose wanted points every minute that
+          you're not actively being chased by police.
+          Once your Wanted Points are 0, you are Unwanted. If you're actively being chased, you will not
+          lose Wanted Points. Lose the cops to start losing Wanted Points.
+          </p>
+        </div>
+        <div id="changes">
+          <ul>CHANGELOG
+          </ul>
+        </div>
+      </div>
+      <button id="letsplay" class="ntrdy">LOADING</button>
+    </div>
+    
+  
+    <!-- Administration Menu -->
+    <div id="admin-menu" class="center-vert" style="display: none;">
+    
+      <div id="admin-misc">
+      
+        <!-- Admin Controller -->
+        <div id="admin-ctlr">
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Spawn" readonly></th></tr>
+            <tr>
+              <td><button>Vehicle</button></td>
+              <td><button>Pickup</button></td>
+            </tr>
+            <tr>
+              <td><button>Weapon</button></td>
+              <td><button>Ped</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Remove (Nearby)" readonly></th></tr>
+            <tr>
+              <td><button>Vehicles</button></td>
+              <td><button>Pickups</button></td>
+            </tr>
+            <tr>
+              <td colspan="2"><button>Pedestrians</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Give Cash" readonly></th></tr>
+            <tr>
+              <td><button>$1,000</button></td>
+              <td><button>$100</button></td>
+            </tr>
+            <tr>
+              <td><button>$10</button></td>
+              <td><button>$1</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Take Cash" readonly></th></tr>
+            <tr>
+              <td><button>$1,000</button></td>
+              <td><button>$100</button></td>
+            </tr>
+            <tr>
+              <td><button>$10</button></td>
+              <td><button>$1</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Time" readonly></th></tr>
+            <tr>
+              <td><button>Morning</button></td>
+              <td><button>Evening</button></td>
+            </tr>
+            <tr>
+              <td><button>Noon</button></td>
+              <td><button>Night</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Weather" readonly></th></tr>
+            <tr>
+              <td><button>Sunny</button></td>
+              <td><button>Rain</button></td>
+            </tr>
+            <tr>
+              <td><button>Storm</button></td>
+              <td><button>Fog</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Vehicle Control" readonly></th></tr>
+            <tr>
+              <td><button>Delete</button></td>
+              <td><button>Lk / UnL</button></td>
+            </tr>
+            <tr>
+              <td><button>Fix</button></td>
+              <td><button>Inflate</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Teleport" readonly></th></tr>
+            <tr>
+              <td><button>Bring</button></td>
+              <td><button>Player</button></td>
+            </tr>
+            <tr>
+              <td><button>A-Jail</button></td>
+              <td><button>Waypoint</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Moderate" readonly></th></tr>
+            <tr>
+              <td><button>Warning</button></td>
+              <td><button>Freeze</button></td>
+            </tr>
+            <tr>
+              <td><button>Kick Out</button></td>
+              <td><button>Ban</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Announce" readonly></th></tr>
+            <tr>
+              <td><button>Send SMS</button></td>
+              <td><button>Discord</button></td>
+            </tr>
+            <tr>
+              <td><button>Chat</button></td>
+              <td><button>Adm Chat</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th colspan="2"><input type="text" value="Death Control" readonly></th></tr>
+            <tr>
+              <td><button>Slay</button></td>
+              <td><button>Revive</button></td>
+            </tr>
+            <tr>
+              <td><button>Health</button></td>
+              <td><button>Armor</button></td>
+            </tr>
+          </table>
+          </div>
+          
+          <div class="admin-ctrl">
+          <table>
+            <tr><th><input type="text" value="Wanted Level" readonly></th></tr>
+            <tr>
+              <td><button>Set</button></td>
+            </tr>
+            <tr>
+              <td><button>Reset</button></td>
+            </tr>
+          </table>
+          </div>
+          
+        </div>
+        <!-- End of Admin Controller -->
+        
+      </div>
+      
+      <div id="player-list">
+        <table>
+          <tr><td>1</td><th class="cop1">Police1</th></tr>
+          <tr><td>3</td><th class="wl5">Wanted5</th></tr>
+          <tr><td>4</td><th>Innocent</th></tr>
+          <tr><td>9</td><th class="wl8">Wanted8</th></tr>
+          <tr><td>14</td><th class="cop2">Police2</th></tr>
+          <tr><td class="adm">15</td><th class="adm wl4">Admin1</th></tr>
+          <tr><td>16</td><th class="wl3">Wanted3</th></tr>
+          <tr><td>21</td><th class="cop3">Police3</th></tr>
+          <tr><td class="adm">23</td><th class="adm">Admin1</th></tr>
+          <tr><td>25</td><th class="cop4">Police4</th></tr>
+          <tr><td>26</td><th class="wl4">Wanted4</th></tr>
+          <tr><td>27</td><th class="wl9">Wanted9</th></tr>
+          <tr><td>31</td><th class="cop5">Police5</th></tr>
+          <tr><td>32</td><th class="cop6">Police6</th></tr>
+          <tr><td class="adm">33</td><th class="adm cop4">Admin1</th></tr>
+          <tr><td>42</td><th class="wl6">Wanted6</th></tr>
+          <tr><td>43</td><th class="cop7">Police7</th></tr>
+          <tr><td>44</td><th class="cop8">Police8</th></tr>
+          <tr><td>46</td><th class="wl7">Wanted7</th></tr>
+          <tr><td>49</td><th class="cop9">Police9</th></tr>
+          <tr><td>51</td><th class="cop10">Police10</th></tr>
+          <tr><td>56</td><th class="wl1">Wanted1</th></tr>
+          <tr><td>57</td><th class="wl2">Wanted2</th></tr>
+          <tr><td>59</td><th class="wl10">Wanted10</th></tr>
+        </table>
+      </div>
+      
+    </div>
+  
+  <!-- HELP MENU -->
+  <div id="help-main" style="display: none;">
+    
+    <div id="help-title"><h3>5M: Cops n' Robbers</h3></div>
+    
+    <div id="help-menu">
+      <ul>
+        <li><button id="btn0"  class="actv" onclick="HelpMenu(0)">Info</button></li>
+        <li><button id="btn1"  onclick="HelpMenu(1)">Controls</button></li>
+        <li><button id="btn2"  onclick="HelpMenu(2)">Commands</button></li>
+        <li><button id="btn3"  onclick="HelpMenu(3)">Legal Stuff</button></li>
+        <li><button id="btn4"  onclick="HelpMenu(4)">Illegal Stuff</button></li>
+        <li><button id="btn5"  onclick="HelpMenu(5)">Cop Stuff</button></li>
+        <li><button id="btn6"  onclick="HelpMenu(6)">Housing</button></li>
+        <li><button id="btn7"  onclick="HelpMenu(7)">Death</button></li>
+        <li><button id="btn8"  onclick="HelpMenu(8)">Lotto</button></li>
+        <li><button id="btn9"  onclick="HelpMenu(9)">Activities</button></li>
+        <li><button id="btn10" onclick="HelpMenu(10)">Wanted Levels</button></li>
+      </ul>
+      <div id="creditz">
+        <strong>DISCORD</strong><br>
+        jaxxkKp
+      </div>
+    </div>
+    
+    <div id="help-content">
+    
+      <!-- Help Landing Page -->
+      <div id="help0" class="game-info">
+        <h3>Gamemode Information</h3>
+        <p>
+          5MCNR is a game of, well, cops and robbers. The whole point is to 
+          chase/become wanted, or stay innocent, and earn as much money as possible
+          to fund your addictions. Buy cars, a house, an apartment, a business,
+          weapon upgrades, vehicle upgrades, and other things like drugs and women (or men?).
+          Your criminal history doesn't follow you, so do whatever you want. Just don't die.
+        </p> <p>
+          Oh, also, try not to die without health insurance..
+          You'll lose all your money, weapons, owned vehicles, and everything.
+          Yes, you'll lose your house and everything that was in it, too.
+          So don't die without health insurance. Ahhh... America.
+        </p>
+      </div>
+      
+      <!-- Game Controls -->
+      <div id="help1" class="game-info" style="display: none;">
+        <h3>Game Controls</h3>
+        <p>We try to keep the controls to a minimum, so that you can just jump in and start playing.
+          With that being said, some things just can't be done without controls (obviously).
+          If you don't find a control here, we probably forgot to put it here. Remind us to do that.
+        </p>
+        <p>Oh yeah, all controls listed are <strong>default keys</strong>. If you reassigned your
+        keys for whatever reason you thought was necessary for that roleplay server you just came from,
+        then you gotta figure it out on your own.
+        <font class="cmd-cop">This color means it's a cop-only control.</font>
+        <font class="cmd-any">This color means it's a control anyone can use.</font>
+        <font class="cmd-rob">This color means it's a criminal control'.</font>
+        Sorry not sorry if you're colorblind.
+        </p>
+        <table class="tbl-list">
+          <tr><th colspan="2">Foot-Only Commands</th></tr>
+          <tr></tr><th>F1</th><td class="cmd-any">Toggle Personal Inventory</td></tr>
+          <tr></tr><th>F2</th><td class="cmd-cop">Issue a Ticket (Wanted Level &lt; 4)</td></tr>
+          <tr></tr><th>B</th><td class="cmd-cop">Request Backup</td></tr>
+          <tr></tr><th>E</th><td class="cmd-any">Open / Use</td></tr>
+          <tr></tr><th>Z</th><td class="cmd-any">Expand Minimap / Show Cash</td></tr>
+          </table><br><table class="tbl-list">
+          <tr><th colspan="2">Vehicle Only Commands</th></tr>
+          <tr></tr><th>F1</th><td class="cmd-any">Toggle Car Inventory</td></tr>
+          <tr></tr><th>F2</th><td class="cmd-cop">Issue a Ticket (Wanted Level &lt; 4)</td></tr>
+          <tr></tr><th>B</th><td class="cmd-cop">Pursuit Backup</td></tr>
+        </table>
+      </div>
+      
+      <!-- Commands -->
+      <div id="help2" class="game-info" style="display: none;">
+        <h3>Game Commands</h3>
+        <p>
+          Most commands in the game can be done via actions or menus, but for
+          those of you who type 500 words per minute or like to use programs like
+          Auto Hotkey, you might prefer to use slash commands.
+        </p> <p>
+          Also, if you can't use the chatbox because it bugged or something
+          like that, you can type these commands, without the preceeding slash,
+          in the F8 console window.
+          <font class="cmd-cop">This color means it's a cop-only control.</font>
+          <font class="cmd-any">This color means it's a control anyone can use.</font>
+          <font class="cmd-rob">This color means it's a criminal control'.</font>
+          If you're colorblind, this help menu is just going to suck for you.
+        </p>
+        
+        <table class="tbl-list">
+          <tr></tr><th>/help</th><td class="cmd-any">Need I explain?</td></tr>
+          <tr></tr><th>/menus</th><td class="cmd-any">Force close menus/mouse</td></tr>
+          <tr></tr><th>/bribe</th><td class="cmd-any">Ask cop to let you out</td></tr>
+          <tr></tr><th>/lockpick</th><td class="cmd-any">Lockpick the cell door</td></tr>
+          <tr></tr><th>/lotto</th><td class="cmd-any">Buy a lotto ticket</td></tr>
+          <tr></tr><th>/copcar</th><td class="cmd-cop">Spawn a Crown Vic</td></tr>
+        </table>
+        
+      </div>
+      
+      <!-- Legal Stuff -->
+      <div id="help3" class="game-info" style="display: none;">
+        <h3>Legal Jobs / Activites</h3>
+        <p>Around the map you'll find various jobs you can do, side jobs, and
+        activities. This secton outlines the legal side of this.</p>
+        <h5>Legal Employment</h5>
+        <p>Visit any location on the map with a briefcase to get a job. The map
+        blip will tell you what the job is when you hover it on the map. All you
+        need to know to start the job, is to walk into the golden circle and press
+        interacton (E by default). The job will literally tell you what to do next.
+        </p>
+        <h5>Fishing</h5>
+        <p>Fishing is boring but it's an easy way to make money in between jobs,
+        or to break up the monotony of running delivery jobs. Follow this extremely
+        detailed guide on how to get started fishing.
+        <ul>
+          <li>Buy a Fishing Rod & Bait from 24/7</li>
+          <li>Find Water</li>
+          <li>Stick Feet in Water or get on a boat</li>
+          <li>Open Inventory (F1)</li>
+          <li>Select Fishing Rod & click "Use"</li>
+          <li>Play the minigame until you're done</li>
+          <li>Take your fish to the Fish Market for cash</li>
+        </ul>
+        <h5>Hunting</h5>
+        <p>Hunting is a great way to slaughter animals for profit. Simply find
+        anything with four legs that you think PETA would get pissed off about,
+        and kill it. Once it's dead, take out a knife, and skin it. PETA might
+        shut our server down though if you try skinning it before you kill it, so
+        kill it first. Once you stop failing and actually skin something
+        successfully, you can sell the hides at the Market (pink cash sign).</p>
+        <p>It goes without saying that hunting domestic dogs, endangered animals
+        or strippers will prooooobably net you a wanted level..</p>
+        <h5>Business Ownership</h5>
+        <p>Not available yet. I don't get paid for this.</p>
+        <h5>Firefighter / Medic</h5>
+        <p>Firefighters can put out fire. Cool! Cars catch on fire when they
+        take too much damage. Cars on fire go BOOM when they're on fire too long.
+        So call a firefighter, they'll put the wet stuff on the red stuff so it
+        doesn't go boom. Then you can drive the car again. Did I mention this is
+        also not available yet either? No? Ok. This job isn't available yet, either.
+        </p>
+        <p>Medics give people health. Having no health kills you. Medics give you
+        health back so that you don't die. If you have an STD, disease, or illness,
+        medics can cure it. They can only help you if you're not dead, though. So
+        call them while you're still not-dead. Dead = bad, hurt = good. Wait, that
+        came out wrong.</p>
+        <h5>Miscellaneous</h5>
+        <p>I'm sure there's other legal crap I put in the game as well, but
+        why join Cops and Robbers to live a legitimate life? Your criminal history
+        doesn't exist on this server. Go rob something.</p>
+      </div>
+      
+      <!-- Illegal Acts -->
+      <div id="help4" class="game-info" style="display: none;">
+        <h3>Illegal Jobs / Activities</h3>
+        <p>Illegal stuff is the fun stuff, but that stuff gives you wanted levels.
+        The 5-0 don't like crime, so they're going to come make sure you do the time.
+        Your wanted level is calculated based on severity of the crime committed.
+        Most of the stuff you can do to NPCs doesn't result in a felony, so if you
+        are looking to be the Most Wanted player on the server, going on a
+        rampage in the middle of Vespucci Boulevard will only net you 4 stars.
+        </p>
+        <p>Check out the "WANTED LEVEL" section for more about wanted levels.</p>
+        <h5>Drug/Weapons Trafficking</h5>
+        <p>Crates spawn randomly all around the map. These crates contain
+        things like drug parephenalia, gun parts, illegal vehicle mods,
+        dirty cash, and much more. When one becomes available, an anonymous
+        text message will alert all players about it, and a red circle will
+        appear on the map. This circle is different for everyone, so if you can
+        put aside your greediness, working with other people can help you 
+        find it easier. Look for a crate that's out of place. When you
+        press interact (E by default) on the crate, it will disappear and the
+        items will be placed into your inventory.
+        <h5>Impromptu Race Challenge</h5>
+        <p>You can challenge anyone to an impromptu race at any time, check out
+        the controls / commands sections for more on this.</p>
+      </div>
+      
+      <!-- Cop Stuff -->
+      <div id="help5" class="game-info" style="display: none;">
+        <h3>Information on being a Cop</h3>
+        <h5>Arresting Someone</h5>
+        <p>Tase them. Seriously. That's it. Run up to them and make them twitch.
+        While they're spazing out, they'll be sent to jail. If they're not sent
+        to jail, congratulations, you just committed police brutality!</p>
+        <h5>Issuing a Ticket</h5>
+        <p>If a player's name is light-yellow, in other words, their wanted
+        level is lower than 4, you'll have to issue them a ticket. Instead of
+        getting Internal Affairs excited sexually and tasing them, press
+        F2 (default) to issue them a ticket. Wait to see if they pay it.
+        If you issue a ticket and drive off so they become wanted, you're an
+        asshole and we're going to kick you off the server for it. Be a good
+        sport, not an asshole.
+        </p>
+        <h5>Getting a Vehicle</h5>
+        <p>Cops can only drive cop cars (What!). Head to the garage icon at
+        any active police station to pick a vehicle. Anytime you're outside,
+        you can also use /copcar to spawn a car incase you're stranded. However,
+        this command can only be used once every 5 minutes, notifies the admins
+        that you used it, and only spawns a basic Crown Victoria.</p>
+      </div>
+      
+      <!-- Menu -->
+      <div id="help6" class="game-info" style="display: none;">
+        <h3>Housing / Apartments</h3>
+        <p>Not available yet. Enjoy being homeless.</p>
+      </div>
+      
+      <!-- Menu -->
+      <div id="help7" class="game-info" style="display: none;">
+        <h3>Death is Inevitable</h3>
+        <p>Everyone's going to die one day. Well, on 5MCNR, you'll probably die
+        multiple times a day. So get health insurance. Just like real life,
+        our game follows capitalist healthcare. If you don't have the money,
+        you're going to die and lose everything. Buy health insurance at any
+        hospital by pressing interact (E default) in the white/pink circle.
+        </p>
+        <h5>Passive Mode</h5>
+        <p>Passive Mode is enabled when you die, for 5 minutes. If you take
+        hostile action like equipping a gun, committing a crime, or going on
+        police duty, passive mode will be removed. The entire point of passive
+        mode is to avoid spawn campers from griefing your insurance premiums.
+        It's not so you can walk around peacefully. It's not so you can roleplay
+        with your buddy. It's so you don't get camped at the emergency room.
+        That's it.
+        </p>
+        <h5>Dying Without Insurance</h5>
+        <p>If you die without insurance you lose everything except the
+        points and ranks you built up in game. You'll retain the ranks needed
+        to checkout high speed police cars or buy powerful weapons, but
+        your entire belongings and assets are lost.</p>
+      </div>
+      
+      <!-- Menu -->
+      <div id="help8" class="game-info" style="display: none;">
+        <h3>Lottery System</h3>
+        <p>We have a lottery system! Queue gambling addiction. There are two
+        types of lottery systems in place currently.</p>
+        <h5>Scratchers</h5>
+        <p>You can play scratchers at anytime. Visit 24/7, buy as many scratchers
+        as you want, and then select them in your inventory and click "USE".
+        Once scratched, if it wins, you'll be given a "Winning Scratcher" item,
+        where the quantity you have is the value of the win. Simply visit any
+        24/7 and when you open the store menu, it'll cash in any winning cards.</p>
+        <h5>Hourly Drawing</h5>
+        <p>Buy a lotto ticket at any 24/7, and then "use" it from your Inventory.
+        Once used, you'll be prompted to choose a number. Pick the number you want
+        to play, and if the number's available, you'll be in for the draw. You
+        do not have to be connected to win. If you win offline, the money will
+        be placed into your account. If the number doesn't work or has already
+        been chosen, you'll be refunded the ticket and be able to choose again.</p>
+        <p>If you die, you guessed it. Your lotto number is forfeited.</p>
+      </div>
+      
+      <!-- Menu -->
+      <div id="help9" class="game-info" style="display: none;">
+        <h3>Activities</h3>
+        <p>There are lots of activities to do around the map.</p>
+        <p>Except right now</p>
+        <p>Because I haven't scripted them in yet.</p>
+      </div>
+      
+      <!-- Wanted Levels -->
+      <div id="help10" class="game-info" style="display: none;">
+      
+        <h5>Wanted Levels</h5>
+        <p>The wanted levels on this server aren't linear. The more severe a crime is,
+        and the LOWER your wanted level is, the more points you accumulate. The stars
+        appear at the top of your screen to signify your wanted level.
+        </p>
+        
+        <table>
+          <tr><th colspan="2">White Stars</th></tr>
+          <tr><th>1 Star:</th><td>Level 01: Ticket (Fine Only)</td></tr>
+          <tr><th>2 Stars:</th><td>Level 02: Ticket</td></tr>
+          <tr><th>3 Stars:</th><td>Level 03: Ticket</td></tr>
+          <tr><th>4 Stars:</th><td>Level 04: Jail (Non-Felon)</td></tr>
+          <tr><th>5 Stars:</th><td>Level 05: Jail</td></tr>
+          <tr><th>1 Star:</th><td></td>Level 06: Prison (Felon)</tr>
+          <tr><th>2 Stars:</th><td></td>Level 07: Prison</tr>
+          <tr><th>3 Stars:</th><td></td>Level 08: Prison</tr>
+          <tr><th>4 Stars:</th><td></td>Level 09: Prison</tr>
+          <tr><th>5 Stars:</th><td></td>Level 10: Prison (Death Warrant)</tr>
+          <tr><th>Gold Stars:</th><td>Most Wanted</td></tr>
+        </table>
+        
+        <h5>Getting Caught</h5>
+        <p><strong>TICKETS:</strong> If you're at Wanted Levels 1-3, then an officer
+        can only issue you a ticket. If you fail to pay this ticket, you'll be
+        bumped up to Wanted Level 4, and then you can be sent to jail. A cop who
+        kills you at this wanted level will be punished, unless you have a weapon in your hand.
+        </p> <p><strong>JAIL:</strong> If tased, you'll be sent to the Mission Row PD Jail.
+        Once your time is up you'll be moved out automatically. You can also try to
+        /bribe a nearby cop, but beware that refused bribes will result in
+        a wanted level. You can also /lockpick the door, if you bought
+        lockpicks at 24/7. Just be aware if you break someone out of jail, or
+        you break out of jail yourself, you'll be charged automatically after
+        1 minute with jailbreak, making you a felon.
+        </p> <p><strong>PRISON:</strong> If tased, you'll be sent to the Mission Row PD Jail.
+        Once your time is up you'll be moved out automatically. You can also try to
+        /bribe a nearby cop, but beware that refused bribes will result in
+        a wanted level. You can also /lockpick the door, if you bought
+        lockpicks at 24/7.</p>
+        <p>The "guards" check the jail/prison every 2 minutes - If you're not
+        there when they do their checks, you'll be charged with jailbreak.</p>
+        
+        <h5>Losing Wanted Levels</h5>
+        <p>Your wanted level goes down naturally if there are no cops nearby.
+        So stay away from the fuzz and you can actually lose your wanted level.</p>
+        
+      </div>
+      
+      
+    </div>
+  </div>
+
+	</body>
+</html>

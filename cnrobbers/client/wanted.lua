@@ -75,30 +75,6 @@ AddEventHandler('cnr:wanted_client', function(ply, wantedPoints)
 end)
 
 
---- EXPORT GetWanteds()
--- Returns the table of wanted players
--- @return table The list of wanteds (KEY: Server ID, VAL: Wanted Points)
-function GetWanteds() return CNR.wanted end
-
-
---- EXPORT WantedLevel()
--- Returns the wanted level of the player for easier calculation
--- @param ply Server ID, if provided. Local client if not provided.
--- @return The wanted level based on current wanted points
-function WantedLevel(ply)
-
-  -- If ply not given, return 0
-  if not ply then ply = GetPlayerServerId(PlayerId()) end
-  if not CNR.wanted[ply] then CNR.wanted[ply] = 0 end -- Create entry if not exists
-
-  if     CNR.wanted[ply] <   1 then return  0
-  elseif CNR.wanted[ply] > 100 then return 11
-  end
-  return (math.ceil((CNR.wanted[ply])/10))
-
-end
-
-
 --- UpdateWantedStars()
 -- Checks to see if the player's wanted points change to adjust the NUI.
 -- If they differ from the NUI display, it will update the NUI.

@@ -1,0 +1,148 @@
+
+  html, body {padding: 0; margin: 0}
+
+  #motd_bkgd {
+    border-radius: 4px;
+    border-right: 2px ridge silver;
+    min-width: 642px;
+    min-height: 384px;
+    width: 72%;
+    height: 72%;
+    margin: 0 auto;
+    background: #AEB8B9;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 2px ridge silver;
+    text-align: center;
+  }
+
+  #logo {
+    position: absolute;
+    top: -72px;
+    left: 24%;
+    height: 64px;
+  }
+
+  #img1 {
+    position: absolute;
+    left: -110px;
+    bottom: 4px;
+    height: 60%;
+  }
+
+  #img2 {
+    position: absolute;
+    right: -100px;
+    bottom: 4px;
+    height: 56%;
+  }
+
+  #motd_fore {
+    width: calc(100% - 8px);
+    height: calc(100% - 26px);
+    border-radius: 2px;
+    margin: 2px auto;
+    padding: 0;
+    background: #4A4E59;
+    border: 2px inset #62777C;
+  }
+
+  #letsplay {
+    margin: 8px auto;
+    text-align: center;
+    background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+    border-radius:8px;
+    border:1px solid #3d768a;
+    cursor:pointer;
+	  color:#ffffff;
+	  font-family:Arial;
+	  font-size:20px;
+	  font-weight:bold;
+	  padding:13px 32px;
+	  text-decoration:none;
+	  text-shadow:0px 1px 0px #3d768a;
+    width: 40%;
+  }
+
+  .ntrdy {
+    background: silver !important;
+    color: #A40000 !important;
+  }
+
+  #letsplay:hover {
+    background:linear-gradient(to bottom, #a5cc52 5%, #b8e356 100%);
+    border:1px solid #83c41a;
+    color: red;
+    opacity: 1;
+    -webkit-animation: flash 0.6s;
+    animation: flash 0.6s;
+  }
+
+  #motd_info {
+    float: left;
+    width: 66%;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  #motd_info h3 {
+    margin: 0;
+    padding: 2px 4px;
+    color: #A0D7DA;
+    text-shadow: 1px 1px 2px #AEB8B9;
+  }
+
+  #motd_info p {
+    margin: 0;
+    padding: 2px 4px;
+    color: #CFCFCF;
+    text-shadow: 1px 1px 2px black;
+    font-size: 0.825em;
+  }
+
+  #motd_info strong {
+    color: #ff6700 !important;
+  }
+
+  #changes {
+    float: right;
+    text-align: left;
+    overflow-y: scroll;
+    height: 100%;
+    border-left: 4px ridge silver;
+    width: 34%;
+    box-sizing: border-box;
+  }
+
+  #changes ul {
+    padding: 0;
+    margin: 0 0 0 4px;
+    font-size: 1.2em;
+    text-align: center;
+    color: white;
+    text-shadow: 1px 1px 0 black;
+  }
+
+  #changes li {
+    padding: 8px 0 0 0;
+    font-size: 0.628em;
+    margin: 0;
+    text-align: left;
+  }
+
+  #changes ul li::first-line {
+    color: #A0D7DA !important;
+  }
+
+  #changes ul li {
+    color: #AEB8B9;
+  }
+
+
+
+
+

@@ -6,14 +6,38 @@ author 'RhapidFyre'
 description '5M Cops & Robbers'
 version '0.0.1'
 
-dependency 'ghmattimysql'
+dependencies {'spawnmanager', 'ghmattimysql'}
 
 ui_page "nui/ui.html"
 
 files {
-	"nui/ui.css",
-	"nui/ui.js",
-	"nui/ui.html"
+  -- HTML Elements
+	"nui/ui.css", "nui/ui.js", "nui/ui.html",
+  "nui/wanted.css",   "nui/creator.css",
+
+  -- Images & Animations
+	"nui/cop.gif",	    "nui/robber.gif",	  "nui/logo.gif",
+  "nui/stars/1.png",  "nui/stars/2.png",  "nui/stars/3.png",
+  "nui/stars/4.png",  "nui/stars/5.png",  "nui/stars/6.png",
+  "nui/stars/7.png",  "nui/stars/8.png",  "nui/stars/9.png",
+  "nui/stars/10.png", "nui/stars/11.png", "nui/stars/a.png",
+  "nui/stars/b.png",  "nui/stars/c.png",  "nui/crimefree.png",
+	"nui/pics/0.png",	  "nui/pics/1.png",	  "nui/pics/2.png",
+	"nui/pics/3.png",	  "nui/pics/4.png",	  "nui/pics/5.png",
+	"nui/pics/6.png",	  "nui/pics/7.png",	  "nui/pics/8.png",
+	"nui/pics/9.png",	  "nui/pics/10.png",	"nui/pics/11.png",
+	"nui/pics/12.png",	"nui/pics/13.png",	"nui/pics/14.png",
+	"nui/pics/15.png",  "nui/pics/16.png",	"nui/pics/17.png",
+	"nui/pics/18.png",	"nui/pics/19.png",	"nui/pics/20.png",
+	"nui/pics/21.png",	"nui/pics/22.png",	"nui/pics/23.png",
+	"nui/pics/24.png",	"nui/pics/25.png",	"nui/pics/26.png",
+	"nui/pics/27.png",	"nui/pics/28.png",	"nui/pics/29.png",
+	"nui/pics/30.png",	"nui/pics/31.png",	"nui/pics/32.png",
+	"nui/pics/33.png",	"nui/pics/34.png",	"nui/pics/35.png",
+	"nui/pics/36.png",	"nui/pics/37.png",	"nui/pics/38.png",
+	"nui/pics/39.png",	"nui/pics/40.png",	"nui/pics/41.png",
+	"nui/pics/42.png",	"nui/pics/43.png",	"nui/pics/44.png",
+	"nui/pics/45.png",
 }
 
 client_scripts {"ent_enum.lua", "client/*.lua"}
@@ -35,6 +59,9 @@ server_exports {
   'GetFullZoneName',      -- Returns the name as specified in shared/zones.lua
   'GetZoneNumber',
   'GetActiveZone',        -- Returns the currently active zone number (number)
+  
+  'AdminLevel',
+  'AdminMessage',
 
   -- CRIME INFORMATION
   'GetCrimeName',         -- Returns the proper title of the crime
@@ -66,12 +93,13 @@ exports {
 
   'GetMetaTable',         -- Retrieves the CNR gamemode metatable
   'SetMetaTable',         -- Adds [1] to CNR metatable at index [2] with data [3]
-
+  'AdminLevel',
+  
 	'EnumerateObjects',
 	'EnumerateVehicles',
 	'EnumeratePeds',
 	'EnumeratePickups',
-  
+
   'DutyStatus',
   'GetActiveZone',        -- Returns the currently active zone number (number)
   'ChatNotification',     -- Native GTA 5 popup notification (icon, title, sub, msg)

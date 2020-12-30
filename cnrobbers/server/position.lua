@@ -15,8 +15,13 @@ local function SavePlayerPos(uid,pos)
     if not pos then pos = positions[uid] end
     if pos then
       exports['ghmattimysql']:execute(
-        "UPDATE characters SET position = @p WHERE idUnique = @uid",
-        {['p'] = pos, ['uid'] = uid},
+        "UPDATE characters SET x = @x, y = @y, z = @z WHERE idUnique = @uid",
+        {
+          ['uid'] = uid,
+          ['x']   = positions[uid].x,
+          ['y']   = positions[uid].y,
+          ['z']   = positions[uid].z,
+        },
         function()
           -- Once updated, remove entry
           positions[uid] = nil

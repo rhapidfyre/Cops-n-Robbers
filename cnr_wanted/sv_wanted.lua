@@ -126,13 +126,13 @@ function WantedPoints(ply, crime, msg)
       -- Wanted level went up by at least 10 (1 level)
       if lastWanted < wanted[ply] - 10 then
         if wants > 10 then
-          exports['cnr_chat']:DiscordMessage(
+          exports['cnrobbers']:DiscordFeed(
             11027200, "San Andreas' Most Wanted",
             GetPlayerName(ply).." is now on the Most Wanted list!",
             "", 6
           )
         else
-          exports['cnr_chat']:DiscordMessage(
+          exports['cnrobbers']:DiscordFeed(
             15105570, GetPlayerName(ply).." had their Wanted Level increased!",
             "WANTED LEVEL "..wants, "", 6
           )
@@ -140,7 +140,7 @@ function WantedPoints(ply, crime, msg)
 
       -- Player is no longer wanted
       elseif lastWanted > 0 and wanted[ply] <= 0 then
-        exports['cnr_chat']:DiscordMessage(
+        exports['cnrobbers']:DiscordFeed(
           8359053, GetPlayerName(ply).." is no longer wanted.",
           "WANTED LEVEL 0", "", 6
         )
