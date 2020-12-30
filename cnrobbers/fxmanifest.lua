@@ -94,6 +94,7 @@ exports {
   'GetMetaTable',         -- Retrieves the CNR gamemode metatable
   'SetMetaTable',         -- Adds [1] to CNR metatable at index [2] with data [3]
   'AdminLevel',
+  'Cash', 'Bank',
   
 	'EnumerateObjects',
 	'EnumerateVehicles',

@@ -1,5 +1,13 @@
 
 
+-- addComma()
+-- Adds a comma every 3 digits to format the cash value
+-- @param
+local function addComma(str)
+	return #str % 3 == 0 and str:reverse():gsub("(%d%d%d)","%1,"):reverse():sub(2) or str:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+end
+
+
 function CopRankFormula(n)
   if not n then n = 1 end
   return (((n * (n + 1)) / 2) * 100)

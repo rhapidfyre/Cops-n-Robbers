@@ -113,22 +113,33 @@ function ListZones()
 end
 RegisterCommand('zones', ListZones)
 
+local function UnstuckNUI()
+  local forceClose = IsPauseMenuActive() or IsPlayerDead(PlayerId())
+  if forceClose and not nuiClose then
+    nuiClose = true
+    print("DEBUG - Forcing NUI Closure & Releasing the Mouse")
+    TriggerEvent('cnr:close_all_nui')   -- Close all windows/NUI
+    SetNuiFocus(false)                  -- Free the mouse
+    Wait(100)
+  elseif not forceClose then
+    nuiClose = false
+  end
+end
 
 -- Primary Gamemode Driver
-Citizen.CreateThread(function()
+CreateThread(function()
   while not CNR do Wait(1000) end
   while not CNR.ready do Wait(100) end
   while true do
-    Citizen.Wait(1)
+    Wait(1)
     if CNR.loaded then
-      UpdateWantedStars()
-      CheckForDeath()
+      UnstuckNUI()        -- Unstuck the NUI if it's stuck
+      UpdateWantedStars() -- Keep wanted stars up to date
+      CheckForDeath()     -- Handle player's death
+    else Wait(1000)
     end
   end
 end)
-
-
-
 
 --[[ ---------------------------------------------------------
   DISABLE POLICE/MILITARY DISPATCHING / AGGRESSION / VEHICLES

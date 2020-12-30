@@ -9,6 +9,8 @@ $(function() {
   
   var wnts      = $("#wantedstars");
   var rollerBox = $("#info_box");
+  
+  let monies = $("#monies");
     
 	window.addEventListener('message', function(event) {
 		var item = event.data;
@@ -30,6 +32,9 @@ $(function() {
       if (item.motd)
         $("#changes").find('ul').append(item.motd);
     
+      if (item.cashbalance) $("#handcash").html(item.cashbalance);
+      if (item.bankbalance) $("#bankcash").html(item.bankbalance);
+      
       /* Wanted Stars */
       if (item.crimeoff)  {
         $("#crimefree").fadeIn(200); $("#crimefree").fadeOut(200);
