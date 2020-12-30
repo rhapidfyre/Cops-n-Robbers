@@ -148,7 +148,6 @@ end
 
 -- Runs the zone change timer for choosing which zone is being played
 function ZoneLoop()
-  ConsolePrint("Zonechange will occur at "..(os.date("%x %X", CNR.zones.pick)))
   while CNR.zones.count > 1 do
     if GetGameTimer() > zone.pick then
 
@@ -175,5 +174,16 @@ AddEventHandler('cnr:client_loaded', function()
 end)
 
 
-
+-- The primary gamemode driver
+Citizen.CreateThread(function()
+  while not CNR.ready do Wait(1000) end
+  if CNR.zones.count > 1 then 
+    ConsolePrint("Zonechange will occur at "..(os.date("%x %X", CNR.zones.pick)))
+  else ConsolePrint("Config: Using the entire map. ^3Zone functionality disabled.")
+  end
+  while true do
+    if CNR.zones.count > 1 then ZoneLoop() end
+    Citizen.Wait(1000)
+  end
+end)
 
