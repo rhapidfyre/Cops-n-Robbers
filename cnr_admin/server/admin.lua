@@ -103,8 +103,8 @@ end
 
 local function CheckAdmin(client)
   local uid    = exports['cnrobbers']:UniqueId(client)
-  local aLevel = exports['ghmattimysql']:scalarSync(
-    "SELECT perms FROM players WHERE idUnique = @uid",
+  local aLevel = CNR.SQL.RSYNC(
+    "SELECT perms FROM players WHERE id = @uid",
     {['uid'] = uid}
   )
   print(GetPlayerName(client).." (ID #"..client..") [UID "..uid.."] has permission level "..aLevel)
@@ -307,9 +307,9 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
         local bTime = os.time() + (minutes * 1000)
         banReason = banReason.." (Ban lifts: "..(os.date("%I:%M%p", bTime))..")"
         local bTimeModified = os.date("%Y-%m-%d %I:%M:%S", bTime)
-        exports['ghmattimysql']:execute(
+        CNR.SQL.EXECUTE(
           "UPDATE players SET perms = 0, bantime = @bt, "..
-          "reason = @br WHERE idUnique = @uid",
+          "reason = @br WHERE id = @uid",
           {
             ['br'] = banReason, ['uid'] = uid,
             ['bt'] = bTimeModified
@@ -317,9 +317,9 @@ AddEventHandler('cnr:admin_cmd_ban', function(target, banReason, minutes)
         )
 
       else
-        exports['ghmattimysql']:execute(
+        CNR.SQL.EXECUTE(
           "UPDATE players SET perms = 0, bantime = NULL, "..
-          "reason = @br WHERE idUnique = @uid",
+          "reason = @br WHERE id = @uid",
           {['br'] = banReason, ['uid'] = uid}
         )
 

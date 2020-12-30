@@ -90,6 +90,7 @@ local function CommandValid(cmd)
   return false
 end
 
+
 local function CommandInvalid(cmd)
   TriggerEvent('chat:addMessage', {
     templateId = 'cmdMsg', multiline = false, args = {"/"..cmd}

@@ -3,6 +3,10 @@ $(function() {
   
   var welcome   = $("#motd_bkgd");
   var pedpick   = $("#ped-select");
+  
+  var admin     = $("#admin-menu");
+  var helper    = $("#help-main");
+  
   var wnts      = $("#wantedstars");
   var rollerBox = $("#info_box");
     
@@ -12,6 +16,8 @@ $(function() {
     if (item.hideallmenus) {
       welcome.hide();
       pedpick.hide();
+      admin.hide();
+      helper.hide();
       
     } else {
     
@@ -75,7 +81,10 @@ $(function() {
     
       // ESC
       if ( data.which == 27 ) {
+        
         if (welcome.is( ":visible" )) PlayGame();
+        if (helper.is(":visible"))    helpExit();
+        if (admin.is(":visible"))     adminExit();
         
       }
       
@@ -97,4 +106,21 @@ function ModelSelect(val) {
   else if (val == 2)  $.post('https://cnrobbers/modelPick', JSON.stringify("next"));
   else if (val == 3)  $.post('https://cnrobbers/modelPick', JSON.stringify("random"));
   else                $.post('https://cnrobbers/modelPick', JSON.stringify("choose"));
+}
+
+function adminExit() {
+  $("#admin-menu").hide();
+  $.post('https://cnrobbers/adminMenu', JSON.stringify({action:"exit"}));
+}
+
+function helpExit() {
+  $("#help-main").hide();
+  $.post('https://cnrobbers/helpMenu', JSON.stringify({action:"exit"}));
+}
+
+function HelpMenu(val) {
+  $(".game-info").hide();
+  $("#help"+val).show();
+  $("#help-menu>ul>li>button").removeClass('actv');
+  $("#btn"+val).addClass('actv');
 }

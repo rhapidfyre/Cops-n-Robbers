@@ -59,6 +59,9 @@ server_exports {
   'GetFullZoneName',      -- Returns the name as specified in shared/zones.lua
   'GetZoneNumber',
   'GetActiveZone',        -- Returns the currently active zone number (number)
+  
+  'AdminLevel',
+  'AdminMessage',
 
   -- CRIME INFORMATION
   'GetCrimeName',         -- Returns the proper title of the crime
@@ -90,7 +93,8 @@ exports {
 
   'GetMetaTable',         -- Retrieves the CNR gamemode metatable
   'SetMetaTable',         -- Adds [1] to CNR metatable at index [2] with data [3]
-
+  'AdminLevel',
+  
 	'EnumerateObjects',
 	'EnumerateVehicles',
 	'EnumeratePeds',

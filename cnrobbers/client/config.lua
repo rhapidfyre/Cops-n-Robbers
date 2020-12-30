@@ -47,6 +47,47 @@ Citizen.CreateThread(function()
   TriggerEvent('chat:addTemplate', 'levelMsg',
     '<font color="#F80"><b>WANTED LEVEL:</b></font> {0} - ({1})'
   )
+  TriggerEvent('chat:addTemplate', 'sysMsg',
+    '<b><font color="#FC0">[NOTICE]</font> '..
+    '<font color="#996">{0}</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'pd_radio',
+    '<font color="#0AF">**<b> [</font>'..'{0}<font color="#0AF">] {1}:</b>'..
+    '</font> <i>{2}</i> <font color="#0077B3"><b>*</b></font>'
+  )
+  TriggerEvent('chat:addTemplate', 'fd_radio',
+    '<font color="#F66">**<b> [</font>'..'{0}<font color="#F66">] {1}:</b>'..
+    '</font> <i>{2}</i> <font color="#FF4D4D"><b>*</b></font>'
+  )
+  TriggerEvent('chat:addTemplate', 'errMsg',
+    '<b><font color="#F00">SYSTEM ERROR</font> ({0}) </b><br>'..
+    '<font color="#FF6363">** Response:</font> '..
+    '<font color="#B5B5B5">{1}</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'disp_law',
+    '<b><font color="#0BF">[POLICE DISPATCH]</font> '..
+    '<font color="#66F">{0}</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'disp_fire',
+    '<b><font color="#F66">[FIRE DISPATCH]</font> '..
+    '<font color="#FF4D4D">{0}</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'cb_radio',
+    '<b><font color="#CF6">[CB CH. {0}]</font> '..
+    '<font color="#690">** {1}, over. *</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'cmdMsg',
+    '<b><font color="#A00">Invalid Command:</font> '..
+    '<font color="#996"> {0} </font>'
+  )
+  TriggerEvent('chat:addTemplate', 'lotto',
+    '<b><font color="#FD0">[LOTTERY]</font> '..
+    '<font color="#996">{0}</font>'
+  )
+  TriggerEvent('chat:addTemplate', 'asay',
+    '<b><font color="#F00">[STAFF CHAT]</font> '..
+    '{0}</b><font color="#DDD">: {1}</font>'
+  )
   
 end)
 

@@ -1,5 +1,5 @@
 
-local urls = {
+urls = {
   -- Game Status Feed
   [1] = "https://discordapp.com/api/webhooks/793859671257513986/ypzgANsqReWQY9t3r1Rwdv5lLH1tKDR55d9bQRq07NMWhYEj11LtbUG8MwF3XVZn5Nh8",
   -- Basically emergencies and 911 calls
