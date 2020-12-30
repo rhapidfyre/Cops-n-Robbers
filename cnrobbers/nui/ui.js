@@ -4,6 +4,7 @@ $(function() {
   var welcome   = $("#motd_bkgd");
   var pedpick   = $("#ped-select");
   var wnts      = $("#wantedstars");
+  var rollerBox = $("#info_box");
     
 	window.addEventListener('message', function(event) {
 		var item = event.data;
@@ -23,6 +24,7 @@ $(function() {
       if (item.motd)
         $("#changes").find('ul').append(item.motd);
     
+      /* Wanted Stars */
       if (item.crimeoff)  {
         $("#crimefree").fadeIn(200); $("#crimefree").fadeOut(200);
         $("#crimefree").fadeIn(200); $("#crimefree").fadeOut(200);
@@ -38,6 +40,31 @@ $(function() {
       if (item.mostwanted) {
         wnts.show();
         $("#wstar").attr("src", 'stars/11.png');
+      }
+    
+      /* Chat Roller */
+      if (item.newRoller) {
+        rollerBox.append(item.newRoller);
+        var roller = $("#roll"+(item.idRoller));
+        roller.fadeIn(1000);
+        $("#rbar"+(item.idRoller)).width('100%');
+      }
+      
+      if (item.timeRoller) {
+        
+        var roller = $("#roll"+(item.idRoller));
+        var rolbar = $("#rbar"+(item.idRoller));
+        rolbar.width(item.newWidth+'%');
+        
+        if (item.newWidth <= 0) {
+          roller.find("p").html('&nbsp;');
+          roller.animate(
+            {height: 0}, 600,
+            function() {
+              roller.remove();
+            }
+          );
+        }
       }
         
     }
