@@ -1,25 +1,33 @@
 
---[[
-  Cops and Robbers: Death Scripts (SERVER)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/26/2019
-
-  Handles all death events, and life saving/resurrection type scripting.
---]]
-
 RegisterServerEvent('cnr:death_check')
+RegisterServerEvent('cnr:death_respawn')
 RegisterServerEvent('cnr:death_noted')
 RegisterServerEvent('cnr:player_death')
 RegisterServerEvent('cnr:death_nonpassive')
 RegisterServerEvent('cnr:death_buy_insurance')
 
 
-local hiCost = 25000
-local passives = {}
+local hiCost    = 5000
+local passives  = {}
 
 
 AddEventHandler('cnr:death_nonpassive', function()
-  passives[client] = nil
+  passives[source] = nil
+end)
+
+
+AddEventHandler('cnr:death_respawn', function(hTitle)
+
+  local ply = source
+  if not hTitle then hTitle = "General Medical" end
+  
+  if IsWanted(ply) then
+    TriggerClientEvent('cnr:dispatch', "Wanted Patient", hTitle,
+      GetEntityCoords(GetPlayerPed(ply)), 
+      "Security reporting a wanted person was just released"
+    )
+  end
+  
 end)
 
 
@@ -33,51 +41,56 @@ end
 
 AddEventHandler('cnr:death_buy_insurance', function()
   local client = source
-  local uid    = exports['cnrobbers']:UniqueId(client)
+  local uid    = UniqueId(client)
 
-  exports['ghmattimysql']:scalar(
-    "SELECT insured FROM characters WHERE idUnique = @u",
-    {['u'] = uid},
-    function(isInsured)
-      if isInsured then
-        TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
-          "You already have Health Insurance!"
-        }})
-      else
-        local cash = exports['cnr_cash']:GetPlayerCash(client)
-        local bank = exports['cnr_cash']:GetPlayerBank(client)
-        if cash >= hiCost or bank >= hiCost then
-          if cash >= hiCost then
-            exports['cnr_cash']:CashTransaction(client, (0 - hiCost))
-            TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
-              "You have purchased Health Insurance! (Paid $^2"..hiCost.."^7 from cash)"
-            }})
-
-          else
-            exports['cnr_cash']:BankTransaction(client, (0 - hiCost))
-            TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
-              "You have purchased Health Insurance! (Paid $^2"..hiCost.."^7 from bank)"
-            }})
-
-          end
-          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
-            "You will retain your personal belongings next time you die."
-          }})
-
-          exports['ghmattimysql']:execute(
-            "UPDATE characters SET insured = 1 WHERE idUnique = @u",
-            {['u'] = uid}
-          )
-
-        else
-          TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
-            "You cannot afford to buy Health Insurance! (Costs $^1"..hiCost.."^7)"
-          }})
-
-        end
-      end
-    end
+  local isInsured = CNR.SQL.RSYNC(
+    "SELECT insurance_life FROM characters WHERE idUnique = @u",
+    {['u'] = uid}
   )
+  
+  if isInsured > 4 then
+    TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+      "You already have the maximum number of insurance policies!"
+    }})
+    
+  else
+  
+    local cash = GetPlayerCash(client)
+    local bank = GetPlayerBank(client)
+    
+    local adjustedCost = hiCost * isInsured
+    
+    if cash >= adjustedCost or bank >= adjustedCost then
+      if cash >= adjustedCost then
+        CashTransaction(client, (0 - adjustedCost))
+        TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+          "You have purchased Health Insurance! (Paid $^2"..adjustedCost.."^7 from cash)"
+        }})
+  
+      else
+        BankTransaction(client, (0 - adjustedCost))
+        TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+          "You have purchased Health Insurance! (Paid $^2"..adjustedCost.."^7 from bank)"
+        }})
+  
+      end
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+        "You will retain your personal belongings the next ^3"..
+        (isInured + 1).." time(s) ^7you die."
+      }})
+  
+      CNR.SQL.EXECUTE(
+        "UPDATE characters SET insurance_life = insurance_life + 1 "..
+        "WHERE idUnique = @u", {['u'] = uid}
+      )
+  
+    else
+      TriggerClientEvent('chat:addMessage', client, {templateId = 'sysMsg', args = {
+        "You cannot afford to buy Health Insurance! (Costs $^1"..adjustedCost.."^7)"
+      }})
+  
+    end
+  end
 
 end)
 
@@ -90,14 +103,14 @@ AddEventHandler('cnr:death_check', function(killer)
   passives[victim] = true
   if killer then
     if killer ~= victim then
-      local isCop = exports['cnr_police']:DutyStatus(killer)
+      local isCop = DutyStatus(killer)
       if not isCop then
         print("DEBUG - cnr:death_check determined MURDER.")
         dMessage = GetPlayerName(killer).." killed "..GetPlayerName(victim)
-        exports['cnr_wanted']:WantedPoints(killer, 'murder', true)
-        local uid = exports['cnrobbers']:UniqueId(killer)
+        WantedPoints(killer, 'murder', true)
+        local uid = UniqueId(killer)
         if killer then
-          exports['ghmattimysql']:execute(
+          SRP.SQL.EXECUTE(
             "UPDATE characters SET kills = kills + 1 WHERE idUnique = @uid",
             {['uid'] = uid}
           )
@@ -105,7 +118,7 @@ AddEventHandler('cnr:death_check', function(killer)
       else
 
         -- If victim was not a wanted person
-        local wLevel = exports['cnr_wanted']:WantedLevel(victim)
+        local wLevel = WantedLevel(victim)
         if wLevel > 3 then
           dMessage = GetPlayerName(killer).." neutralized "..GetPlayerName(victim)
           print("DEBUG - cnr:death_check determined JUSTIFIED POLICE SHOOTING.")
@@ -119,7 +132,7 @@ AddEventHandler('cnr:death_check', function(killer)
           if wLevel < 1 then
             msgg = GetPlayerName(victim)..", an innocent civilian."
           end
-          exports['cnr_admin']:AdminMessage(
+          AdminMessage(
             "Officer "..GetPlayerName(killer).." killed "..msgg
           )
 
@@ -131,8 +144,8 @@ AddEventHandler('cnr:death_check', function(killer)
     end
     TriggerClientEvent('cnr:death_notify', (-1), victim, killer)
   end
-  exports['cnrobbers']:ConsolePrint(dMessage)
-  exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
+  ConsolePrint(dMessage)
+  DiscordFeed(9807270, dMessage, "", "")
 end)
 
 
@@ -141,8 +154,8 @@ AddEventHandler('cnr:death_noted', function(killer)
   local victim   = source
   local dMessage = GetPlayerName(victim).." died"
   passives[victim] = true
-  exports['cnrobbers']:ConsolePrint(dMessage)
-  exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
+  ConsolePrint(dMessage)
+  DiscordFeed(9807270, dMessage, "", "")
   TriggerClientEvent('cnr:death_notify', (-1), victim, killer)
 end)
 
@@ -150,16 +163,15 @@ end)
 AddEventHandler('cnr:player_death', function()
 
   local client = source
-  local uid    = exports['cnrobbers']:UniqueId(client)
+  local uid    = UniqueId(client)
 
-  exports['ghmattimysql']:scalar(
+  local retValue = SRP.SQL.RSYNC(
     "SELECT PlayerDeath(@uid)",
-    {['uid'] = uid},
-    function(retValue)
-      TriggerEvent('cnr:death_insured', client, retValue)
-      TriggerClientEvent('cnr:death_insurance', client, retValue)
-    end
+    {['uid'] = uid}
   )
+  
+  TriggerEvent('cnr:death_insured', client, retValue)
+  TriggerClientEvent('cnr:death_insurance', client, retValue)
 
 end)
 

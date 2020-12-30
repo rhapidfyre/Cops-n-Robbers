@@ -75,32 +75,14 @@ end
 --- EXPORT: DispatchMessage()
 function DispatchMessage(title, msg, customMessage)
   if not customMessage then
-    exports['cnr_chat']:PushNotification(2, "Crime Reported",
+    exports['cnrobbers']:PushNotification(2, "Crime Reported",
       '<font color="red">'..title..' reported in '..msg..'</font>'
-    )--[[
-    TriggerEvent('chat:addMessage', {
-      color = {0,180,255}, multiline = true, args = {
-        "DISPATCH", "^3"..title.." reported in "..msg.."^7"
-      }
-    })]]
+    )
   else
-    exports['cnr_chat']:PushNotification(2, "Crime Reported",
-      '<font color="red">Criminal Disturbance reported in '..msg..'</font>'
-    )--[[
-    TriggerEvent('chat:addMessage', {
-      color = {0,180,255}, multiline = true, args = {
-        "DISPATCH", "^3New Incident Reported in "..customMessage.."^7"
-      }
-    })]]
+    exports['cnrobbers']:PushNotification(2, "Crime Reported",
+      '<font color="red">'..customMessage..' '..msg..'</font>'
+    )
   end
-end
-
-function DispatchAnnounce(crime) --[[
-  print("DEBUG - Announcing '"..crime.."'")
-  -- DEBUG - use Lua to check if file exists
-  SendNUIMessage({
-    playsound = "sfx/codes/"..crime..".ogg"
-  })]]
 end
 
 function DispatchNotification(title, msg)
@@ -141,22 +123,25 @@ end
 
 -- Sends a message to on duty cop as dispatchSendDispatch
 function SendDispatch(title, place, pos, y, z, message, crime)
-  --if isCop then
+  if exports['cnrobbers']:DutyStatus() then
     if pos then
       if type(pos) ~= "vector3" then
         pos = vector3(pos, y, z)
+      else
+        message = y
+        crime = z
       end
       if not place then place = "Cell Phone 911" end
       if not area then area   = "Unknown Area" end
-      if title then DispatchAnnounce(title) end
-      if not title then title = "9-1-1 Call Center" end
-      title = exports['cnr_wanted']:GetCrimeName(title)
+      if not title then
+        title = exports['cnrobbers']:GetCrimeName(title)
+      end
       DispatchMessage(title, place, message)
       DispatchNotification(title, place)
       DispatchBlip(pos.x, pos.y, pos.z, title)
     else print("DEBUG - pos was nil, unable to dispatch.")
     end
-  --end
+  end
 end
 AddEventHandler('cnr:dispatch', SendDispatch)
 

@@ -4,6 +4,8 @@ Citizen.CreateThread(function()
   -- Don't allow any scripts to execute until the metatable exists
   while not CNR.activeZone do Wait(100) end
   CNR.ready = true
+
+  exports.spawnmanager:setAutoSpawn(false)
   
   TriggerEvent('chat:addTemplate', 'crimeMsg',
     '<font color="#F80"><b>CRIME COMMITTED:</b></font> {0}'

@@ -1,11 +1,4 @@
 
---[[
-  Cops and Robbers: Death Scripts (CLIENT)
-  Created by Michael Harris (mike@harrisonline.us)
-  08/26/2019
-
-  Handles all death events, and life saving/resurrection type scripting.
---]]
 RegisterNetEvent('cnr:death_insurance')
 RegisterNetEvent('cnr:police_imprison')
 RegisterNetEvent('cnr:prison_release')
@@ -121,17 +114,30 @@ Citizen.CreateThread(function()
       end
     else Citizen.Wait(3000)
     end
-
-    local cDist = math.huge
-    for k,v in pairs (hospitals) do
-      if v.insure then
-        local dist = #(GetEntityCoords(PlayerPedId()) - v.insure)
-        if dist < cDist and dist < 40.0 then hNear = k end
-      end
-    end
     Citizen.Wait(0)
   end
 end)
+
+
+-- Tracks nearest hospital
+Citizen.CreateThread(function()
+  while true do
+    local nearestHospital = 1
+    local myPos = GetEntityCoords(PlayerPedId())
+    local cDist = #(myPos - hospitals[i].coords)
+    for i = 2, #hospitals do
+      if hospitals[i].insure then
+        local dist = #(myPos - hospitals[i].coords)
+        if dist < cDist then
+          cDist = dist; nearestHospital = i 
+        end
+      end
+    end
+    hNear = nearestHospital
+    Citizen.Wait(100)
+  end
+end)
+
 
 local notified = false
 local function DeathNotification()
@@ -291,11 +297,11 @@ function RevivePlayer()
         SetPlayerInvincible(PlayerId(), false)
       end)
       while passiveMode do
-        local wLevel = exports['cnr_wanted']:WantedLevel()
+        local wLevel = WantedLevel()
         if wLevel > 0 then
           passiveMode = false
           print("Passive mode has been disabled: Committed a Criminal Offense.")
-        elseif exports['cnr_police']:DutyStatus() then
+        elseif DutyStatus() then
           passiveMode = false
           print("Passive mode has been disabled: Went on Police Duty.")
         elseif GetSelectedPedWeapon(PlayerPedId()) ~= unarm then
@@ -322,7 +328,7 @@ function RevivePlayer()
     SetCamActive(cam, false)
 
     -- If still wanted, report it to 911
-    if exports['cnr_wanted']:WantedLevel() > 3 then
+    if WantedLevel() > 3 then
       TriggerServerEvent('cnr:police_dispatch_report',
         "Wanted Person",
         hospitals[nearest].title,
@@ -331,6 +337,11 @@ function RevivePlayer()
         " Wanted Person was just released from their care."
       )
     end
+    
+    Citizen.Wait(1000)
+    TriggerEvent('cnr:death_respawn', hospitals[nearest].title)
+    TriggerServerEvent('cnr:death_respawn', hospitals[nearest].title)
+    
   end
   doingRevive = false
 end
@@ -362,11 +373,6 @@ AddEventHandler('cnr:death_insurance', function(insuranceValue)
     TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
       "You died without health insurance! Welcome to your new life!"
     }})
-
-    if wl > 0 then
-      TriggerServerEvent('cnr:wanted_points', "jailed")
-
-    end
 
   end
   hasInsurance = false
