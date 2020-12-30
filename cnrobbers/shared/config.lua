@@ -8,7 +8,7 @@ CNR = {
   
   timer = {
     nextZone    = Config.MinutesPerZone()
-  }
+  },
   
   wanted = {},
   levels = {},

@@ -102,7 +102,7 @@ AddEventHandler('cnr:robbery_send_lock', function(storeNumber, lockStatus)
         "robbery", mission.title..", in "..mission.area,
         vector3(mission.spawn.x, mission.spawn.x, mission.spawn.z)
       )
-      exports['cnr_chat']:DiscordMessage(
+      exports['cnrobbers']:DiscordFeed(
         16753920, "Robbery",
         (mission.title).." in "..(mission.area).." has reported a Robbery!", "",
         2

@@ -33,7 +33,7 @@ local reduce     = {
 -- @param crime    The crime that was committed
 -- @param msg      If true, displays "Crime Committed" message
 function WantedPoints(ply, crime, msg)
-  if not exports['cnr_police']:DutyStatus(ply) then
+  if not DutyStatus(ply) then
     if not ply              then return 0             end
     if not CNR.wanted[ply]  then CNR.wanted[ply] = 0  end -- Creates ply index
     if not crime            then
@@ -125,13 +125,13 @@ function WantedPoints(ply, crime, msg)
       -- Wanted level went up by at least 10 (1 level)
       if lastWanted < CNR.wanted[ply] - 10 then
         if wants > 10 then
-          exports['cnr_chat']:DiscordMessage(
+          DiscordFeed(
             11027200, "San Andreas' Most Wanted",
             GetPlayerName(ply).." is now on the Most Wanted list!",
             "", 6
           )
         else
-          exports['cnr_chat']:DiscordMessage(
+          DiscordFeed(
             15105570, GetPlayerName(ply).." had their Wanted Level increased!",
             "WANTED LEVEL "..wants, "", 6
           )
@@ -139,7 +139,7 @@ function WantedPoints(ply, crime, msg)
 
       -- Player is no longer wanted
       elseif lastWanted > 0 and CNR.wanted[ply] <= 0 then
-        exports['cnr_chat']:DiscordMessage(
+        DiscordFeed(
           8359053, GetPlayerName(ply).." is no longer wanted.",
           "WANTED LEVEL 0", "", 6
         )
@@ -239,7 +239,7 @@ function CheckIfWanted(ply)
 
   if uid then
     CNR.SQL.SCALAR(
-      "SELECT wanted FROM players WHERE idUnique = @uid",
+      "SELECT wanted FROM players WHERE id = @uid",
       {['uid'] = uid},
       function(wp)
         -- If player being checked is wanted, send update for that player

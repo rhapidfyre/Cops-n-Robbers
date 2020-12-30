@@ -30,7 +30,7 @@ function DispatchPolice(title, zName, position, message)
   if not message then message = "A(n) "..title.." was reported in "..zName end
   print("DEBUG - Calling Dispatch for: "..title.." in "..zName.." @ "..tostring(position))
   TriggerClientEvent('cnr:dispatch', (-1), title, zName, position, message)
-  exports['cnr_chat']:DiscordMessage(
+  exports['cnrobbers']:DiscordFeed(
     35578, "Crime Reported", message, title, 1
   )
 end
@@ -62,7 +62,7 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
       function(cLevel)
         if not cLevel then cLevel = 1 end
         cops[ply] = cLevel
-        exports['cnr_chat']:DiscordMessage(2067276,
+        exports['cnrobbers']:DiscordFeed(2067276,
           GetPlayerName(ply).." is now on Law Enforcement duty",
           "There is now "..CountCops().." cop(s) on duty.", ""
         )
@@ -76,7 +76,7 @@ AddEventHandler('cnr:police_status', function(agency, onDuty)
     )
   else
     cops[ply] = nil
-    exports['cnr_chat']:DiscordMessage(10038562,
+    exports['cnrobbers']:DiscordFeed(10038562,
       GetPlayerName(ply).." is no longer a cop",
       "There is now "..CountCops().." cop(s) on duty.", ""
     )

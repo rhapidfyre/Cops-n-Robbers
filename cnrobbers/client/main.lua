@@ -129,7 +129,8 @@ RegisterCommand('zones', ListZones)
 
 -- Primary Gamemode Driver
 Citizen.CreateThread(function()
-  while not CNR.ready do Wait(1000) end
+  while not CNR do Wait(1000) end
+  while not CNR.ready do Wait(100) end
   while true do
     Citizen.Wait(1000)
     UpdateWantedStars()

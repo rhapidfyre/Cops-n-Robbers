@@ -14,14 +14,14 @@ files {
   -- HTML Elements
 	"nui/ui.css", "nui/ui.js", "nui/ui.html",
   "nui/wanted.css",   "nui/creator.css",
-  
+
   -- Images & Animations
 	"nui/cop.gif",	    "nui/robber.gif",	  "nui/logo.gif",
   "nui/stars/1.png",  "nui/stars/2.png",  "nui/stars/3.png",
   "nui/stars/4.png",  "nui/stars/5.png",  "nui/stars/6.png",
   "nui/stars/7.png",  "nui/stars/8.png",  "nui/stars/9.png",
   "nui/stars/10.png", "nui/stars/11.png", "nui/stars/a.png",
-  "nui/stars/b.png",  "nui/stars/c.png",  "nui/crimefree.png"
+  "nui/stars/b.png",  "nui/stars/c.png",  "nui/crimefree.png",
 	"nui/pics/0.png",	  "nui/pics/1.png",	  "nui/pics/2.png",
 	"nui/pics/3.png",	  "nui/pics/4.png",	  "nui/pics/5.png",
 	"nui/pics/6.png",	  "nui/pics/7.png",	  "nui/pics/8.png",
@@ -95,7 +95,7 @@ exports {
 	'EnumerateVehicles',
 	'EnumeratePeds',
 	'EnumeratePickups',
-  
+
   'DutyStatus',
   'GetActiveZone',        -- Returns the currently active zone number (number)
   'ChatNotification',     -- Native GTA 5 popup notification (icon, title, sub, msg)

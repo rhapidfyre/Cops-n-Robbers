@@ -1,6 +1,4 @@
 
-local unique = {}     -- List of Database Unique IDs (SQL) by Server ID
-
 --- ConsolePrint()
 -- Nicely formatted console print with timestamp
 -- @param msg The message to be displayed
@@ -24,12 +22,12 @@ function UniqueId(client, uid)
 
     -- If UID is given, assign it.
     if uid then
-      unique[ply] = tonumber(uid)
+      CNR.unique[ply] = tonumber(uid)
       print("[CNROBBERS] ^2Unique ID Set ^7("..uid..") for Player #"..ply)
     else
-      if not unique[ply] then
-        print("^3[CNROBBERS] ^7- ^1ERROR; ^7Resource "..GetInvokingResource()..
-          "' requested Player #"..ply.."'s Unique ID, but it was not found (nil)."
+      if not CNR.unique[ply] then
+        print("^3[CNROBBERS] ^7- ^1ERROR; ^7Resource '^3"..GetInvokingResource()..
+          "^7' requested Player #"..ply.."'s Unique ID, but 'uid' was '"..tostring(uid).."'."
         )
       end
     end
@@ -40,7 +38,7 @@ function UniqueId(client, uid)
     return 0 -- No 'ply' given, return 0
 
   end
-  return (unique[ply])
+  return (CNR.unique[ply])
 end
 
 
@@ -64,27 +62,7 @@ end
 -- DEBUG - OBSOLETE; Use 'UniqueId(ply, uid)' instead
 -- @return The player's UID, or 0 if not found (always int)
 function GetUniqueId(ply)
-  if not unique[ply] then
-
-    -- If unique ID doesn't exist, find it
-    -- We know they have one because of deferral check upon joining.
-    local sid = nil
-    for _,id in pairs(GetPlayerIdentifiers(ply)) do
-      if string.sub(id, 1, string.len("steam:")) == "steam:" then sid = id
-      end
-    end
-
-    -- If Steam ID was found, retrieve player's UID.
-    if sid then
-      local steam = exports['ghmattimysql']:scalarSync(
-        "SELECT idUnique FROM players WHERE idSteam = @steam LIMIT 1",
-        {['steam'] = sid}
-      )
-         unique[ply] = steam
-    else unique[ply] = 0
-    end
-  end
-  return unique[ply]
+	return UniqueId(ply)
 end
 
 
@@ -164,19 +142,19 @@ function ZoneLoop()
     Citizen.Wait(1000)
   end
 end
-Citizen.CreateThread(ZoneLoop)
 
 
 -- When a client has loaded in the game, send them relevant script details
 RegisterServerEvent('cnr:client_loaded')
 AddEventHandler('cnr:client_loaded', function()
-  TriggerClientEvent('cnr:active_zone', source, zone.active)
+  TriggerClientEvent('cnr:active_zone', source, CNR.zones.active)
 end)
 
 
 -- The primary gamemode driver
 Citizen.CreateThread(function()
-  while not CNR.ready do Wait(1000) end
+  while not CNR do Wait(1000) end
+  while not CNR.ready do Wait(100) end
   if CNR.zones.count > 1 then 
     ConsolePrint("Zonechange will occur at "..(os.date("%x %X", CNR.zones.pick)))
   else ConsolePrint("Config: Using the entire map. ^3Zone functionality disabled.")

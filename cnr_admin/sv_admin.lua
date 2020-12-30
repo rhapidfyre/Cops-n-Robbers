@@ -130,7 +130,7 @@ function ShutdownServer(src, a)
     local tempMessage = "The server is shutting down in "..mins.." minute(s)!"
     cprint("^3"..tempMessage, true)
     
-    exports['cnr_chat']:DiscordMessage(
+    exports['cnrobbers']:DiscordFeed(
       9807270, "Game Server",
       "The server is shutting down in **"..mins.." minute(s)**!",
       "Safe-Shutdown process was invoked at the Server Terminal."

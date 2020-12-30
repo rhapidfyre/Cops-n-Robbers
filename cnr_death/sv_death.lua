@@ -132,7 +132,7 @@ AddEventHandler('cnr:death_check', function(killer)
     TriggerClientEvent('cnr:death_notify', (-1), victim, killer)
   end
   exports['cnrobbers']:ConsolePrint(dMessage)
-  exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
+  exports['cnrobbers']:DiscordFeed(9807270, dMessage, "", "")
 end)
 
 
@@ -142,7 +142,7 @@ AddEventHandler('cnr:death_noted', function(killer)
   local dMessage = GetPlayerName(victim).." died"
   passives[victim] = true
   exports['cnrobbers']:ConsolePrint(dMessage)
-  exports['cnr_chat']:DiscordMessage(9807270, dMessage, "", "")
+  exports['cnrobbers']:DiscordFeed(9807270, dMessage, "", "")
   TriggerClientEvent('cnr:death_notify', (-1), victim, killer)
 end)
 

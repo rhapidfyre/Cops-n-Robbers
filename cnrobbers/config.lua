@@ -6,7 +6,7 @@ Config = {}
 -- 2: Use North/South County (Los Santos & Blaine Co)
 -- 3: Los Santos, Blaine County, North County
 -- 4: LS, Blaine East, Blaine West, North County
-local zoneUse = 2
+local zoneUse = 1
 
 -- Default zone: If specified, the script will always start in this zone
 local defaultZone = nil     -- Leave nil for random zone

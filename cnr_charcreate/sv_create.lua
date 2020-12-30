@@ -137,7 +137,7 @@ AddEventHandler('cnr:create_player', function()
     if banInfo[1]["perms"] < 1 then
       cprint(ustring.." Disconnected. Banned: "..banInfo[1]["reason"])
       DropPlayer(ply, "You have been banned from playing on this server.")
-      exports['cnr_chat']:DiscordMessage(
+      exports['cnrobbers']:DiscordFeed(
         16711680, "Disconnect", name.." failed to join the game.",
         "User was previously banned from this server"
       )
@@ -178,7 +178,7 @@ function CreateSession(ply)
   if plyr[1] then
     local pName = GetPlayerName(ply).."'s"
     cprint("Reloading "..pName.." last known character information.")
-    exports['cnr_chat']:DiscordMessage(
+    exports['cnrobbers']:DiscordFeed(
       65280, GetPlayerName(ply).." has joined the game!", "", ""
     )
     TriggerClientEvent('cnr:create_reload', ply, plyr[1])
@@ -188,7 +188,7 @@ function CreateSession(ply)
     Citizen.Wait(1000)
     cprint("Sending "..GetPlayerName(ply).." to Character Creator.")
     Citizen.CreateThread(function()
-      exports['cnr_chat']:DiscordMessage(
+      exports['cnrobbers']:DiscordFeed(
         7864575, "New Player",
         "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
       )

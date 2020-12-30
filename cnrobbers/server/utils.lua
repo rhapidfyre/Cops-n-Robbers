@@ -6,7 +6,7 @@ local webhook = ""
 
 --- DiscordFeed()
 -- Sends a message to the Discord Webhook for the Server Feed
-function DiscordMessage(color, name, message, footer, classification)
+function DiscordFeed(color, name, message, footer, classification)
 
   local embed = {
     {
@@ -30,8 +30,8 @@ function DiscordMessage(color, name, message, footer, classification)
   )
 
 end
-AddEventHandler('cnr:discord', DiscordMessage)
-AddEventHandler('cnr:feed', DiscordMessage)
+AddEventHandler('cnr:discord', DiscordFeed)
+AddEventHandler('cnr:feed', DiscordFeed)
 
 
 --- ConsolePrint()

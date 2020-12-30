@@ -38,7 +38,6 @@ function GetPlayerInformation(ply)
     -- Removes all non alphanumeric characters
     ['user']  = string.gsub(GetPlayerName(ply), "[%W]", "")
   }
-  print("DEBUG - Player Identifiers for "..infoTable['user']..":\n", json.encode(plyInfo))
   for _,id in pairs (plyInfo) do
     if string.sub(id, 1, string.len("steam:")) == "steam:" then
       infoTable['steam'] = id
@@ -46,7 +45,7 @@ function GetPlayerInformation(ply)
       infoTable['social'] = id
     elseif string.sub(id, 1, string.len("five:")) == "five:" then
       infoTable['fivem'] = id
-    elseif string.sub(id, 1, string.len("discord:")) == "steam:" then
+    elseif string.sub(id, 1, string.len("discord:")) == "discord:" then
       infoTable['discord'] = id
     end
   end
@@ -88,14 +87,14 @@ function CreateSession(ply)
   -- Retrieve all their character information
   local plyr = CNR.SQL.QUERY(
     "SELECT * FROM characters WHERE idUnique = @uid",
-    {['uid'] = unique[ply]}
+    {['uid'] = CNR.unique[ply]}
   )
 
   -- If character exists, load it.
   if plyr[1] then
     local pName = GetPlayerName(ply).."'s"
     ConsolePrint("Reloading "..pName.." last known character information.")
-    exports['cnr_chat']:DiscordMessage(
+    DiscordFeed(
       65280, GetPlayerName(ply).." has joined the game!", "", ""
     )
     TriggerClientEvent('cnr:create_reload', ply, plyr[1])
@@ -123,7 +122,7 @@ AddEventHandler('cnr:create_player', function()
   if uid > 0 then
 
     local banInfo = exports['ghmattimysql']:executeSync(
-      "SELECT perms,bantime,reason FROM players WHERE idUnique = @uid",
+      "SELECT perms,bantime,reason FROM players WHERE id = @uid",
       {['uid'] = uid}
     )
 
@@ -136,7 +135,7 @@ AddEventHandler('cnr:create_player', function()
         -- Release ban and wait until result
         CNR.SQL.QUERY(
           "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
-          "WHERE idUnique = @uid", {['uid'] = uid}
+          "WHERE id = @uid", {['uid'] = uid}
         )
         ConsolePrint(ustring..": Automatically unbanned (Ban Timer).")
       end
@@ -176,7 +175,7 @@ end)
 AddEventHandler('cnr:create_save_character', function(pModel)
   local ply = source
   local uid = UniqueId(ply)
-  SRP.SQL.EXECUTE(
+  CNR.SQL.EXECUTE(
     "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
     {['uid'] = uid, ['mdl'] = pModel},
     function()
