@@ -10,21 +10,19 @@ local spawning  = false
 local firstSpawn = true
 
 
-
 -- Establish server connection
 CreateThread(function()
   while not NetworkIsPlayerActive(PlayerId()) do Wait(1) end
   NetworkSetVoiceActive(true)
-  --SetManualShutdownLoadingScreenNui(true)
   StartAudioScene('MP_LEADERBOARD_SCENE')
   SwitchOutPlayer(PlayerPedId(), 32, 1)
   while GetPlayerSwitchState() ~= 5 do
     HideHudAndRadarThisFrame()
     Wait(0)
   end
-  DoScreenFadeOut(0)
-  while not IsScreenFadedOut() do Wait(1) end
-  TriggerServerEvent('cnr:create_player')
+  --DoScreenFadeOut(0)
+  --while not IsScreenFadedOut() do Wait(1) end
+  TriggerServerEvent('cnr:ready')
 end)
 
 

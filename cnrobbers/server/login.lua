@@ -1,7 +1,7 @@
 
 
 RegisterServerEvent('cnr:create_save_character')
-RegisterServerEvent('cnr:create_player')  -- Client has connected
+RegisterServerEvent('cnr:ready')  -- Client has connected
 RegisterServerEvent('cnr:create_session') -- Client is ready to join
 
 --local steams    = {} -- Collection of Steam IDs by Server ID.
@@ -109,9 +109,9 @@ function CreateSession(ply)
 end
 
 
---- EVENT 'cnr:create_player'
--- Received from a client when they're spawned and ready to click play
-AddEventHandler('cnr:create_player', function()
+--- EVENT 'cnr:ready'
+-- Received from a client when they're spawned and ready to play
+AddEventHandler('cnr:ready', function()
 
   local ply     = source
   local ustring = GetPlayerName(ply).." (ID "..ply..")"
@@ -119,23 +119,28 @@ AddEventHandler('cnr:create_player', function()
 
   if uid > 0 then
 
-    local banInfo = exports['ghmattimysql']:executeSync(
+    -- We can move ban checking to the deferrals system later
+    local banInfo = CNR.SQL.QUERY(
       "SELECT perms,bantime,reason FROM players WHERE id = @uid",
       {['uid'] = uid}
     )
 
+    -- if bantime is set, it's a temp ban
     if banInfo[1]['bantime'] > 0 then
 
       local nowDate     = os.time()
       local banRelease  = banInfo[1]["bantime"]/1000
 
+      -- If tempban time has expired, release the ban
       if nowDate > banRelease then
-        -- Release ban and wait until result
         CNR.SQL.QUERY(
           "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
           "WHERE id = @uid", {['uid'] = uid}
         )
         ConsolePrint(ustring..": Automatically unbanned (Ban Timer).")
+      else
+        ConsolePrint(ustring.." Disconnected. Permabanned: "..banInfo[1]['reason'])
+        DropPlayer(ply, "Banned until "..(os.date("%X %x", banRelease))..". Reason: "..banInfo[1]['reason'])
       end
 
     end
