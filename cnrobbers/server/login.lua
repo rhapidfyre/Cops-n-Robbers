@@ -117,56 +117,12 @@ AddEventHandler('cnr:ready', function()
   local ustring = GetPlayerName(ply).." (ID "..ply..")"
   local uid     = CreateUniqueId(ply)
 
-  if uid > 0 then
-
-    -- We can move ban checking to the deferrals system later
-    local banInfo = CNR.SQL.QUERY(
-      "SELECT perms,bantime,reason FROM players WHERE id = @uid",
-      {['uid'] = uid}
-    )
-
-    -- if bantime is set, it's a temp ban
-    if banInfo[1]['bantime'] > 0 then
-
-      local nowDate     = os.time()
-      local banRelease  = banInfo[1]["bantime"]/1000
-
-      -- If tempban time has expired, release the ban
-      if nowDate > banRelease then
-        CNR.SQL.QUERY(
-          "UPDATE players SET perms = 1, bantime = NULL, reason = NULL "..
-          "WHERE id = @uid", {['uid'] = uid}
-        )
-        ConsolePrint(ustring..": Automatically unbanned (Ban Timer).")
-      else
-        ConsolePrint(ustring.." Disconnected. Permabanned: "..banInfo[1]['reason'])
-        DropPlayer(ply, "Banned until "..(os.date("%X %x", banRelease))..". Reason: "..banInfo[1]['reason'])
-      end
-
-    end
-
-    -- Player is Banned
-    if banInfo[1]['perms'] < 1 then
-      DiscordFeed(16711680,
-        "Disconnect", GetPlayerName(ply).." was Permanently Banned",
-        "Banned by Admin. Reason: "..banInfo[1]['reason']
-      )
-      ConsolePrint(ustring.." Disconnected. Permabanned: "..banInfo[1]['reason'])
-      DropPlayer(ply, "Permanently Banned. Reason: "..banInfo[1]['reason'])
-
-    -- Player is not banned
-    else
-      ConsolePrint(ustring.." has entered the game!")
-      CreateSession(ply)
-      --TriggerClientEvent('cnr:create_ready', ply)
-
-    end
-
-  else
+  if uid < 1 then
     DropPlayer(ply,
       "A Steam account, linked FiveM Account, or Social Club license "..
       "is required to play on this server!"
     )
+  else CreateSession(ply)
   end
 
 end)
