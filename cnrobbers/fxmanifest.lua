@@ -13,7 +13,8 @@ ui_page "nui/ui.html"
 files {
   -- HTML Elements
 	"nui/ui.css", "nui/ui.js", "nui/ui.html",
-  "nui/wanted.css",   "nui/creator.css",
+  "nui/wanted.css",   "nui/creator.css", "nui/roller.css",
+  "nui/help.css",   "nui/admin.css",
 
   -- Images & Animations
 	"nui/cop.gif",	    "nui/robber.gif",	  "nui/logo.gif",
@@ -58,6 +59,7 @@ server_exports {
   'CurrentZone',          -- Returns the currently active zone
   'UniqueId',             -- See function for more info (sv_cnrobbers.lua)
   'GetFullZoneName',      -- Returns the name as specified in shared/zones.lua
+  'ZoneName',             -- Returns the name as specified in shared/zones.lua
   'GetZoneNumber',
   'GetActiveZone',        -- Returns the currently active zone number (number)
   'DutyStatus',           -- Is on Police Duty

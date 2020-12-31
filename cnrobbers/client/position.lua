@@ -123,12 +123,16 @@ function ReportPosition(doReporting)
 end
 
 
-function ZoneName()
+function ZoneName(posn)
   local zn = GetNameOfZone(GetEntityCoords(PlayerPedId()))
+  if posn then zn = GetNameOfZone(posn) end
   if zoneByName[zn] then return zoneByName[zn].name end
   return "San Andreas"
 end
-
+function GetFullZoneName(posn)
+  print("^1GetFullZoneName() OBSOLETE: ^7Use ZoneName() instead.")
+  return ZoneName(posn)
+end
 
 function ZoneNumber()
   local zn = GetNameOfZone(GetEntityCoords(PlayerPedId()))

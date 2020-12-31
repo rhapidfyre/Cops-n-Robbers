@@ -7,6 +7,28 @@ local crimeCar        = {} -- Used to check GTA/Carjacking
 local cfreeResources  = {}
 local pedTargets      = {}
 local lastShot        = 0
+local lastAim         = 0
+local knownDead       = {}
+
+-- Index weapons that player SHOULD NOT be charged with for aiming
+local isSafe = {
+  [GetHashKey("WEAPON_UNARMED")] = true,
+  [GetHashKey("WEAPON_FIST")] = true,
+  [GetHashKey("WEAPON_BALL")] = true,
+  [GetHashKey("WEAPON_SNOWBALL")] = true,
+  [GetHashKey("WEAPON_TEARGAS")] = true,
+  [GetHashKey("WEAPON_JERRYCAN")] = true,
+  [GetHashKey("WEAPON_FLARE")] = true,
+  [GetHashKey("WEAPON_BZGAS")] = true,
+}
+
+--- IsAimCrime()
+-- Checks if the weapon being aimed should be a Brandishing Crime
+-- @return True if the player SHOULD be charged with Firearm Brandishing
+function IsAimCrime(weaponHash)
+  if not weaponHash then return false end -- Assume it's a crime
+  return isSafe[weaponHash]
+end
 
 
 -- This should be moved server-side
@@ -71,7 +93,11 @@ AddEventHandler('cnr:wanted_client', function(ply, wantedPoints)
       -- If no wanted table entry, create one.
       if not CNR.wanted[ply] then CNR.wanted[ply] = 0 end
     
-      print("Wanted level update received - Player #"..ply.." (^3"..wantedPoints.." WP^7).")
+      if ply == GetPlayerServerId(PlayerId()) then 
+        print("DEBUG - Your Wanted Points have changed - (^3"..wantedPoints.." WP^7).")
+      else
+        print("DEBUG - Wanted level update received - Player #"..ply.." (^3"..wantedPoints.." WP^7).")
+      end
       CNR.wanted[ply] = wantedPoints -- Update wanted list entry
   
     end
@@ -107,11 +133,12 @@ function UpdateWantedStars()
   -- If Wanted Level has changed, do JQuery update
   local myWanted = WantedLevel()
   if myWanted ~= prevWanted then
+    print("DEBUG - Wanted level has changed. Updating java.")
     prevWanted = myWanted -- keep track of last wanted level
     
     -- Determine if Stars are Visible
-    if      myWanted     ==  0 then   SendNUIMessage({nostars = true})
-    elseif  myWanted % 2 ==  0 then   SendNUIMessage({stars = myWanted})
+    if myWanted == 0 then SendNUIMessage({nostars = true})
+    else SendNUIMessage({stars = myWanted})
     end
   end
   
@@ -138,28 +165,20 @@ function CheckBrandishing(target)
     if IsPedAPlayer(target) then
       if IsPolice(target) then
         print("DEBUG - Player IS a cop. Brandish on an LEO")
-        TriggerServerEvent('cnr:crime', 'brandish-leo', true,
-          GetFullZoneName(GetNameOfZone(myPos)),
-          myPos, true -- ignore 911
-        )
+        TriggerServerEvent('cnr:crime', 'brandish-leo', true)
         Citizen.Wait(1000)
       else
         print("DEBUG - Player is not a cop. Brandish only.")
-        TriggerServerEvent('cnr:crime', 'brandish', true,
-          GetFullZoneName(GetNameOfZone(myPos)),
-          myPos
-        )
+        TriggerServerEvent('cnr:crime', 'brandish')
         Citizen.Wait(1000)
       end
     else
 
-      TriggerServerEvent('cnr:crime', 'brandish-npc', true,
-          GetFullZoneName(GetNameOfZone(myPos)),
-          myPos, true -- ignore 911
-      )
+      TriggerServerEvent('cnr:crime', 'brandish-npc', true)
       Citizen.Wait(1000)
 
     end
+    print("DEBUG - Now tracking Ped #"..target)
     pedTargets[#pedTargets + 1] = target
   end
 end
@@ -179,15 +198,24 @@ Citizen.CreateThread(function()
             if GetPedSourceOfDeath(ped) == PlayerPedId() then
               if not knownDead[ped] then
                 knownDead[ped] = true
-                TriggerServerEvent('cnr:crime', 'manslaughter', true,
-                  GetFullZoneName(GetNameOfZone(GetEntityCoords(PlayerPedId())))
-                )
+                local myPos = GetEntityCoords(PlayerPedId())
+                print("DEBUG - ^3you killed ^7pedTargets["..i.."]: '"..ped.."'! Removing.")
+                table.remove(pedTargets, i)
+                TriggerServerEvent('cnr:crime', 'manslaughter')
+              else
+                print("DEBUG - ^7pedTargets["..i.."]: '"..ped.."' already tracked. Removing.")
+                table.remove(pedTargets, i)
               end
+            else
+              print("DEBUG - pedTargets["..i.."]: '"..ped.."' this player didn't kill them. Removing.")
+              table.remove(pedTargets, i)
             end
           end
 
         -- If at any point the ped is invalid, remove them from this list
-        else table.remove(pedTargets, i)
+        else
+          print("DEBUG - pedTargets["..i.."]: '"..ped.."' no longer exists. Removing.")
+          table.remove(pedTargets, i)
         end
       end
     end
@@ -255,10 +283,7 @@ Citizen.CreateThread(function()
             if wasShotSeen then
               lastShot = GetGameTimer() + 30000
               local myPos = GetEntityCoords(PlayerPedId())
-              TriggerServerEvent('cnr:crime', 'discharge', true,
-                GetFullZoneName(GetNameOfZone(myPos)),
-                myPos
-              )
+              TriggerServerEvent('cnr:crime', 'discharge')
             end -- was shot seen
             
           end -- cooldown timer

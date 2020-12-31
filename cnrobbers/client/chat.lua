@@ -38,6 +38,9 @@ AddEventHandler('cnr:chat_notification', ChatNotification)
 -- @param title The title of the notification
 -- @param message The message/body of the notification
 -- @return Returns table ([1] = False if failed, [2] = if 1, reason)
+RegisterCommand('testpush', function(s,a,r)
+  PushNotification(tonumber(table.remove(a, 1)), "Test Push", table.concat(a, ' '))
+end)
 function PushNotification(pType, title, message)
 
   if not pType then return {true, "Type not given [1]Crime [2]Law [3]Misc"}

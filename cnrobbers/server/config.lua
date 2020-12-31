@@ -33,7 +33,7 @@ Citizen.CreateThread(function()
       if not query then return error("No querystring given to CNR.SQL.") end
       if not tbl then tbl = {} end
       exports['ghmattimysql']:scalar(query, tbl,
-        function(result) p:resolve(result); if cb then cb(result) end end
+        function(result) if cb then cb(result) end end
       )
     end,
     

@@ -19,6 +19,7 @@ Citizen.CreateThread(function()
         local svid = GetPlayerServerId(ply)
         local isCop = CNR.police[svid]
         local wl    = CNR.wanted[svid]
+        if not wl then wl = 0 end
         
         -- if blip doesn't exist, create it
         local gBlip = GetBlipFromEntity(pped)

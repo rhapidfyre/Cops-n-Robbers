@@ -1,6 +1,7 @@
 
 RegisterNetEvent('cnr:police_blip_backup')
 RegisterNetEvent('cnr:police_duty')
+RegisterNetEvent('cnr:dispatch')
 
 local oldModel          = nil -- Temporary, until we switch to the New Model System
 local transition        = false
@@ -57,7 +58,7 @@ AddEventHandler('cnr:police_blip_backup', function(posn)
     SetBlipFlashInterval(panics[n].blip, 600)
     SetBlipColour(panics[n].blip, 2)
   end
-end
+end)
 
 
 RegisterCommand('forceduty', function()
@@ -130,7 +131,7 @@ end
 
 
 -- Sends a message to on duty cop as dispatchSendDispatch
-function SendDispatch(title, place, pos, y, z, message, crime)
+function SendDispatch(title, pos, y, z, message, crime)
   if DutyStatus() then
     if pos then
       if type(pos) ~= "vector3" then
@@ -139,13 +140,12 @@ function SendDispatch(title, place, pos, y, z, message, crime)
         message = y
         crime = z
       end
-      if not place then place = "Cell Phone 911" end
-      if not area then area   = "Unknown Area" end
       if not title then
         title = GetCrimeName(title)
       end
-      DispatchMessage(title, place, message)
-      DispatchNotification(title, place)
+      local area = GetFullZoneName(pos)
+      DispatchMessage(title, area, message)
+      DispatchNotification(title, area)
       DispatchBlip(pos.x, pos.y, pos.z, title)
     else print("DEBUG - pos was nil, unable to dispatch.")
     end
@@ -253,7 +253,7 @@ AddEventHandler('cnr:police_duty', function(idPlayer, pName, onDuty, st, ignoreC
       PushNotification(2, "OUT OF SERVICE", "Officer "..pName.." is no longer on duty")
     end
   end
-end
+end)
 
 
 --- ImprisonClient()
@@ -323,6 +323,7 @@ Citizen.CreateThread(function()
   while true do
     local st      = 0
     local cDist   = stationDistance
+    local myPos   = GetEntityCoords(PlayerPedId())
     for i = 1, #stationList do
       local dist = #(myPos - stationList[i].pos)
       if dist < cDist then

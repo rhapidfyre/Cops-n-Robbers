@@ -148,11 +148,6 @@ local crimes = {
     weight = 60, minTime = 5, maxTime = 10, isFelony = true,
     fine = function() return (math.random(2400, 8000)) end
   },
-  ['jailed'] = {
-    title = "Jailed/Clear",
-    weight = 0, minTime = 0, maxTime = 0, isFelony = true,
-    fine = 0
-  },
 }
 
 --- EXPORT: GetCrimeName()

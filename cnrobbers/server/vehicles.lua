@@ -49,26 +49,23 @@ end)
 
 -- Entered a vehicle (either legitimately or illegitimately/teleport)
 AddEventHandler('cnr:in_vehicle', function(veh, seat)
-  local ply = source
+  local client = source
   local netVeh = NetworkGetEntityFromNetworkId(veh)
-  print("DEBUG - "..GetPlayerName(ply).." (ID "..ply..
+  print("DEBUG - "..GetPlayerName(client).." (ID "..client..
     ") ^2has entered ^7Vehicle #"..netVeh.."|"..veh..
     " (Exists: "..tostring(DoesEntityExist(netVeh))..")"
   )
   -- Is Vehicle Owner
   -- Is Not Vehicle Owner
     -- Check for Carjacking
-  if carJack[ply] then
-    if carJack[ply] == 2 then
-      WantedPoints(ply, 'carjack', "Carjacking")
-      print("DEBUG - ^3Player has carjacked another player!^7")
-      
+  if carJack[client] then
+    if carJack[client] == 2 then
+      ReportCrime(client, 'carjack')
     else
-      WantedPoints(ply, 'carjack-npc', "Carjacking (NPC)")
-      print("DEBUG - ^1Player has carjacked an NPC!^7")
+      ReportCrime(client, 'carjack-npc')
     end
   end
-  carJack[ply] = false
+  carJack[client] = false
 end)
 
 

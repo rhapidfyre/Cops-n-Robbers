@@ -28,12 +28,12 @@ local stations = {
       [7]  = {rank =  0, pos = vector3(413.51,-1018.80,28.90), h =  90.0, mdl = GetHashKey("POLICE")},
       [8]  = {rank =  0, pos = vector3(407.98,-998.25,28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
       [9]  = {rank =  0, pos = vector3(408.12,-993.39,28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
-      [10] = {rank =  0, pos = vector3(408.12,-989.07.28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
+      [10] = {rank =  0, pos = vector3(408.12,-989.07,28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
       [11] = {rank =  0, pos = vector3(408.12,-984.37,28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
       [12] = {rank =  0, pos = vector3(408.17,-979.89,28.87),  h =  50.0, mdl = GetHashKey("POLICE")},
       [13] = {rank =  0, pos = vector3(475.14,-1020.19,27.67), h =  50.0, mdl = GetHashKey("POLICE")},
     }
-  },
+  },--[[
   [2] = {
     title     = "Blaine County Sheriff", agency = BCSO,
     pos       = vector3(),
@@ -57,7 +57,7 @@ local stations = {
     vehicles  = {
       [1] = {rank = 0, pos = vector3(), h = 0.0, mdl = GetHashKey("")},
     }
-  }
+  }]]
 }
 
 

@@ -8,18 +8,18 @@ RegisterServerEvent('cnr:client_loaded')
 local function SyncPlayerMoney(idPlayer)
   if not idPlayer then return false end
   local client = idPlayer
-	CNR.SQL.SCALAR(
+	CNR.SQL.EXECUTE(
     "SELECT cash, bank FROM characters WHERE idUnique = @u",
-		{['u'] = UniqueId(ply)},
+		{['u'] = UniqueId(client)},
     function(results)
       if results[1] then
-        print("DEBUG - ^2Successfully ^7retrieved cash & bank balance for Player #"..ply)
-        TriggerClientEvent('cnr:wallet_cash', ply, cash)
-        TriggerClientEvent('cnr:bank_cash', ply, bank)
+        print("DEBUG - ^2Successfully ^7retrieved cash & bank balance for Player #"..client)
+        TriggerClientEvent('cnr:wallet', client, results[1]['cash'])
+        TriggerClientEvent('cnr:bank', client, results[1]['bank'])
       else
-        print("DEBUG - ^1Failed ^7to retrieve cash & bank balance for Player #"..ply)
-        TriggerClientEvent('cnr:wallet_cash', ply, 0)
-        TriggerClientEvent('cnr:bank_cash', ply, 0)
+        print("DEBUG - ^1Failed ^7to retrieve cash & bank balance for Player #"..client)
+        TriggerClientEvent('cnr:wallet', client, 0)
+        TriggerClientEvent('cnr:bank', client, 0)
       end
     end
 	)
@@ -28,7 +28,7 @@ end
 
 AddEventHandler('cnr:client_loaded', function()
   SyncPlayerMoney(source)
-end
+end)
 
 
 --- SetPlayerWallet()

@@ -11,12 +11,9 @@
 --]]
 
 
-RegisterServerEvent('baseevents:enteringVehicle')
-RegisterServerEvent('baseevents:enteringAborted')
-RegisterServerEvent('baseevents:enteredVehicle')
-RegisterServerEvent('baseevents:onPlayerKilled')
 RegisterServerEvent('cnr:wanted_points')
 RegisterServerEvent('cnr:client_loaded')
+RegisterServerEvent('cnr:crime')
 
 
 local carUse     = {}  -- Keeps track of vehicle theft actions
@@ -41,14 +38,7 @@ function WantedPoints(ply, crime, msg)
       return 0
     end
 
-    if crime == 'jailed' then
-      CNR.wanted[ply] = 0
-      TriggerClientEvent('cnr:wanted_client', (-1), ply, 0)
-      TriggerClientEvent('chat:addMessage', ply, {args={
-        "^2Your wanted level has been cleared."
-      }})
-      return 0
-    elseif crime == 'prisonbreak' or crime == 'jailbreak' then
+    if crime == 'prisonbreak' or crime == 'jailbreak' then
       if crime == 'prisonbreak' then
         TriggerClientEvent('cnr:radio_receive', (-1),
           true, "DISPATCH", "An inmate is escaping from Mission Row PD!",
@@ -158,37 +148,37 @@ end
 
 local tracking   = {}
 local worstCrime = {}
-AddEventHandler('cnr:wanted_points', function(crime, msg, zName, posn, ignore911)
-  local ply = source
+function ReportCrime(client, crime, posn, ignore911)
   if crime then
-    -- DEBUG - Add crime ~= 'jailed' to prevent clients from clearing themselves
     if DoesCrimeExist(crime) then
 
       -- This is the first crime that has been committed
-      if not tracking[ply] and not ignore911 then
-        worstCrime[ply] = crime
-        tracking[ply] = GetGameTimer() + 6000
+      if not tracking[client] and not ignore911 then
+        worstCrime[client] = crime
+        tracking[client] = GetGameTimer() + 6000
         Citizen.CreateThread(function()
-          while tracking[ply] > GetGameTimer() do Citizen.Wait(100) end
-          exports['cnr_police']:DispatchPolice(
-            worstCrime[ply], zName, posn
-          )
-          tracking[ply] = nil
-          worstCrime[ply] = nil
+          while tracking[client] > GetGameTimer() do Citizen.Wait(100) end
+          DispatchPolice(worstCrime[client], posn)
+          tracking[client] = nil
+          worstCrime[client] = nil
         end)
       -- Update with worst crime committed
       else
         local cWeight = GetCrimeWeight(crime)
-        if cWeight > GetCrimeWeight(worstCrime[ply]) then
-          worstCrime[ply] = crime
-          tracking[ply]   = GetGameTimer() + 6000
+        if cWeight > GetCrimeWeight(worstCrime[client]) then
+          worstCrime[client] = crime
+          tracking[client]   = GetGameTimer() + 6000
         end
       end
-      WantedPoints(ply, crime, msg)
+      WantedPoints(client, crime, msg)
     else
       ConsolePrint("^1Crime '^7"..tostring(crime).."^1' not found in sh_wanted.lua!")
     end
   end
+end
+AddEventHandler('cnr:crime', function(crime, ignore911)
+  local client = source
+  ReportCrime(client, crime, GetEntityCoords(GetPlayerPed(client)), ignore911)
 end)
 
 

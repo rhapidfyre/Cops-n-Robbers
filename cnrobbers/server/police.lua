@@ -81,11 +81,10 @@ AddEventHandler('cnr:police_status', function(onDuty, station, ignoreCam)
 end)
 
 
-function DispatchPolice(title, zName, position, message)
-  if not zName then zName = "San Andreas" end
-  if not message then message = "A(n) "..title.." was reported in "..zName end
-  print("DEBUG - Calling Dispatch for: "..title.." in "..zName.." @ "..tostring(position))
-  TriggerClientEvent('cnr:dispatch', (-1), title, zName, position, message)
+function DispatchPolice(title, position, message)
+  if not message then message = "A(n) "..title.." was reported" end
+  ConsolePrint("^6Dispatch: "..title.." ("..tostring(position)..")")
+  TriggerClientEvent('cnr:dispatch', (-1), title, position, message)
   DiscordFeed(
     35578, "CRIME REPORTED", message, title, 1
   )

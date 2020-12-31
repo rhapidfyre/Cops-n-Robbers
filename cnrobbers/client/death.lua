@@ -24,7 +24,7 @@ Citizen.CreateThread(function()
 
   -- Add hospital blips
   for _,v in pairs(hospitals) do
-    if v.jailHospital < 1 then
+    if v.jailHospital then
       local blip = AddBlipForCoord(v.coords)
       SetBlipSprite(blip, 61)
       SetBlipDisplay(blip, 2)
@@ -78,7 +78,7 @@ Citizen.CreateThread(function()
   while true do
     local nearestHospital = 1
     local myPos = GetEntityCoords(PlayerPedId())
-    local cDist = #(myPos - hospitals[i].coords)
+    local cDist = #(myPos - hospitals[1].coords)
     for i = 2, #hospitals do
       if hospitals[i].insure then
         local dist = #(myPos - hospitals[i].coords)
@@ -281,7 +281,7 @@ AddEventHandler('cnr:player_respawn', function(hNumber)
   else print("DEBUG - Respawn event received illegitimately!")
   end
   
-end
+end)
 
 
 AddEventHandler('cnr:death_notify', function(v, k)
