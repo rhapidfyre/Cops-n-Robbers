@@ -5,7 +5,6 @@ RegisterNetEvent('cnr:chat_notify')
 local activeZone = 1      -- What zone is currently active
 
 
-
 -- DEBUG -
 local restarted = {}
 AddEventHandler('onResourceStop', function(rn)
@@ -128,8 +127,10 @@ end
 
 -- Primary Gamemode Driver
 CreateThread(function()
+
   while not CNR do Wait(1000) end
   while not CNR.ready do Wait(100) end
+  
   while true do
     Wait(1)
     if CNR.loaded then

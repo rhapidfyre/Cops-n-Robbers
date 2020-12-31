@@ -94,9 +94,7 @@ function CreateSession(ply)
   if plyr[1] then
     local pName = GetPlayerName(ply).."'s"
     ConsolePrint("Reloading "..pName.." last known character information.")
-    DiscordFeed(
-      65280, GetPlayerName(ply).." has joined the game!", "", ""
-    )
+    DiscordFeed(65280, GetPlayerName(ply).." has joined the game!")
     TriggerClientEvent('cnr:create_reload', ply, plyr[1])
 
   -- Otherwise, create it.
@@ -154,7 +152,6 @@ AddEventHandler('cnr:create_player', function()
     -- Player is not banned
     else
       ConsolePrint(ustring.." has entered the game!")
-      DiscordFeed(3066993, "Player Joined", ustring.." has spawned!", "")
       CreateSession(ply)
       TriggerClientEvent('cnr:create_ready', ply)
 
