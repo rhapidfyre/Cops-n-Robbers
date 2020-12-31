@@ -47,16 +47,12 @@ AddEventHandler('cnr:feed', DiscordFeed)
 
 -- Sends all chat messages to the Server Terminal & Discord Feed
 AddEventHandler('chatMessage', function(ply, name, message)
-  CancelEvent()
   if message then
-  
-    if string.len(message) > 212 and exports['southland']:AdminLevel(ply) < 1 then
-      message = string.sub(message, 0, 212) .. "..."
-      TriggerClientEvent('chat:addMessage', ply, {templateId = 'sysMsg', args = {
-        "^1Your message was too long and has been trimmed."
-      }})
+    if string.sub(message, 1, 1) == "/" then
+      print("slash command suppressed")
+      CancelEvent()
+      return 0
     end
-  
     PerformHttpRequest(urls[4],
       function(err, text, headers) end, 'POST',
       json.encode({
@@ -64,9 +60,6 @@ AddEventHandler('chatMessage', function(ply, name, message)
         content  = "**"..name.."**: "..message
       }),
       { ['Content-Type'] = 'application/json' }
-    )
-    ConsolePrint(
-      '(CHAT) ^6'..tostring(name)..' ('..tostring(src)..'): ^7"'..tostring(message)..'"'
     )
   end
 end)

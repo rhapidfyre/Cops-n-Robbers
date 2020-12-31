@@ -97,6 +97,9 @@ local zoneByName = {
 function ReportPosition(doReporting)
 
   reportLocation = doReporting
+  if reportLocation then print("Reporting position to the server.")
+  else print("No longer reporting position to the server.")
+  end
   CNR.loaded     = doReporting -- If reporting location, player is valid/loaded
 
   -- Sends update to MySQL every 12 seconds

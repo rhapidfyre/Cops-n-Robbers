@@ -6,6 +6,9 @@ author 'RhapidFyre'
 description '5M Cops & Robbers'
 version '0.0.1'
 
+loadscreen_manual_shutdown 'yes'
+resource_type 'gametype' { name = 'Cops and Robbers' }
+
 dependencies {'spawnmanager', 'ghmattimysql'}
 
 ui_page "nui/ui.html"

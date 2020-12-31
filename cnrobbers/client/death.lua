@@ -11,7 +11,7 @@ local hasInsurance  = false
 local passiveMode   = false
 local notified      = false
 local doingRevive   = false
-
+local fadeTime      = 4200
 
 local function deathNotify(Notification)
 	SetNotificationTextEntry('STRING')
@@ -96,6 +96,10 @@ end)
 -- Sends killer information to server and triggers death events
 local function DeathNotification()
   if not notified then
+
+    TriggerEvent('cnr:player_died')
+    TriggerServerEvent('cnr:player_death')
+
     notified = true
     local cause  = GetPedCauseOfDeath(PlayerPedId())
     local killer = GetPedSourceOfDeath(PlayerPedId())
@@ -147,9 +151,6 @@ local function DeathNotification()
         TriggerServerEvent('cnr:death_check', nil)
       end
     end
-    
-    TriggerEvent('cnr:player_died')
-    TriggerServerEvent('cnr:player_death')
 
   end
 end
@@ -157,131 +158,112 @@ end
 
 -- Runs the traditional "WASTED" screen
 local function DeathFX()
-  StartScreenEffect("DeathFailOut", 0, 0)
-  if not locksound then
-    PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
-    locksound = true
-  end
-  ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
-  local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
-  if HasScaleformMovieLoaded(scaleform) then
 
-    Citizen.Wait(1)
+  local fadeOut = GetGameTimer() + fadeTime
+
+	StartScreenEffect("DeathFailOut", 0, 0)
+	if not locksound then
+    PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
+	  locksound = true
+	end
+	ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
+
+	local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
+
+	if HasScaleformMovieLoaded(scaleform) then
+		Wait(0)
+
     PushScaleformMovieFunction(scaleform, "SHOW_SHARD_WASTED_MP_MESSAGE")
     BeginTextComponent("STRING")
     AddTextComponentString("~r~wasted")
     EndTextComponent()
     PopScaleformMovieFunctionVoid()
-    Citizen.Wait(500)
-    PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
 
-    -- Keep screen active until the player has respawned
-    while IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) do
+	  Wait(500)
+
+    PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
+    while IsEntityDead(PlayerPedId()) and fadeOut > GetGameTimer() do
       DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
-      HideHudAndRadarThisFrame(true)
-      Citizen.Wait(0)
+      Wait(0)
     end
 
-    StopScreenEffect("DeathFailOut")
-    locksound = false
-
   end
+
+  StopScreenEffect("DeathFailOut")
+  locksound = false
+
 end
 
 
 function CheckForDeath()
   if not CNR.dead then
     if IsPlayerDead(PlayerId()) or IsPedDeadOrDying(PlayerPedId()) then
-      CNR.dead = true
-      Citizen.CreateThread(DeathFX)
-      Citizen.CreateThread(DeathNotification)
+      CNR.dead = GetGameTimer() + 6200
+      CreateThread(DeathFX)
+      CreateThread(DeathNotification)
+    end
+  else
+    if CNR.dead < GetGameTimer() then
+      -- Do not thread
+      RevivePlayer()
     end
   end
 end
 
 
---function RevivePlayer()
-AddEventHandler('cnr:player_respawn', function(hNumber)
+function RevivePlayer()
 
-  if source ~= "" then
+  print("DEBUG - Fading Screen.")
+  DoScreenFadeOut(1200)
+  Wait(1300)
+  print("DEBUG - Screen Faded.")
+
+  local ped = PlayerPedId()
+  local hNumber = 1
   
-    DoScreenFadeOut(1200)
-    while not IsScreenFadedOut() do Wait(100) end
-
-    if not hNumber then
-      if Imprisoned() then hNumber = 6
-      else hNumber = 1
-      end
+  local plyPos = GetEntityCoords(ped)
+  local cDist = #(plyPos - hospitals[1].coords)
+  for i = 2, #hospitals do 
+    local dist = #(plyPos - hospitals[i].coords)
+    if dist < cDist then
+      cDist = dist; hospitalNumber = i
     end
-    
-    if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-    SetCamParams(cam, hospitals[hNumber].deathcam, 0.0, 0.0, hospitals[hNumber].camHeading, 50.0)
-    RenderScriptCams(true, true, 500, true, true)
-    SetCamActive(cam, true)
-
-    local ped = PlayerPedId()
-    NetworkResurrectLocalPlayer(GetEntityCoords(ped), 0.0, false, false)
-    FreezeEntityPosition(PlayerPedId(), true)
-  
-    -- Activate Passive Mode
-    -- Threaded to ensure player stays in passive mode while the main game driver runs
-    Citizen.CreateThread(function()
-      passiveMode = true
-      print("DEBUG - Passive Mode Activated.")
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "^3PASSIVE MODE: ^2Enabled. You are invincible for "..(Config.PassiveTimer()).." minutes ^1unless^7 you "..
-        "go on police duty, select a weapon, or commit a crime."
-      }})
-  
-      local unarm = GetHashKey("WEAPON_UNARMED")
-      SetCurrentPedWeapon(PlayerPedId(), unarm, true)
-      local passTime = GetGameTimer() + (Config.PassiveTimer() * 60 * 1000)
-  
-      while passiveMode do
-        SetPlayerInvincible(PlayerId(), true)
-        local wLevel = WantedLevel()
-        if wLevel > 0 then
-          passiveMode = false
-          print("Passive mode has been disabled: Committed a Criminal Offense.")
-        elseif DutyStatus() then
-          passiveMode = false
-          print("Passive mode has been disabled: Went on Police Duty.")
-        elseif GetSelectedPedWeapon(PlayerPedId()) ~= unarm then
-          passiveMode = false
-          print("Passive mode has been disabled: Selected a Weapon.")
-        elseif passTime < GetGameTimer() then
-          passiveMode = false
-          print("Passive mode has been disabled: 5 Minutes has Passed.")
-        end
-        Citizen.Wait(0)
-      end
-      print("DEBUG - Passive Mode Disabled.")
-      SetPlayerInvincible(PlayerId(), false)
-      TriggerServerEvent('cnr:death_nonpassive')
-      TriggerEvent('chat:addMessage', {templateId = 'sysMsg', args = {
-        "^3PASSIVE MODE: ^1Disabled. You cannow be killed by other players."
-      }})
-    end)
-  
-    notified = false
-    CNR.dead = false
-    Citizen.Wait(1000)
-    DoScreenFadeIn(3000)
-    Citizen.Wait(2000)
-    RenderScriptCams(false, true, 500, false, false)
-    Citizen.Wait(520)
-    FreezeEntityPosition(PlayerPedId(), false)
-    SetCamActive(cam, false)
-    Citizen.Wait(100)
-  
-    -- Fire off respawn events after this script has finished
-    TriggerEvent('cnr:death_respawned', hospitals[nearest].title)
-    TriggerServerEvent('cnr:death_respawned', hospitals[nearest].title)
-  
-  else print("DEBUG - Respawn event received illegitimately!")
   end
   
-end)
+  -- Ensure dead inmates always go back to jail
+  if CNR.isPrisoner then hNumber = 6 end
+
+  print("DEBUG - Spawning @ hospital #"..hNumber.." ("..hospitals[hNumber].title..")")
+  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+  SetCamParams(cam, hospitals[hNumber].deathcam, 0.0, 0.0, hospitals[hNumber].camHeading, 50.0)
+  RenderScriptCams(true, true, 500, true, true)
+  SetCamActive(cam, true)
+
+  local ped = PlayerPedId()
+  NetworkResurrectLocalPlayer(GetEntityCoords(ped), 0.0, false, false)
+  SetEntityCoords(ped, hospitals[hNumber].coords)
+  SetEntityHeading(ped, pedHeading)
+
+  -- Activate Passive Mode
+  -- Threaded to ensure player stays in passive mode while the main game driver runs
+  --CNR.PassiveMode(true)
+
+  notified = false
+  Citizen.Wait(1000)
+  CNR.dead = nil
+  DoScreenFadeIn(3000)
+  Citizen.Wait(5000)
+  RenderScriptCams(false, true, 500, false, false)
+  Citizen.Wait(520)
+  SetCamActive(cam, false)
+  Citizen.Wait(100)
+
+  -- Fire off respawn events after this script has finished
+  print("DEBUG - Respawn Complete. Firing 'cnr:respawned'")
+  TriggerEvent('cnr:respawned', hNumber)
+  TriggerServerEvent('cnr:respawned', hNumber)
+
+end
 
 
 AddEventHandler('cnr:death_notify', function(v, k)

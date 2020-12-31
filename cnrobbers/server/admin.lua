@@ -498,7 +498,6 @@ AddEventHandler('cnr:admin_cmd_teleport', function(toPlayer, fromPlayer, coords)
       TeleportAlert(nil, nil, client, CNR.admins[client])
       ActionLog("Admin #"..admins[client].." ("..GetPlayerName(client)..") teleported to "..tostring(coords))
     end
-  else
   end
 end)
 
@@ -506,7 +505,7 @@ end)
 AddEventHandler('cnr:admin_cmd_teleport', function(teleportee)
   local client = source
   if CNR.admins[client] then
-    TriggerClientEvent('cnr:admin_do_sendback', teleportee, CNR.admins[client])
+    TriggerClientEvent('cnr:admin_do_sendback', teleportee)
   end
 end)
 

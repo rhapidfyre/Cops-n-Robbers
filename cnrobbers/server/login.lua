@@ -153,7 +153,7 @@ AddEventHandler('cnr:create_player', function()
     else
       ConsolePrint(ustring.." has entered the game!")
       CreateSession(ply)
-      TriggerClientEvent('cnr:create_ready', ply)
+      --TriggerClientEvent('cnr:create_ready', ply)
 
     end
 
@@ -172,10 +172,14 @@ end)
 AddEventHandler('cnr:create_save_character', function(pModel)
   local ply = source
   local uid = UniqueId(ply)
+  local sp = CNR.spawnpoints[math.random(#CNR.spawnpoints)]
   CNR.SQL.EXECUTE(
-    "INSERT INTO characters (idUnique, model) VALUES (@uid, @mdl)",
-    {['uid'] = uid, ['mdl'] = pModel},
+    "INSERT INTO characters (idUnique, model, x, y, z) "..
+    "VALUES (@uid, @mdl, @x, @y, @z)",
+    {['uid'] = uid, ['mdl'] = pModel, ['x'] = sp.x, ['y'] = sp.y, ['z'] = sp.z},
     function()
+      SetEntityCoords(GetPlayerPed(ply), sp.x, sp.y, sp.z)
+      SetEntityHeading(GetPlayerPed(ply), math.random(359)+0.1)
       DiscordFeed(16580705, "New Player",
         "**Please welcome our newest player, "..GetPlayerName(ply).."!**", ""
       )

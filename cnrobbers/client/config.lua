@@ -1,48 +1,12 @@
 
-local spawnPoints = {
-  [1] = { -- Los Santos Spawn Areas
-    vector3(435.76, -644.29, 28.74),    -- Bus Depot
-    vector3(169.24, -993.29, 30.10),    -- South Legion Square
-    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
-  },
-  [2] = { -- Senora Desert Spawn Areas  -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),    -- Bus Depot
-    vector3(169.24, -993.29, 30.10),    -- South Legion Square
-    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
-  },
-  [3] = { -- Paleto Bay Spawn Areas     -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),    -- Bus Depot
-    vector3(169.24, -993.29, 30.10),    -- South Legion Square
-    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
-  },
-  [4] = { -- Fort Zancudo Spawn Areas   -- DEBUG - Change later
-    vector3(435.76, -644.29, 28.74),    -- Bus Depot
-    vector3(169.24, -993.29, 30.10),    -- South Legion Square
-    vector3(126.007, -1732.17, 30.11),  -- South Central Subway Station
-    vector3(-1341.36, -1300.10, 4.84),  -- South Vespucci Beach
-  }
-}
-
-
-function GetSpawnpoint(n)
-  if not n then n = 1 end
-  return spawnPoints[math.random(#spawnPoints[n])]
-end
-
+unarmed = GetHashKey("WEAPON_UNARMED")
 
 Citizen.CreateThread(function()
 
-  exports.spawnmanager:setAutoSpawn(false)
-    
   -- Don't allow any scripts to execute until the metatable exists
   while not CNR do Wait(100) end
   CNR.ready = true  -- Gamemode is Ready
-
-  exports.spawnmanager:setAutoSpawn(false)
-  
+      
   TriggerEvent('chat:addTemplate', 'crimeMsg',
     '<font color="#F80"><b>CRIME COMMITTED:</b></font> {0}'
   )

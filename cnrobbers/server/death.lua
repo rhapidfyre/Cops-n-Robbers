@@ -172,22 +172,21 @@ AddEventHandler('cnr:death_noted', function(killer)
 end)
 
 
-AddEventHandler('cnr:player_death', function()
+AddEventHandler('cnr:player_death', function(fadeTime)
 
   local client    = source
   local uid       = UniqueId(client)
   local insurance = 0
+  local pInfo     = GetPlayerName(client).." ("..client..")"
   
-  print("DEBUG - "..GetPlayerName(client).." ("..client..") "..
-    "reports that they have died! ('cnr:player_death')"
-  )
+  print("DEBUG - "..pInfo.." reports that they have died! ('cnr:player_death')")
   
   if Imprisoned(client) then
     print("DEBUG - "..pInfo.." died in prison. No penalty.")
   else
     print("DEBUG - "..pInfo.." died NOT in prison. Checking for insurance.")
     
-    insurance = SRP.SQL.RSYNC(
+    insurance = CNR.SQL.RSYNC(
       "SELECT insurance_life FROM characters WHERE idUnique = @u",
       {['u'] = uid}
     )
@@ -197,32 +196,6 @@ AddEventHandler('cnr:player_death', function()
       print("DEBUG - "..pInfo.." ^2DID ^7have life insurance.")
     else print("DEBUG - "..pInfo.." ^1DID NOT ^7have life insurance.")
     end
-  end
-  
-  -- Wait 6 seconds and then respawn them at the nearest hospital
-  print("DEBUG - Waiting 6 seconds, then respawning. ('cnr:player_death')")
-
-  Citizen.Wait(6000)
-  
-  if Imprisoned(client) then
-    print("DEBUG - Player was respawned in prison. ('cnr:player_death')")
-    
-  else
-    local ped = GetPlayerPed(client)
-    local hospitalNumber = 1
-    if DoesEntityExist(ped) then
-      local plyPos = GetEntityCoords(ped)
-      local cDist = #(plyPos - hospitals[1].coords)
-      for i = 2, #hospitals do 
-        local dist = #(plyPos - hospitals[i].coords)
-        if dist < cDist then cDist = dist; hospitalNumber = i end
-      end
-      SetEntityCoords(ped, hospitals[hospitalNumber].coords)
-      SetEntityHeading(ped, hospitals[hospitalNumber].pedHeading)
-      TriggerClientEvent('cnr:player_respawn', hospitalNumber)
-    else TriggerClientEvent('cnr:player_respawn')
-    end
-    print("DEBUG - Player was respawned. ('cnr:player_death')")
   end
 
 end)
