@@ -53,13 +53,22 @@ server_exports {
   'GetMetaTable',         -- Retrieves the CNR gamemode metatable
   'SetMetaTable',         -- Adds [1] to CNR metatable at index [2] with data [3]
 
+  -- GENERAL GAMEMODE
   'ConsolePrint',         -- Print to the console with "[CNR timestamp]"
   'CurrentZone',          -- Returns the currently active zone
   'UniqueId',             -- See function for more info (sv_cnrobbers.lua)
   'GetFullZoneName',      -- Returns the name as specified in shared/zones.lua
   'GetZoneNumber',
   'GetActiveZone',        -- Returns the currently active zone number (number)
+  'DutyStatus',           -- Is on Police Duty
   
+  -- MONEY MATTERS
+  'SetPlayerWallet',
+  'SetPlayerBalance',
+  'GetPlayerCash',
+  'GetPlayerBank',
+  
+  -- ADMIN SCRIPT
   'AdminLevel',
   'AdminMessage',
 
@@ -87,6 +96,7 @@ server_exports {
   'splitstring',          -- Returns a table of args[1] string split by args[2] char
   'ValidatePlate',        -- Removes all spaces and nonvalid characters from a license plate args[1]
   'FormatHTMLDate',       -- Converts an HTML date (args[1]) string to MM/DD/YYYY
+  
 }
 
 exports {
@@ -118,4 +128,5 @@ exports {
   'splitstring',          -- Returns a table of args[1] string split by args[2] char
   'ValidatePlate',        -- Removes all spaces and nonvalid characters from a license plate args[1]
   'FormatHTMLDate',       -- Converts an HTML date (args[1]) string to MM/DD/YYYY
+  
 }
