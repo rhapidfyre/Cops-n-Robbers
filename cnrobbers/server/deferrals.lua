@@ -6,7 +6,7 @@ AddEventHandler('playerConnecting', function(playerName, setKickReason, deferral
 	deferrals.defer()
 	deferrals.update("Connecting to: 5M Cops n' Robbers")
   
-  local ids = GetPlayerInformation(ply)
+  local ids = GetPlayerInformation(client)
   
   -- Create new player account/ban check prior to them even connecting to the game
   local uid = CNR.SQL.RSYNC(
@@ -36,7 +36,7 @@ AddEventHandler('playerConnecting', function(playerName, setKickReason, deferral
         ConsolePrint(playerName.." was automatically unbanned (tempban expired).")
         Citizen.Wait(2000)
       else
-        deferrals.done("You are banned until "..(os.date("%X %x"), banRelease)..
+        deferrals.done("You are banned until "..(os.date("%X %x", banRelease))..
           " (GMT -8). Reason: "..banInfo[1]['reason']
         )
         ConsolePrint(playerName.." disconnected - Permabanned.")
@@ -56,7 +56,7 @@ AddEventHandler('playerConnecting', function(playerName, setKickReason, deferral
       Citizen.Wait(100)
       ConsolePrint(playerName.." is connecting!")
     end
-    )
+    
   else
     deferrals.done("A FiveM, Steam, or Social Club account"..
       " is required to play on this server."

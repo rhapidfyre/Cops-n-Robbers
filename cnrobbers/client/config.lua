@@ -2,10 +2,6 @@
 unarmed = GetHashKey("WEAPON_UNARMED")
 
 Citizen.CreateThread(function()
-
-  -- Don't allow any scripts to execute until the metatable exists
-  while not CNR do Wait(100) end
-  CNR.ready = true  -- Gamemode is Ready
       
   TriggerEvent('chat:addTemplate', 'crimeMsg',
     '<font color="#F80"><b>CRIME COMMITTED:</b></font> {0}'

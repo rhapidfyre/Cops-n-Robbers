@@ -10,6 +10,21 @@ local lastShot        = 0
 local lastAim         = 0
 local knownDead       = {}
 
+
+local function MyWantedLevel()
+  local client = GetPlayerServerId(PlayerId())
+  if not CNR.wanted[client] then CNR.wanted[client] = 0 end
+  local wl = CNR.wanted[client]
+  local wt = CNR.lang.wanted.title[wl]
+  if not wt then wt = "Wanted" end
+  if wl > 0 then wt = "^3"..wt.."^7" end
+  TriggerServerEvent('chat:addMessage', {templateId='sysMsg', args = {
+    "Wanted Level: "..wl.." ("..wt..")"
+  }})
+end
+RegisterCommand('wantedlevel', MyWantedLevel)
+RegisterCommand('wlevel', MyWantedLevel)
+
 -- Index weapons that player SHOULD NOT be charged with for aiming
 local isSafe = {
   [GetHashKey("WEAPON_UNARMED")] = true,

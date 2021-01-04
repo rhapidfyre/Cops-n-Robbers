@@ -44,9 +44,9 @@ files {
 	"nui/pics/45.png",
 }
 
-client_scripts {"ent_enum.lua", "client/*.lua"}
-server_scripts {"server/*.lua"}
-shared_scripts {"config.lua","shared/*.lua"}
+shared_scripts {"lib/shared/*.lua","lang/shared/*.lua","config.lua","shared/*.lua"}
+client_scripts {"lib/client/*.lua","lang/client/*.lua","ent_enum.lua","client/*.lua"}
+server_scripts {"lib/server/*.lua","lang/server/*.lua","server/*.lua"}
 
 --[[----
 	Exports; We want to use these functions from other resources

@@ -166,10 +166,13 @@ local function DeathFX()
     PlaySoundFrontend(-1, "Bed", "WastedSounds", 1)
 	  locksound = true
 	end
+  print("DEBUG failout running")
 	ShakeGameplayCam("DEATH_FAIL_IN_EFFECT_SHAKE", 1.0)
 
 	local scaleform = RequestScaleformMovie("MP_BIG_MESSAGE_FREEMODE")
-
+  print("DEBUG - Loading scaleform")
+  while not HasScaleformMovieLoaded(scaleform) do Wait(100) end
+  print("DEBUG - Scaleform loaded")
 	if HasScaleformMovieLoaded(scaleform) then
 		Wait(0)
 
@@ -178,19 +181,20 @@ local function DeathFX()
     AddTextComponentString("~r~wasted")
     EndTextComponent()
     PopScaleformMovieFunctionVoid()
-
+    print("DEBUG - scaleform functions")
 	  Wait(500)
 
     PlaySoundFrontend(-1, "TextHit", "WastedSounds", 1)
-    while IsEntityDead(PlayerPedId()) and fadeOut > GetGameTimer() do
+    while IsEntityDead(PlayerPedId()) or IsScreenFadedIn() do
       DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255)
       Wait(0)
     end
-
+    print("DEBUG - Faded out, or player is no longer dead.")
   end
 
   StopScreenEffect("DeathFailOut")
   locksound = false
+  print("DEBUG - DeathFX() Complete")
 
 end
 

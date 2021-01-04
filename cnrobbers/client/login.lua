@@ -8,9 +8,12 @@ RegisterNetEvent('cnr:create_finished')
 local connected = false
 local spawning  = false
 local firstSpawn = true
-
+local creator = {
+  pos = vector3(-1530.88, -900.61, 10.3), h = 180.0
+}
 
 -- Establish server connection
+-- No other script should function until after 'cnr:init' is received.
 CreateThread(function()
   while not NetworkIsPlayerActive(PlayerId()) do Wait(1) end
   NetworkSetVoiceActive(true)
@@ -22,7 +25,7 @@ CreateThread(function()
   end
   --DoScreenFadeOut(0)
   --while not IsScreenFadedOut() do Wait(1) end
-  TriggerServerEvent('cnr:ready')
+  while not CNR.ready do TriggerServerEvent('cnr:init'); Wait(5000) end
 end)
 
 
@@ -113,35 +116,11 @@ AddEventHandler('cnr:create_finished', function()
 end)
 
 
---- EVENT: changelog
--- Called when the player receives the changelog from the server
-AddEventHandler('cnr:changelog', function(logLines)
-  local msgInfo = {}
-  --table.insert(msgInfo, '<ul>')
-  for k,v in pairs(logLines) do
-    if v ~= "" then
-      local cl    = string.find(v, ":")
-      local dt    = string.sub(v, 0, 10)
-      local subj  = string.sub(v, 11, cl)
-      local deets = string.sub(v, cl+2, string.len(v))
-      table.insert(msgInfo,
-        '<li><strong>'..subj..
-        '</strong><br>&nbsp;&nbsp;'..dt..
-        '<br>&nbsp;&nbsp;'..deets..'</li>'
-      )
-    end
-    Wait(1)
-  end
-  --table.insert(msgInfo, '</ul>')
-  SendNUIMessage({show = 'motd_bkgd', motd = table.concat(msgInfo)})
-  SetNuiFocus(true, true)
-end)
-
-
 --- EVENT: create_reload
 -- Called when player has an existing character to reload
 AddEventHandler('cnr:create_reload', function(myChar)
 
+  CNR.ready = true
   ShutdownLoadingScreen()
   StopAudioScene('MP_LEADERBOARD_SCENE')
   
@@ -169,39 +148,50 @@ end)
 -- Called if the player hasn't played here before, and needs a character
 AddEventHandler('cnr:create_character', function()
 
+  CNR.ready = true
   ShutdownLoadingScreen()
   StopAudioScene('MP_LEADERBOARD_SCENE')
-  
-  SendNUIMessage({hide = 'motd_bkgd'})
-  SetNuiFocus(true, true)
+  print("DEBUG - Spawning at Creator.")
 
-  -- Default model spawn
+  local pmdl = pedModels[math.random(#pedModels)]
 
-  local mdl = pedModels[math.random(#pedModels)]
-  
   -- This should be changed later to use a psuedo-ped, not the actual player
 	spawnPlayer({
-		x     = -1702.72,
-		y     = -1085.94,
-		z     = 13.1523,
-    h     = 0.0,
-		model = mdl
+		x     = creator.pos.x,
+		y     = creator.pos.y,
+		z     = creator.pos.z,
+    h     = 180.0,
+		model = pmdl
 	})
-    
+
+  while IsPlayerDead(PlayerId()) do Wait(100) end
+  print("DEBUG - Player Alive")
+  while GetEntityModel(PlayerPedId()) ~= GetHashKey(pmdl) do
+    Wait(10)
+  end
+  print("DEBUG - Player Model Ready")
+  
+  local offset = GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0.9, 1.25, 0.6)
+  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
+  
+  SetCamParams(cam, offset.x, offset.y, offset.z, -10.0, 0.0, 322.0, 50.0)
+  RenderScriptCams(true, true, 500, true, true)
+  SetCamActive(cam, true)
+  if IsScreenFadedOut() then DoScreenFadeIn(1000) end
+  SendNUIMessage({show = 'ped-select'})
+  
   SwitchInPlayer(PlayerPedId())
   while GetPlayerSwitchState() ~= 12 do
     HideHudAndRadarThisFrame()
     Wait(0)
   end
   
-  if not DoesCamExist(cam) then cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true) end
-  SetCamParams(cam, -1702.72, -1082.0, 13.1923, 0.0, 0.0, 180.0, 50.0)
-  RenderScriptCams(true, true, 500, true, true)
-  SetCamActive(cam, true)
-
-  if IsScreenFadedOut() then DoScreenFadeIn(1000) end
-  SendNUIMessage({show = 'ped-select'})
-
+  SendNUIMessage({hide = 'motd_bkgd'})
+  SetNuiFocus(true, true)
+  
+  TriggerServerEvent('cnr:creating')
+  
+  print("DEBUG - Creator Ready")
 end)
 
 

@@ -1,32 +1,12 @@
 
 
 RegisterServerEvent('cnr:create_save_character')
-RegisterServerEvent('cnr:ready')  -- Client has connected
+RegisterServerEvent('cnr:creating')
+RegisterServerEvent('cnr:init')  -- Client has connected
 RegisterServerEvent('cnr:create_session') -- Client is ready to join
 
 --local steams    = {} -- Collection of Steam IDs by Server ID.
 --local fivem     = {} -- Collection of FiveM License #s by Server ID.
-local max_lines = 20 -- Maximum number of entries to save from the changelog.txt
-
-
---- ReadChangelog()
--- Scans the change log and sends it to the player
-function ReadChangelog(ply)
-  local changeLog = io.open("changelog.txt", "r")
-  local logLines  = {}
-  if changeLog then
-    for line in io.lines("changelog.txt") do
-      if line ~= "" and line then
-        n = #logLines + 1
-        if n < (max_lines + 1) then logLines[n] = line end
-      end
-    end
-  else
-    ConsolePrint("changelog.txt not found. You can safely ignore this warning.")
-  end
-  if changelog then changeLog:close() end
-  TriggerClientEvent('cnr:changelog', ply, logLines)
-end
 
 
 function GetPlayerInformation(ply)
@@ -111,7 +91,7 @@ end
 
 --- EVENT 'cnr:ready'
 -- Received from a client when they're spawned and ready to play
-AddEventHandler('cnr:ready', function()
+AddEventHandler('cnr:init', function()
 
   local ply     = source
   local ustring = GetPlayerName(ply).." (ID "..ply..")"
